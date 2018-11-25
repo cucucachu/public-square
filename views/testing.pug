@@ -1,0 +1,8 @@
+extends layout
+
+block content
+	h1= testSuiteName
+	each testResult in testResults
+		h2 #{testResult.name}
+		p Test Passed: #{testResult.result.match}
+		p #{testResult.result.message}
