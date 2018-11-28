@@ -7,67 +7,46 @@ exports.testUserModel = function() {
 	var lastName = testUtilities.randomString(7);
 	var testResults = [];
 
-	testFindOneUser().then(function(testResult) {
-		
+	return new Promise(function(resolve, reject) {
+		testFindOneUser().then(
+			function(testResult) {
+				testResults.push(testResult);
+
+				resolve({
+					testSuiteName: 'User Model Tests',
+					testResults: testResults
+				});
+			},
+			function(err) {
+				reject(err);
+			}
+		);
 	});
-
-	// freddySpaghetti = userModel.findOneUserByName('Feddy', null, 'Spaghetti');
-
-	// testResult = userModel.compareUsers(freddySpaghetti, dummyFreddySpaghetti);
-
-	// testResults.push({
-	// 	name: 'Find One User by Name Test 2',
-	// 	result: testResult
-	// });
-
-	// var dummyUser = {
-	// 	firstName: firstName, 
-	// 	middleName: middleName, 
-	// 	lastName: lastName
-	// };
-
-	// userModel.createUser(firstName, middleName, lastName);
-
-	// var realUser = userModel.findOneUserByName(firstName, middleName, lastName);
-
-	// testResult = userModel.compareUsers(realUser, dummyUser);
-
-	// testResults.push({
-	// 	name: "Create User Test",
-	// 	result: testResult
-	// });
-	console.log('returning');
-
-	return {
-		testSuiteName: 'User Model Tests',
-		testResults: testResults
-	};
 }
 
 var testFindOneUser = function() {
-	return new Promise(function(resulve, reject) {	
+	return new Promise(function(resolve, reject) {	
+		var testResult = {};
+
 		var dummyFreddySpaghetti = {
 			firstName: 'Freddy',
 			middleName: 'Many',
 			lastName: 'Spaghetti'
 		};
 
-		userModel.findOneUserByName('Freddy', 'Many', 'Spaghetti').then(function(freddySpaghetti){
-			console.log(freddySpaghetti);
-			testResult = userModel.compareUsers(freddySpaghetti, dummyFreddySpaghetti);
-
-			testResults.push({
-				name: 'Find One User by Name Test 1',
-				result: testResult
-			});
-			console.log('pushing to array');
-
-			resolve(testResult)
-		}, function({
-				name: 'Find One User by Name Test 1',
-				result: testResult
-			})
-
+		userModel.User.findOne({firstName: 'Freddy', middleName: 'Many', lastName: 'Spaghetti'}, function(err, user) {
+			testResult = userModel.compareUsers(user, dummyFreddySpaghetti);
+			
+			if (err) {
+				console.error(err);
+				reject(err);
+			}
+			else {
+				resolve({
+					name: 'Find One User Test',
+					result: testResult
+				});
+			}
 		});
 
 	});

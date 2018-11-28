@@ -115,9 +115,7 @@ var findOneUserByName = function(firstName, middleName, lastName) {
 
 	return new Promise(function(resolve, reject) {
 		if (firstName != null && middleName != null && lastName != null) {
-			User.findOne({firstName: firstName, middleName: middleName, lastName: lastName}, function(err, user) {
-				resolve(user);
-			});
+			
 		}
 		else if (firstName != null && lastName != null)
 			User.findOne({firstName: firstName, lastName: lastName}, function(err, user) {
@@ -178,6 +176,7 @@ var compareUsers = function(user1, user2) {
 
 
 //Module Exports
+module.exports.User = User;
 module.exports.createUser = createUser;
 module.exports.setUserAccount = setUserAccount;
 module.exports.setUserRoles = setUserRoles;

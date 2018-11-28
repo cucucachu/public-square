@@ -4,9 +4,16 @@ var userModelTests = require('../tests/UserModelTests');
 
 /* GET home page. */
 router.get('/userModelTest/', function(req, res, next) {
-	var testResults = userModelTests.testUserModel();
+	var testResults = {};
+	userModelTests.testUserModel().then(
+		function(testResults) {
+			res.render('testing', testResults);
+		},
+		function(err) {
+			console.error(err);
+		}
+	);
 
-	res.render('testing', testResults);
 });
 
 module.exports = router;
