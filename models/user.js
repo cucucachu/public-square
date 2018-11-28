@@ -18,28 +18,28 @@ var User = mongoose.model('User', userSchema);
 
 // Save
 var saveUser = function(user, errorMessage, successMessasge){
-	user.save(function(err, newUser){
-		if (err) {
-			console.log(errorMessage);
-			return console.error(err);
-		}
-		else
-			console.log(successMessasge);
+	return new Promise(function(resolve, reject) {
+		user.save(function(err, newUser){
+			if (err) {
+				if (errorMessage != null)
+					console.log(errorMessage);
+				console.error(err);
+				reject(err);
+			}
+			else {
+				if (successMessasge != null)
+					console.log(successMessasge);
+				resolve(user);
+			}
+		});
 	});
 }
 
 // Create Methods 
-var createUser = function(firstName, middleName, lastName) {
-	var newUser = new User({
+var createUser = function() {
+	return new User({
 		_id: new mongoose.Types.ObjectId(),
-		firstName: firstName,
-		middleName: middleName,
-		lastName: lastName
 	}); 
-	var errorMessage = 'Error in createUser with name ' + newUser.firstName + ' ' + newUser.middleName + ' ' + newUser.lastName + '.';
-	var successMessasge = 'New User ' + newUser.firstName + " " + newUser.middleName + " " + newUser.lastName + ' saved.';
-
-	saveUser(newUser, errorMessage, successMessasge);
 }
 
 // Update Attribute Methods
@@ -178,9 +178,5 @@ var compareUsers = function(user1, user2) {
 //Module Exports
 module.exports.User = User;
 module.exports.createUser = createUser;
-module.exports.setUserAccount = setUserAccount;
-module.exports.setUserRoles = setUserRoles;
-module.exports.addUserRole = addUserRole;
-module.exports.removeUserRole = removeUserRole;
-module.exports.findOneUserByName = findOneUserByName;
+module.exports.saveUser = saveUser;
 module.exports.compareUsers = compareUsers;
