@@ -3,6 +3,8 @@ var mongoose = require('mongoose');
 var database = require('./database').database;
 var Schema = mongoose.Schema;
 
+var UserAccountModel = require('./userAccount');
+
 
 // Schema and Model Setup
 var userSchema = new Schema({
@@ -10,11 +12,20 @@ var userSchema = new Schema({
 	firstName: String,
 	middleName: String,
 	lastName: String,
-	//userAccount: {type: Schema.Types.ObjectId, ref: 'UserAccount'},
+	userAccount: {type: Schema.Types.ObjectId, ref: 'UserAccount'}
 	//userRoles: [{type: Schema.Types.ObjectId, ref: 'UserRoles'}]
 });
 
 var User = mongoose.model('User', userSchema);
+
+// Methods
+
+// Create Methods 
+var createUser = function() {
+	return new User({
+		_id: new mongoose.Types.ObjectId()
+	}); 
+}
 
 // Save
 var saveUser = function(user, errorMessage, successMessasge){
@@ -35,96 +46,9 @@ var saveUser = function(user, errorMessage, successMessasge){
 	});
 }
 
-// Create Methods 
-var createUser = function() {
-	return new User({
-		_id: new mongoose.Types.ObjectId(),
-	}); 
-}
-
-// Update Attribute Methods
-var setUserFirstName = function(user, firstName) {
-	user.firstName = firstName;
-
-	var errorMessage = 'Error in setUserFirstName: ' + err;
-	var successMessasge = 'User first name set for User ' + user._id + '.';
-
-	saveUser(user, errorMessage, successMessasge);
-}
-
-var setUserMiddleName = function(user, middleName) {
-	user.middleName = middleName;
-
-	var errorMessage = 'Error in setUserMiddleName: ' + err;
-	var successMessasge = 'User middle name set for User ' + user._id + '.';
-
-	saveUser(user, errorMessage, successMessasge);
-}
-
-var setUserLastName = function(user, lastName) {
-	user.lastName = lastName;
-
-	var errorMessage = 'Error in setUserLastName: ' + err;
-	var successMessasge = 'User last name set for User ' + user._id + '.';
-
-	saveUser(user, errorMessage, successMessasge);
-}
-
-
-// Update Relationship Methods
-var setUserAccount = function(user, userAccount) {
-	user.userAccount = userAccount._id;
-
-	var errorMessage = 'Error in setUserAccount: ' + err;
-	var successMessasge = 'User Account set for User ' + user.firstName + '.';
-
-	saveUser(user, errorMessage, successMessasge);
-}
-
-var setUserRoles = function(user, userRoles) {
-	user.userRoles = userRoles._id;
-
-	var errorMessage = 'Error in setUserRoles: ' + err;
-	var successMessasge = 'User Roles set for User ' + user.firstName + '.';
-
-	saveUser(user, errorMessage, successMessasge);
-}
-
-var addUserRole = function(user, userRole) {
-	user.userRoles.push(userRole._id);
-
-	var errorMessage = 'Error in addUserRole: ' + err;
-	var successMessasge = 'User Role ' + userRole + ' added for User ' + user.firstName + '.';
-
-	saveUser(user, errorMessage, successMessasge);
-}
-
-var removeUserRole = function(user, userRole) {
-	user.userRoles = user.userRoles.filter(function(value, index, arr) {
-		return value != userRole._id;
-	});
-
-	var errorMessage = 'Error in removeUserRole: ' + err;
-	var successMessasge = 'User Role ' + userRole + ' removed for User ' + user.firstName + '.';
-
-	saveUser(user, errorMessage, successMessasge);
-}
-
-// Retrieval Methods
-var findOneUserByName = function(firstName, middleName, lastName) {
-
-	return new Promise(function(resolve, reject) {
-		if (firstName != null && middleName != null && lastName != null) {
-			
-		}
-		else if (firstName != null && lastName != null)
-			User.findOne({firstName: firstName, lastName: lastName}, function(err, user) {
-				resolve(user);
-			});
-	});
-}
-
 // Comparison Methods
+
+// This is a member comparison, not an instance comparison. i.e. to separate instances can be equal if their members are equal.
 var compareUsers = function(user1, user2) {
 	usersMatch = true;
 	message = '';
@@ -176,7 +100,7 @@ var compareUsers = function(user1, user2) {
 
 
 //Module Exports
-module.exports.User = User;
-module.exports.createUser = createUser;
-module.exports.saveUser = saveUser;
-module.exports.compareUsers = compareUsers;
+exports.User = User;
+exports.createUser = createUser;
+exports.saveUser = saveUser;
+exports.compareUsers = compareUsers;

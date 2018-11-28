@@ -1,30 +1,64 @@
-// // MongoDB and Mongoose Setup
-// var mongoose = require('mongoose');
-// var database = require('./database');
-// var Schema = mongoose.Schema;
+// MongoDB and Mongoose Setup
+var mongoose = require('mongoose');
+var database = require('./database');
+var Schema = mongoose.Schema;
 
-// // Schema and Model Setup
-// var userAccountSchema = new Schema({
-// 	_id: Schema.Types.ObjectID,
-// 	email: String,
-// 	password: String,
-// 	user: { type: Schema.Types.ObjectID, ref: 'User'}
-// });
+// Related Models
+var UserModel = require('./user');
 
-// var User = mongoose.model('User', userSchema);
+// Schema and Model Setup
+var userAccountSchema = new Schema({
+	_id: Schema.Types.ObjectId,
+	email: String,
+	passwordHash: String,
+	user: { type: Schema.Types.ObjectId, ref: 'User'}
+});
 
-// //Methods 
-// var saveUser = function(name) {
-// 	var db = database.connect();
-// 	var newUser = new User({ name: name }); 
-// 	newUser.save(function (err, bob) {
-// 		if (err){
-// 			console.log('Error in saving.');
-// 			return console.error(err);
-// 		}
-// 		else 
-// 			console.log('New User ' + name + ' saved');
-// 		database.close(db);
-// 	});
-// }
+var UserAccount = mongoose.model('UserAccount', userAccountSchema);
 
+//Methods 
+
+// Create Method
+var createUserAccount = function() {
+	return new UserAccount({
+		_id: new mongoose.Types.ObjectId()
+	});
+}
+
+var createUserAndUserAccount = function() {
+	var newUser = UserModel.createUser();
+	var newUserAccount = createUserAccount();
+
+	newUser.userAccount = newUserAccount._id;
+	newUserAccount.user = newUser._id;
+
+	return {
+		user: newUser,
+		userAccount: newUserAccount
+	};
+}
+
+// Save
+var saveUserAccount = function(userAccount, errorMessage, successMessasge){
+	return new Promise(function(resolve, reject) {
+		userAccount.save(function(err, newUserAccount){
+			if (err) {
+				if (errorMessage != null)
+					console.log(errorMessage);
+				console.error(err);
+				reject(err);
+			}
+			else {
+				if (successMessasge != null)
+					console.log(successMessasge);
+				resolve(userAccount);
+			}
+		});
+	});
+}
+
+// Exports
+exports.UserAccount = UserAccount;
+exports.createUserAccount = createUserAccount;
+exports.createUserAndUserAccount = createUserAndUserAccount;
+exports.saveUserAccount = saveUserAccount;
