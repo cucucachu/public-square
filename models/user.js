@@ -9,10 +9,23 @@ var UserAccountModel = require('./userAccount');
 // Schema and Model Setup
 var userSchema = new Schema({
 	_id: Schema.Types.ObjectId,
-	firstName: String,
-	middleName: String,
-	lastName: String,
-	userAccount: {type: Schema.Types.ObjectId, ref: 'UserAccount'}
+	firstName: {
+		type: String,
+		required: true
+	},
+	middleName: {
+		type: String,
+		required: true
+	},
+	lastName: {
+		type: String,
+		required: true
+	},
+	userAccount: {
+		type: Schema.Types.ObjectId, 
+		ref: 'UserAccount',
+		required: true
+	}
 	//userRoles: [{type: Schema.Types.ObjectId, ref: 'UserRoles'}]
 });
 
@@ -30,18 +43,26 @@ var createUser = function() {
 // Save
 var saveUser = function(user, errorMessage, successMessasge){
 	return new Promise(function(resolve, reject) {
-		user.save(function(err, newUser){
+
+		user.validate(function(err) {
 			if (err) {
-				if (errorMessage != null)
-					console.log(errorMessage);
-				console.error(err);
 				reject(err);
 			}
-			else {
-				if (successMessasge != null)
-					console.log(successMessasge);
-				resolve(user);
-			}
+
+			user.save(function(err, newUser){
+				if (err) {
+					if (errorMessage != null)
+						console.log(errorMessage);
+					console.error(err);
+					reject(err);
+				}
+				else {
+					if (successMessasge != null)
+						console.log(successMessasge);
+					resolve(user);
+				}
+			});
+
 		});
 	});
 }

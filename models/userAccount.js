@@ -9,9 +9,26 @@ var UserModel = require('./user');
 // Schema and Model Setup
 var userAccountSchema = new Schema({
 	_id: Schema.Types.ObjectId,
-	email: String,
-	passwordHash: String,
-	user: { type: Schema.Types.ObjectId, ref: 'User'}
+	email: {
+		type: String,
+		validate: {
+			validator: function(v) {
+				return /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/.test(v);
+			},
+			message: 'Invalid Email'
+		},
+		required: true,
+
+	},
+	passwordHash: {
+		type: String,
+		required: true
+	},
+	user: {
+		type: Schema.Types.ObjectId,
+		ref: 'User',
+		required: true
+	}
 });
 
 var UserAccount = mongoose.model('UserAccount', userAccountSchema);
