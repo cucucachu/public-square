@@ -43,26 +43,20 @@ var createUser = function() {
 // Save
 var saveUser = function(user, errorMessage, successMessasge){
 	return new Promise(function(resolve, reject) {
-
-		user.validate(function(err) {
+		user.save(function(err, newUser){
 			if (err) {
+				// if (errorMessage != null)
+				// 	console.log(errorMessage);
+
+				// console.error(err);
 				reject(err);
 			}
+			else {
+				// if (successMessasge != null)
+				// 	console.log(successMessasge);
 
-			user.save(function(err, newUser){
-				if (err) {
-					if (errorMessage != null)
-						console.log(errorMessage);
-					console.error(err);
-					reject(err);
-				}
-				else {
-					if (successMessasge != null)
-						console.log(successMessasge);
-					resolve(user);
-				}
-			});
-
+				resolve(user);
+			}
 		});
 	});
 }
@@ -119,9 +113,19 @@ var compareUsers = function(user1, user2) {
 	};
 }
 
+// Clear the collection. Never run in production! Only run in a test environment.
+var clear = function() {
+	return new Promise(function(resolve, reject) {	
+		User.deleteMany({}, function(err) {
+			if (err) reject(err);
+			else resolve();
+		});
+	});
+}
 
 //Module Exports
 exports.User = User;
 exports.createUser = createUser;
 exports.saveUser = saveUser;
 exports.compareUsers = compareUsers;
+exports.clear = clear;

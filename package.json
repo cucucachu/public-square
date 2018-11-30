@@ -18,6 +18,8 @@
     "mongoose": "~5.3.9"
   },
   "devDependencies": {
-    "mocha": "^5.2.0"
+    "expect": "^23.6.0",
+    "mocha": "^5.2.0",
+    "promise.prototype.finally": "^3.1.0"
   }
 }

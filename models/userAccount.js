@@ -74,8 +74,19 @@ var saveUserAccount = function(userAccount, errorMessage, successMessasge){
 	});
 }
 
+// Clear the collection. Never run in production! Only run in a test environment.
+var clear = function() {
+	return new Promise(function(resolve, reject) {	
+		UserAccount.deleteMany({}, function(err) {
+			if (err) reject(err);
+			resolve();
+		});
+	});
+}
+
 // Exports
 exports.UserAccount = UserAccount;
 exports.createUserAccount = createUserAccount;
 exports.createUserAndUserAccount = createUserAndUserAccount;
 exports.saveUserAccount = saveUserAccount;
+exports.clear = clear;
