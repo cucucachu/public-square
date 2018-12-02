@@ -3,8 +3,8 @@ var mongoose = require('mongoose');
 var database = require('./database').database;
 var Schema = mongoose.Schema;
 
-var UserAccountModel = require('./userAccount');
-var UserRoleModel = require('./userRole');
+var UserAccount = require('./userAccount');
+var UserRole = require('./userRole');
 
 
 // Schema and Model Setup
@@ -85,8 +85,8 @@ var addUserRoletoUser = function(user, userRole) {
 
 			saveUser(user).then(
 				function(savedUser) {
-					UserRoleModel.saveUserRole(userRole).then(
-						function(userModel) {
+					UserRole.saveUserRole(userRole).then(
+						function(userRole) {
 							resolve(true);
 						},
 						function(err) {
@@ -168,7 +168,7 @@ var clear = function() {
 }
 
 //Module Exports
-exports.User = User;
+exports.Model = User;
 exports.createUser = createUser;
 exports.saveUser = saveUser;
 exports.addUserRoletoUser = addUserRoletoUser;

@@ -4,7 +4,7 @@ var database = require('./database');
 var Schema = mongoose.Schema;
 
 // Related Models
-var UserModel = require('./user');
+var User = require('./user');
 
 // Schema and Model Setup
 var userAccountSchema = new Schema({
@@ -43,7 +43,7 @@ var createUserAccount = function() {
 }
 
 var createUserAndUserAccount = function() {
-	var newUser = UserModel.createUser();
+	var newUser = User.createUser();
 	var newUserAccount = createUserAccount();
 
 	newUser.userAccount = newUserAccount._id;
@@ -79,7 +79,7 @@ var saveUserAndUserAccount = function(user, userAccount) {
 			function() {
 				userAccount.validate().then(
 					function() {
-						UserModel.saveUser(user).then(
+						User.saveUser(user).then(
 							function() {
 								saveUserAccount(userAccount).then(
 									function() {
@@ -150,7 +150,7 @@ var clear = function() {
 }
 
 // Exports
-exports.UserAccount = UserAccount;
+exports.Model = UserAccount;
 exports.createUserAccount = createUserAccount;
 exports.createUserAndUserAccount = createUserAndUserAccount;
 exports.saveUserAccount = saveUserAccount;

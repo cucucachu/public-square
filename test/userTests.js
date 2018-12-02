@@ -10,18 +10,18 @@ process.on('unhandledRejection', error => {
 });
 
 
-var userModel = require('../models/user');
-var userAccountModel = require('../models/userAccount');
-var userRoleModel = require('../models/userRole')
+var User = require('../models/user');
+var UserAccount = require('../models/userAccount');
+var UserRole = require('../models/userRole')
 
 describe('User Model Tests', function() {
 	
 	before(function(done) {
-		userModel.clear().then(
+		User.clear().then(
 			function() {
-				userAccountModel.clear().then(
+				UserAccount.clear().then(
 					function() {
-						userRoleModel.clear().then(done, done);
+						UserRole.clear().then(done, done);
 					}, 
 					done
 				);
@@ -36,28 +36,28 @@ describe('User Model Tests', function() {
 
 	describe('User Model', function(){	
 		
-		describe('userModel.createUser()', function() {
+		describe('User.createUser()', function() {
 		
 			it('createUser creates a user instance.', function() {
-				var user = userModel.createUser();
+				var user = User.createUser();
 				assert(typeof(user) === "object");
 			});
 
 			it('createUser creates a user instance with _id field populated', function(){
-				var user = userModel.createUser();
+				var user = User.createUser();
 				assert(typeof(user._id) === "object" && /^[a-f\d]{24}$/i.test(user._id));
 			});
 		});
 
-		describe('userModel.saveUser()', function() {
+		describe('User.saveUser()', function() {
 
 			it('Required fields validation', function(done) {
-				var user = userModel.createUser();
+				var user = User.createUser();
 				var testFailed = 0;
 				var err;
 				var expectedErrorMessage = 'User validation failed: userAccount: Path `userAccount` is required., lastName: Path `lastName` is required., middleName: Path `middleName` is required., firstName: Path `firstName` is required.';
 
-				userModel.saveUser(user).then(
+				User.saveUser(user).then(
 					function(result) {
 						testFailed = 1;
 					},
@@ -66,14 +66,14 @@ describe('User Model Tests', function() {
 					}
 				)
 				.finally(function() {
-					if (testFailed) done(new Error('userModel.saveUser() promise resolved when it should have been rejected with Validation Error'));
+					if (testFailed) done(new Error('User.saveUser() promise resolved when it should have been rejected with Validation Error'));
 					else {
 						if (err != null && err.message == expectedErrorMessage) {
 							done();
 						}
 						else{
 							done(new Error(
-								'userModel.saveUser() did not return the correct Validation Error.\n' +
+								'User.saveUser() did not return the correct Validation Error.\n' +
 								'   Expected: ' + expectedErrorMessage + '\n' +
 								'   Actual:   ' + err.message
 							));
@@ -83,8 +83,8 @@ describe('User Model Tests', function() {
 			});
 
 
-			it('userModel.UserAccount must be a valid ID', function(done){
-				var user = userModel.createUser();
+			it('User.ModelAccount must be a valid ID', function(done){
+				var user = User.createUser();
 				var testFailed = 0;
 				var err = null;
 
@@ -96,7 +96,7 @@ describe('User Model Tests', function() {
 
 				user.userAccount = 'asdf1234zyxw9876';
 
-				userModel.saveUser(user).then(
+				User.saveUser(user).then(
 					function(savedUser) {
 						testFailed = 1;
 					},
@@ -105,7 +105,7 @@ describe('User Model Tests', function() {
 					}
 				).finally(function() {
 					if(testFailed) {
-						done(new Error('userModel.saveUser() promise resolved when it should have been rejected with Validation Error'));
+						done(new Error('User.saveUser() promise resolved when it should have been rejected with Validation Error'));
 					}
 					else {
 						if (err != null && err.message == expectedErrorMessage) {
@@ -113,7 +113,7 @@ describe('User Model Tests', function() {
 						}
 						else {
 							done(new Error(
-								'userModel.saveUser() did not return the correct Validation Error.\n' +
+								'User.saveUser() did not return the correct Validation Error.\n' +
 								'   Expected: ' + expectedErrorMessage + '\n' +
 								'   Actual:   ' + err.message
 							));
@@ -123,23 +123,23 @@ describe('User Model Tests', function() {
 			});
 
 			it('Valid call saves user', function(done){
-				var user = userModel.createUser();
+				var user = User.createUser();
 				var err = null;
 
 				user.firstName = 'firstName';
 				user.middleName = 'middleName';
 				user.lastName = 'lastName';
 
-				user.userAccount = userAccountModel.createUserAccount()._id;
+				user.userAccount = UserAccount.createUserAccount()._id;
 
-				userModel.saveUser(user).then(
+				User.saveUser(user).then(
 					function(savedUser) {
-						userModel.User.findOne({_id: savedUser._id}, function(findErr, foundUser) {
+						User.Model.findOne({_id: savedUser._id}, function(findErr, foundUser) {
 							if (findErr) {
 								err = findErr;
 							}
 							else {
-								var compareResult = userModel.compareUsers(user, foundUser);						
+								var compareResult = User.compareUsers(user, foundUser);						
 								if (compareResult.match == false) {
 									err = new Error(compareResult.message);
 								}
@@ -169,29 +169,29 @@ describe('User Model Tests', function() {
 
 	describe('User Account Model', function() {
 
-		describe('userAccountModel.createUserAccount()', function() {
+		describe('UserAccount.createUserAccount()', function() {
 
 			it('createUserAccount creates a userAccount instance', function() {
-				var userAccount = userAccountModel.createUserAccount();
+				var userAccount = UserAccount.createUserAccount();
 				assert(typeof(userAccount) === "object");
 			});
 
 			it('createUserAccount creates a userAccount instance with _id field populated', function(){
-				var userAccount = userAccountModel.createUserAccount();
+				var userAccount = UserAccount.createUserAccount();
 				assert(typeof(userAccount._id) === "object" && /^[a-f\d]{24}$/i.test(userAccount._id));
 			});
 
 		});
 
-		describe('userAccountModel.saveUserAccount()', function() {
+		describe('UserAccount.saveUserAccount()', function() {
 
 			it('Required fields validation', function(done) {
-				var userAccount = userAccountModel.createUserAccount();
+				var userAccount = UserAccount.createUserAccount();
 				var testFailed = 0;
 				var err;
 				var expectedErrorMessage = 'UserAccount validation failed: user: Path `user` is required., passwordHash: Path `passwordHash` is required., email: Path `email` is required.';
 
-				userAccountModel.saveUserAccount(userAccount).then(
+				UserAccount.saveUserAccount(userAccount).then(
 					function(result) {
 						testFailed = 1;
 					},
@@ -200,14 +200,14 @@ describe('User Model Tests', function() {
 					}
 				)
 				.finally(function() {
-					if (testFailed) done(new Error('userAccountModel.saveUserAccount() promise resolved when it should have been rejected with Validation Error'));
+					if (testFailed) done(new Error('UserAccount.saveUserAccount() promise resolved when it should have been rejected with Validation Error'));
 					else {
 						if (err != null && err.message == expectedErrorMessage) {
 							done();
 						}
 						else{
 							done(new Error(
-								'userAccountModel.saveUserAccount() did not return the correct Validation Error.\n' +
+								'UserAccount.saveUserAccount() did not return the correct Validation Error.\n' +
 								'   Expected: ' + expectedErrorMessage + '\n' +
 								'   Actual:   ' + err.message
 							));
@@ -216,8 +216,8 @@ describe('User Model Tests', function() {
 				});
 			});
 
-			it('userAccountModel.User must be a valid ID', function(done){
-				var userAccount = userAccountModel.createUserAccount();
+			it('UserAccount.User must be a valid ID', function(done){
+				var userAccount = UserAccount.createUserAccount();
 				var testFailed = 0;
 				var err = null;
 
@@ -228,7 +228,7 @@ describe('User Model Tests', function() {
 
 				userAccount.user = 'asdf1234zyxw9876';
 
-				userAccountModel.saveUserAccount(userAccount).then(
+				UserAccount.saveUserAccount(userAccount).then(
 					function(savedUserAccount) {
 						testFailed = 1;
 					},
@@ -237,7 +237,7 @@ describe('User Model Tests', function() {
 					}
 				).finally(function() {
 					if(testFailed) {
-						done(new Error('userAccountModel.saveUserAccount() promise resolved when it should have been rejected with Validation Error'));
+						done(new Error('UserAccount.saveUserAccount() promise resolved when it should have been rejected with Validation Error'));
 					}
 					else {
 						if (err != null && err.message == expectedErrorMessage) {
@@ -245,7 +245,7 @@ describe('User Model Tests', function() {
 						}
 						else {
 							done(new Error(
-								'userAccountModel.saveUserAccount() did not return the correct Validation Error.\n' +
+								'UserAccount.saveUserAccount() did not return the correct Validation Error.\n' +
 								'   Expected: ' + expectedErrorMessage + '\n' +
 								'   Actual:   ' + err.message
 							));
@@ -254,8 +254,8 @@ describe('User Model Tests', function() {
 				});
 			});
 
-			it('userAccountModel.email must be a valid email address', function(done){
-				var userAccount = userAccountModel.createUserAccount();
+			it('UserAccount.email must be a valid email address', function(done){
+				var userAccount = UserAccount.createUserAccount();
 				var testFailed = 0;
 				var err = null;
 
@@ -264,9 +264,9 @@ describe('User Model Tests', function() {
 				userAccount.email = 'email.domain.com';
 				userAccount.passwordHash = 'aasdf;lkjwoiethoinwaf;f;vno32890y4r8qhpajr98etj8tntaijffijfa';
 
-				userAccount.user = userModel.createUser()._id;
+				userAccount.user = User.createUser()._id;
 
-				userAccountModel.saveUserAccount(userAccount).then(
+				UserAccount.saveUserAccount(userAccount).then(
 					function(savedUserAccount) {
 						testFailed = 1;
 					},
@@ -275,7 +275,7 @@ describe('User Model Tests', function() {
 					}
 				).finally(function() {
 					if(testFailed) {
-						done(new Error('userAccountModel.saveUserAccount() promise resolved when it should have been rejected with Validation Error'));
+						done(new Error('UserAccount.saveUserAccount() promise resolved when it should have been rejected with Validation Error'));
 					}
 					else {
 						if (err != null && err.message == expectedErrorMessage) {
@@ -283,7 +283,7 @@ describe('User Model Tests', function() {
 						}
 						else {
 							done(new Error(
-								'userAccountModel.saveUserAccount() did not return the correct Validation Error.\n' +
+								'UserAccount.saveUserAccount() did not return the correct Validation Error.\n' +
 								'   Expected: ' + expectedErrorMessage + '\n' +
 								'   Actual:   ' + err.message
 							));
@@ -293,21 +293,21 @@ describe('User Model Tests', function() {
 			});
 
 			it('Valid call saves userAccount', function(done){
-				var userAccount = userAccountModel.createUserAccount();
+				var userAccount = UserAccount.createUserAccount();
 				var err = null;
 
 				userAccount.email = 'email@domain.com';
 				userAccount.passwordHash = 'aasdf;lkjwoiethoinwaf;f;vno32890y4r8qhpajr98etj8tntaijffijfa';
-				userAccount.user = userModel.createUser()._id;
+				userAccount.user = User.createUser()._id;
 
-				userAccountModel.saveUserAccount(userAccount).then(
+				UserAccount.saveUserAccount(userAccount).then(
 					function(savedUserAccount) {
-						userAccountModel.UserAccount.findOne({_id: savedUserAccount._id}, function(findErr, foundUserAccount) {
+						UserAccount.Model.findOne({_id: savedUserAccount._id}, function(findErr, foundUserAccount) {
 							if (findErr) {
 								err = findErr;
 							}
 							else {
-								var compareResult = userAccountModel.compareUserAccounts(userAccount, foundUserAccount);						
+								var compareResult = UserAccount.compareUserAccounts(userAccount, foundUserAccount);						
 								if (compareResult.match == false) {
 									err = new Error(compareResult.message);
 								}
@@ -337,29 +337,29 @@ describe('User Model Tests', function() {
 
 	describe('User Role Model', function() {
 
-		describe('userRoleModel.createUserRole()', function() {
+		describe('UserRole.createUserRole()', function() {
 
 			it('createUserRole creates a userRole instance', function() {
-				var userRole = userRoleModel.createUserRole();
+				var userRole = UserRole.createUserRole();
 				assert(typeof(userRole) === "object");
 			});
 
 			it('createUserRole creates a userRole instance with _id field populated', function(){
-				var userRole = userRoleModel.createUserRole();
+				var userRole = UserRole.createUserRole();
 				assert(typeof(userRole._id) === "object" && /^[a-f\d]{24}$/i.test(userRole._id));
 			});
 
 		});
 
-		describe('userRoleModel.saveUserRole()', function() {
+		describe('UserRole.saveUserRole()', function() {
 
 			it('Required fields validation', function(done) {
-				var userRole = userRoleModel.createUserRole();
+				var userRole = UserRole.createUserRole();
 				var testFailed = 0;
 				var err;
 				var expectedErrorMessage = 'UserRole validation failed: user: Path `user` is required.';
 
-				userRoleModel.saveUserRole(userRole).then(
+				UserRole.saveUserRole(userRole).then(
 					function(result) {
 						testFailed = 1;
 					},
@@ -368,14 +368,14 @@ describe('User Model Tests', function() {
 					}
 				)
 				.finally(function() {
-					if (testFailed) done(new Error('userRoleModel.saveUserRole() promise resolved when it should have been rejected with Validation Error'));
+					if (testFailed) done(new Error('UserRole.saveUserRole() promise resolved when it should have been rejected with Validation Error'));
 					else {
 						if (err != null && err.message == expectedErrorMessage) {
 							done();
 						}
 						else{
 							done(new Error(
-								'userRoleModel.saveUserRole() did not return the correct Validation Error.\n' +
+								'UserRole.saveUserRole() did not return the correct Validation Error.\n' +
 								'   Expected: ' + expectedErrorMessage + '\n' +
 								'   Actual:   ' + err.message
 							));
@@ -384,8 +384,8 @@ describe('User Model Tests', function() {
 				});
 			});
 
-			it('userRoleModel.User() must be a valid ID', function(done){
-				var userRole = userRoleModel.createUserRole();
+			it('UserRole.User() must be a valid ID', function(done){
+				var userRole = UserRole.createUserRole();
 				var testFailed = 0;
 				var err = null;
 
@@ -393,7 +393,7 @@ describe('User Model Tests', function() {
 
 				userRole.user = 'asdf1234zyxw9876';
 
-				userRoleModel.saveUserRole(userRole).then(
+				UserRole.saveUserRole(userRole).then(
 					function(savedUserRole) {
 						testFailed = 1;
 					},
@@ -402,7 +402,7 @@ describe('User Model Tests', function() {
 					}
 				).finally(function() {
 					if(testFailed) {
-						done(new Error('userRoleModel.saveUserRole() promise resolved when it should have been rejected with Validation Error'));
+						done(new Error('UserRole.saveUserRole() promise resolved when it should have been rejected with Validation Error'));
 					}
 					else {
 						if (err != null && err.message == expectedErrorMessage) {
@@ -410,7 +410,7 @@ describe('User Model Tests', function() {
 						}
 						else {
 							done(new Error(
-								'userRoleModel.saveUserRole did not return the correct Validation Error.\n' +
+								'UserRole.saveUserRole did not return the correct Validation Error.\n' +
 								'   Expected: ' + expectedErrorMessage + '\n' +
 								'   Actual:   ' + err.message
 							));
@@ -420,19 +420,19 @@ describe('User Model Tests', function() {
 			});
 
 			it('Valid call saves userRole', function(done){
-				var userRole = userRoleModel.createUserRole();
+				var userRole = UserRole.createUserRole();
 				var err = null;
 
-				userRole.user = userModel.createUser()._id;
+				userRole.user = User.createUser()._id;
 
-				userRoleModel.saveUserRole(userRole).then(
+				UserRole.saveUserRole(userRole).then(
 					function(savedUserRole) {
-						userRoleModel.UserRole.findOne({_id: savedUserRole._id}, function(findErr, foundUserRole) {
+						UserRole.Model.findOne({_id: savedUserRole._id}, function(findErr, foundUserRole) {
 							if (findErr) {
 								err = findErr;
 							}
 							else {
-								var compareResult = userRoleModel.compareUserRoles(userRole, foundUserRole);						
+								var compareResult = UserRole.compareUserRoles(userRole, foundUserRole);						
 								if (compareResult.match == false) {
 									err = new Error(compareResult.message);
 								}
@@ -462,10 +462,10 @@ describe('User Model Tests', function() {
 
 		describe('Creating and Saving Users, UserAccounts, and UserRoles', function() {
 
-			describe('userAccountModel.createUserAndUserAccount()', function() {
+			describe('UserAccount.createUserAndUserAccount()', function() {
 
-				it('userAccountModel.createUserAndUserAccount() creates and returns 2 instances referencing each other.', function() {
-					var userAndUserAccount = userAccountModel.createUserAndUserAccount();
+				it('UserAccount.createUserAndUserAccount() creates and returns 2 instances referencing each other.', function() {
+					var userAndUserAccount = UserAccount.createUserAndUserAccount();
 					var user = userAndUserAccount.user;
 					var userAccount = userAndUserAccount.userAccount;
 
@@ -475,13 +475,13 @@ describe('User Model Tests', function() {
 
 			});
 
-			describe('userAccountModel.saveUserAndUserAccount()', function() {
+			describe('UserAccount.saveUserAndUserAccount()', function() {
 				
-				it ('userAccountModel.saveUserAndUserAccount() saves both instances.', function(done) {
+				it ('UserAccount.saveUserAndUserAccount() saves both instances.', function(done) {
 					var testFailed = 0;
 					var err = null;
 
-					var userAndUserAccount = userAccountModel.createUserAndUserAccount();
+					var userAndUserAccount = UserAccount.createUserAndUserAccount();
 					var user = userAndUserAccount.user;
 					var userAccount = userAndUserAccount.userAccount;
 
@@ -492,15 +492,15 @@ describe('User Model Tests', function() {
 					userAccount.email = 'email@domain.com';
 					userAccount.passwordHash = 'aasdf;lkjwoiethoinwaf;f;vno32890y4r8qhpajr98etj8tntaijffijfa';
 
-					userAccountModel.saveUserAndUserAccount(user, userAccount).then(
+					UserAccount.saveUserAndUserAccount(user, userAccount).then(
 						function() {
-							userModel.User.findById(user._id, function(findErr, foundUser) {
+							User.Model.findById(user._id, function(findErr, foundUser) {
 								if (findErr) {
 									testFailed = 1;
 									err = findErr;
 								}
 								else {
-									var compareResult = userModel.compareUsers(user, foundUser);
+									var compareResult = User.compareUsers(user, foundUser);
 									if (compareResult.match == false) {
 										testFailed = 1;
 										err = new Error (compareResult.message);
@@ -525,13 +525,13 @@ describe('User Model Tests', function() {
 
 			});
 
-			describe('userModel.addUserRoletoUser()', function() {
+			describe('User.addUserRoletoUser()', function() {
 				
 				it('Adds user Role to existing User with no current Roles', function(done) {
 					var testFailed = 0;
 					var err = null;
 
-					var userAndUserAccount = userAccountModel.createUserAndUserAccount();
+					var userAndUserAccount = UserAccount.createUserAndUserAccount();
 					var user = userAndUserAccount.user;
 					var userAccount = userAndUserAccount.userAccount;
 
@@ -542,13 +542,13 @@ describe('User Model Tests', function() {
 					userAccount.email = 'email@domain.com';
 					userAccount.passwordHash = 'aasdf;lkjwoiethoinwaf;f;vno32890y4r8qhpajr98etj8tntaijffijfa';
 
-					userAccountModel.saveUserAndUserAccount(user, userAccount).then(
+					UserAccount.saveUserAndUserAccount(user, userAccount).then(
 						function() {
-							userRole = userRoleModel.createUserRole();
+							userRole = UserRole.createUserRole();
 
-							userModel.addUserRoletoUser(user, userRole).then(
+							User.addUserRoletoUser(user, userRole).then(
 								function() {
-									userModel.User.findById(user._id, function(findError, foundUser) {
+									User.Model.findById(user._id, function(findError, foundUser) {
 										if (findError) {
 											testFailed = 1;
 											err = findError;
@@ -559,7 +559,7 @@ describe('User Model Tests', function() {
 												err = new Error('User saved to database does not have the correct UserRole.');
 											}
 											else {
-												userRoleModel.userRole.findById(userRole._id, function(findError, foundUserRole) {
+												UserRole.userRole.findById(userRole._id, function(findError, foundUserRole) {
 													if (findError) {
 														testFailed = 1;
 														err = findError;
@@ -599,7 +599,7 @@ describe('User Model Tests', function() {
 					var testFailed = 0;
 					var err = null;
 
-					var userAndUserAccount = userAccountModel.createUserAndUserAccount();
+					var userAndUserAccount = UserAccount.createUserAndUserAccount();
 					var user = userAndUserAccount.user;
 					var userAccount = userAndUserAccount.userAccount;
 
@@ -610,15 +610,15 @@ describe('User Model Tests', function() {
 					userAccount.email = 'email@domain.com';
 					userAccount.passwordHash = 'aasdf;lkjwoiethoinwaf;f;vno32890y4r8qhpajr98etj8tntaijffijfa';
 
-					userAccountModel.saveUserAndUserAccount(user, userAccount).then(
+					UserAccount.saveUserAndUserAccount(user, userAccount).then(
 						function() {
-							userRole = userRoleModel.createUserRole();
+							userRole = UserRole.createUserRole();
 
 							user.userRoles.push(userRole);
 
-							userModel.addUserRoletoUser(user, userRole).then(
+							User.addUserRoletoUser(user, userRole).then(
 								function() {
-									userModel.User.findById(user._id, function(findError, foundUser) {
+									User.Model.findById(user._id, function(findError, foundUser) {
 										if (findError) {
 											testFailed = 1;
 											err = findError;
@@ -629,7 +629,7 @@ describe('User Model Tests', function() {
 												err = new Error('User saved to database does not have the correct UserRole.');
 											}
 											else {
-												userRoleModel.userRole.findById(userRole._id, function(findError, foundUserRole) {
+												UserRole.userRole.findById(userRole._id, function(findError, foundUserRole) {
 													if (findError) {
 														testFailed = 1;
 														err = findError;

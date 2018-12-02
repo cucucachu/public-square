@@ -4,7 +4,7 @@ var database = require('./database');
 var Schema = mongoose.Schema;
 
 // Related Models
-var UserModel = require('./user');
+var User = require('./user');
 
 // Schema and Model Setup
 var userRoleSchema = new Schema({
@@ -79,7 +79,7 @@ var clear = function() {
 }
 
 // Exports
-exports.UserRole = UserRole;
+exports.Model = UserRole;
 exports.createUserRole = createUserRole;
 exports.saveUserRole = saveUserRole;
 exports.compareUserRoles = compareUserRoles;
