@@ -4,6 +4,7 @@ var database = require('./database').database;
 var Schema = mongoose.Schema;
 
 var UserAccountModel = require('./userAccount');
+var UserRoleModel = require('./userRole');
 
 
 // Schema and Model Setup
@@ -72,7 +73,7 @@ var saveUser = function(user, errorMessage, successMessasge){
 var addUserRoletoUser = function(user, userRole) {
 	return new Promise(function(resolve, reject) {	
 		
-		if (userRole.user != user._id) {
+		if (userRole.user != null && userRole.user != user._id) {
 			reject(new Error('Illegal attempt to change the user for an existing userRole.'));			
 		}
 		else {
@@ -82,9 +83,9 @@ var addUserRoletoUser = function(user, userRole) {
 				user.userRoles.push(userRole._id);
 			}
 
-			userModel.saveUser(user).then(
+			saveUser(user).then(
 				function(savedUser) {
-					userRoleModel.saveUserRole(userRole).then(
+					UserRoleModel.saveUserRole(userRole).then(
 						function(userModel) {
 							resolve(true);
 						},
@@ -105,7 +106,7 @@ var addUserRoletoUser = function(user, userRole) {
 
 // Comparison Methods
 
-// This is a member comparison, not an instance comparison. i.e. to separate instances can be equal if their members are equal.
+// This is a member comparison, not an instance comparison. i.e. two separate instances can be equal if their members are equal.
 var compareUsers = function(user1, user2) {
 	usersMatch = true;
 	message = '';

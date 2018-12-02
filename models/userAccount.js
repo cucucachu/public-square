@@ -110,7 +110,7 @@ var saveUserAndUserAccount = function(user, userAccount) {
 
 // Comparison Methods
 
-// This is a member comparison, not an instance comparison. i.e. to separate instances can be equal if their members are equal.
+// This is a member comparison, not an instance comparison. i.e. two separate instances can be equal if their members are equal.
 var compareUserAccounts = function(userAccount1, userAccount2) {
 	match = true;
 	message = '';

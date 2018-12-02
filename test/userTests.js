@@ -15,14 +15,19 @@ var userAccountModel = require('../models/userAccount');
 var userRoleModel = require('../models/userRole')
 
 describe('User Model Tests', function() {
+	
 	before(function(done) {
-		userModel.clear().then(function() {
-			userAccountModel.clear().then(done, done)
-		}, done);;
-	});
-
-	before(function(done) {
-		userAccountModel.clear().then(done, done);
+		userModel.clear().then(
+			function() {
+				userAccountModel.clear().then(
+					function() {
+						userRoleModel.clear().then(done, done);
+					}, 
+					done
+				);
+			}, 
+			done
+		);
 	});
 
 
@@ -516,6 +521,148 @@ describe('User Model Tests', function() {
 						}
 					});
 
+				});
+
+			});
+
+			describe('userModel.addUserRoletoUser()', function() {
+				
+				it('Adds user Role to existing User with no current Roles', function(done) {
+					var testFailed = 0;
+					var err = null;
+
+					var userAndUserAccount = userAccountModel.createUserAndUserAccount();
+					var user = userAndUserAccount.user;
+					var userAccount = userAndUserAccount.userAccount;
+
+					user.firstName = 'firstName';
+					user.middleName = 'middleName';
+					user.lastName = 'lastName';
+
+					userAccount.email = 'email@domain.com';
+					userAccount.passwordHash = 'aasdf;lkjwoiethoinwaf;f;vno32890y4r8qhpajr98etj8tntaijffijfa';
+
+					userAccountModel.saveUserAndUserAccount(user, userAccount).then(
+						function() {
+							userRole = userRoleModel.createUserRole();
+
+							userModel.addUserRoletoUser(user, userRole).then(
+								function() {
+									userModel.User.findById(user._id, function(findError, foundUser) {
+										if (findError) {
+											testFailed = 1;
+											err = findError;
+										}
+										else {
+											if (foundUser.userRoles.length != 1 && foundUser.userRoles.indexOf(userRole._id) == -1) {
+												testFailed = 1;
+												err = new Error('User saved to database does not have the correct UserRole.');
+											}
+											else {
+												userRoleModel.userRole.findById(userRole._id, function(findError, foundUserRole) {
+													if (findError) {
+														testFailed = 1;
+														err = findError;
+													}
+													else {
+														if (foundUserRole.user != user._id) {
+															testFailed = 1;
+															err = new Error('UserRole saved to database does not have the correct User.')
+														}
+													}
+												});
+											}
+										}
+									});
+								},
+								function(addError) {
+									err = addError;
+									testFailed = 1;
+								}
+							);
+						},
+						function(saveError) {
+							err = saveErr;
+							testFailed = 1;
+						}
+					).finally(function() {
+						if (testFailed) {
+							done(err);
+						}
+						else {
+							done();
+						}
+					});	
+				});
+
+				it('If User already has UserRole, UserRole is not added again.', function(done) {
+					var testFailed = 0;
+					var err = null;
+
+					var userAndUserAccount = userAccountModel.createUserAndUserAccount();
+					var user = userAndUserAccount.user;
+					var userAccount = userAndUserAccount.userAccount;
+
+					user.firstName = 'firstName';
+					user.middleName = 'middleName';
+					user.lastName = 'lastName';
+
+					userAccount.email = 'email@domain.com';
+					userAccount.passwordHash = 'aasdf;lkjwoiethoinwaf;f;vno32890y4r8qhpajr98etj8tntaijffijfa';
+
+					userAccountModel.saveUserAndUserAccount(user, userAccount).then(
+						function() {
+							userRole = userRoleModel.createUserRole();
+
+							user.userRoles.push(userRole);
+
+							userModel.addUserRoletoUser(user, userRole).then(
+								function() {
+									userModel.User.findById(user._id, function(findError, foundUser) {
+										if (findError) {
+											testFailed = 1;
+											err = findError;
+										}
+										else {
+											if (foundUser.userRoles.length != 1 && foundUser.userRoles.indexOf(userRole._id) == -1) {
+												testFailed = 1;
+												err = new Error('User saved to database does not have the correct UserRole.');
+											}
+											else {
+												userRoleModel.userRole.findById(userRole._id, function(findError, foundUserRole) {
+													if (findError) {
+														testFailed = 1;
+														err = findError;
+													}
+													else {
+														if (foundUserRole.user != user._id) {
+															testFailed = 1;
+															err = new Error('UserRole saved to database does not have the correct User.')
+														}
+													}
+												});
+											}
+										}
+									});
+								},
+								function(addError) {
+									err = addError;
+									testFailed = 1;
+								}
+							);
+						},
+						function(saveError) {
+							err = saveErr;
+							testFailed = 1;
+						}
+					).finally(function() {
+						if (testFailed) {
+							done(err);
+						}
+						else {
+							done();
+						}
+					});	
 				});
 
 			});

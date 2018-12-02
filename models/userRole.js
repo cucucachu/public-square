@@ -49,7 +49,7 @@ var saveUserRole = function(userRole, errorMessage, successMessasge){
 
 // Comparison Methods
 
-// This is a member comparison, not an instance comparison. i.e. to separate instances can be equal if their members are equal.
+// This is a member comparison, not an instance comparison. i.e. two separate instances can be equal if their members are equal.
 var compareUserRoles = function(userRole1, userRole2) {
 	match = true;
 	message = '';
@@ -73,7 +73,7 @@ var clear = function() {
 	return new Promise(function(resolve, reject) {	
 		UserRole.deleteMany({}, function(err) {
 			if (err) reject(err);
-			resolve();
+			else resolve();
 		});
 	});
 }
@@ -83,6 +83,7 @@ exports.UserRole = UserRole;
 exports.createUserRole = createUserRole;
 exports.saveUserRole = saveUserRole;
 exports.compareUserRoles = compareUserRoles;
+exports.clear = clear;
 
 
 
