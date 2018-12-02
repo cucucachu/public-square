@@ -9,6 +9,11 @@ var User = require('./user');
 // Schema and Model Setup
 var userRoleSchema = new Schema({
 	_id: Schema.Types.ObjectId,
+	startDate: {
+		type: Date,
+		required: true
+	},
+	endDate: Date,
 	user: {
 		type: Schema.Types.ObjectId,
 		ref: 'User',
@@ -24,7 +29,8 @@ var UserRole = mongoose.model('UserRole', userRoleSchema);
 // Create Method
 var createUserRole = function() {
 	return new UserRole({
-		_id: new mongoose.Types.ObjectId()
+		_id: new mongoose.Types.ObjectId(),
+		startDate: new Date()
 	});
 }
 
@@ -58,6 +64,16 @@ var compareUserRoles = function(userRole1, userRole2) {
 		match = false;
 		message += 'Users do not match. ' + userRole1.user +' != ' + userRole2.user + '\n';
 	}
+
+	if (userRole1.startDate != userRole2.startDate) {
+		match = false;
+		message += 'Start Dates do not match. ' + userRole1.startDate +' != ' + userRole2.startDate + '\n';
+	}
+
+	if (userRole1.endDate != userRole2.endDate) {
+		match = false;
+		message += 'End Dates do not match. ' + userRole1.endDate +' != ' + userRole2.endDate + '\n';
+	}
 	
 	if (match)
 		message = 'User Roles Match';
@@ -84,8 +100,3 @@ exports.createUserRole = createUserRole;
 exports.saveUserRole = saveUserRole;
 exports.compareUserRoles = compareUserRoles;
 exports.clear = clear;
-
-
-
-// Exports
-exports.UserRole = UserRole;

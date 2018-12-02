@@ -83,7 +83,7 @@ describe('User Model Tests', function() {
 			});
 
 
-			it('User.ModelAccount must be a valid ID', function(done){
+			it('User.UserAccount must be a valid ID', function(done){
 				var user = User.createUser();
 				var testFailed = 0;
 				var err = null;
