@@ -12,9 +12,9 @@ process.on('unhandledRejection', error => {
 
 var User = require('../models/Modules/User/User');
 var UserAccount = require('../models/Modules/User/UserAccount');
-var UserRole = require('../models/Modules/User/UserRole')
+var UserRole = require('../models/Modules/User/UserRole');
 
-describe('User Model Tests', function() {
+describe('User Module Tests', function() {
 	
 	before(function(done) {
 		User.clear().then(
