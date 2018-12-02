@@ -60,18 +60,48 @@ var saveUserAccount = function(userAccount, errorMessage, successMessasge){
 	return new Promise(function(resolve, reject) {
 		userAccount.save(function(err, newUserAccount){
 			if (err) {
-				if (errorMessage != null)
-					console.log(errorMessage);
-				console.error(err);
+				// if (errorMessage != null)
+				// 	console.log(errorMessage);
 				reject(err);
 			}
 			else {
-				if (successMessasge != null)
-					console.log(successMessasge);
+				// if (successMessasge != null)
+				// 	console.log(successMessasge);
 				resolve(userAccount);
 			}
 		});
 	});
+}
+
+// Comparison Methods
+
+// This is a member comparison, not an instance comparison. i.e. to separate instances can be equal if their members are equal.
+var compareUserAccounts = function(userAccount1, userAccount2) {
+	match = true;
+	message = '';
+
+	if (userAccount1.email != userAccount2.email) {
+		match = false;
+		message += 'emails do not match. ' + userAccount1.email +' != ' + userAccount2.email + '\n';
+	}
+	
+	if (userAccount1.passwordHash != userAccount2.passwordHash) {
+		match = false;
+		message += 'passwordHashs do not match. ' + userAccount1.passwordHash +' != ' + userAccount2.passwordHash + '\n';
+	}
+	
+	if (userAccount1.user != userAccount2.user){
+		match = false;
+		message += 'Users do not match. ' + userAccount1.user +' != ' + userAccount2.user + '\n';
+	}
+	
+	if (match)
+		message = 'User Acountss Match';
+
+	return {
+		match: match, 
+		message: message
+	};
 }
 
 // Clear the collection. Never run in production! Only run in a test environment.
@@ -89,4 +119,5 @@ exports.UserAccount = UserAccount;
 exports.createUserAccount = createUserAccount;
 exports.createUserAndUserAccount = createUserAndUserAccount;
 exports.saveUserAccount = saveUserAccount;
+exports.compareUserAccounts = compareUserAccounts
 exports.clear = clear;

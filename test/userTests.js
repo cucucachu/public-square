@@ -15,7 +15,9 @@ var userAccountModel = require('../models/userAccount');
 
 describe('User Model Tests', function() {
 	before(function(done) {
-		userModel.clear().then(done, done);
+		userModel.clear().then(function() {
+			userAccountModel.clear().then(done, done)
+		}, done);;
 	});
 
 	before(function(done) {
@@ -24,20 +26,20 @@ describe('User Model Tests', function() {
 
 	describe('User Model', function(){	
 		
-		describe('user.createUser()', function() {
+		describe('userModel.createUser()', function() {
 		
-			it('createUser creates a user object.', function() {
+			it('createUser creates a user instance.', function() {
 				var user = userModel.createUser();
 				assert(typeof(user) === "object");
 			});
 
-			it('createUser creates a user object with _id field populated', function(){
+			it('createUser creates a user instance with _id field populated', function(){
 				var user = userModel.createUser();
 				assert(typeof(user._id) === "object" && /^[a-f\d]{24}$/i.test(user._id));
 			});
 		});
 
-		describe('user.saveUser()', function() {
+		describe('userModel.saveUser()', function() {
 
 			it('Required fields validation', function(done) {
 				var user = userModel.createUser();
@@ -54,14 +56,14 @@ describe('User Model Tests', function() {
 					}
 				)
 				.finally(function() {
-					if (testFailed) done(new Error('Save User promise resolved when it should have been rejected with Validation Error'));
+					if (testFailed) done(new Error('userModel.saveUser() promise resolved when it should have been rejected with Validation Error'));
 					else {
 						if (err != null && err.message == expectedErrorMessage) {
 							done();
 						}
 						else{
 							done(new Error(
-								'Save User did not return the correct Validation Error.\n' +
+								'userModel.saveUser() did not return the correct Validation Error.\n' +
 								'   Expected: ' + expectedErrorMessage + '\n' +
 								'   Actual:   ' + err.message
 							));
@@ -71,7 +73,7 @@ describe('User Model Tests', function() {
 			});
 
 
-			it('user.UserAccount must be a valid ID', function(done){
+			it('userModel.UserAccount must be a valid ID', function(done){
 				var user = userModel.createUser();
 				var testFailed = 0;
 				var err = null;
@@ -93,7 +95,7 @@ describe('User Model Tests', function() {
 					}
 				).finally(function() {
 					if(testFailed) {
-						done(new Error('Save User promise resolved when it should have been rejected with Validation Error'));
+						done(new Error('userModel.saveUser() promise resolved when it should have been rejected with Validation Error'));
 					}
 					else {
 						if (err != null && err.message == expectedErrorMessage) {
@@ -101,7 +103,7 @@ describe('User Model Tests', function() {
 						}
 						else {
 							done(new Error(
-								'Save User did not return the correct Validation Error.\n' +
+								'userModel.saveUser() did not return the correct Validation Error.\n' +
 								'   Expected: ' + expectedErrorMessage + '\n' +
 								'   Actual:   ' + err.message
 							));
@@ -146,6 +148,133 @@ describe('User Model Tests', function() {
 					}
 				});
 			});
+
+		});
+
+	});
+
+	describe('User Account Model', function() {
+
+		describe('userAccountModel.createUserAccount()', function() {
+
+			it('createUserAccount creates a userAccount instance', function() {
+				var userAccount = userAccountModel.createUserAccount();
+				assert(typeof(userAccount) === "object");
+			});
+
+			it('createUserAccount creates a userAccount instance with _id field populated', function(){
+				var userAccount = userAccountModel.createUserAccount();
+				assert(typeof(userAccount._id) === "object" && /^[a-f\d]{24}$/i.test(userAccount._id));
+			});
+
+		});
+
+		describe('userAccountModel.saveUserAccount()', function() {
+
+			it('Required fields validation', function(done) {
+				var userAccount = userAccountModel.createUserAccount();
+				var testFailed = 0;
+				var err;
+				var expectedErrorMessage = 'UserAccount validation failed: user: Path `user` is required., passwordHash: Path `passwordHash` is required., email: Path `email` is required.';
+
+				userAccountModel.saveUserAccount(userAccount).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						err = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('Save User Account promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (err != null && err.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'userAccountModel.saveUserAccount() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + err.message
+							));
+						}
+					}
+				});
+			});
+
+			it('userAccountModel.User must be a valid ID', function(done){
+				var userAccount = userAccountModel.createUserAccount();
+				var testFailed = 0;
+				var err = null;
+
+				var expectedErrorMessage ='UserAccount validation failed: user: Cast to ObjectID failed for value "asdf1234zyxw9876" at path "user"';
+
+				userAccount.email = 'email@domain.com';
+				userAccount.passwordHash = 'aasdf;lkjwoiethoinwaf;f;vno32890y4r8qhpajr98etj8tntaijffijfa';
+
+				userAccount.user = 'asdf1234zyxw9876';
+
+				userAccountModel.saveUserAccount(userAccount).then(
+					function(savedUserAccount) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						err = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('userAccountModel.saveUserAccount() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (err != null && err.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'userAccountModel.saveUserAccount() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + err.message
+							));
+						}
+					}
+				});
+			});
+
+			it('Valid call saves userAccount', function(done){
+				var userAccount = userAccountModel.createUserAccount();
+				var err = null;
+
+				userAccount.email = 'email@domain.com';
+				userAccount.passwordHash = 'aasdf;lkjwoiethoinwaf;f;vno32890y4r8qhpajr98etj8tntaijffijfa';
+				userAccount.user = userModel.createUser()._id;
+
+				userAccountModel.saveUserAccount(userAccount).then(
+					function(savedUserAccount) {
+						userAccountModel.UserAccount.findOne({_id: savedUserAccount._id}, function(findErr, foundUserAccount) {
+							if (findErr) {
+								err = findErr;
+							}
+							else {
+								var compareResult = userAccountModel.compareUserAccounts(userAccount, foundUserAccount);						
+								if (compareResult.match == false) {
+									err = new Error(compareResult.message);
+								}
+							}
+						});
+					},
+					function(saveErr) {
+						err = saveErr;
+					}
+				).finally(function() {
+					if (err) {
+						done(err);
+					}
+					else {
+						done();
+					}
+				});
+			});
+
 
 		});
 
