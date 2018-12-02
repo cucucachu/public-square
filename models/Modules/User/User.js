@@ -39,7 +39,7 @@ var User = mongoose.model('User', userSchema);
 // Methods
 
 // Create Methods 
-var createUser = function() {
+var create = function() {
 	return new User({
 		_id: new mongoose.Types.ObjectId(),
 		userRoles: []
@@ -47,7 +47,7 @@ var createUser = function() {
 }
 
 // Save
-var saveUser = function(user, errorMessage, successMessasge){
+var save = function(user, errorMessage, successMessasge){
 	return new Promise(function(resolve, reject) {
 		user.save(function(err, newUser){
 			if (err) {
@@ -83,9 +83,9 @@ var addUserRoletoUser = function(user, userRole) {
 				user.userRoles.push(userRole._id);
 			}
 
-			saveUser(user).then(
+			save(user).then(
 				function(savedUser) {
-					UserRole.saveUserRole(userRole).then(
+					UserRole.save(userRole).then(
 						function(userRole) {
 							resolve(true);
 						},
@@ -107,7 +107,7 @@ var addUserRoletoUser = function(user, userRole) {
 // Comparison Methods
 
 // This is a member comparison, not an instance comparison. i.e. two separate instances can be equal if their members are equal.
-var compareUsers = function(user1, user2) {
+var compare = function(user1, user2) {
 	usersMatch = true;
 	message = '';
 
@@ -169,8 +169,8 @@ var clear = function() {
 
 //Module Exports
 exports.Model = User;
-exports.createUser = createUser;
-exports.saveUser = saveUser;
+exports.create = create;
+exports.save = save;
 exports.addUserRoletoUser = addUserRoletoUser;
-exports.compareUsers = compareUsers;
+exports.compare = compare;
 exports.clear = clear;

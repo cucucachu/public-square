@@ -36,15 +36,15 @@ var UserAccount = mongoose.model('UserAccount', userAccountSchema);
 //Methods 
 
 // Create Method
-var createUserAccount = function() {
+var create = function() {
 	return new UserAccount({
 		_id: new mongoose.Types.ObjectId()
 	});
 }
 
 var createUserAndUserAccount = function() {
-	var newUser = User.createUser();
-	var newUserAccount = createUserAccount();
+	var newUser = User.create();
+	var newUserAccount = create();
 
 	newUser.userAccount = newUserAccount._id;
 	newUserAccount.user = newUser._id;
@@ -56,7 +56,7 @@ var createUserAndUserAccount = function() {
 }
 
 // Save
-var saveUserAccount = function(userAccount, errorMessage, successMessasge){
+var save = function(userAccount, errorMessage, successMessasge){
 	return new Promise(function(resolve, reject) {
 		userAccount.save(function(err, newUserAccount){
 			if (err) {
@@ -79,9 +79,9 @@ var saveUserAndUserAccount = function(user, userAccount) {
 			function() {
 				userAccount.validate().then(
 					function() {
-						User.saveUser(user).then(
+						User.save(user).then(
 							function() {
-								saveUserAccount(userAccount).then(
+								save(userAccount).then(
 									function() {
 										resolve(true);
 									},
@@ -111,7 +111,7 @@ var saveUserAndUserAccount = function(user, userAccount) {
 // Comparison Methods
 
 // This is a member comparison, not an instance comparison. i.e. two separate instances can be equal if their members are equal.
-var compareUserAccounts = function(userAccount1, userAccount2) {
+var compare = function(userAccount1, userAccount2) {
 	match = true;
 	message = '';
 
@@ -151,9 +151,9 @@ var clear = function() {
 
 // Exports
 exports.Model = UserAccount;
-exports.createUserAccount = createUserAccount;
+exports.create = create;
 exports.createUserAndUserAccount = createUserAndUserAccount;
-exports.saveUserAccount = saveUserAccount;
+exports.save = save;
 exports.saveUserAndUserAccount = saveUserAndUserAccount;
-exports.compareUserAccounts = compareUserAccounts;
+exports.compare = compare;
 exports.clear = clear;

@@ -27,7 +27,7 @@ var UserRole = mongoose.model('UserRole', userRoleSchema);
 //Methods 
 
 // Create Method
-var createUserRole = function() {
+var create = function() {
 	return new UserRole({
 		_id: new mongoose.Types.ObjectId(),
 		startDate: new Date()
@@ -35,7 +35,7 @@ var createUserRole = function() {
 }
 
 // Save
-var saveUserRole = function(userRole, errorMessage, successMessasge){
+var save = function(userRole, errorMessage, successMessasge){
 	return new Promise(function(resolve, reject) {
 		userRole.save(function(err, savedUserRole){
 			if (err) {
@@ -56,7 +56,7 @@ var saveUserRole = function(userRole, errorMessage, successMessasge){
 // Comparison Methods
 
 // This is a member comparison, not an instance comparison. i.e. two separate instances can be equal if their members are equal.
-var compareUserRoles = function(userRole1, userRole2) {
+var compare = function(userRole1, userRole2) {
 	match = true;
 	message = '';
 	
@@ -96,7 +96,7 @@ var clear = function() {
 
 // Exports
 exports.Model = UserRole;
-exports.createUserRole = createUserRole;
-exports.saveUserRole = saveUserRole;
-exports.compareUserRoles = compareUserRoles;
+exports.create = create;
+exports.save = save;
+exports.compare = compare;
 exports.clear = clear;
