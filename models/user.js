@@ -70,22 +70,22 @@ var compareUsers = function(user1, user2) {
 
 	if (user1.firstName != user2.firstName) {
 		usersMatch = false;
-		message += 'First names do not match. \n';
+		message += 'First names do not match. ' + user1.firstName +' != ' + user2.firstName + '\n';
 	}
 	
 	if (user1.middleName != user2.middleName) {
 		usersMatch = false;
-		message += 'Middle names do not match. \n';
+		message += 'Middle names do not match. ' + user1.middleName +' != ' + user2.middleName + '\n';
 	}
 	
 	if (user1.lastName != user2.lastName) {
 		usersMatch = false;
-		message += 'Last names do not match. \n';
+		message += 'Last names do not match. ' + user1.lastName +' != ' + user2.lastName + '\n';
 	}
 	
 	if (user1.userAccount != user2.userAccount){
 		usersMatch = false;
-		message += 'User Accounts do not match. \n';
+		message += 'User Accounts do not match. ' + user1.userAccount +' != ' + user2.userAccount + '\n';
 	}
 
 	if (user1.userRoles != null && user2.userRoles != null) {
