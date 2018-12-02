@@ -1,6 +1,6 @@
 // MongoDB and Mongoose Setup
 var mongoose = require('mongoose');
-var database = require('./database').database;
+var database = require('../../database').database;
 var Schema = mongoose.Schema;
 
 var UserAccount = require('./userAccount');

@@ -10,9 +10,9 @@ process.on('unhandledRejection', error => {
 });
 
 
-var User = require('../models/user');
-var UserAccount = require('../models/userAccount');
-var UserRole = require('../models/userRole')
+var User = require('../models/modules/user/user');
+var UserAccount = require('../models/modules/user/userAccount');
+var UserRole = require('../models/modules/user/userRole')
 
 describe('User Model Tests', function() {
 	
