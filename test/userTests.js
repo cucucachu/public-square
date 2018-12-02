@@ -12,6 +12,7 @@ process.on('unhandledRejection', error => {
 
 var userModel = require('../models/user');
 var userAccountModel = require('../models/userAccount');
+var userRoleModel = require('../models/userRole')
 
 describe('User Model Tests', function() {
 	before(function(done) {
@@ -23,6 +24,10 @@ describe('User Model Tests', function() {
 	before(function(done) {
 		userAccountModel.clear().then(done, done);
 	});
+
+
+	// User Class - models/user.js
+
 
 	describe('User Model', function(){	
 		
@@ -153,6 +158,10 @@ describe('User Model Tests', function() {
 
 	});
 
+
+	// User Class - models/user.js
+
+
 	describe('User Account Model', function() {
 
 		describe('userAccountModel.createUserAccount()', function() {
@@ -186,7 +195,7 @@ describe('User Model Tests', function() {
 					}
 				)
 				.finally(function() {
-					if (testFailed) done(new Error('Save User Account promise resolved when it should have been rejected with Validation Error'));
+					if (testFailed) done(new Error('userAccountModel.saveUserAccount() promise resolved when it should have been rejected with Validation Error'));
 					else {
 						if (err != null && err.message == expectedErrorMessage) {
 							done();
@@ -213,6 +222,44 @@ describe('User Model Tests', function() {
 				userAccount.passwordHash = 'aasdf;lkjwoiethoinwaf;f;vno32890y4r8qhpajr98etj8tntaijffijfa';
 
 				userAccount.user = 'asdf1234zyxw9876';
+
+				userAccountModel.saveUserAccount(userAccount).then(
+					function(savedUserAccount) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						err = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('userAccountModel.saveUserAccount() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (err != null && err.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'userAccountModel.saveUserAccount() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + err.message
+							));
+						}
+					}
+				});
+			});
+
+			it('userAccountModel.email must be a valid email address', function(done){
+				var userAccount = userAccountModel.createUserAccount();
+				var testFailed = 0;
+				var err = null;
+
+				var expectedErrorMessage ='UserAccount validation failed: email: Invalid Email';
+
+				userAccount.email = 'email.domain.com';
+				userAccount.passwordHash = 'aasdf;lkjwoiethoinwaf;f;vno32890y4r8qhpajr98etj8tntaijffijfa';
+
+				userAccount.user = userModel.createUser()._id;
 
 				userAccountModel.saveUserAccount(userAccount).then(
 					function(savedUserAccount) {
@@ -275,6 +322,130 @@ describe('User Model Tests', function() {
 				});
 			});
 
+		});
+
+	});
+
+
+	// User Role Class - models/userRole.js
+
+
+	describe('User Role Model', function() {
+
+		describe('userRoleModel.createUserRole()', function() {
+
+			it('createUserRole creates a userRole instance', function() {
+				var userRole = userRoleModel.createUserRole();
+				assert(typeof(userRole) === "object");
+			});
+
+			it('createUserRole creates a userRole instance with _id field populated', function(){
+				var userRole = userRoleModel.createUserRole();
+				assert(typeof(userRole._id) === "object" && /^[a-f\d]{24}$/i.test(userRole._id));
+			});
+
+		});
+
+		describe('userRoleModel.saveUserRole', function() {
+
+			it('Required fields validation', function(done) {
+				var userRole = userRoleModel.createUserRole();
+				var testFailed = 0;
+				var err;
+				var expectedErrorMessage = 'UserRole validation failed: user: Path `user` is required.';
+
+				userRoleModel.saveUserRole(userRole).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						err = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('userRoleModel.saveUserRole() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (err != null && err.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'userRoleModel.saveUserRole() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + err.message
+							));
+						}
+					}
+				});
+			});
+
+			it('userRoleModel.User must be a valid ID', function(done){
+				var userRole = userRoleModel.createUserRole();
+				var testFailed = 0;
+				var err = null;
+
+				var expectedErrorMessage ='UserRole validation failed: user: Cast to ObjectID failed for value "asdf1234zyxw9876" at path "user"';
+
+				userRole.user = 'asdf1234zyxw9876';
+
+				userRoleModel.saveUserRole(userRole).then(
+					function(savedUserRole) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						err = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('userRoleModel.saveUserRole() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (err != null && err.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'userRoleModel.saveUserRole did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + err.message
+							));
+						}
+					}
+				});
+			});
+
+			it('Valid call saves userRole', function(done){
+				var userRole = userRoleModel.createUserRole();
+				var err = null;
+
+				userRole.user = userModel.createUser()._id;
+
+				userRoleModel.saveUserRole(userRole).then(
+					function(savedUserRole) {
+						userRoleModel.UserRole.findOne({_id: savedUserRole._id}, function(findErr, foundUserRole) {
+							if (findErr) {
+								err = findErr;
+							}
+							else {
+								var compareResult = userRoleModel.compareUserRoles(userRole, foundUserRole);						
+								if (compareResult.match == false) {
+									err = new Error(compareResult.message);
+								}
+							}
+						});
+					},
+					function(saveErr) {
+						err = saveErr;
+					}
+				).finally(function() {
+					if (err) {
+						done(err);
+					}
+					else {
+						done();
+					}
+				});
+			});
 
 		});
 

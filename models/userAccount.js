@@ -96,7 +96,7 @@ var compareUserAccounts = function(userAccount1, userAccount2) {
 	}
 	
 	if (match)
-		message = 'User Acountss Match';
+		message = 'User Acounts Match';
 
 	return {
 		match: match, 
@@ -119,5 +119,5 @@ exports.UserAccount = UserAccount;
 exports.createUserAccount = createUserAccount;
 exports.createUserAndUserAccount = createUserAndUserAccount;
 exports.saveUserAccount = saveUserAccount;
-exports.compareUserAccounts = compareUserAccounts
+exports.compareUserAccounts = compareUserAccounts;
 exports.clear = clear;
