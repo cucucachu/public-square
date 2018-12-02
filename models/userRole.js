@@ -31,7 +31,7 @@ var createUserRole = function() {
 // Save
 var saveUserRole = function(userRole, errorMessage, successMessasge){
 	return new Promise(function(resolve, reject) {
-		userRole.save(function(err, newUserRole){
+		userRole.save(function(err, savedUserRole){
 			if (err) {
 				// if (errorMessage != null)
 				// 	console.log(errorMessage);
@@ -40,6 +40,7 @@ var saveUserRole = function(userRole, errorMessage, successMessasge){
 			else {
 				// if (successMessasge != null)
 				// 	console.log(successMessasge);
+
 				resolve(userRole);
 			}
 		});

@@ -25,8 +25,12 @@ var userSchema = new Schema({
 		type: Schema.Types.ObjectId, 
 		ref: 'UserAccount',
 		required: true
-	}
-	//userRoles: [{type: Schema.Types.ObjectId, ref: 'UserRoles'}]
+	},
+	userRoles: [{
+		type: Schema.Types.ObjectId,
+		ref: 'UserRoles',
+		required: true
+	}]
 });
 
 var User = mongoose.model('User', userSchema);
@@ -36,7 +40,8 @@ var User = mongoose.model('User', userSchema);
 // Create Methods 
 var createUser = function() {
 	return new User({
-		_id: new mongoose.Types.ObjectId()
+		_id: new mongoose.Types.ObjectId(),
+		userRoles: []
 	}); 
 }
 
@@ -60,6 +65,43 @@ var saveUser = function(user, errorMessage, successMessasge){
 		});
 	});
 }
+
+// Update Relationships Methods
+
+// Adds a User Role to the User, setting both relationships and saving both instances. If the given User Role is already in the user.userRoles array, then this will not add it again. 
+var addUserRoletoUser = function(user, userRole) {
+	return new Promise(function(resolve, reject) {	
+		
+		if (userRole.user != user._id) {
+			reject(new Error('Illegal attempt to change the user for an existing userRole.'));			
+		}
+		else {
+			userRole.user = user._id;
+
+			if (user.userRoles.indexOf(userRole._id) === -1) {
+				user.userRoles.push(userRole._id);
+			}
+
+			userModel.saveUser(user).then(
+				function(savedUser) {
+					userRoleModel.saveUserRole(userRole).then(
+						function(userModel) {
+							resolve(true);
+						},
+						function(err) {
+							reject(err);
+						}
+					);
+				},
+			 	function(err) {
+			 		if (err) reject(err);
+			 	}
+			 );
+		}
+
+	});
+
+};
 
 // Comparison Methods
 
@@ -94,7 +136,7 @@ var compareUsers = function(user1, user2) {
 			message += "User Roles do not match. \n";
 		}
 		else {
-			for (var i = 0; i < user1.userRolse.length; i++) {
+			for (var i = 0; i < user1.userRoles.length; i++) {
 				if (user1.userRoles[i] != user2.userRoles[i]) {
 					usersMatch = false;
 					message += "User Roles do not match. \n";
@@ -113,6 +155,7 @@ var compareUsers = function(user1, user2) {
 	};
 }
 
+
 // Clear the collection. Never run in production! Only run in a test environment.
 var clear = function() {
 	return new Promise(function(resolve, reject) {	
@@ -127,5 +170,6 @@ var clear = function() {
 exports.User = User;
 exports.createUser = createUser;
 exports.saveUser = saveUser;
+exports.addUserRoletoUser = addUserRoletoUser;
 exports.compareUsers = compareUsers;
 exports.clear = clear;

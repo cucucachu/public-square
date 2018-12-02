@@ -346,7 +346,7 @@ describe('User Model Tests', function() {
 
 		});
 
-		describe('userRoleModel.saveUserRole', function() {
+		describe('userRoleModel.saveUserRole()', function() {
 
 			it('Required fields validation', function(done) {
 				var userRole = userRoleModel.createUserRole();
@@ -379,7 +379,7 @@ describe('User Model Tests', function() {
 				});
 			});
 
-			it('userRoleModel.User must be a valid ID', function(done){
+			it('userRoleModel.User() must be a valid ID', function(done){
 				var userRole = userRoleModel.createUserRole();
 				var testFailed = 0;
 				var err = null;
@@ -445,6 +445,79 @@ describe('User Model Tests', function() {
 						done();
 					}
 				});
+			});
+
+		});
+
+	});
+
+
+	// User, UserAccount, and UserRole Graph Interactions
+	describe('User Graph Interactions', function() {
+
+		describe('Creating and Saving Users, UserAccounts, and UserRoles', function() {
+
+			describe('userAccountModel.createUserAndUserAccount()', function() {
+
+				it('userAccountModel.createUserAndUserAccount() creates and returns 2 instances referencing each other.', function() {
+					var userAndUserAccount = userAccountModel.createUserAndUserAccount();
+					var user = userAndUserAccount.user;
+					var userAccount = userAndUserAccount.userAccount;
+
+					assert(user.userAccount == userAccount._id);
+					assert(userAccount.user == user._id);
+				});
+
+			});
+
+			describe('userAccountModel.saveUserAndUserAccount()', function() {
+				
+				it ('userAccountModel.saveUserAndUserAccount() saves both instances.', function(done) {
+					var testFailed = 0;
+					var err = null;
+
+					var userAndUserAccount = userAccountModel.createUserAndUserAccount();
+					var user = userAndUserAccount.user;
+					var userAccount = userAndUserAccount.userAccount;
+
+					user.firstName = 'firstName';
+					user.middleName = 'middleName';
+					user.lastName = 'lastName';
+
+					userAccount.email = 'email@domain.com';
+					userAccount.passwordHash = 'aasdf;lkjwoiethoinwaf;f;vno32890y4r8qhpajr98etj8tntaijffijfa';
+
+					userAccountModel.saveUserAndUserAccount(user, userAccount).then(
+						function() {
+							userModel.User.findById(user._id, function(findErr, foundUser) {
+								if (findErr) {
+									testFailed = 1;
+									err = findErr;
+								}
+								else {
+									var compareResult = userModel.compareUsers(user, foundUser);
+									if (compareResult.match == false) {
+										testFailed = 1;
+										err = new Error (compareResult.message);
+									}
+								}
+							});
+						},
+						function(saveError) {
+							err = saveErr;
+							testFailed = 1;
+						}
+					).finally(function() {
+						if (testFailed) {
+							done(err);
+						}
+						else {
+							done();
+						}
+					});
+
+				});
+
 			});
 
 		});

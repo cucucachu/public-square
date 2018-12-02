@@ -73,6 +73,41 @@ var saveUserAccount = function(userAccount, errorMessage, successMessasge){
 	});
 }
 
+var saveUserAndUserAccount = function(user, userAccount) {
+	return new Promise(function(resolve, reject) {
+		user.validate().then(
+			function() {
+				userAccount.validate().then(
+					function() {
+						UserModel.saveUser(user).then(
+							function() {
+								saveUserAccount(userAccount).then(
+									function() {
+										resolve(true);
+									},
+									function(err) {
+										reject(err);
+									}
+								);
+							},
+							function(err) {
+								reject(err);
+							}
+						);
+					},
+					function(err) {
+						reject(err);
+					}
+				);
+			},
+			function(err) {
+				reject(err);
+			}
+		);
+
+	});
+}
+
 // Comparison Methods
 
 // This is a member comparison, not an instance comparison. i.e. to separate instances can be equal if their members are equal.
@@ -119,5 +154,6 @@ exports.UserAccount = UserAccount;
 exports.createUserAccount = createUserAccount;
 exports.createUserAndUserAccount = createUserAndUserAccount;
 exports.saveUserAccount = saveUserAccount;
+exports.saveUserAndUserAccount = saveUserAndUserAccount;
 exports.compareUserAccounts = compareUserAccounts;
 exports.clear = clear;
