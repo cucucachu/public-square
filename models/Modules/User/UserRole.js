@@ -4,7 +4,7 @@ var database = require('../../database');
 var Schema = mongoose.Schema;
 
 // Related Models
-var User = require('./user');
+var User = require('./User');
 
 // Schema and Model Setup
 var userRoleSchema = new Schema({

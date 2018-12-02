@@ -3,8 +3,8 @@ var mongoose = require('mongoose');
 var database = require('../../database').database;
 var Schema = mongoose.Schema;
 
-var UserAccount = require('./userAccount');
-var UserRole = require('./userRole');
+var UserAccount = require('./UserAccount');
+var UserRole = require('./UserRole');
 
 
 // Schema and Model Setup
