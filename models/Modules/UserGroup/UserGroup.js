@@ -15,6 +15,15 @@ var userGroupSchema = new Schema({
 		required: true
 	},
 	endDate: Date,
+	parentGroup: {
+		type: Schema.Types.ObjectId,
+		ref: 'UserGroup'
+	},
+	childGroups:
+	{
+		type: [Schema.Types.ObjectId],
+		ref: 'UserGroup'
+	},
 	groupManagers:
 	{
 		type: [Schema.Types.ObjectId],
@@ -29,8 +38,7 @@ var userGroupSchema = new Schema({
 				}
 		}
 	},
-	groupMembers: 
-		{
+	groupMembers: {
 		type: [Schema.Types.ObjectId],
 		ref: 'GroupMember'
 	}
