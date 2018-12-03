@@ -167,6 +167,39 @@ describe('UserGroup Module Tests', function() {
 
 		describe('UserGroup.addChildren()', function() {
 
+			// it('UserGroup.addChildren() will only add new children, it will not add a child that is already a child of the parent', function(done){
+			// 	var parentGroup = UserGroup.create();
+			// 	var childGroups = [UserGroup.create(), UserGroup.create()];
+			// 	var err = null;
+			// 	var compareResult;
+
+			// 	parentGroup.groupManagers =  [GroupManager.create()._id];
+			// 	childGroups[0].groupManagers = [GroupManager.create()._id];
+			// 	childGroups[1].groupManagers = [GroupManager.create()._id];
+
+			// 	UserGroup.addChildren(parentGroup, childGroups).then(
+			// 		function() {
+			// 			UserGroup.addChildren(parentGroup, childGroups).then(
+			// 				function() {
+
+			// 				},
+			// 				function() {
+
+			// 				}
+			// 			);
+			// 		},
+			// 		function(saveErr) {
+			// 			testFailed = 1;
+			// 			err = saveErr;
+			// 		}
+			// 	).finally(function() {
+			// 		if (err)
+			// 			done(err);
+			// 		else
+			// 			done();
+			// 	});
+			// });	
+
 			it('UserGroup.addChildren Happy Path', function(done){
 				var parentGroup = UserGroup.create();
 				var childGroups = [UserGroup.create(), UserGroup.create()];

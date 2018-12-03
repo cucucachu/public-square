@@ -88,38 +88,74 @@ var save = function(userGroup, errorMessage, successMessasge){
 var addChildren = function(parent, children) {
 	return new Promise(function(resolve, reject) {
 		var numSaved = 0;
+		var errorMessage = '';
+		var validationError = null;
+
+		// Argument Validations
+		if (parent == null) {
+			errorMessage += 'Invalid arguments for UserGroup.addChildren(parent, children), parrent cannot be null. ';
+		} 
+		if (Array.isArray(children) == false) {
+			errorMessage += 'Invalid arguments for UserGroup.addChildren(parent, children), children must be an Array. ';
+		}
+
+		children.forEach(function(child) {
+			if (child.parentGroup != null && child.parentGroup != parent._id) {
+				errorMessage += 'UserGroup.addChildren: Illegal attempt to change a UserGroups parent. UserGroup: ' + child._id + ' ';
+			}
+		});
 
 		// Set children for parent
-		if (parent.childGroups == null) 
-			parent.childGroups = [];
-
-		for (var i = 0; i < children.length; i++)
-			if (parent.childGroups.indexOf(children[i]) == -1)
-				parent.childGroups.push(children[i]._id);
+		children.forEach(function(child) {
+			if (parent.childGroups.indexOf(child) == -1)
+				parent.childGroups.push(child._id);
+		});
 
 		// Set parent for children
-		for (var i = 0; i < children.length; i++) 
-			children[i].parentGroup = parent._id;
+		children.forEach(function(child) {
+			child.parentGroup = parent._id;
+		});
 
-		save(parent).then(
-			function() {
-				children.forEach(function(child) {
-					save(child).then(
-						function(saved) {
-							numSaved++;
-							if (numSaved == children.length)
-								resolve(true);
-						},
-						function() {
-							reject(err);
-						}
-					);
-				});
-			},
-			function(err) {
-				reject(err);
-			}
-		);
+		validationError = parent.validateSync();
+
+		if (validationError) {
+			errorMessage += validationError.message + ' ';
+		}
+
+		children.forEach(function(child) {
+			validationError = child.validateSync();
+			if (validationError) 
+				errorMessage += validationError.message + ' ';
+		});
+
+		if (errorMessage != '') {
+			reject(new Error(errorMessage));
+		}
+		else{
+
+			save(parent).then(
+				function() {
+					children.forEach(function(child) {
+						save(child).then(
+							function(saved) {
+								numSaved++;
+								if (numSaved == children.length)
+									resolve(true);
+							},
+							function() {
+								reject(err);
+							}
+						);
+					});
+				},
+				function(err) {
+					reject(err);
+				}
+			);
+
+		}
+
+
 	});
 }
 
