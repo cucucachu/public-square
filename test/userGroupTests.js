@@ -1,0 +1,410 @@
+var assert = require('assert');
+var expect = require('expect');
+var promiseFinally = require('promise.prototype.finally');
+
+// Add 'finally()' to 'Promis.prototype'
+promiseFinally.shim();
+
+process.on('unhandledRejection', error => {
+	console.log('unhandledRejection', error.message);
+});
+
+
+var User = require('../models/Modules/User/User');
+var UserAccount = require('../models/Modules/User/UserAccount');
+var UserRole = require('../models/Modules/User/UserRole');
+var UserGroup = require('../models/Modules/UserGroup/UserGroup');
+var GroupMember = require('../models/Modules/UserGroup/GroupMember');
+var GroupManager = require('../models/Modules/UserGroup/GroupManager');
+
+
+describe('UserGroup Module Tests', function() {
+	
+	before(function(done) {
+		User.clear().then(
+			function() {
+				UserAccount.clear().then(
+					function() {
+						UserRole.clear().then(
+							function() {
+								GroupManager.clear().then(
+									function() {
+										GroupMember.clear().then(
+											function() {
+												UserGroup.clear().then(done, done);
+											},
+											done
+										);
+									},
+									done
+								);
+							}, 
+							done
+						);
+					}, 
+					done
+				);
+			}, 
+			done
+		);
+	});
+
+	describe('UserGroup Model', function() {
+
+		describe('UserGroup.create()', function() {
+		
+			it('create() creates a UserGroup instance.', function() {
+				var userGroup = UserGroup.create();
+				assert(typeof(userGroup) === "object");
+			});
+
+			it('create() creates a UserGroup instance with _id field populated', function(){
+				var userGroup = UserGroup.create();
+				assert(typeof(userGroup._id) === "object" && /^[a-f\d]{24}$/i.test(userGroup._id));
+			});
+		});
+
+		describe('UserGroup.save()', function() {
+
+			it('userGroup.save() throws an error if required fields are missing.', function(done) {
+				var userGroup = UserGroup.create();
+				var testFailed = 0;
+				var err;
+				var expectedErrorMessage = 'UserGroup validation failed: groupManagers: Validator failed for path `groupManagers` with value ``';
+
+				UserGroup.save(userGroup).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						err = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('UserGroup.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (err != null && err.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'UserGroup.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + err.message
+							));
+						}
+					}
+				});
+			});
+
+
+			it('UserGroup.groupManagers must contain valid IDs.', function(done){
+				var userGroup = UserGroup.create();
+				var testFailed = 0;
+				var err = null;
+
+				var expectedErrorMessage ='UserGroup validation failed: groupManagers: Cast to Array failed for value "Not an Object ID" at path "groupManagers"';
+
+				userGroup.groupManagers =  'Not an Object ID';
+
+				UserGroup.save(userGroup).then(
+					function(savedUserGroup) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						err = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('UserGroup.save() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (err != null && err.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'UserGroup.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + err.message
+							));
+						}
+					}
+				});
+			});			
+
+			it('Valid Call Saves UserGroup.', function(done){
+				var userGroup = UserGroup.create();
+				var err = null;
+				var compareResult;
+
+				var expectedErrorMessage ='UserGroup validation failed: groupManagers: Cast to Array failed for value "Not an Object ID" at path "groupManagers"';
+
+				userGroup.groupManagers =  [GroupManager.create()._id];
+
+				UserGroup.save(userGroup).then(
+					function(savedUserGroup) {
+						UserGroup.Model.findById(userGroup._id, function(err, foundUserGroup) {
+							compareResult = UserGroup.compare(userGroup, foundUserGroup);
+
+							if (compareResult.match == false)
+								err = new Error(compareResult.message);
+						});
+					},
+					function(saveErr) {
+						testFailed = 1;
+						err = saveErr;
+					}
+				).finally(function() {
+					if (err)
+						done(err);
+					else
+						done();
+				});
+			});
+
+
+
+		});
+
+	});
+
+	describe('GroupMember Model', function() {
+
+		describe('GroupMember.create()', function() {
+		
+			it('create() creates a GroupMember instance.', function() {
+				var groupMember = GroupMember.create();
+				assert(typeof(groupMember) === "object");
+			});
+
+			it('create() creates a GroupMember instance with _id field populated', function(){
+				var groupMember = GroupMember.create();
+				assert(typeof(groupMember._id) === "object" && /^[a-f\d]{24}$/i.test(groupMember._id));
+			});
+		});
+
+		describe('GroupMember.save()', function() {
+
+			it('GroupMember.save() throws an error if required fields are missing.', function(done) {
+				var groupMember = GroupMember.create();
+				var testFailed = 0;
+				var err;
+				var expectedErrorMessage = 'GroupMember validation failed: user: Path `user` is required., userGroup: Path `userGroup` is required.';
+
+				GroupMember.save(groupMember).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						err = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('GroupMember.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (err != null && err.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'GroupMember.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + err.message
+							));
+						}
+					}
+				});
+			});
+
+
+			it('GroupMember.user and GroupMember.userGroup must contain a valid IDs.', function(done){
+				var groupMember = GroupMember.create();
+				var testFailed = 0;
+				var err = null;
+
+				var expectedErrorMessage ='GroupMember validation failed: user: Cast to ObjectID failed for value "Not an Object ID" at path "user", userGroup: Cast to ObjectID failed for value "Not an Object ID" at path "userGroup"';
+
+				groupMember.user =  'Not an Object ID';
+				groupMember.userGroup = 'Not an Object ID';
+
+				GroupMember.save(groupMember).then(
+					function(savedGroupMember) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						err = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('GroupMember.save() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (err != null && err.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'GroupMember.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + err.message
+							));
+						}
+					}
+				});
+			});			
+
+			it('Valid Call Saves GroupMember.', function(done){
+				var groupMember = GroupMember.create();
+				var err = null;
+				var compareResult;
+
+				groupMember.user = User.create()._id;
+				groupMember.userGroup = UserGroup.create()._id;
+
+				GroupMember.save(groupMember).then(
+					function(savedGroupMember) {
+						GroupMember.Model.findById(groupMember._id, function(err, found) {
+							compareResult = GroupMember.compare(groupMember, found);
+
+							if (compareResult.match == false)
+								err = new Error(compareResult.message);
+						});
+					},
+					function(saveErr) {
+						testFailed = 1;
+						err = saveErr;
+					}
+				).finally(function() {
+					if (err)
+						done(err);
+					else
+						done();
+				});
+			});
+
+
+		});
+
+	});
+
+	describe('GroupManager Model', function() {
+
+		describe('GroupManager.create()', function() {
+		
+			it('create() creates a GroupManager instance.', function() {
+				var groupManager = GroupManager.create();
+				assert(typeof(groupManager) === "object");
+			});
+
+			it('create() creates a GroupManager instance with _id field populated', function(){
+				var groupManager = GroupManager.create();
+				assert(typeof(groupManager._id) === "object" && /^[a-f\d]{24}$/i.test(groupManager._id));
+			});
+		});
+
+		describe('GroupManager.save()', function() {
+
+			it('GroupManager.save() throws an error if required fields are missing.', function(done) {
+				var groupManager = GroupManager.create();
+				var testFailed = 0;
+				var err;
+				var expectedErrorMessage = 'GroupManager validation failed: user: Path `user` is required., userGroup: Path `userGroup` is required.';
+
+				GroupManager.save(groupManager).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						err = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('GroupManager.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (err != null && err.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'GroupManager.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + err.message
+							));
+						}
+					}
+				});
+			});
+
+
+			it('GroupManager.user and GroupManager.userGroup must contain a valid IDs.', function(done){
+				var groupManager = GroupManager.create();
+				var testFailed = 0;
+				var err = null;
+
+				var expectedErrorMessage ='GroupManager validation failed: user: Cast to ObjectID failed for value "Not an Object ID" at path "user", userGroup: Cast to ObjectID failed for value "Not an Object ID" at path "userGroup"';
+
+				groupManager.user =  'Not an Object ID';
+				groupManager.userGroup = 'Not an Object ID';
+
+				GroupManager.save(groupManager).then(
+					function(savedGroupManager) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						err = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('GroupManager.save() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (err != null && err.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'GroupManager.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + err.message
+							));
+						}
+					}
+				});
+			});			
+
+			it('Valid Call Saves GroupManager.', function(done){
+				var groupManager = GroupManager.create();
+				var err = null;
+				var compareResult;
+
+				groupManager.user = User.create()._id;
+				groupManager.userGroup = UserGroup.create()._id;
+
+				GroupManager.save(groupManager).then(
+					function(savedGroupManager) {
+						GroupManager.Model.findById(groupManager._id, function(err, found) {
+							compareResult = GroupManager.compare(groupManager, found);
+
+							if (compareResult.match == false)
+								err = new Error(compareResult.message);
+						});
+					},
+					function(saveErr) {
+						testFailed = 1;
+						err = saveErr;
+					}
+				).finally(function() {
+					if (err)
+						done(err);
+					else
+						done();
+				});
+			});
+
+
+		});
+
+	});
+
+});

@@ -38,12 +38,12 @@ describe('User Module Tests', function() {
 		
 		describe('User.create()', function() {
 		
-			it('createUser creates a user instance.', function() {
+			it('create() creates a user instance.', function() {
 				var user = User.create();
 				assert(typeof(user) === "object");
 			});
 
-			it('createUser creates a user instance with _id field populated', function(){
+			it('create() creates a user instance with _id field populated', function(){
 				var user = User.create();
 				assert(typeof(user._id) === "object" && /^[a-f\d]{24}$/i.test(user._id));
 			});
@@ -171,12 +171,12 @@ describe('User Module Tests', function() {
 
 		describe('UserAccount.create()', function() {
 
-			it('createUserAccount creates a userAccount instance', function() {
+			it('create() creates a userAccount instance', function() {
 				var userAccount = UserAccount.create();
 				assert(typeof(userAccount) === "object");
 			});
 
-			it('createUserAccount creates a userAccount instance with _id field populated', function(){
+			it('create() creates a userAccount instance with _id field populated', function(){
 				var userAccount = UserAccount.create();
 				assert(typeof(userAccount._id) === "object" && /^[a-f\d]{24}$/i.test(userAccount._id));
 			});
@@ -339,12 +339,12 @@ describe('User Module Tests', function() {
 
 		describe('UserRole.create()', function() {
 
-			it('createUserRole creates a userRole instance', function() {
+			it('create() creates a userRole instance', function() {
 				var userRole = UserRole.create();
 				assert(typeof(userRole) === "object");
 			});
 
-			it('createUserRole creates a userRole instance with _id field populated', function(){
+			it('create() creates a userRole instance with _id field populated', function(){
 				var userRole = UserRole.create();
 				assert(typeof(userRole._id) === "object" && /^[a-f\d]{24}$/i.test(userRole._id));
 			});
