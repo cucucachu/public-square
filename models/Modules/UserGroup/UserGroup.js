@@ -77,6 +77,52 @@ var save = function(userGroup, errorMessage, successMessasge){
 	});
 }
 
+// Update Methods
+
+/*
+ Adds children to a parent. Will only add children who are not currently children. Will thorw an error if any children have a parent that is not the given parent.
+ @parm parent - A single instance of UserGroup
+ @parm children - An array of UserGroups to add as children of the parent.
+ */
+
+var addChildren = function(parent, children) {
+	return new Promise(function(resolve, reject) {
+		var numSaved = 0;
+
+		// Set children for parent
+		if (parent.childGroups == null) 
+			parent.childGroups = [];
+
+		for (var i = 0; i < children.length; i++)
+			if (parent.childGroups.indexOf(children[i]) == -1)
+				parent.childGroups.push(children[i]._id);
+
+		// Set parent for children
+		for (var i = 0; i < children.length; i++) 
+			children[i].parentGroup = parent._id;
+
+		save(parent).then(
+			function() {
+				children.forEach(function(child) {
+					save(child).then(
+						function(saved) {
+							numSaved++;
+							if (numSaved == children.length)
+								resolve(true);
+						},
+						function() {
+							reject(err);
+						}
+					);
+				});
+			},
+			function(err) {
+				reject(err);
+			}
+		);
+	});
+}
+
 // Comparison Methods
 
 // This is a member comparison, not an instance comparison. i.e. two separate instances can be equal if their members are equal.
@@ -150,5 +196,6 @@ var clear = function() {
 exports.Model = UserGroup;
 exports.create = create;
 exports.save = save;
+exports.addChildren = addChildren;
 exports.compare = compare;
 exports.clear = clear;

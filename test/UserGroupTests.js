@@ -131,21 +131,19 @@ describe('UserGroup Module Tests', function() {
 						}
 					}
 				});
-			});			
+			});					
 
 			it('Valid Call Saves UserGroup.', function(done){
 				var userGroup = UserGroup.create();
 				var err = null;
 				var compareResult;
 
-				var expectedErrorMessage ='UserGroup validation failed: groupManagers: Cast to Array failed for value "Not an Object ID" at path "groupManagers"';
-
 				userGroup.groupManagers =  [GroupManager.create()._id];
 
 				UserGroup.save(userGroup).then(
 					function(savedUserGroup) {
-						UserGroup.Model.findById(userGroup._id, function(err, foundUserGroup) {
-							compareResult = UserGroup.compare(userGroup, foundUserGroup);
+						UserGroup.Model.findById(userGroup._id, function(err, found) {
+							compareResult = UserGroup.compare(userGroup, found);
 
 							if (compareResult.match == false)
 								err = new Error(compareResult.message);
@@ -164,6 +162,41 @@ describe('UserGroup Module Tests', function() {
 			});
 
 
+
+		});
+
+		describe('UserGroup.addChildren()', function() {
+
+			it('UserGroup.addChildren Happy Path', function(done){
+				var parentGroup = UserGroup.create();
+				var childGroups = [UserGroup.create(), UserGroup.create()];
+				var err = null;
+				var compareResult;
+
+				parentGroup.groupManagers =  [GroupManager.create()._id];
+				childGroups[0].groupManagers = [GroupManager.create()._id];
+				childGroups[1].groupManagers = [GroupManager.create()._id];
+
+				UserGroup.addChildren(parentGroup, childGroups).then(
+					function() {
+						UserGroup.Model.findById(parentGroup._id, function(err, found) {
+							found.childGroups.forEach(function(child, index) {
+								if (child != childGroups[index]._id)
+									err = new Error('Children do not match');
+							});
+						});
+					},
+					function(saveErr) {
+						testFailed = 1;
+						err = saveErr;
+					}
+				).finally(function() {
+					if (err)
+						done(err);
+					else
+						done();
+				});
+			});	
 
 		});
 
