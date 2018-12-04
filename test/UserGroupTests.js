@@ -69,7 +69,7 @@ describe('UserGroup Module Tests', function() {
 			it('userGroup.save() throws an error if required fields are missing.', function(done) {
 				var userGroup = UserGroup.create();
 				var testFailed = 0;
-				var err;
+				var error;
 				var expectedErrorMessage = 'UserGroup validation failed: groupManagers: Validator failed for path `groupManagers` with value ``';
 
 				UserGroup.save(userGroup).then(
@@ -77,20 +77,20 @@ describe('UserGroup Module Tests', function() {
 						testFailed = 1;
 					},
 					function(rejectionErr) {
-						err = rejectionErr;
+						error = rejectionErr;
 					}
 				)
 				.finally(function() {
 					if (testFailed) done(new Error('UserGroup.save() promise resolved when it should have been rejected with Validation Error'));
 					else {
-						if (err != null && err.message == expectedErrorMessage) {
+						if (error != null && error.message == expectedErrorMessage) {
 							done();
 						}
 						else{
 							done(new Error(
 								'UserGroup.save() did not return the correct Validation Error.\n' +
 								'   Expected: ' + expectedErrorMessage + '\n' +
-								'   Actual:   ' + err.message
+								'   Actual:   ' + error.message
 							));
 						}
 					}
@@ -101,7 +101,7 @@ describe('UserGroup Module Tests', function() {
 			it('UserGroup.groupManagers must contain valid IDs.', function(done){
 				var userGroup = UserGroup.create();
 				var testFailed = 0;
-				var err = null;
+				var error = null;
 
 				var expectedErrorMessage ='UserGroup validation failed: groupManagers: Cast to Array failed for value "Not an Object ID" at path "groupManagers"';
 
@@ -112,21 +112,21 @@ describe('UserGroup Module Tests', function() {
 						testFailed = 1;
 					},
 					function(saveErr) {
-						err = saveErr;
+						error = saveErr;
 					}
 				).finally(function() {
 					if(testFailed) {
 						done(new Error('UserGroup.save() promise resolved when it should have been rejected with Validation Error'));
 					}
 					else {
-						if (err != null && err.message == expectedErrorMessage) {
+						if (error != null && error.message == expectedErrorMessage) {
 							done();
 						}
 						else {
 							done(new Error(
 								'UserGroup.save() did not return the correct Validation Error.\n' +
 								'   Expected: ' + expectedErrorMessage + '\n' +
-								'   Actual:   ' + err.message
+								'   Actual:   ' + error.message
 							));
 						}
 					}
@@ -135,27 +135,27 @@ describe('UserGroup Module Tests', function() {
 
 			it('Valid Call Saves UserGroup.', function(done){
 				var userGroup = UserGroup.create();
-				var err = null;
+				var error = null;
 				var compareResult;
 
 				userGroup.groupManagers =  [GroupManager.create()._id];
 
 				UserGroup.save(userGroup).then(
 					function(savedUserGroup) {
-						UserGroup.Model.findById(userGroup._id, function(err, found) {
+						UserGroup.Model.findById(userGroup._id, function(findError, found) {
 							compareResult = UserGroup.compare(userGroup, found);
 
 							if (compareResult.match == false)
-								err = new Error(compareResult.message);
+								error = new Error(compareResult.message);
 						});
 					},
 					function(saveErr) {
 						testFailed = 1;
-						err = saveErr;
+						error = saveErr;
 					}
 				).finally(function() {
-					if (err)
-						done(err);
+					if (error)
+						done(error);
 					else
 						done();
 				});
@@ -167,44 +167,101 @@ describe('UserGroup Module Tests', function() {
 
 		describe('UserGroup.addChildren()', function() {
 
-			// it('UserGroup.addChildren() will only add new children, it will not add a child that is already a child of the parent', function(done){
-			// 	var parentGroup = UserGroup.create();
-			// 	var childGroups = [UserGroup.create(), UserGroup.create()];
-			// 	var err = null;
-			// 	var compareResult;
+			it('UserGroup.addChildren() rejects with an error if children parameter is not an Array.', function(done) {
+				var parentGroup = UserGroup.create();
+				var childGroup = UserGroup.create();
+				var error = null;
+				var expectedErrorMessage = 'Invalid arguments for UserGroup.addChildren(parent, children), children must be an Array.';
+				var testFailed = 0;
 
-			// 	parentGroup.groupManagers =  [GroupManager.create()._id];
-			// 	childGroups[0].groupManagers = [GroupManager.create()._id];
-			// 	childGroups[1].groupManagers = [GroupManager.create()._id];
+				parentGroup.groupManagers =  [GroupManager.create()._id];
+				childGroup.groupManagers = [GroupManager.create()._id];
 
-			// 	UserGroup.addChildren(parentGroup, childGroups).then(
-			// 		function() {
-			// 			UserGroup.addChildren(parentGroup, childGroups).then(
-			// 				function() {
+				UserGroup.addChildren(parentGroup, childGroup).then(
+					function() {
+						testFailed = 1;
+						error = new Error('UserGroup.save() promise resolved when it should have rejected with an error.');						
+					},
+					function(saveError) {
+						if (saveError.message !== expectedErrorMessage) {
+							error = new Error('UserGroup.save() promise rejected with unexpected error:\n' + saveError.message);
+							testFailed = 1;
+						}
+					}
+				).finally(function() {
+					if (error)
+						done(error);
+					else
+						done();
+				});
+			});
 
-			// 				},
-			// 				function() {
+			it('UserGroup.addChildren() rejects with an error if parent parameter is null.', function(done) {
+				var parentGroup = null;
+				var childGroup = [UserGroup.create()];
+				var error = null;
+				var expectedErrorMessage = 'Invalid arguments for UserGroup.addChildren(parent, children), parent cannot be null.';
+				var testFailed = 0;
 
-			// 				}
-			// 			);
-			// 		},
-			// 		function(saveErr) {
-			// 			testFailed = 1;
-			// 			err = saveErr;
-			// 		}
-			// 	).finally(function() {
-			// 		if (err)
-			// 			done(err);
-			// 		else
-			// 			done();
-			// 	});
-			// });	
+				childGroup.groupManagers = [GroupManager.create()._id];
 
-			it('UserGroup.addChildren Happy Path', function(done){
+				UserGroup.addChildren(parentGroup, childGroup).then(
+					function() {
+						testFailed = 1;
+						error = new Error('UserGroup.save() promise resolved when it should have rejected with an error.');						
+					},
+					function(saveError) {
+						if (saveError.message !== expectedErrorMessage) {
+							error = new Error('UserGroup.save() promise rejected with unexpected error:\n' + saveError.message);
+							testFailed = 1;
+						}
+					}
+				).finally(function() {
+					if (error)
+						done(error);
+					else
+						done();
+				});
+			});
+
+			it('UserGroup.addChildren() rejects with an error if children already have a different parent.', function(done) {
 				var parentGroup = UserGroup.create();
 				var childGroups = [UserGroup.create(), UserGroup.create()];
-				var err = null;
+				var error = null;
+				var expectedErrorMessage = 'UserGroup.addChildren: Illegal attempt to change a UserGroups parent.';
+				var testFailed = 0;
+
+				parentGroup.groupManagers =  [GroupManager.create()._id];
+				childGroups[0].groupManagers = [GroupManager.create()._id];
+				childGroups[1].groupManagers = [GroupManager.create()._id];
+
+				childGroups[0].parentGroup = UserGroup.create()._id;
+
+				UserGroup.addChildren(parentGroup, childGroups).then(
+					function() {
+						testFailed = 1;
+						error = new Error('UserGroup.save() promise resolved when it should have rejected with an error.');						
+					},
+					function(saveError) {
+						if (saveError.message.includes(expectedErrorMessage) == false) {
+							error = new Error('UserGroup.save() promise rejected with unexpected error:\n' + saveError.message);
+							testFailed = 1;
+						}
+					}
+				).finally(function() {
+					if (error)
+						done(error);
+					else
+						done();
+				});
+			});
+
+			it('UserGroup.addChildren() will only add new children, it will not add a child that is already a child of the parent', function(done){
+				var parentGroup = UserGroup.create();
+				var childGroups = [UserGroup.create(), UserGroup.create()];
+				var error = null;
 				var compareResult;
+				var testFailed = 0;
 
 				parentGroup.groupManagers =  [GroupManager.create()._id];
 				childGroups[0].groupManagers = [GroupManager.create()._id];
@@ -212,20 +269,58 @@ describe('UserGroup Module Tests', function() {
 
 				UserGroup.addChildren(parentGroup, childGroups).then(
 					function() {
-						UserGroup.Model.findById(parentGroup._id, function(err, found) {
+						UserGroup.addChildren(parentGroup, childGroups).then(
+							function() {
+								UserGroup.Model.findById(parentGroup._id, function(findError, found) {
+									if (found.childGroups.length != 2) 
+										error = new Error('Parent UserGroup should have 2 children, but it has ' + found.childGroups.length + '.');
+								});
+							},
+							function(saveError) {
+								testFailed = 1;
+								error = saveError;
+							}
+						);
+					},
+					function(saveError) {
+						testFailed = 1;
+						error = saveError;
+					}
+				).finally(function() {
+					if (error)
+						done(error);
+					else
+						done();
+				});
+			});	
+
+			it('UserGroup.addChildren Happy Path', function(done){
+				var parentGroup = UserGroup.create();
+				var childGroups = [UserGroup.create(), UserGroup.create()];
+				var error = null;
+				var compareResult;
+				var testFailed = 0;
+
+				parentGroup.groupManagers =  [GroupManager.create()._id];
+				childGroups[0].groupManagers = [GroupManager.create()._id];
+				childGroups[1].groupManagers = [GroupManager.create()._id];
+
+				UserGroup.addChildren(parentGroup, childGroups).then(
+					function() {
+						UserGroup.Model.findById(parentGroup._id, function(findErr, found) {
 							found.childGroups.forEach(function(child, index) {
 								if (child != childGroups[index]._id)
-									err = new Error('Children do not match');
+									error = new Error('Children do not match');
 							});
 						});
 					},
 					function(saveErr) {
 						testFailed = 1;
-						err = saveErr;
+						error = saveErr;
 					}
 				).finally(function() {
-					if (err)
-						done(err);
+					if (error)
+						done(error);
 					else
 						done();
 				});
@@ -255,7 +350,7 @@ describe('UserGroup Module Tests', function() {
 			it('GroupMember.save() throws an error if required fields are missing.', function(done) {
 				var groupMember = GroupMember.create();
 				var testFailed = 0;
-				var err;
+				var error;
 				var expectedErrorMessage = 'GroupMember validation failed: user: Path `user` is required., userGroup: Path `userGroup` is required.';
 
 				GroupMember.save(groupMember).then(
@@ -263,20 +358,20 @@ describe('UserGroup Module Tests', function() {
 						testFailed = 1;
 					},
 					function(rejectionErr) {
-						err = rejectionErr;
+						error = rejectionErr;
 					}
 				)
 				.finally(function() {
 					if (testFailed) done(new Error('GroupMember.save() promise resolved when it should have been rejected with Validation Error'));
 					else {
-						if (err != null && err.message == expectedErrorMessage) {
+						if (error != null && error.message == expectedErrorMessage) {
 							done();
 						}
 						else{
 							done(new Error(
 								'GroupMember.save() did not return the correct Validation Error.\n' +
 								'   Expected: ' + expectedErrorMessage + '\n' +
-								'   Actual:   ' + err.message
+								'   Actual:   ' + error.message
 							));
 						}
 					}
@@ -287,7 +382,7 @@ describe('UserGroup Module Tests', function() {
 			it('GroupMember.user and GroupMember.userGroup must contain a valid IDs.', function(done){
 				var groupMember = GroupMember.create();
 				var testFailed = 0;
-				var err = null;
+				var error = null;
 
 				var expectedErrorMessage ='GroupMember validation failed: user: Cast to ObjectID failed for value "Not an Object ID" at path "user", userGroup: Cast to ObjectID failed for value "Not an Object ID" at path "userGroup"';
 
@@ -299,21 +394,21 @@ describe('UserGroup Module Tests', function() {
 						testFailed = 1;
 					},
 					function(saveErr) {
-						err = saveErr;
+						error = saveErr;
 					}
 				).finally(function() {
 					if(testFailed) {
 						done(new Error('GroupMember.save() promise resolved when it should have been rejected with Validation Error'));
 					}
 					else {
-						if (err != null && err.message == expectedErrorMessage) {
+						if (error != null && error.message == expectedErrorMessage) {
 							done();
 						}
 						else {
 							done(new Error(
 								'GroupMember.save() did not return the correct Validation Error.\n' +
 								'   Expected: ' + expectedErrorMessage + '\n' +
-								'   Actual:   ' + err.message
+								'   Actual:   ' + error.message
 							));
 						}
 					}
@@ -322,7 +417,7 @@ describe('UserGroup Module Tests', function() {
 
 			it('Valid Call Saves GroupMember.', function(done){
 				var groupMember = GroupMember.create();
-				var err = null;
+				var error = null;
 				var compareResult;
 
 				groupMember.user = User.create()._id;
@@ -330,20 +425,20 @@ describe('UserGroup Module Tests', function() {
 
 				GroupMember.save(groupMember).then(
 					function(savedGroupMember) {
-						GroupMember.Model.findById(groupMember._id, function(err, found) {
+						GroupMember.Model.findById(groupMember._id, function(findError, found) {
 							compareResult = GroupMember.compare(groupMember, found);
 
 							if (compareResult.match == false)
-								err = new Error(compareResult.message);
+								error = new Error(compareResult.message);
 						});
 					},
 					function(saveErr) {
 						testFailed = 1;
-						err = saveErr;
+						error = saveErr;
 					}
 				).finally(function() {
-					if (err)
-						done(err);
+					if (error)
+						done(error);
 					else
 						done();
 				});
@@ -374,7 +469,7 @@ describe('UserGroup Module Tests', function() {
 			it('GroupManager.save() throws an error if required fields are missing.', function(done) {
 				var groupManager = GroupManager.create();
 				var testFailed = 0;
-				var err;
+				var error;
 				var expectedErrorMessage = 'GroupManager validation failed: user: Path `user` is required., userGroup: Path `userGroup` is required.';
 
 				GroupManager.save(groupManager).then(
@@ -382,20 +477,20 @@ describe('UserGroup Module Tests', function() {
 						testFailed = 1;
 					},
 					function(rejectionErr) {
-						err = rejectionErr;
+						error = rejectionErr;
 					}
 				)
 				.finally(function() {
 					if (testFailed) done(new Error('GroupManager.save() promise resolved when it should have been rejected with Validation Error'));
 					else {
-						if (err != null && err.message == expectedErrorMessage) {
+						if (error != null && error.message == expectedErrorMessage) {
 							done();
 						}
 						else{
 							done(new Error(
 								'GroupManager.save() did not return the correct Validation Error.\n' +
 								'   Expected: ' + expectedErrorMessage + '\n' +
-								'   Actual:   ' + err.message
+								'   Actual:   ' + error.message
 							));
 						}
 					}
@@ -406,7 +501,7 @@ describe('UserGroup Module Tests', function() {
 			it('GroupManager.user and GroupManager.userGroup must contain a valid IDs.', function(done){
 				var groupManager = GroupManager.create();
 				var testFailed = 0;
-				var err = null;
+				var error = null;
 
 				var expectedErrorMessage ='GroupManager validation failed: user: Cast to ObjectID failed for value "Not an Object ID" at path "user", userGroup: Cast to ObjectID failed for value "Not an Object ID" at path "userGroup"';
 
@@ -418,21 +513,21 @@ describe('UserGroup Module Tests', function() {
 						testFailed = 1;
 					},
 					function(saveErr) {
-						err = saveErr;
+						error = saveErr;
 					}
 				).finally(function() {
 					if(testFailed) {
 						done(new Error('GroupManager.save() promise resolved when it should have been rejected with Validation Error'));
 					}
 					else {
-						if (err != null && err.message == expectedErrorMessage) {
+						if (error != null && error.message == expectedErrorMessage) {
 							done();
 						}
 						else {
 							done(new Error(
 								'GroupManager.save() did not return the correct Validation Error.\n' +
 								'   Expected: ' + expectedErrorMessage + '\n' +
-								'   Actual:   ' + err.message
+								'   Actual:   ' + error.message
 							));
 						}
 					}
@@ -441,7 +536,7 @@ describe('UserGroup Module Tests', function() {
 
 			it('Valid Call Saves GroupManager.', function(done){
 				var groupManager = GroupManager.create();
-				var err = null;
+				var error = null;
 				var compareResult;
 
 				groupManager.user = User.create()._id;
@@ -449,20 +544,20 @@ describe('UserGroup Module Tests', function() {
 
 				GroupManager.save(groupManager).then(
 					function(savedGroupManager) {
-						GroupManager.Model.findById(groupManager._id, function(err, found) {
+						GroupManager.Model.findById(groupManager._id, function(findError, found) {
 							compareResult = GroupManager.compare(groupManager, found);
 
 							if (compareResult.match == false)
-								err = new Error(compareResult.message);
+								error = new Error(compareResult.message);
 						});
 					},
 					function(saveErr) {
 						testFailed = 1;
-						err = saveErr;
+						error = saveErr;
 					}
 				).finally(function() {
-					if (err)
-						done(err);
+					if (error)
+						done(error);
 					else
 						done();
 				});

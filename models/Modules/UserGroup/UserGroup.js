@@ -93,15 +93,20 @@ var addChildren = function(parent, children) {
 
 		// Argument Validations
 		if (parent == null) {
-			errorMessage += 'Invalid arguments for UserGroup.addChildren(parent, children), parrent cannot be null. ';
+			errorMessage += 'Invalid arguments for UserGroup.addChildren(parent, children), parent cannot be null.';
 		} 
 		if (Array.isArray(children) == false) {
-			errorMessage += 'Invalid arguments for UserGroup.addChildren(parent, children), children must be an Array. ';
+			errorMessage += 'Invalid arguments for UserGroup.addChildren(parent, children), children must be an Array.';
+		}
+
+		// Reject if any error Message set, we have to do it at this point because if children is not an Array, we will cause Hard error when we try to call children.forEach().
+		if (errorMessage != '') {
+			reject(new Error(errorMessage));
 		}
 
 		children.forEach(function(child) {
 			if (child.parentGroup != null && child.parentGroup != parent._id) {
-				errorMessage += 'UserGroup.addChildren: Illegal attempt to change a UserGroups parent. UserGroup: ' + child._id + ' ';
+				errorMessage += 'UserGroup.addChildren: Illegal attempt to change a UserGroups parent. Child UserGroup: ' + child._id + ', Current Parent: ' + child.parentGroup + ', Attempted Parent: ' + parent._id;
 			}
 		});
 
@@ -128,11 +133,11 @@ var addChildren = function(parent, children) {
 				errorMessage += validationError.message + ' ';
 		});
 
+		// Reject if any error Message set, otherwise attempt to save instances.
 		if (errorMessage != '') {
 			reject(new Error(errorMessage));
 		}
 		else{
-
 			save(parent).then(
 				function() {
 					children.forEach(function(child) {
