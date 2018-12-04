@@ -57,7 +57,12 @@ var compare = function(groupMember1, groupMember2) {
 	
 	if (groupMember1.group != groupMember2.group){
 		match = false;
-		message += 'Users do not match. ' + groupMember1.group +' != ' + groupMember2.group + '\n';
+		message += 'User Groups do not match. ' + groupMember1.group +' != ' + groupMember2.group + '\n';
+	}
+	
+	if (groupMember1.user != groupMember2.user){
+		match = false;
+		message += 'Users do not match. ' + groupMember1.user +' != ' + groupMember2.user + '\n';
 	}
 
 	if (groupMember1.startDate != groupMember2.startDate) {
@@ -71,7 +76,7 @@ var compare = function(groupMember1, groupMember2) {
 	}
 	
 	if (match)
-		message = 'User Roles Match';
+		message = 'Group Members Match';
 
 	return {
 		match: match, 

@@ -183,13 +183,13 @@ var compare = function(userGroup1, userGroup2) {
 	
 	if (userGroup1.groupMembers != null && userGroup2.groupMembers != null) {
 		if (userGroup1.groupMembers.length != userGroup2.groupMembers.length) {
-			usersMatch = false;
+			match = false;
 			message += "User Roles do not match. \n";
 		}
 		else {
 			for (var i = 0; i < userGroup1.groupMembers.length; i++) {
 				if (userGroup1.groupMembers[i] != userGroup2.groupMembers[i]) {
-					usersMatch = false;
+					match = false;
 					message += "User Roles do not match. \n";
 
 				}
@@ -199,14 +199,30 @@ var compare = function(userGroup1, userGroup2) {
 	
 	if (userGroup1.groupManagers != null && userGroup2.groupManagers != null) {
 		if (userGroup1.groupManagers.length != userGroup2.groupManagers.length) {
-			usersMatch = false;
+			match = false;
 			message += "User Roles do not match. \n";
 		}
 		else {
 			for (var i = 0; i < userGroup1.groupManagers.length; i++) {
 				if (userGroup1.groupManagers[i] != userGroup2.groupManagers[i]) {
-					usersMatch = false;
+					match = false;
 					message += "User Roles do not match. \n";
+
+				}
+			}
+		}
+	}
+	
+	if (userGroup1.childGroups != null && userGroup2.childGroups != null) {
+		if (userGroup1.childGroups.length != userGroup2.childGroups.length) {
+			match = false;
+			message += "Child Groups do not match. \n";
+		}
+		else {
+			for (var i = 0; i < userGroup1.childGroups.length; i++) {
+				if (userGroup1.childGroups[i] != userGroup2.childGroups[i]) {
+					match = false;
+					message += "Child Groups do not match. \n";
 
 				}
 			}

@@ -57,7 +57,12 @@ var compare = function(groupManager1, groupManager2) {
 	
 	if (groupManager1.group != groupManager2.group){
 		match = false;
-		message += 'Users do not match. ' + groupManager1.group +' != ' + groupManager2.group + '\n';
+		message += 'UserGroups do not match. ' + groupManager1.group +' != ' + groupManager2.group + '\n';
+	}
+	
+	if (groupManager1.user != groupManager2.user){
+		match = false;
+		message += 'Users do not match. ' + groupManager1.user +' != ' + groupManager2.user + '\n';
 	}
 
 	if (groupManager1.startDate != groupManager2.startDate) {
@@ -71,7 +76,7 @@ var compare = function(groupManager1, groupManager2) {
 	}
 	
 	if (match)
-		message = 'User Roles Match';
+		message = 'Group Managers Match';
 
 	return {
 		match: match, 
