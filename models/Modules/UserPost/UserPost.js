@@ -45,7 +45,7 @@ var create = function() {
 }
 
 // Save
-var save = function(userPost, errorMessage, successMessasge){
+var save = function(userPost, errorMessage, successMessasge) {
 	return new Promise(function(resolve, reject) {
 		userPost.save(function(err, saved) {
 			if (err) {
@@ -62,6 +62,64 @@ var save = function(userPost, errorMessage, successMessasge){
 		});
 	});
 }
+
+// Sets the relationships between userPost and poster and then saves each. Has validations to check that we are not changeing 
+// the poster for an existing userpost, and that userPost and poster are both valid before calling save().
+var saveUserPostAndPoster = function(userPost, poster) {
+	return new Promise(function(resolve, reject) {
+		var errorMessage = '';
+		var error;
+		
+		// Validations
+		if (userPost.poster != null && userPost.poster != poster) {
+			errorMessage = 'UserPost.saveUserPostAndPoster(userPost, Poster), Error: Illegal attempt to update UserPost to a new Poster.';
+		}
+
+		if (errorMessage != '')
+			reject(new Error (errorMessage));
+		else {
+			userPost.poster = poster._id;
+
+			if (!(userPost._id in poster.userPosts)) {
+				poster.userPosts.push(userPost._id);
+			}
+
+			error = userPost.validateSync();
+
+			if (error)
+				errorMessage += error.message;
+			
+			error = poster.validateSync();
+
+			if (error)
+				errorMessage += error.message;
+			
+			if (errorMessage != '')
+				reject(new Error (errorMessage));
+			else {
+				save(userPost).then(
+					function() {
+						Poster.save(poster).then(
+							function() {
+								resolve(true);
+							},
+							function(saveError) {
+								reject(saveError);
+							}
+						);
+					},
+					function(saveError) {
+						reject(saveError);
+					}
+
+				);
+
+			}
+
+		}
+	});
+}
+
 
 // Comparison Methods
 
@@ -130,6 +188,7 @@ var clear = function() {
 exports.Model = UserPost;
 exports.create = create;
 exports.save = save;
+exports.saveUserPostAndPoster = saveUserPostAndPoster;
 exports.compare = compare;
 exports.clear = clear;
 

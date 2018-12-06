@@ -12,6 +12,7 @@ process.on('unhandledRejection', error => {
 
 var Poster = require('../models/Modules/UserPost/Poster');
 var UserPost = require('../models/Modules/UserPost/UserPost');
+var User = require('../models/Modules/User/User');
 
 
 describe('UserPost Module Tests', function() {
@@ -204,7 +205,7 @@ describe('UserPost Module Tests', function() {
 			it('Poster.user must be a valid ID', function(done){
 				var poster = Poster.create();
 				var testFailed = 0;
-				var err = null;
+				var error = null;
 
 				var expectedErrorMessage ='Poster validation failed: user: Cast to ObjectID failed for value "abcd1234efgh9876" at path "user"';
 
@@ -215,21 +216,21 @@ describe('UserPost Module Tests', function() {
 						testFailed = 1;
 					},
 					function(saveErr) {
-						err = saveErr;
+						error = saveErr;
 					}
 				).finally(function() {
 					if(testFailed) {
 						done(new Error('Poster.save() promise resolved when it should have been rejected with Validation Error'));
 					}
 					else {
-						if (err != null && err.message == expectedErrorMessage) {
+						if (error != null && error.message == expectedErrorMessage) {
 							done();
 						}
 						else {
 							done(new Error(
 								'Poster.save() did not return the correct Validation Error.\n' +
 								'   Expected: ' + expectedErrorMessage + '\n' +
-								'   Actual:   ' + err.message
+								'   Actual:   ' + error.message
 							));
 						}
 					}
@@ -265,6 +266,143 @@ describe('UserPost Module Tests', function() {
 			});
 
 			
+		});
+
+	});
+
+	
+
+	describe('UserPost Module Interactions', function() {
+
+		describe('UserPost.saveUserPostAndPoster()', function() {
+		
+			it('UserPost.saveUserPostAndPoster() throws an error when UserPost.poster is set to a different Poster.', function(done) {
+				var error = null;
+				var testFailed = 0;
+				var expectedErrorMessage = 'UserPost.saveUserPostAndPoster(userPost, Poster), Error: Illegal attempt to update UserPost to a new Poster.';
+
+				var userPost = UserPost.create();
+				var poster = Poster.create();
+
+				userPost.textContent = 'Here is some content.';
+				poster.user = User.create()._id;
+				userPost.poster = Poster.create()._id;
+
+				UserPost.saveUserPostAndPoster(userPost, poster).then(
+					function() {
+						testFailed = 1;
+					},
+					function(saveError) {
+						error = saveError;
+					}
+				).finally(function() {
+					if (testFailed) {
+						done(new Error('UserPost.saveUserPostAndPoster() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'UserPost.saveUserPostAndPoster() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+		
+			it('UserPost.saveUserPostAndPoster() throws an error userPost and poster are invalid.', function(done) {
+				var error = null;
+				var testFailed = 0;
+				var expectedErrorMessage = 'UserPost validation failed: textContent: Path `textContent` is required.Poster validation failed: user: Path `user` is required.';
+
+				var userPost = UserPost.create();
+				var poster = Poster.create();
+
+				UserPost.saveUserPostAndPoster(userPost, poster).then(
+					function() {
+						testFailed = 1;
+					},
+					function(saveError) {
+						error = saveError;
+					}
+				).finally(function() {
+					if (testFailed) {
+						done(new Error('UserPost.saveUserPostAndPoster() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'UserPost.saveUserPostAndPoster() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+		
+			it('UserPost.saveUserPostAndPoster() saves UserPost and Poster Correctly', function(done) {
+				var error = null;
+
+				var userPost = UserPost.create();
+				var poster = Poster.create();
+
+				userPost.textContent = 'Here is some content.';
+				poster.user = User.create()._id;
+
+				UserPost.saveUserPostAndPoster(userPost, poster).then(
+					function() {
+
+						console.log(
+							'poster: ' + poster._id + '\n' +
+							'poster.userPosts: ' + poster.userPosts + '\n' +
+							'userPost: ' + userPost._id + '\n' +
+							'userPost.poster: ' + userPost.poster
+						);
+
+						UserPost.Model.findById(userPost._id, function(findError, found) {
+							if (findError) 
+								error = findError;
+							else if (found.poster != poster._id) {
+								error = new Error('UserPost.saveUserPostAndPoster() promise returned, but saved UserPost.poster to the wrong poster.');
+							}
+							else {
+								Poster.Model.findById(poster._id, function(findError, found) {
+									console.log(
+										'poster: ' + found._id + '\n' +
+										'poster.userPosts: ' + found.userPosts + '\n' | 
+										'userPost: ' + userPost._id
+									);
+
+									if (findError)
+										error = findError;
+									else if (! (userPost._id in found.userPosts)) {
+										error = new Error('UserPost.saveUserPostAndPoster() promise returned, but saved poster.userPosts to the wrong UserPost.');
+									}
+								});
+							}
+						});
+					},
+					function(saveError) {
+						error = saveError;
+					}
+				).finally(function() {
+					if (error != null) {
+						done(error);
+					}
+					else {
+						done();
+					}
+				});
+			});
+
 		});
 
 	});
