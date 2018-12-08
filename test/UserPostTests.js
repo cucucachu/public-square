@@ -13,6 +13,12 @@ process.on('unhandledRejection', error => {
 var Poster = require('../models/Modules/UserPost/Poster');
 var UserPost = require('../models/Modules/UserPost/UserPost');
 var User = require('../models/Modules/User/User');
+var Stamp = require('../models/Modules/UserPost/Stamp');
+var Stamper = require('../models/Modules/UserPost/Stamper');
+var StampType = require('../models/Modules/UserPost/StampType');
+var ApprovalStampType = require('../models/Modules/UserPost/ApprovalStampType');
+var ObjectionStampType = require('../models/Modules/UserPost/ObjectionStampType');
+
 
 
 describe('UserPost Module Tests', function() {
@@ -20,7 +26,22 @@ describe('UserPost Module Tests', function() {
 	before(function(done) {
 		UserPost.clear().then(
 			function() {
-				Poster.clear().then(done, done);
+				Poster.clear().then(
+					function() {
+						Stamp.clear().then(
+							function() {
+								Stamper.clear().then(
+									function() {
+										StampType.clear().then(done, done);
+									},
+									done								
+								);
+							}, 
+							done
+						);
+					}, 
+					done
+				);
 			}, 
 			done
 		);
@@ -270,7 +291,611 @@ describe('UserPost Module Tests', function() {
 
 	});
 
-	
+	describe('Stamp Model', function() {
+
+		describe('Stamp.create()', function() {
+
+			it('create() creates a Stamp instance.', function() {
+				var stamp = Stamp.create();
+				assert(typeof(stamp) === "object");
+			});
+
+			it('create() creates a Stamp instance with _id field populated', function(){
+				var stamp = Stamp.create();
+				assert(typeof(stamp._id) === "object" && /^[a-f\d]{24}$/i.test(stamp._id));
+			});
+
+
+		});
+
+
+		describe('Stamp.save()', function() {
+
+			it('Stamp.save() throws an error if required fields are missing.', function(done) {
+				var stamp = Stamp.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'Stamp validation failed: stampType: Path `stampType` is required., userPost: Path `userPost` is required., stamper: Path `stamper` is required., comment: Path `comment` is required.';
+
+				Stamp.save(stamp).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('Stamp.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'Stamp.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+			
+
+			it('Stamp.stamper must be a valid ID', function(done){
+				var stamp = Stamp.create();
+				var testFailed = 0;
+				var error = null;
+
+				var expectedErrorMessage ='Stamp validation failed: stamper: Cast to ObjectID failed for value "abcd1234efgh9876" at path "stamper"';
+
+				stamp.stamper = 'abcd1234efgh9876';
+				stamp.userPost = UserPost.create()._id;
+				stamp.stampType = ApprovalStampType.create()._id;
+				stamp.comment = 'I approve of this post.';
+
+				Stamp.save(stamp).then(
+					function(saved) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						error = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('Stamp.save() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'Stamp.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});		
+			
+
+			it('Stamp.userPost must be a valid ID', function(done){
+				var stamp = Stamp.create();
+				var testFailed = 0;
+				var error = null;
+
+				var expectedErrorMessage ='Stamp validation failed: userPost: Cast to ObjectID failed for value "abcd1234efgh9876" at path "userPost"';
+
+				stamp.stamper = Stamper.create()._id;
+				stamp.userPost = 'abcd1234efgh9876';
+				stamp.stampType = ApprovalStampType.create()._id;
+				stamp.comment = 'I approve of this post.';
+
+				Stamp.save(stamp).then(
+					function(saved) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						error = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('Stamp.save() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'Stamp.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+			
+
+			it('Stamp.stampType must be a valid ID', function(done){
+				var stamp = Stamp.create();
+				var testFailed = 0;
+				var error = null;
+
+				var expectedErrorMessage ='Stamp validation failed: stampType: Cast to ObjectID failed for value "abcd1234efgh9876" at path "stampType"';
+
+				stamp.stamper = Stamper.create()._id;
+				stamp.userPost = UserPost.create()._id;
+				stamp.stampType = 'abcd1234efgh9876';
+				stamp.comment = 'I approve of this post.';
+
+				Stamp.save(stamp).then(
+					function(saved) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						error = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('Stamp.save() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'Stamp.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});					
+			
+			it('Valid Call Saves Stamp.', function(done){
+				var stamp = Stamp.create();
+				var error = null;
+				var compareResult;
+
+				stamp.stamper = Stamper.create()._id;
+				stamp.userPost = UserPost.create()._id;
+				stamp.stampType = ApprovalStampType.create()._id;
+				stamp.comment = 'I approve of this post.';
+
+
+				Stamp.save(stamp).then(
+					function(saved) {
+						Stamp.Model.findById(stamp._id, function(findError, found) {
+							compareResult = Stamp.compare(stamp, found);
+
+							if (compareResult.match == false)
+								error = new Error(compareResult.message);
+						});
+					},
+					function(saveErr) {
+						testFailed = 1;
+						error = saveErr;
+					}
+				).finally(function() {
+					if (error)
+						done(error);
+					else
+						done();
+				});
+			});
+
+			
+		});
+
+	});
+
+	describe('Stamper Model', function() {
+
+		describe('Stamper.create()', function() {
+
+			it('create() creates a Stamper instance.', function() {
+				var stamper = Stamper.create();
+				assert(typeof(stamper) === "object");
+			});
+
+			it('create() creates a Stamper instance with _id field populated', function(){
+				var stamper = Stamper.create();
+				assert(typeof(stamper._id) === "object" && /^[a-f\d]{24}$/i.test(stamper._id));
+			});
+
+
+		});
+
+
+		describe('Stamper.save()', function() {
+
+			it('Stamper.save() throws an error if required fields are missing.', function(done) {
+				var stamper = Stamper.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'Stamper validation failed: user: Path `user` is required.';
+
+				Stamper.save(stamper).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('Stamper.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'Stamper.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+			
+
+			it('Stamper.stamps must be a valid ID', function(done){
+				var stamper = Stamper.create();
+				var testFailed = 0;
+				var error = null;
+
+				var expectedErrorMessage ='Stamper validation failed: stamps: Cast to Array failed for value "[ \'abcd1234efgh9876\' ]" at path "stamps"';
+
+				stamper.user = User.create()._id;
+				stamper.stamps = ['abcd1234efgh9876'];
+
+				Stamper.save(stamper).then(
+					function(saved) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						error = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('Stamper.save() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'Stamper.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});	
+			
+
+			it('Stamper.user must be a valid ID', function(done){
+				var stamper = Stamper.create();
+				var testFailed = 0;
+				var error = null;
+
+				var expectedErrorMessage ='Stamper validation failed: user: Cast to ObjectID failed for value "abcd1234efgh9876" at path "user"';
+
+				stamper.user = 'abcd1234efgh9876';
+				stamper.stamps = [Stamp.create()._id];
+
+				Stamper.save(stamper).then(
+					function(saved) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						error = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('Stamper.save() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'Stamper.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});				
+			
+			it('Valid Call Saves Stamper.', function(done){
+				var stamper = Stamper.create();
+				var error = null;
+				var compareResult;
+
+				stamper.user = User.create()._id;
+				stamper.stamps = [Stamp.create()._id];
+
+				Stamper.save(stamper).then(
+					function(saved) {
+						Stamper.Model.findById(stamper._id, function(findError, found) {
+							compareResult = Stamper.compare(stamper, found);
+
+							if (compareResult.match == false)
+								error = new Error(compareResult.message);
+						});
+					},
+					function(saveErr) {
+						testFailed = 1;
+						error = saveErr;
+					}
+				).finally(function() {
+					if (error)
+						done(error);
+					else
+						done();
+				});
+			});
+
+			
+		});
+
+	});
+
+	describe('ApprovalStampType Model', function() {
+
+		describe('ApprovalStampType.create()', function() {
+
+			it('create() creates a ApprovalStampType instance.', function() {
+				var approvalStampType = ApprovalStampType.create();
+				assert(typeof(approvalStampType) === "object");
+			});
+
+			it('create() creates a ApprovalStampType instance with _id field populated', function(){
+				var approvalStampType = ApprovalStampType.create();
+				assert(typeof(approvalStampType._id) === "object" && /^[a-f\d]{24}$/i.test(approvalStampType._id));
+			});
+
+		});
+
+
+		describe('ApprovalStampType.save()', function() {
+
+			it('ApprovalStampType.save() throws an error if required fields are missing.', function(done) {
+				var approvalStampType = ApprovalStampType.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'ApprovalStampType validation failed: weight: Path `weight` is required., description: Path `description` is required., name: Path `name` is required.';
+
+				ApprovalStampType.save(approvalStampType).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('ApprovalStampType.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'ApprovalStampType.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+			
+
+			it('ApprovalStampType.weight must be a number.', function(done){
+				var approvalStampType = ApprovalStampType.create();
+				var testFailed = 0;
+				var error = null;
+
+				var expectedErrorMessage ='ApprovalStampType validation failed: weight: Cast to Number failed for value "infinity billion" at path "weight"';
+
+				approvalStampType.name = 'Approve Mightily';
+				approvalStampType.description = 'Use if you really really approve of a post.';
+				approvalStampType.weight = 'infinity billion';
+
+				ApprovalStampType.save(approvalStampType).then(
+					function(saved) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						error = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('ApprovalStampType.save() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'ApprovalStampType.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});				
+			
+			it('Valid Call Saves ApprovalStampType.', function(done){
+				var approvalStampType = ApprovalStampType.create();
+				var error = null;
+				var compareResult;
+
+				approvalStampType.name = 'Approve Mightily';
+				approvalStampType.description = 'Use if you really really approve of a post.';
+				approvalStampType.weight = 10;
+
+				ApprovalStampType.save(approvalStampType).then(
+					function(saved) {
+						ApprovalStampType.Model.findById(approvalStampType._id, function(findError, found) {
+							compareResult = ApprovalStampType.compare(approvalStampType, found);
+
+							if (compareResult.match == false)
+								error = new Error(compareResult.message);
+						});
+					},
+					function(saveErr) {
+						testFailed = 1;
+						error = saveErr;
+					}
+				).finally(function() {
+					if (error)
+						done(error);
+					else
+						done();
+				});
+			});
+
+		});
+	});
+
+	describe('ObjectionStampType Model', function() {
+
+		describe('ObjectionStampType.create()', function() {
+
+			it('create() creates a ObjectionStampType instance.', function() {
+				var objectionStampType = ObjectionStampType.create();
+				assert(typeof(objectionStampType) === "object");
+			});
+
+			it('create() creates a ObjectionStampType instance with _id field populated', function(){
+				var objectionStampType = ObjectionStampType.create();
+				assert(typeof(objectionStampType._id) === "object" && /^[a-f\d]{24}$/i.test(objectionStampType._id));
+			});
+
+		});
+
+
+		describe('ObjectionStampType.save()', function() {
+
+			it('ObjectionStampType.save() throws an error if required fields are missing.', function(done) {
+				var objectionStampType = ObjectionStampType.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'ObjectionStampType validation failed: weight: Path `weight` is required., description: Path `description` is required., name: Path `name` is required.';
+
+				ObjectionStampType.save(objectionStampType).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('ObjectionStampType.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'ObjectionStampType.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+			
+
+			it('ObjectionStampType.weight must be a number.', function(done){
+				var objectionStampType = ObjectionStampType.create();
+				var testFailed = 0;
+				var error = null;
+
+				var expectedErrorMessage ='ObjectionStampType validation failed: weight: Cast to Number failed for value "infinity billion" at path "weight"';
+
+				objectionStampType.name = 'Object Mightily';
+				objectionStampType.description = 'Use if you really really object to a post.';
+				objectionStampType.weight = 'infinity billion';
+
+				ObjectionStampType.save(objectionStampType).then(
+					function(saved) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						error = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('ObjectionStampType.save() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'ObjectionStampType.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});				
+			
+			it('Valid Call Saves ObjectionStampType.', function(done){
+				var objectionStampType = ObjectionStampType.create();
+				var error = null;
+				var compareResult;
+
+				objectionStampType.name = 'Object Mightily';
+				objectionStampType.description = 'Use if you really really object to a post.';
+				objectionStampType.weight = 10;
+
+				ObjectionStampType.save(objectionStampType).then(
+					function(saved) {
+						ObjectionStampType.Model.findById(objectionStampType._id, function(findError, found) {
+							compareResult = ObjectionStampType.compare(objectionStampType, found);
+
+							if (compareResult.match == false)
+								error = new Error(compareResult.message);
+						});
+					},
+					function(saveErr) {
+						testFailed = 1;
+						error = saveErr;
+					}
+				).finally(function() {
+					if (error)
+						done(error);
+					else
+						done();
+				});
+			});
+
+		});
+	});
 
 	describe('UserPost Module Interactions', function() {
 
@@ -359,13 +984,6 @@ describe('UserPost Module Tests', function() {
 
 				UserPost.saveUserPostAndPoster(userPost, poster).then(
 					function() {
-
-						console.log(
-							'poster: ' + poster._id + '\n' +
-							'poster.userPosts: ' + poster.userPosts + '\n' +
-							'userPost: ' + userPost._id + '\n' +
-							'userPost.poster: ' + userPost.poster
-						);
 
 						UserPost.Model.findById(userPost._id, function(findError, found) {
 							if (findError) 

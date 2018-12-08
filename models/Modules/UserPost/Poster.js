@@ -57,7 +57,7 @@ var compare = function(poster1, poster2) {
 	
 	if (poster1.user != poster2.user){
 		match = false;
-		message += 'Users do not match. ' + poster1.group +' != ' + poster2.group + '\n';
+		message += 'Users do not match. ' + poster1.user +' != ' + poster2.user + '\n';
 	}
 
 	if (poster1.startDate != poster2.startDate) {

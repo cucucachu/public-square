@@ -71,7 +71,7 @@ var saveUserPostAndPoster = function(userPost, poster) {
 		var error;
 		
 		// Validations
-		if (userPost.poster != null && userPost.poster != poster) {
+		if (userPost.poster != null && userPost.poster != poster._id) {
 			errorMessage = 'UserPost.saveUserPostAndPoster(userPost, Poster), Error: Illegal attempt to update UserPost to a new Poster.';
 		}
 
