@@ -20,6 +20,7 @@ var StampType = require('../models/Modules/UserPost/StampType');
 var ApprovalStampType = require('../models/Modules/UserPost/ApprovalStampType');
 var ObjectionStampType = require('../models/Modules/UserPost/ObjectionStampType');
 var PostStream = require('../models/Modules/UserPost/PostStream');
+var ExternalLink = require('../models/Modules/UserPost/ExternalLink')
 
 
 
@@ -36,7 +37,12 @@ describe('UserPost Module Tests', function() {
 									function() {
 										StampType.clear().then(
 											function() {
-												PostStream.clear().then(done, done);
+												PostStream.clear().then(
+													function() {
+														ExternalLink.clear().then(done, done);
+													}, 
+													done
+												);
 											}, 
 											done
 										);
@@ -1040,6 +1046,124 @@ describe('UserPost Module Tests', function() {
 					function(saved) {
 						PostStream.Model.findById(postStream._id, function(findError, found) {
 							compareResult = PostStream.compare(postStream, found);
+
+							if (compareResult.match == false)
+								error = new Error(compareResult.message);
+						});
+					},
+					function(saveErr) {
+						testFailed = 1;
+						error = saveErr;
+					}
+				).finally(function() {
+					if (error)
+						done(error);
+					else
+						done();
+				});
+			});
+
+		});
+	});
+
+	describe('ExternalLink Model', function() {
+
+		describe('ExternalLink.create()', function() {
+
+			it('create() creates a ExternalLink instance.', function() {
+				var externalLink = ExternalLink.create();
+				assert(typeof(externalLink) === "object");
+			});
+
+			it('create() creates a ExternalLink instance with _id field populated', function(){
+				var externalLink = ExternalLink.create();
+				assert(typeof(externalLink._id) === "object" && /^[a-f\d]{24}$/i.test(externalLink._id));
+			});
+
+		});
+
+
+		describe('ExternalLink.save()', function() {
+
+			it('ExternalLink.save() throws an error if required fields are missing.', function(done) {
+				var externalLink = ExternalLink.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'ExternalLink validation failed: url: Path `url` is required.';
+				
+				ExternalLink.save(externalLink).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('ExternalLink.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'ExternalLink.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});			
+
+			it('ExternalLink.userPosts must be a valid Array of ObjectIds.', function(done) {
+				var externalLink = ExternalLink.create();
+				var testFailed = 0;
+				var error = null;
+
+				var expectedErrorMessage ='ExternalLink validation failed: userPosts: Cast to Array failed for value "[ \'abcd1234efgh9876\' ]" at path "userPosts"';
+
+				externalLink.url = 'http://www.google.com';
+				externalLink.userPosts = ['abcd1234efgh9876'];
+
+				ExternalLink.save(externalLink).then(
+					function(saved) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						error = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error(''));
+					}
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'ExternalLink.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});				
+			
+			it('Valid Call Saves ExternalLink.', function(done){
+				var externalLink = ExternalLink.create();
+				var error = null;
+				var compareResult;
+
+				externalLink.url = 'http://www.google.com';
+				externalLink.userPosts = [UserPost.create()._id];
+
+				ExternalLink.save(externalLink).then(
+					function(saved) {
+						ExternalLink.Model.findById(externalLink._id, function(findError, found) {
+							compareResult = ExternalLink.compare(externalLink, found);
 
 							if (compareResult.match == false)
 								error = new Error(compareResult.message);
