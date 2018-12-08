@@ -130,7 +130,7 @@ var compare = function(userPost1, userPost2) {
 	
 	if (userPost1.poster != userPost2.poster){
 		match = false;
-		message += 'Posters do not match. ' + userPost1.group +' != ' + userPost2.group + '\n';
+		message += 'Posters do not match. ' + userPost1.poster +' != ' + userPost2.poster + '\n';
 	}
 
 	if (userPost1.postDate != userPost2.postDate) {

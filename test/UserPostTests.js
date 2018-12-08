@@ -13,11 +13,13 @@ process.on('unhandledRejection', error => {
 var Poster = require('../models/Modules/UserPost/Poster');
 var UserPost = require('../models/Modules/UserPost/UserPost');
 var User = require('../models/Modules/User/User');
+var UserGroup = require('../models/Modules/UserGroup/UserGroup');
 var Stamp = require('../models/Modules/UserPost/Stamp');
 var Stamper = require('../models/Modules/UserPost/Stamper');
 var StampType = require('../models/Modules/UserPost/StampType');
 var ApprovalStampType = require('../models/Modules/UserPost/ApprovalStampType');
 var ObjectionStampType = require('../models/Modules/UserPost/ObjectionStampType');
+var PostStream = require('../models/Modules/UserPost/PostStream');
 
 
 
@@ -32,7 +34,12 @@ describe('UserPost Module Tests', function() {
 							function() {
 								Stamper.clear().then(
 									function() {
-										StampType.clear().then(done, done);
+										StampType.clear().then(
+											function() {
+												PostStream.clear().then(done, done);
+											}, 
+											done
+										);
 									},
 									done								
 								);
@@ -877,6 +884,162 @@ describe('UserPost Module Tests', function() {
 					function(saved) {
 						ObjectionStampType.Model.findById(objectionStampType._id, function(findError, found) {
 							compareResult = ObjectionStampType.compare(objectionStampType, found);
+
+							if (compareResult.match == false)
+								error = new Error(compareResult.message);
+						});
+					},
+					function(saveErr) {
+						testFailed = 1;
+						error = saveErr;
+					}
+				).finally(function() {
+					if (error)
+						done(error);
+					else
+						done();
+				});
+			});
+
+		});
+	});
+
+	describe('PostStream Model', function() {
+
+		describe('PostStream.create()', function() {
+
+			it('create() creates a PostStream instance.', function() {
+				var postStream = PostStream.create();
+				assert(typeof(postStream) === "object");
+			});
+
+			it('create() creates a PostStream instance with _id field populated', function(){
+				var postStream = PostStream.create();
+				assert(typeof(postStream._id) === "object" && /^[a-f\d]{24}$/i.test(postStream._id));
+			});
+
+		});
+
+
+		describe('PostStream.save()', function() {
+
+			it('PostStream.save() throws an error if required fields are missing.', function(done) {
+				var postStream = PostStream.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'PostStream validation failed: userGroup: Path `userGroup` is required.';
+				
+				PostStream.save(postStream).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('PostStream.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'PostStream.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+			
+
+			it('PostStream.userGroup must be a valid ObjectId.', function(done) {
+				var postStream = PostStream.create();
+				var testFailed = 0;
+				var error = null;
+
+				var expectedErrorMessage ='PostStream validation failed: userGroup: Cast to ObjectID failed for value "abcd1234efgh9876" at path "userGroup"';
+
+				postStream.userGroup = 'abcd1234efgh9876';
+				postStream.userPosts = [UserPost.create()._id];
+
+				PostStream.save(postStream).then(
+					function(saved) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						error = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('PostStream.save() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'PostStream.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});		
+			
+
+			it('PostStream.userPosts must be a valid Array of ObjectIds.', function(done) {
+				var postStream = PostStream.create();
+				var testFailed = 0;
+				var error = null;
+
+				var expectedErrorMessage ='PostStream validation failed: userPosts: Cast to Array failed for value "[ \'abcd1234efgh9876\' ]" at path "userPosts"';
+
+				postStream.userGroup = UserGroup.create()._id;
+				postStream.userPosts = ['abcd1234efgh9876'];
+
+				PostStream.save(postStream).then(
+					function(saved) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						error = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('PostStream.save() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'PostStream.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});				
+			
+			it('Valid Call Saves PostStream.', function(done){
+				var postStream = PostStream.create();
+				var error = null;
+				var compareResult;
+
+				postStream.userGroup = UserGroup.create()._id;
+				postStream.userPosts = [UserPost.create()._id];
+
+				PostStream.save(postStream).then(
+					function(saved) {
+						PostStream.Model.findById(postStream._id, function(findError, found) {
+							compareResult = PostStream.compare(postStream, found);
 
 							if (compareResult.match == false)
 								error = new Error(compareResult.message);
