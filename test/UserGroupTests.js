@@ -16,6 +16,7 @@ var UserRole = require('../models/Modules/User/UserRole');
 var UserGroup = require('../models/Modules/UserGroup/UserGroup');
 var GroupMember = require('../models/Modules/UserGroup/GroupMember');
 var GroupManager = require('../models/Modules/UserGroup/GroupManager');
+var GroupEvent = require('../models/Modules/UserGroup/GroupEvent');
 
 
 describe('UserGroup Module Tests', function() {
@@ -568,4 +569,17 @@ describe('UserGroup Module Tests', function() {
 
 	});
 
+	describe('GroupEvent Model', function(){
+		describe('GroupEvent.create()', function(){
+			it('create() creates a GroupManager instance.', function() {
+				var groupEvent = GroupEvent.create();
+				assert(typeof(groupEvent) === "object");
+			});
+
+			it('create() creates a GroupManager instance with _id field populated', function(){
+				var groupEvent = GroupEvent.create();
+				assert(typeof(groupEvent._id) === "object" && /^[a-f\d]{24}$/i.test(groupEvent._id));
+			});
+		});
+	});
 });

@@ -19,13 +19,11 @@ var userGroupSchema = new Schema({
 		type: Schema.Types.ObjectId,
 		ref: 'UserGroup'
 	},
-	childGroups:
-	{
+	childGroups: {
 		type: [Schema.Types.ObjectId],
 		ref: 'UserGroup'
 	},
-	groupManagers:
-	{
+	groupManagers: {
 		type: [Schema.Types.ObjectId],
 		ref: 'GroupManager',
 		validate: function(array) {
