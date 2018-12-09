@@ -12,8 +12,8 @@ var userAccountSchema = new Schema({
 	email: {
 		type: String,
 		validate: {
-			validator: function(v) {
-				return /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/.test(v);
+			validator: function(value) {
+				return /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/.test(value);
 			},
 			message: 'Invalid Email'
 		},

@@ -66,64 +66,6 @@ var save = function(stamp, errorMessage, successMessasge) {
 	});
 }
 
-// // Sets the relationships between stampe and poster and then saves each. Has validations to check that we are not changeing 
-// // the poster for an existing userpost, and that userPost and poster are both valid before calling save().
-// var saveStampAndStamper = function(stamp, stamper) {
-// 	return new Promise(function(resolve, reject) {
-// 		var errorMessage = '';
-// 		var error;
-		
-// 		// Validations
-// 		if (stamp.stamper != null && stamp.stamper != stamper._id) {
-// 			errorMessage = 'Stamp.saveStampAndStamper(userPost, Poster), Error: Illegal attempt to update UserPost to a new Poster.';
-// 		}
-
-// 		if (errorMessage != '')
-// 			reject(new Error (errorMessage));
-// 		else {
-// 			userPost.poster = poster._id;
-
-// 			if (!(userPost._id in poster.userPosts)) {
-// 				poster.userPosts.push(userPost._id);
-// 			}
-
-// 			error = userPost.validateSync();
-
-// 			if (error)
-// 				errorMessage += error.message;
-			
-// 			error = poster.validateSync();
-
-// 			if (error)
-// 				errorMessage += error.message;
-			
-// 			if (errorMessage != '')
-// 				reject(new Error (errorMessage));
-// 			else {
-// 				save(userPost).then(
-// 					function() {
-// 						Poster.save(poster).then(
-// 							function() {
-// 								resolve(true);
-// 							},
-// 							function(saveError) {
-// 								reject(saveError);
-// 							}
-// 						);
-// 					},
-// 					function(saveError) {
-// 						reject(saveError);
-// 					}
-
-// 				);
-
-// 			}
-
-// 		}
-// 	});
-// }
-
-
 // Comparison Methods
 
 // This is a member comparison, not an instance comparison. i.e. two separate instances can be equal if their members are equal.
@@ -180,7 +122,6 @@ var clear = function() {
 exports.Model = Stamp;
 exports.create = create;
 exports.save = save;
-//exports.saveUserPostAndPoster = saveUserPostAndPoster;
 exports.compare = compare;
 exports.clear = clear;
 

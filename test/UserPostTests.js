@@ -1075,7 +1075,7 @@ describe('UserPost Module Tests', function() {
 				assert(typeof(externalLink) === "object");
 			});
 
-			it('create() creates a ExternalLink instance with _id field populated', function(){
+			it('create() creates a ExternalLink instance with _id field populated', function() {
 				var externalLink = ExternalLink.create();
 				assert(typeof(externalLink._id) === "object" && /^[a-f\d]{24}$/i.test(externalLink._id));
 			});
@@ -1152,7 +1152,7 @@ describe('UserPost Module Tests', function() {
 				});
 			});				
 			
-			it('Valid Call Saves ExternalLink.', function(done){
+			it('Valid Call Saves ExternalLink.', function(done) {
 				var externalLink = ExternalLink.create();
 				var error = null;
 				var compareResult;
