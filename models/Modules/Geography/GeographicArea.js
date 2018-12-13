@@ -12,7 +12,7 @@ var GeographicAreaSchema = new Schema({
         type: String,
         required: true
     },
-    map: {
+    geographicMap: {
         type: Schema.Types.ObjectId,
         ref: 'GeographicMap',
         required: true
@@ -66,9 +66,9 @@ var compare = function(geographicArea1, geographicArea2) {
         message += 'Names do not match. ' + geographicArea1.name +' != ' + geographicArea2.name + '\n';
     }
 
-    if (geographicArea1.map != geographicArea2.map) {
+    if (geographicArea1.geographicMap != geographicArea2.geographicMap) {
         match = false;
-        message += 'GeographicMaps do not match. ' + geographicArea1.map +' != ' + geographicArea2.map + '\n';
+        message += 'GeographicMaps do not match. ' + geographicArea1.geographicMap +' != ' + geographicArea2.geographicMap + '\n';
     }
 
 	if (geographicArea1.addresses != null && geographicArea2.addresses != null) {
