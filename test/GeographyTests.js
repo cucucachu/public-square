@@ -527,4 +527,165 @@ describe('UserPost Module Tests', function() {
 
 	});
 
+	describe('Address Model Tests', function() {
+
+		describe('Address.create()', function() {
+		
+			it('Address.create() creates a Address instance.', function() {
+				var address = Address.create();
+				assert(typeof(address) === "object");
+			});
+
+			it('Address.create() creates a Address instance with _id field populated', function(){
+				var address = Address.create();
+				assert(typeof(address._id) === "object" && /^[a-f\d]{24}$/i.test(address._id));
+			});
+		});
+
+		describe('Address.save()', function() {
+
+			it('Address.save() throws an error if required fields are missing.', function(done) {
+				var address = Address.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'Address validation failed: streetNumber: Path `streetNumber` is required.';
+
+				Address.save(address).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('Address.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'Address.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+
+			it('Address.geographicAreas must be a valid Array of IDs.', function(done){
+				var address = Address.create();
+				var testFailed = 0;
+				var error = null;
+
+				var expectedErrorMessage = 'Address validation failed: geographicAreas: Cast to Array failed for value "[ \'abcd1234efgh9876\' ]" at path "geographicAreas"';
+						
+				address.streetNumber = 10;
+				address.unit = '4b';
+				address.geographicAreas = ['abcd1234efgh9876'];
+				address.users = [User.create()._id, User.create()._id];
+
+				Address.save(address).then(
+					function(saved) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						error = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('Address.save() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'Address.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});		
+
+
+			it('Address.users must be a valid Array of IDs.', function(done){
+				var address = Address.create();
+				var testFailed = 0;
+				var error = null;
+
+				var expectedErrorMessage = 'Address validation failed: users: Cast to Array failed for value "[ \'abcd1234efgh9876\' ]" at path "users"';
+
+				address.streetNumber = 10;
+				address.unit = '4b';
+				address.geographicAreas = [GeographicArea.create()._id, GeographicArea.create()._id];
+				address.users = ['abcd1234efgh9876'];
+
+				Address.save(address).then(
+					function(saved) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						error = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('Address.save() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'Address.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});				
+
+			it('Valid Call Saves Address.', function(done){
+				var address = Address.create();
+				var error = null;
+				var compareResult;
+
+				address.streetNumber = 10;
+				address.unit = '4b';
+				address.geographicAreas = [GeographicArea.create()._id, GeographicArea.create()._id];
+				address.users = [User.create()._id, User.create()._id];
+
+				Address.save(address).then(
+					function(saved) {
+						Address.Model.findById(address._id, function(findError, found) {
+							compareResult = Address.compare(address, found);
+
+							if (compareResult.match == false)
+								error = new Error(compareResult.message);
+						});
+					},
+					function(saveErr) {
+						testFailed = 1;
+						error = saveErr;
+					}
+				).finally(function() {
+					if (error)
+						done(error);
+					else
+						done();
+				});
+			});
+
+		});
+	
+	});
+
 });
