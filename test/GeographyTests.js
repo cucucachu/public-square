@@ -206,4 +206,208 @@ describe('UserPost Module Tests', function() {
 		});
 
 	});
+	
+	describe('GeographicMap Model Tests', function() {
+
+		describe('GeographicMap.create()', function() {
+		
+			it('GeographicMap.create() creates a GeographicMap instance.', function() {
+				var geographicMap = GeographicMap.create();
+				assert(typeof(geographicMap) === "object");
+			});
+
+			it('GeographicMap.create() creates a GeographicMap instance with _id field populated', function(){
+				var geographicMap = GeographicMap.create();
+				assert(typeof(geographicMap._id) === "object" && /^[a-f\d]{24}$/i.test(geographicMap._id));
+			});
+		});
+
+		describe('GeographicMap.save()', function() {
+
+			it('GeographicMap.save() throws an error if required fields are missing.', function(done) {
+				var geographicMap = GeographicMap.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'GeographicMap validation failed: mapType: Path `mapType` is required., ofGeographicArea: Path `ofGeographicArea` is required., name: Path `name` is required.';
+
+				GeographicMap.save(geographicMap).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('GeographicMap.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'GeographicMap.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+
+			it('GeographicMap.mapType must be a valid ID.', function(done){
+				var geographicMap = GeographicMap.create();
+				var testFailed = 0;
+				var error = null;
+
+				var expectedErrorMessage = 'GeographicMap validation failed: mapType: Cast to ObjectID failed for value "abcd1234efgh9876" at path "mapType"';
+
+				geographicMap.name = 'States of the United States';
+				geographicMap.mapType = 'abcd1234efgh9876';
+				geographicMap.ofGeographicArea = GeographicArea.create()._id;
+				geographicMap.containsGeographicAreas = [GeographicArea.create()._id, GeographicArea.create()._id];
+				
+
+				GeographicMap.save(geographicMap).then(
+					function(saved) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						error = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('GeographicMap.save() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'GeographicMap.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});	
+
+
+			it('GeographicMap.ofGeographicArea must be a valid ID.', function(done){
+				var geographicMap = GeographicMap.create();
+				var testFailed = 0;
+				var error = null;
+
+				var expectedErrorMessage = 'GeographicMap validation failed: ofGeographicArea: Cast to ObjectID failed for value "abcd1234efgh9876" at path "ofGeographicArea"';
+
+				geographicMap.name = 'States of the United States';
+				geographicMap.mapType = MapType.create()._id;
+				geographicMap.ofGeographicArea = 'abcd1234efgh9876';
+				geographicMap.containsGeographicAreas = [GeographicArea.create()._id, GeographicArea.create()._id];
+				
+
+				GeographicMap.save(geographicMap).then(
+					function(saved) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						error = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('GeographicMap.save() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'GeographicMap.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});	
+
+
+			it('GeographicMap.containsGeographicAreas must be a valid Array of IDs.', function(done){
+				var geographicMap = GeographicMap.create();
+				var testFailed = 0;
+				var error = null;
+
+				var expectedErrorMessage = 'GeographicMap validation failed: containsGeographicAreas: Cast to Array failed for value "[ \'abcd1234efgh9876\' ]" at path "containsGeographicAreas"';
+
+				geographicMap.name = 'States of the United States';
+				geographicMap.mapType = MapType.create()._id;
+				geographicMap.ofGeographicArea = GeographicArea.create()._id;
+				geographicMap.containsGeographicAreas = ['abcd1234efgh9876'];
+				
+				GeographicMap.save(geographicMap).then(
+					function(saved) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						error = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('GeographicMap.save() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'GeographicMap.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});				
+
+			it('Valid Call Saves GeographicMap.', function(done){
+				var geographicArea = GeographicMap.create();
+				var error = null;
+				var compareResult;
+
+				geographicMap = GeographicMap.create();
+
+				geographicMap.name = 'States of the United States';
+				geographicMap.mapType = MapType.create()._id;
+				geographicMap.ofGeographicArea = GeographicMap.create();
+				geographicMap.containsGeographicAreas = [GeographicArea.create()._id, GeographicArea.create()._id];
+
+				GeographicMap.save(geographicMap).then(
+					function(saved) {
+						GeographicMap.Model.findById(geographicMap._id, function(findError, found) {
+							compareResult = GeographicMap.compare(geographicMap, found);
+
+							if (compareResult.match == false)
+								error = new Error(compareResult.message);
+						});
+					},
+					function(saveErr) {
+						testFailed = 1;
+						error = saveErr;
+					}
+				).finally(function() {
+					if (error)
+						done(error);
+					else
+						done();
+				});
+			});
+
+		});
+
+	});
 });
