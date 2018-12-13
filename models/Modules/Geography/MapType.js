@@ -24,7 +24,7 @@ var MapTypeSchema = new Schema({
     }
 });
 
-var MapType = mongoose.model('Map', MapTypeSchema);
+var MapType = mongoose.model('MapType', MapTypeSchema);
 
 //Methods 
 

@@ -375,11 +375,9 @@ describe('UserPost Module Tests', function() {
 			});				
 
 			it('Valid Call Saves GeographicMap.', function(done){
-				var geographicArea = GeographicMap.create();
+				var geographicMap = GeographicMap.create();
 				var error = null;
 				var compareResult;
-
-				geographicMap = GeographicMap.create();
 
 				geographicMap.name = 'States of the United States';
 				geographicMap.mapType = MapType.create()._id;
@@ -410,4 +408,123 @@ describe('UserPost Module Tests', function() {
 		});
 
 	});
+	
+	describe('MapType Model Tests', function() {
+
+		describe('MapType.create()', function() {
+		
+			it('MapType.create() creates a MapType instance.', function() {
+				var mapType = MapType.create();
+				assert(typeof(mapType) === "object");
+			});
+
+			it('MapType.create() creates a MapType instance with _id field populated', function(){
+				var mapType = MapType.create();
+				assert(typeof(mapType._id) === "object" && /^[a-f\d]{24}$/i.test(mapType._id));
+			});
+		});
+
+
+		describe('MapType.save()', function() {
+
+			it('MapType.save() throws an error if required fields are missing.', function(done) {
+				var mapType = MapType.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'MapType validation failed: name: Path `name` is required.';
+
+				MapType.save(mapType).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('MapType.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'MapType.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});	
+
+			it('MapType.geographicMaps must be a valid Array of IDs.', function(done){
+				var mapType = MapType.create();
+				var testFailed = 0;
+				var error = null;
+
+				var expectedErrorMessage = 'MapType validation failed: geographicMaps: Cast to Array failed for value "[ \'abcd1234efgh9876\' ]" at path "geographicMaps"';
+
+				mapType.name = "States";
+				mapType.geographicMaps = ['abcd1234efgh9876'];
+
+				MapType.save(mapType).then(
+					function(saved) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						error = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('MapType.save() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'MapType.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});		
+
+			it('Valid Call Saves MapType.', function(done){
+				var mapType = MapType.create();
+				var error = null;
+				var compareResult;
+
+				mapType.name = "States";
+				mapType.geographicMaps = [GeographicMap.create()._id, GeographicMap.create()._id];
+
+				MapType.save(mapType).then(
+					function(saved) {
+						MapType.Model.findById(mapType._id, function(findError, found) {
+							compareResult = MapType.compare(mapType, found);
+
+							if (compareResult.match == false)
+								error = new Error(compareResult.message);
+						});
+					},
+					function(saveErr) {
+						testFailed = 1;
+						error = saveErr;
+					}
+				).finally(function() {
+					if (error)
+						done(error);
+					else
+						done();
+				});
+			});
+
+		});
+
+	});
+
 });
