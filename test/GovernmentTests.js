@@ -13,6 +13,7 @@ var GeographicArea = require('../models/Modules/Geography/GeographicArea');
 var Government = require('../models/Modules/Government/Government');
 var GovernmentInstitution = require('../models/Modules/Government/GovernmentInstitution');
 var GovernmentPosition = require('../models/Modules/Government/GovernmentPosition');
+var EffectivePositionType = require('../models/Modules/Government/EffectivePositionDefinition');
 
 describe('Government Module Tests', function() {
 	
@@ -540,7 +541,7 @@ describe('Government Module Tests', function() {
 				var testFailed = 0;
 				var error;
 
-				var expectedErrorMessage = 'GovernmentPosition validation failed: title: Path `title` is required., governmentInstitution: Path `governmentInstitution` is required.';
+				var expectedErrorMessage = 'GovernmentPosition validation failed: governmentInstitution: Path `governmentInstitution` is required., title: Path `title` is required.';
 
 				GovernmentPosition.save(governmentPosition).then(
 					function(result) {
@@ -603,6 +604,43 @@ describe('Government Module Tests', function() {
 				});
 			});
 
+			it('GovernmentPosition.effectivePositionDefinitions must be a valid Array of IDs.', function(done) {
+				var governmentPosition = GovernmentPosition.create();
+				var testFailed = 0;
+				var error;
+
+				var expectedErrorMessage = 'GovernmentPosition validation failed: effectivePositionDefinitions: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "effectivePositionDefinitions"';
+
+				governmentPosition.title = 'Mayor';
+				governmentPosition.description = 'The chief executive for a city.';
+				governmentPosition.governmentInstitution = GovernmentInstitution.create()._id;
+				governmentPosition.effectivePositionDefinitions = ['abcd1234efgh9876', 'abcd1234efgh9875'];
+
+				GovernmentPosition.save(governmentPosition).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('GovernmentPosition.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'GovernmentPosition.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
 			it('Valid Call Saves Government Position.', function(done){
 				var governmentPosition = GovernmentPosition.create();
 				var error = null;
@@ -611,6 +649,7 @@ describe('Government Module Tests', function() {
 				governmentPosition.title = 'Mayor';
 				governmentPosition.description = 'The chief executive for a city.';
 				governmentPosition.governmentInstitution = GovernmentInstitution.create()._id;
+				governmentPosition.effectivePositionDefinitions = [EffectivePositionType.create()._id, EffectivePositionType.create()._id];
 
 				GovernmentPosition.save(governmentPosition).then(
 					function(saved) {
