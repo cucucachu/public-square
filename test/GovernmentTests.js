@@ -13,7 +13,11 @@ var GeographicArea = require('../models/Modules/Geography/GeographicArea');
 var Government = require('../models/Modules/Government/Government');
 var GovernmentInstitution = require('../models/Modules/Government/GovernmentInstitution');
 var GovernmentPosition = require('../models/Modules/Government/GovernmentPosition');
-var EffectivePositionType = require('../models/Modules/Government/EffectivePositionDefinition');
+var EffectivePositionDefinition = require('../models/Modules/Government/EffectivePositionDefinition');
+var PositionDefinition = require('../models/Modules/Government/PositionDefinition');
+var TermDefinition = require('../models/Modules/Government/TermDefinition');
+var GovernmentPower = require('../models/Modules/Government/GovernmentPower');
+var HiringProcess = require('../models/Modules/Government/HiringProcess');
 
 describe('Government Module Tests', function() {
 	
@@ -24,7 +28,32 @@ describe('Government Module Tests', function() {
 					function() {
 						GovernmentPosition.clear().then(
 							function() {
-								GovernmentInstitution.clear().then(done, done);
+								GovernmentInstitution.clear().then(
+									function() {
+										EffectivePositionDefinition.clear().then(
+											function() {
+												PositionDefinition.clear().then(
+													function() {
+														TermDefinition.clear().then(
+															function() {
+																GovernmentPower.clear().then(
+																	function() {
+																		HiringProcess.clear().then(done, done);
+																	},
+																	done
+																);
+															}, 
+															done
+														);
+													},
+													done
+												);
+											}, 
+											done
+										);
+									}, 
+									done
+								);
 							}, 
 							done
 						);
@@ -649,12 +678,399 @@ describe('Government Module Tests', function() {
 				governmentPosition.title = 'Mayor';
 				governmentPosition.description = 'The chief executive for a city.';
 				governmentPosition.governmentInstitution = GovernmentInstitution.create()._id;
-				governmentPosition.effectivePositionDefinitions = [EffectivePositionType.create()._id, EffectivePositionType.create()._id];
+				governmentPosition.effectivePositionDefinitions = [EffectivePositionDefinition.create()._id, EffectivePositionDefinition.create()._id];
 
 				GovernmentPosition.save(governmentPosition).then(
 					function(saved) {
 						GovernmentPosition.Model.findById(governmentPosition._id, function(findError, found) {
 							compareResult = GovernmentPosition.compare(governmentPosition, found);
+
+							if (compareResult.match == false)
+								error = new Error(compareResult.message);
+						});
+					},
+					function(saveErr) {
+						testFailed = 1;
+						error = saveErr;
+					}
+				).finally(function() {
+					if (error)
+						done(error);
+					else
+						done();
+				});
+			});
+
+		});
+
+	});
+
+	describe('Effective Position Definition Model Tests', function() {
+
+		describe('EffectivePositionDefinition.create()', function() {
+		
+			it('EffectivePositionDefinition.create() creates a EffectivePositionDefinition instance.', function() {
+				var effectivePositionDefinition = EffectivePositionDefinition.create();
+				assert(typeof(effectivePositionDefinition) === "object");
+			});
+
+			it('EffectivePositionDefinition.create() creates a EffectivePositionDefinition instance with _id field populated', function() {
+				var effectivePositionDefinition = EffectivePositionDefinition.create();
+				assert(typeof(effectivePositionDefinition._id) === "object" && /^[a-f\d]{24}$/i.test(effectivePositionDefinition._id));
+			});
+		});
+
+		describe('EffectivePositionDefinition.save()', function() {
+
+			it('EffectivePositionDefinition.save() throws an error if required fields are missing.', function(done) {
+				var effectivePositionDefinition = EffectivePositionDefinition.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'EffectivePositionDefinition validation failed: positionDefinition: Path `positionDefinition` is required., governmentPosition: Path `governmentPosition` is required., startDate: Path `startDate` is required.';
+
+				EffectivePositionDefinition.save(effectivePositionDefinition).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('EffectivePositionDefinition.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'EffectivePositionDefinition.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('EffectivePositionDefinition.positionDefinition must be a valid ID.', function(done) {
+				var effectivePositionDefinition = EffectivePositionDefinition.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'EffectivePositionDefinition validation failed: positionDefinition: Cast to ObjectID failed for value "abcd1234efgh9876" at path "positionDefinition"';
+
+				effectivePositionDefinition.startDate = new Date('1999-12-21');
+				effectivePositionDefinition.endDate = new Date('2018-01-01');
+				effectivePositionDefinition.positionDefinition = 'abcd1234efgh9876';
+				effectivePositionDefinition.governmentPosition = GovernmentPosition.create()._id;
+				
+				EffectivePositionDefinition.save(effectivePositionDefinition).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('EffectivePositionDefinition.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'EffectivePositionDefinition.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('EffectivePositionDefinition.governmentPosition must be a valid ID.', function(done) {
+				var effectivePositionDefinition = EffectivePositionDefinition.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'EffectivePositionDefinition validation failed: governmentPosition: Cast to ObjectID failed for value "abcd1234efgh9876" at path "governmentPosition"';
+
+				effectivePositionDefinition.startDate = new Date('1999-12-21');
+				effectivePositionDefinition.endDate = new Date('2018-01-01');
+				effectivePositionDefinition.positionDefinition = PositionDefinition.create()._id;
+				effectivePositionDefinition.governmentPosition = 'abcd1234efgh9876';
+				
+				EffectivePositionDefinition.save(effectivePositionDefinition).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('EffectivePositionDefinition.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'EffectivePositionDefinition.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('Valid Call Saves Effective Position Definition.', function(done){
+				var effectivePositionDefinition = EffectivePositionDefinition.create();
+				var error = null;
+				var compareResult;
+				
+				effectivePositionDefinition.startDate = new Date('1999-12-21');
+				effectivePositionDefinition.endDate = new Date('2018-01-01');
+				effectivePositionDefinition.positionDefinition = PositionDefinition.create()._id;
+				effectivePositionDefinition.governmentPosition = GovernmentPosition.create()._id;
+
+				EffectivePositionDefinition.save(effectivePositionDefinition).then(
+					function(saved) {
+						EffectivePositionDefinition.Model.findById(effectivePositionDefinition._id, function(findError, found) {
+							compareResult = EffectivePositionDefinition.compare(effectivePositionDefinition, found);
+
+							if (compareResult.match == false)
+								error = new Error(compareResult.message);
+						});
+					},
+					function(saveErr) {
+						testFailed = 1;
+						error = saveErr;
+					}
+				).finally(function() {
+					if (error)
+						done(error);
+					else
+						done();
+				});
+			});
+
+		});
+
+	});
+
+	describe('Position Definition Model Tests', function() {
+
+		describe('PositionDefinition.create()', function() {
+		
+			it('PositionDefinition.create() creates a PositionDefinition instance.', function() {
+				var positionDefinition = PositionDefinition.create();
+				assert(typeof(positionDefinition) === "object");
+			});
+
+			it('PositionDefinition.create() creates a PositionDefinition instance with _id field populated', function() {
+				var positionDefinition = PositionDefinition.create();
+				assert(typeof(positionDefinition._id) === "object" && /^[a-f\d]{24}$/i.test(positionDefinition._id));
+			});
+		});
+
+		describe('PositionDefinition.save()', function() {
+
+			it('PositionDefinition.save() throws an error if required fields are missing.', function(done) {
+				var positionDefinition = PositionDefinition.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'PositionDefinition validation failed: name: Path `name` is required.';
+
+				PositionDefinition.save(positionDefinition).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('PositionDefinition.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'PositionDefinition.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('PositionDefinition.termDefinition must be a valid ID.', function(done) {
+				var positionDefinition = PositionDefinition.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'PositionDefinition validation failed: termDefinition: Cast to ObjectID failed for value "abcd1234efgh9876" at path "termDefinition"';
+
+				positionDefinition.name = 'President';
+				positionDefinition.effectivePositionDefinitions = [EffectivePositionDefinition.create()._id, EffectivePositionDefinition.create()._id];
+				positionDefinition.termDefinition = 'abcd1234efgh9876';
+				positionDefinition.governmentPowers = [GovernmentPower.create()._id, GovernmentPower.create()._id];
+				positionDefinition.hiringProcesses = [HiringProcess.create()._id, HiringProcess.create._id];
+
+				PositionDefinition.save(positionDefinition).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('PositionDefinition.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'PositionDefinition.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('PositionDefinition.effectivePositionDefinitions must be a valid Array of IDs.', function(done) {
+				var positionDefinition = PositionDefinition.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'PositionDefinition validation failed: effectivePositionDefinitions: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "effectivePositionDefinitions"';
+
+				positionDefinition.name = 'President';
+				positionDefinition.effectivePositionDefinitions = ['abcd1234efgh9876', 'abcd1234efgh9875'];
+				positionDefinition.termDefinition = TermDefinition.create()._id;
+				positionDefinition.governmentPowers = [GovernmentPower.create()._id, GovernmentPower.create()._id];
+				positionDefinition.hiringProcesses = [HiringProcess.create()._id, HiringProcess.create._id];
+
+				PositionDefinition.save(positionDefinition).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('PositionDefinition.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'PositionDefinition.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('PositionDefinition.governmentPowers must be a valid Array of IDs.', function(done) {
+				var positionDefinition = PositionDefinition.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'PositionDefinition validation failed: governmentPowers: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "governmentPowers"';
+
+				positionDefinition.name = 'President';
+				positionDefinition.effectivePositionDefinitions = [EffectivePositionDefinition.create()._id, EffectivePositionDefinition.create()._id];
+				positionDefinition.termDefinition = TermDefinition.create()._id;
+				positionDefinition.governmentPowers = ['abcd1234efgh9876', 'abcd1234efgh9875'];
+				positionDefinition.hiringProcesses = [HiringProcess.create()._id, HiringProcess.create._id];
+
+				PositionDefinition.save(positionDefinition).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('PositionDefinition.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'PositionDefinition.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('PositionDefinition.termDefinition must be a valid ID.', function(done) {
+				var positionDefinition = PositionDefinition.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'PositionDefinition validation failed: hiringProcesses: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "hiringProcesses"';
+
+				positionDefinition.name = 'President';
+				positionDefinition.effectivePositionDefinitions = [EffectivePositionDefinition.create()._id, EffectivePositionDefinition.create()._id];
+				positionDefinition.termDefinition = TermDefinition.create()._id;
+				positionDefinition.governmentPowers = [GovernmentPower.create()._id, GovernmentPower.create()._id];
+				positionDefinition.hiringProcesses = ['abcd1234efgh9876', 'abcd1234efgh9875'];
+
+				PositionDefinition.save(positionDefinition).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('PositionDefinition.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'PositionDefinition.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('Valid Call Saves  Position Definition.', function(done){
+				var positionDefinition = PositionDefinition.create();
+				var error = null;
+				var compareResult;
+
+				positionDefinition.name = 'President';
+				positionDefinition.effectivePositionDefinitions = [EffectivePositionDefinition.create()._id, EffectivePositionDefinition.create()._id];
+				positionDefinition.termDefinition = TermDefinition.create()._id;
+				positionDefinition.governmentPowers = [GovernmentPower.create()._id, GovernmentPower.create()._id];
+				positionDefinition.hiringProcesses = [HiringProcess.create()._id, HiringProcess.create()._id];
+
+				PositionDefinition.save(positionDefinition).then(
+					function(saved) {
+						PositionDefinition.Model.findById(positionDefinition._id, function(findError, found) {
+							compareResult = PositionDefinition.compare(positionDefinition, found);
 
 							if (compareResult.match == false)
 								error = new Error(compareResult.message);

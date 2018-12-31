@@ -14,6 +14,13 @@ var PositionDefinition = require('./PositionDefinition');
 
 // Schema and Model Setup
 var EffectivePositionDefinitionSchema = new Schema({
+    startDate: {
+        type: Date,
+        required: true,
+    },
+    endDate: {
+        type: Date
+    },
     governmentPosition: {
         type: Schema.Types.ObjectId,
         ref: 'GovernmentPosition',
@@ -23,13 +30,6 @@ var EffectivePositionDefinitionSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'PositionDefinition',
         required: true
-    }, 
-    startDate: {
-        type: Date,
-        required: true,
-    },
-    endDate: {
-        type: Date
     }
 });
 
