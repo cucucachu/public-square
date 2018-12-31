@@ -4,6 +4,7 @@ var database = require('../../database');
 var Schema = mongoose.Schema;
 
 var GeographicMap = require('./GeographicMap');
+var Government = require('../Government/Government');
 var Address = require('./Address');
 
 // Schema and Model Setup
@@ -20,7 +21,11 @@ var GeographicAreaSchema = new Schema({
     addresses: {
         type: [Schema.Types.ObjectId],
         ref: 'Location'
-    }
+	},
+	government: {
+		type: Schema.Types.ObjectId,
+		ref: 'Government'
+	}
 });
 
 var GeographicArea = mongoose.model('GeographicArea', GeographicAreaSchema);
@@ -69,6 +74,11 @@ var compare = function(geographicArea1, geographicArea2) {
     if (geographicArea1.geographicMap != geographicArea2.geographicMap) {
         match = false;
         message += 'GeographicMaps do not match. ' + geographicArea1.geographicMap +' != ' + geographicArea2.geographicMap + '\n';
+    }
+
+    if (geographicArea1.government != geographicArea2.government) {
+        match = false;
+        message += 'Governments do not match. ' + geographicArea1.government +' != ' + geographicArea2.government + '\n';
     }
 
 	if (geographicArea1.addresses != null && geographicArea2.addresses != null) {
