@@ -17,7 +17,7 @@ var EffectivePositionDefinition = require('../models/Modules/Government/Effectiv
 var PositionDefinition = require('../models/Modules/Government/PositionDefinition');
 var TermDefinition = require('../models/Modules/Government/TermDefinition');
 var GovernmentPower = require('../models/Modules/Government/GovernmentPower');
-var HiringProcess = require('../models/Modules/Government/HiringProcess');
+var AcquisitionProcessDefinition = require('../models/Modules/Government/AcquisitionProcessDefinition');
 var Campaign = require('../models/Modules/Government/Campaign');
 var Candidate = require('../models/Modules/Government/Candidate');
 
@@ -40,7 +40,7 @@ describe('Government Module Tests', function() {
 															function() {
 																GovernmentPower.clear().then(
 																	function() {
-																		HiringProcess.clear().then(
+																		AcquisitionProcessDefinition.clear().then(
 																			function() {
 																				Campaign.clear().then(
 																					function() { 
@@ -930,7 +930,7 @@ describe('Government Module Tests', function() {
 				positionDefinition.effectivePositionDefinitions = [EffectivePositionDefinition.create()._id, EffectivePositionDefinition.create()._id];
 				positionDefinition.termDefinition = 'abcd1234efgh9876';
 				positionDefinition.governmentPowers = [GovernmentPower.create()._id, GovernmentPower.create()._id];
-				positionDefinition.hiringProcesses = [HiringProcess.create()._id, HiringProcess.create._id];
+				positionDefinition.acquisitionProcessDefinitions = [AcquisitionProcessDefinition.create()._id, AcquisitionProcessDefinition.create._id];
 
 				PositionDefinition.save(positionDefinition).then(
 					function(result) {
@@ -967,7 +967,7 @@ describe('Government Module Tests', function() {
 				positionDefinition.effectivePositionDefinitions = ['abcd1234efgh9876', 'abcd1234efgh9875'];
 				positionDefinition.termDefinition = TermDefinition.create()._id;
 				positionDefinition.governmentPowers = [GovernmentPower.create()._id, GovernmentPower.create()._id];
-				positionDefinition.hiringProcesses = [HiringProcess.create()._id, HiringProcess.create._id];
+				positionDefinition.acquisitionProcessDefinitions = [AcquisitionProcessDefinition.create()._id, AcquisitionProcessDefinition.create._id];
 
 				PositionDefinition.save(positionDefinition).then(
 					function(result) {
@@ -1004,7 +1004,7 @@ describe('Government Module Tests', function() {
 				positionDefinition.effectivePositionDefinitions = [EffectivePositionDefinition.create()._id, EffectivePositionDefinition.create()._id];
 				positionDefinition.termDefinition = TermDefinition.create()._id;
 				positionDefinition.governmentPowers = ['abcd1234efgh9876', 'abcd1234efgh9875'];
-				positionDefinition.hiringProcesses = [HiringProcess.create()._id, HiringProcess.create._id];
+				positionDefinition.acquisitionProcessDefinitions = [AcquisitionProcessDefinition.create()._id, AcquisitionProcessDefinition.create._id];
 
 				PositionDefinition.save(positionDefinition).then(
 					function(result) {
@@ -1035,13 +1035,13 @@ describe('Government Module Tests', function() {
 				var positionDefinition = PositionDefinition.create();
 				var testFailed = 0;
 				var error;
-				var expectedErrorMessage = 'PositionDefinition validation failed: hiringProcesses: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "hiringProcesses"';
+				var expectedErrorMessage = 'PositionDefinition validation failed: acquisitionProcessDefinitions: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "acquisitionProcessDefinitions"';
 
 				positionDefinition.name = 'President';
 				positionDefinition.effectivePositionDefinitions = [EffectivePositionDefinition.create()._id, EffectivePositionDefinition.create()._id];
 				positionDefinition.termDefinition = TermDefinition.create()._id;
 				positionDefinition.governmentPowers = [GovernmentPower.create()._id, GovernmentPower.create()._id];
-				positionDefinition.hiringProcesses = ['abcd1234efgh9876', 'abcd1234efgh9875'];
+				positionDefinition.acquisitionProcessDefinitions = ['abcd1234efgh9876', 'abcd1234efgh9875'];
 
 				PositionDefinition.save(positionDefinition).then(
 					function(result) {
@@ -1077,7 +1077,7 @@ describe('Government Module Tests', function() {
 				positionDefinition.effectivePositionDefinitions = [EffectivePositionDefinition.create()._id, EffectivePositionDefinition.create()._id];
 				positionDefinition.termDefinition = TermDefinition.create()._id;
 				positionDefinition.governmentPowers = [GovernmentPower.create()._id, GovernmentPower.create()._id];
-				positionDefinition.hiringProcesses = [HiringProcess.create()._id, HiringProcess.create()._id];
+				positionDefinition.acquisitionProcessDefinitions = [AcquisitionProcessDefinition.create()._id, AcquisitionProcessDefinition.create()._id];
 
 				PositionDefinition.save(positionDefinition).then(
 					function(saved) {
@@ -1338,30 +1338,30 @@ describe('Government Module Tests', function() {
 
 	});
 
-	describe('Hiring Process Model Tests', function() {
+	describe('Aquisition Process Definition Model Tests', function() {
 
-		describe('HiringProcess.create()', function() {
+		describe('AcquisitionProcessDefinition.create()', function() {
 		
-			it('HiringProcess.create() creates a HiringProcess instance.', function() {
-				var hiringProcess = HiringProcess.create();
-				assert(typeof(hiringProcess) === "object");
+			it('AcquisitionProcessDefinition.create() creates a AcquisitionProcessDefinition instance.', function() {
+				var acquisitionProcessDefinition = AcquisitionProcessDefinition.create();
+				assert(typeof(acquisitionProcessDefinition) === "object");
 			});
 
-			it('HiringProcess.create() creates a HiringProcess instance with _id field populated', function() {
-				var hiringProcess = HiringProcess.create();
-				assert(typeof(hiringProcess._id) === "object" && /^[a-f\d]{24}$/i.test(hiringProcess._id));
+			it('AcquisitionProcessDefinition.create() creates a AcquisitionProcessDefinition instance with _id field populated', function() {
+				var acquisitionProcessDefinition = AcquisitionProcessDefinition.create();
+				assert(typeof(acquisitionProcessDefinition._id) === "object" && /^[a-f\d]{24}$/i.test(acquisitionProcessDefinition._id));
 			});
 		});
 
-		describe('HiringProcess.save()', function() {
+		describe('AcquisitionProcessDefinition.save()', function() {
 
-			it('HiringProcess.save() throws an error if required fields are missing.', function(done) {
-				var hiringProcess = HiringProcess.create();
+			it('AcquisitionProcessDefinition.save() throws an error if required fields are missing.', function(done) {
+				var acquisitionProcessDefinition = AcquisitionProcessDefinition.create();
 				var testFailed = 0;
 				var error;
-				var expectedErrorMessage = 'HiringProcess validation failed: name: Path `name` is required.';
+				var expectedErrorMessage = 'AcquisitionProcessDefinition validation failed: name: Path `name` is required.';
 
-				HiringProcess.save(hiringProcess).then(
+				AcquisitionProcessDefinition.save(acquisitionProcessDefinition).then(
 					function(result) {
 						testFailed = 1;
 					},
@@ -1370,14 +1370,14 @@ describe('Government Module Tests', function() {
 					}
 				)
 				.finally(function() {
-					if (testFailed) done(new Error('HiringProcess.save() promise resolved when it should have been rejected with Validation Error'));
+					if (testFailed) done(new Error('AcquisitionProcessDefinition.save() promise resolved when it should have been rejected with Validation Error'));
 					else {
 						if (error != null && error.message == expectedErrorMessage) {
 							done();
 						}
 						else{
 							done(new Error(
-								'HiringProcess.save() did not return the correct Validation Error.\n' +
+								'AcquisitionProcessDefinition.save() did not return the correct Validation Error.\n' +
 								'   Expected: ' + expectedErrorMessage + '\n' +
 								'   Actual:   ' + error.message
 							));
@@ -1386,17 +1386,17 @@ describe('Government Module Tests', function() {
 				});
 			});
 
-			it('HiringProcess.positionDefinition must be a valid Array of IDs.', function(done) {
-				var hiringProcess = HiringProcess.create();
+			it('AcquisitionProcessDefinition.positionDefinition must be a valid Array of IDs.', function(done) {
+				var acquisitionProcessDefinition = AcquisitionProcessDefinition.create();
 				var testFailed = 0;
 				var error;
-				var expectedErrorMessage = 'HiringProcess validation failed: positionDefinitions: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "positionDefinitions"';
+				var expectedErrorMessage = 'AcquisitionProcessDefinition validation failed: positionDefinitions: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "positionDefinitions"';
 
-				hiringProcess.name = 'Direct Election';
-				hiringProcess.description = 'Strict majority election by voters.';
-				hiringProcess.positionDefinitions = ['abcd1234efgh9876', 'abcd1234efgh9875'];
+				acquisitionProcessDefinition.name = 'Direct Election';
+				acquisitionProcessDefinition.description = 'Strict majority election by voters.';
+				acquisitionProcessDefinition.positionDefinitions = ['abcd1234efgh9876', 'abcd1234efgh9875'];
 
-				HiringProcess.save(hiringProcess).then(
+				AcquisitionProcessDefinition.save(acquisitionProcessDefinition).then(
 					function(result) {
 						testFailed = 1;
 					},
@@ -1405,14 +1405,14 @@ describe('Government Module Tests', function() {
 					}
 				)
 				.finally(function() {
-					if (testFailed) done(new Error('HiringProcess.save() promise resolved when it should have been rejected with Validation Error'));
+					if (testFailed) done(new Error('AcquisitionProcessDefinition.save() promise resolved when it should have been rejected with Validation Error'));
 					else {
 						if (error != null && error.message == expectedErrorMessage) {
 							done();
 						}
 						else{
 							done(new Error(
-								'HiringProcess.save() did not return the correct Validation Error.\n' +
+								'AcquisitionProcessDefinition.save() did not return the correct Validation Error.\n' +
 								'   Expected: ' + expectedErrorMessage + '\n' +
 								'   Actual:   ' + error.message
 							));
@@ -1421,19 +1421,19 @@ describe('Government Module Tests', function() {
 				});
 			});
 
-			it('Valid Call Saves Hiring Process.', function(done){
-				var hiringProcess = HiringProcess.create();
+			it('Valid Call Saves Aquisition Process Definition.', function(done){
+				var acquisitionProcessDefinition = AcquisitionProcessDefinition.create();
 				var error = null;
 				var compareResult;
 
-				hiringProcess.name = 'Direct Election';
-				hiringProcess.description = 'Strict majority election by voters.';
-				hiringProcess.positionDefinitions = [PositionDefinition.create()._id, PositionDefinition.create()._id];
+				acquisitionProcessDefinition.name = 'Direct Election';
+				acquisitionProcessDefinition.description = 'Strict majority election by voters.';
+				acquisitionProcessDefinition.positionDefinitions = [PositionDefinition.create()._id, PositionDefinition.create()._id];
 
-				HiringProcess.save(hiringProcess).then(
+				AcquisitionProcessDefinition.save(acquisitionProcessDefinition).then(
 					function(saved) {
-						HiringProcess.Model.findById(hiringProcess._id, function(findError, found) {
-							compareResult = HiringProcess.compare(hiringProcess, found);
+						AcquisitionProcessDefinition.Model.findById(acquisitionProcessDefinition._id, function(findError, found) {
+							compareResult = AcquisitionProcessDefinition.compare(acquisitionProcessDefinition, found);
 
 							if (compareResult.match == false)
 								error = new Error(compareResult.message);

@@ -4,8 +4,8 @@
  Description: Defines complex properties for positions. This is separated out into its own class and model so that these definitions can be reused
     for multiple positions accross different governments and at different times. These properties include data about Terms, the Powers available
     to the holder of the position, and how the position is filled (Hiring Process). A definition for the President of the United States position
-    would define what a term is (4 years), the term limits (2 terms), the powers available (executive, military), and the hiring process
-    (election through electory college).
+	would define what a term is (4 years), the term limits (2 terms), the powers available (executive, military), and the aquisition process 
+	definition (election through electory college).
 */
 
 // MongoDB and Mongoose Setup
@@ -16,7 +16,7 @@ var Schema = mongoose.Schema;
 var EffectivePositionDefinition = require('./EffectivePositionDefinition');
 var TermDefinition = require('./TermDefinition');
 var GovernmentPower = require('./GovernmentPower');
-var HiringProcess = require('./HiringProcess');
+var AcquisitionProcessDefinition = require('./AcquisitionProcessDefinition');
 
 // Schema and Model Setup
 var PositionDefinitionSchema = new Schema({
@@ -36,9 +36,9 @@ var PositionDefinitionSchema = new Schema({
         type: [Schema.Types.ObjectId],
         ref: 'GovernmentPower'
     },
-    hiringProcesses: {
+    acquisitionProcessDefinitions: {
         type: [Schema.Types.ObjectId],
-        ref: 'HiringProcess'
+        ref: 'AcquisitionProcessDefinition'
     }
 });
 
@@ -122,14 +122,14 @@ var compare = function(positionDefinition1, positionDefinition2) {
 		}
 	}
 
-	if (positionDefinition1.hiringProcesses != null && positionDefinition2.hiringProcesses != null) {
-		if (positionDefinition1.hiringProcesses.length != positionDefinition2.hiringProcesses.length) {
+	if (positionDefinition1.acquisitionProcessDefinitions != null && positionDefinition2.acquisitionProcessDefinitions != null) {
+		if (positionDefinition1.acquisitionProcessDefinitions.length != positionDefinition2.acquisitionProcessDefinitions.length) {
 			match = false;
 			message += "Hiring Processes do not match. \n";
 		}
 		else {
-			for (var i = 0; i < positionDefinition1.hiringProcesses.length; i++) {
-				if (positionDefinition1.hiringProcesses[i] != positionDefinition2.hiringProcesses[i]) {
+			for (var i = 0; i < positionDefinition1.acquisitionProcessDefinitions.length; i++) {
+				if (positionDefinition1.acquisitionProcessDefinitions[i] != positionDefinition2.acquisitionProcessDefinitions[i]) {
 					match = false;
 					message += "Hiring Processes do not match. \n";
 

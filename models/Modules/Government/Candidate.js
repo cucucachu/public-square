@@ -10,7 +10,7 @@ var database = require('../../database');
 var Schema = mongoose.Schema;
 
 var Campaign = require('./Campaign');
-var UserRole = require('./UserRole');
+var UserRole = require('../User/UserRole');
 
 // Schema and Model Setup
 var CandidateSchema = new Schema({

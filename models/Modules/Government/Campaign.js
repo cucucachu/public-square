@@ -10,7 +10,7 @@ var database = require('../../database');
 var Schema = mongoose.Schema;
 
 var Candidate = require('./Candidate');
-var GovernmentPosition = require('./GivernmentPosition');
+var GovernmentPosition = require('./GovernmentPosition');
 
 // Schema and Model Setup
 var CampaignSchema = new Schema({
