@@ -1104,6 +1104,357 @@ describe('Government Module Tests', function() {
 
 	});
 
+	describe('Term Definition Model Tests', function() {
+
+		describe('TermDefinition.create()', function() {
+		
+			it('TermDefinition.create() creates a TermDefinition instance.', function() {
+				var termDefinition = TermDefinition.create();
+				assert(typeof(termDefinition) === "object");
+			});
+
+			it('TermDefinition.create() creates a TermDefinition instance with _id field populated', function() {
+				var termDefinition = TermDefinition.create();
+				assert(typeof(termDefinition._id) === "object" && /^[a-f\d]{24}$/i.test(termDefinition._id));
+			});
+		});
+
+		describe('TermDefinition.save()', function() {
+
+			it('TermDefinition.save() throws an error if required fields are missing.', function(done) {
+				var termDefinition = TermDefinition.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'TermDefinition validation failed: termLimit: Path `termLimit` is required., termLength: Path `termLength` is required.';
+
+				TermDefinition.save(termDefinition).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('TermDefinition.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'TermDefinition.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('TermDefinition.positionDefinition must be a valid ID.', function(done) {
+				var termDefinition = TermDefinition.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'TermDefinition validation failed: positionDefinition: Cast to ObjectID failed for value "abcd1234efgh9876" at path "positionDefinition"';
+
+				termDefinition.termLength = 4;
+				termDefinition.termLimit = 2;
+				termDefinition.positionDefinition = 'abcd1234efgh9876';
+
+				TermDefinition.save(termDefinition).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('TermDefinition.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'TermDefinition.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('Valid Call Saves Term Definition.', function(done){
+				var termDefinition = TermDefinition.create();
+				var error = null;
+				var compareResult;
+
+				termDefinition.termLength = 4;
+				termDefinition.termLimit = 2;
+				termDefinition.positionDefinition = PositionDefinition.create()._id;
+
+				TermDefinition.save(termDefinition).then(
+					function(saved) {
+						TermDefinition.Model.findById(termDefinition._id, function(findError, found) {
+							compareResult = TermDefinition.compare(termDefinition, found);
+
+							if (compareResult.match == false)
+								error = new Error(compareResult.message);
+						});
+					},
+					function(saveErr) {
+						testFailed = 1;
+						error = saveErr;
+					}
+				).finally(function() {
+					if (error)
+						done(error);
+					else
+						done();
+				});
+			});
+
+		});
+
+	});
+
+	describe('Government Power Model Tests', function() {
+
+		describe('GovernmentPower.create()', function() {
+		
+			it('GovernmentPower.create() creates a GovernmentPower instance.', function() {
+				var governmentPower = GovernmentPower.create();
+				assert(typeof(governmentPower) === "object");
+			});
+
+			it('GovernmentPower.create() creates a GovernmentPower instance with _id field populated', function() {
+				var governmentPower = GovernmentPower.create();
+				assert(typeof(governmentPower._id) === "object" && /^[a-f\d]{24}$/i.test(governmentPower._id));
+			});
+		});
+
+		describe('GovernmentPower.save()', function() {
+
+			it('GovernmentPower.save() throws an error if required fields are missing.', function(done) {
+				var governmentPower = GovernmentPower.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'GovernmentPower validation failed: name: Path `name` is required.';
+
+				GovernmentPower.save(governmentPower).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('GovernmentPower.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'GovernmentPower.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('GovernmentPower.positionDefinition must be a valid Array of IDs.', function(done) {
+				var governmentPower = GovernmentPower.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'GovernmentPower validation failed: positionDefinitions: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "positionDefinitions"';
+
+				governmentPower.name = 'Legislative';
+				governmentPower.description = 'Writes and votes on laws.';
+				governmentPower.positionDefinitions = ['abcd1234efgh9876', 'abcd1234efgh9875'];
+
+				GovernmentPower.save(governmentPower).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('GovernmentPower.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'GovernmentPower.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('Valid Call Saves Government Power.', function(done){
+				var governmentPower = GovernmentPower.create();
+				var error = null;
+				var compareResult;
+
+				governmentPower.name = 'Legislative';
+				governmentPower.description = 'Writes and votes on laws.';
+				governmentPower.positionDefinitions = [PositionDefinition.create()._id, PositionDefinition.create()._id];
+
+				GovernmentPower.save(governmentPower).then(
+					function(saved) {
+						GovernmentPower.Model.findById(governmentPower._id, function(findError, found) {
+							compareResult = GovernmentPower.compare(governmentPower, found);
+
+							if (compareResult.match == false)
+								error = new Error(compareResult.message);
+						});
+					},
+					function(saveErr) {
+						testFailed = 1;
+						error = saveErr;
+					}
+				).finally(function() {
+					if (error)
+						done(error);
+					else
+						done();
+				});
+			});
+
+		});
+
+	});
+
+	describe('Hiring Process Model Tests', function() {
+
+		describe('HiringProcess.create()', function() {
+		
+			it('HiringProcess.create() creates a HiringProcess instance.', function() {
+				var hiringProcess = HiringProcess.create();
+				assert(typeof(hiringProcess) === "object");
+			});
+
+			it('HiringProcess.create() creates a HiringProcess instance with _id field populated', function() {
+				var hiringProcess = HiringProcess.create();
+				assert(typeof(hiringProcess._id) === "object" && /^[a-f\d]{24}$/i.test(hiringProcess._id));
+			});
+		});
+
+		describe('HiringProcess.save()', function() {
+
+			it('HiringProcess.save() throws an error if required fields are missing.', function(done) {
+				var hiringProcess = HiringProcess.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'HiringProcess validation failed: name: Path `name` is required.';
+
+				HiringProcess.save(hiringProcess).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('HiringProcess.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'HiringProcess.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('HiringProcess.positionDefinition must be a valid Array of IDs.', function(done) {
+				var hiringProcess = HiringProcess.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'HiringProcess validation failed: positionDefinitions: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "positionDefinitions"';
+
+				hiringProcess.name = 'Direct Election';
+				hiringProcess.description = 'Strict majority election by voters.';
+				hiringProcess.positionDefinitions = ['abcd1234efgh9876', 'abcd1234efgh9875'];
+
+				HiringProcess.save(hiringProcess).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('HiringProcess.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'HiringProcess.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('Valid Call Saves Hiring Process.', function(done){
+				var hiringProcess = HiringProcess.create();
+				var error = null;
+				var compareResult;
+
+				hiringProcess.name = 'Direct Election';
+				hiringProcess.description = 'Strict majority election by voters.';
+				hiringProcess.positionDefinitions = [PositionDefinition.create()._id, PositionDefinition.create()._id];
+
+				HiringProcess.save(hiringProcess).then(
+					function(saved) {
+						HiringProcess.Model.findById(hiringProcess._id, function(findError, found) {
+							compareResult = HiringProcess.compare(hiringProcess, found);
+
+							if (compareResult.match == false)
+								error = new Error(compareResult.message);
+						});
+					},
+					function(saveErr) {
+						testFailed = 1;
+						error = saveErr;
+					}
+				).finally(function() {
+					if (error)
+						done(error);
+					else
+						done();
+				});
+			});
+
+		});
+
+	});
+
 
 
 });
