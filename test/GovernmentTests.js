@@ -18,6 +18,8 @@ var PositionDefinition = require('../models/Modules/Government/PositionDefinitio
 var TermDefinition = require('../models/Modules/Government/TermDefinition');
 var GovernmentPower = require('../models/Modules/Government/GovernmentPower');
 var HiringProcess = require('../models/Modules/Government/HiringProcess');
+var Campaign = require('../models/Modules/Government/Campaign');
+var Candidate = require('../models/Modules/Government/Candidate');
 
 describe('Government Module Tests', function() {
 	
@@ -38,7 +40,17 @@ describe('Government Module Tests', function() {
 															function() {
 																GovernmentPower.clear().then(
 																	function() {
-																		HiringProcess.clear().then(done, done);
+																		HiringProcess.clear().then(
+																			function() {
+																				Campaign.clear().then(
+																					function() { 
+																						Candidate.clear().then(done,done);
+																					},
+																					done
+																				);
+																			}, 
+																			done
+																		);
 																	},
 																	done
 																);
