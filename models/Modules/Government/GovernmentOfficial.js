@@ -62,13 +62,13 @@ var compare = function(governmentOfficial1, governmentOfficial2) {
 	if (governmentOfficial1.occupiedPositions != null && governmentOfficial2.occupiedPositions != null) {
 		if (governmentOfficial1.occupiedPositions.length != governmentOfficial2.occupiedPositions.length) {
 			match = false;
-			message += "Occupied Position do not match. \n";
+			message += "Occupied Positions do not match. \n";
 		}
 		else {
 			for (var i = 0; i < governmentOfficial1.occupiedPositions.length; i++) {
 				if (governmentOfficial1.occupiedPositions[i] != governmentOfficial2.occupiedPositions[i]) {
 					match = false;
-					message += "Occupied Position do not match. \n";
+					message += "Occupied Positions do not match. \n";
 
 				}
 			}
