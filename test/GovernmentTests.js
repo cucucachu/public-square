@@ -24,6 +24,9 @@ var OccupiedPosition = require('../models/Modules/Government/OccupiedPosition');
 var GovernmentRole = require('../models/Modules/Government/GovernmentRole');
 var GovernmentOfficial = require('../models/Modules/Government/GovernmentOfficial');
 var User = require('../models/Modules/User/User');
+var Law = require('../models/Modules/Government/Law');
+var VoteDefinition = require('../models/Modules/Government/VoteDefinition');
+var Bill = require('../models/Modules/Government/Legislator/Bill');
 
 describe('Government Module Tests', function() {
 	
@@ -56,7 +59,17 @@ describe('Government Module Tests', function() {
 																											function() {
 																												GovernmentOfficial.clear().then(
 																													function() {
-																														User.clear().then(done, done);
+																														User.clear().then(
+																															function() {
+																																Law.clear().then(
+																																	function() {
+																																		VoteDefinition.clear().then(done, done);
+																																	},
+																																	done
+																																);
+																															}, 
+																															done
+																														);
 																													},
 																													done
 																												);
@@ -1957,6 +1970,241 @@ describe('Government Module Tests', function() {
 					function(saved) {
 						GovernmentRole.Model.findById(governmentRole._id, function(findError, found) {
 							compareResult = GovernmentRole.compare(governmentRole, found);
+
+							if (compareResult.match == false)
+								error = new Error(compareResult.message);
+						});
+					},
+					function(saveErr) {
+						testFailed = 1;
+						error = saveErr;
+					}
+				).finally(function() {
+					if (error)
+						done(error);
+					else
+						done();
+				});
+			});
+
+		});
+
+	});
+
+	describe('Law Model Tests', function() {
+
+		describe('Law.create()', function() {
+		
+			it('Law.create() creates a Law instance.', function() {
+				var law = Law.create();
+				assert(typeof(law) === "object");
+			});
+
+			it('Law.create() creates a Law instance with _id field populated', function() {
+				var law = Law.create();
+				assert(typeof(law._id) === "object" && /^[a-f\d]{24}$/i.test(law._id));
+			});
+		});
+
+		describe('Law.save()', function() {
+
+			it('Law.save() throws an error if required fields are missing.', function(done) {
+				var law = Law.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'Law validation failed: startDate: Path `startDate` is required.';
+
+				Law.save(law).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('Law.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'Law.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('Law.expireDate must be greater than or equal to Law.startDate.', function(done) {
+				var law = Law.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'Law validation failed: expireDate: Expire Date must be greater than or equal to Start Date.';
+
+				law.startDate = new Date('2019-01-01');
+				law.expireDate = new Date('2018-01-01');
+				law.bills = [Bill.create()._id, Bill.create()._id];
+
+				Law.save(law).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('Law.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'Law.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('Law.bills must be a valid Array of IDs.', function(done) {
+				var law = Law.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'Law validation failed: bills: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "bills"';
+
+				law.startDate = new Date('2019-01-01');
+				law.expireDate = new Date('2020-01-01');
+				law.bills = ['abcd1234efgh9876', 'abcd1234efgh9875'];
+
+				Law.save(law).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('Law.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'Law.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('Valid Call Saves Law.', function(done){
+				var law = Law.create();
+				var error = null;
+				var compareResult;
+
+				law.startDate = new Date('2019-01-01');
+				law.expireDate = new Date('2020-01-01');
+				law.bills = [Bill.create()._id, Bill.create()._id];
+
+				Law.save(law).then(
+					function(saved) {
+						Law.Model.findById(law._id, function(findError, found) {
+							compareResult = Law.compare(law, found);
+
+							if (compareResult.match == false)
+								error = new Error(compareResult.message);
+						});
+					},
+					function(saveErr) {
+						testFailed = 1;
+						error = saveErr;
+					}
+				).finally(function() {
+					if (error)
+						done(error);
+					else
+						done();
+				});
+			});
+
+		});
+
+	});
+    
+	describe('VoteDefinition Model Tests', function() {
+
+		describe('VoteDefinition.create()', function() {
+		
+			it('VoteDefinition.create() creates a VoteDefinition instance.', function() {
+				var voteDefinition = VoteDefinition.create();
+				assert(typeof(voteDefinition) === "object");
+			});
+
+			it('VoteDefinition.create() creates a VoteDefinition instance with _id field populated', function(){
+				var voteDefinition = VoteDefinition.create();
+				assert(typeof(voteDefinition._id) === "object" && /^[a-f\d]{24}$/i.test(voteDefinition._id));
+			});
+		});
+
+		describe('VoteDefinition.save()', function() {
+
+			it('VoteDefinition.save() throws an error if required fields are missing.', function(done) {
+				var voteDefinition = VoteDefinition.create();
+				var testFailed = 0;
+				var error;
+                var expectedErrorMessage = 'VoteDefinition validation failed: name: Path `name` is required.';
+
+				VoteDefinition.save(voteDefinition).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('VoteDefinition.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'VoteDefinition.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+    
+			it('Valid Call Saves Legislative Vote Definition.', function(done){
+				var voteDefinition = VoteDefinition.create();
+				var error = null;
+                var compareResult;
+
+                voteDefinition.name = 'Yay';
+                voteDefinition.positive = true;
+                voteDefinition.negative = false;
+                voteDefinition.countsTowardsTotal = true;
+
+				VoteDefinition.save(voteDefinition).then(
+					function(saved) {
+						VoteDefinition.Model.findById(voteDefinition._id, function(findError, found) {
+							compareResult = VoteDefinition.compare(voteDefinition, found);
 
 							if (compareResult.match == false)
 								error = new Error(compareResult.message);

@@ -8,7 +8,7 @@
 
 // MongoDB and Mongoose Setup
 var mongoose = require('mongoose');
-var database = require('../../database');
+var database = require('../../../database');
 var Schema = mongoose.Schema;
 
 var Legislator = require('./Legislator');
@@ -21,7 +21,15 @@ var BillSponsorshipSchema = new Schema({
         required: true
     },
     endDate: {
-        type: Date
+        type: Date,
+        validate: {
+            validator: function(value) {
+                if (value < this.startDate)
+                    return false;
+                return true;
+            },
+            message: 'End Date must be greater than or equal to Start Date.'
+        }
     },
     bill: {
         type: Schema.Types.ObjectId,

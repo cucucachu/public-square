@@ -6,16 +6,20 @@
 
 // MongoDB and Mongoose Setup
 var mongoose = require('mongoose');
-var database = require('../../database');
+var database = require('../../../database');
 var Schema = mongoose.Schema;
 
 var LegislativeVote = require('./LegislativeVote');
 var BillSponsorship = require('./BillSponsorship');
 var BillVersion = require('./BillVersion');
-var Law = require('./Law');
+var Law = require('../Law');
 
 // Schema and Model Setup
 var BillSchema = new Schema({
+    name: {
+        type: String,
+        required: true
+    },
     passageDate: {
         type: Date
     },
@@ -32,14 +36,10 @@ var BillSchema = new Schema({
         ref: 'BillSponsorship',
         required: true
     },
-    law: {
-        type: Schema.Types.ObjectId,
+    laws: {
+        type: [Schema.Types.ObjectId],
         ref: 'Law',
         required: true
-    },
-    legislativeVotes: {
-        type: [Schema.Types.ObjectId],
-        ref: 'LegislativeVote'
     }
 });
 
@@ -91,10 +91,21 @@ var compare = function(bill1, bill2) {
         message += 'Passage Dates do not match. ' + bill1.passageDate +' != ' + bill2.passageDate + '\n';
     }
 
-    if (bill1.law != bill2.law) {
-        match = false;
-        message += 'Laws do not match. ' + bill1.law +' != ' + bill2.law + '\n';
-    }
+	if (bill1.laws != null && bill2.laws != null) {
+		if (bill1.laws.length != bill2.laws.length) {
+			match = false;
+			message += "Laws do not match. \n";
+		}
+		else {
+			for (var i = 0; i < bill1.laws.length; i++) {
+				if (bill1.laws[i] != bill2.laws[i]) {
+					match = false;
+					message += "Laws do not match. \n";
+
+				}
+			}
+		}
+	}
 
 	if (bill1.billVersions != null && bill2.billVersions != null) {
 		if (bill1.billVersions.length != bill2.billVersions.length) {

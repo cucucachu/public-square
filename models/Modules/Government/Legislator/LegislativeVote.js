@@ -6,7 +6,7 @@
 
 // MongoDB and Mongoose Setup
 var mongoose = require('mongoose');
-var database = require('../../database');
+var database = require('../../../database');
 var Schema = mongoose.Schema;
 
 var IndividualLegislativeVote = require('./IndividualLegislativeVote');
@@ -18,9 +18,9 @@ var LegislativeVoteSchema = new Schema({
         type: Date,
         required: true
     },
-    bill: {
+    billVersion: {
         type: Schema.Types.ObjectId,
-        ref: 'Bill',
+        ref: 'BillVersion',
         required: true
     },
     individualLegislativeVotes: {
@@ -72,9 +72,9 @@ var compare = function(legislativeVote1, legislativeVote2) {
         message += 'Dates do not match. ' + legislativeVote1.date +' != ' + legislativeVote2.date + '\n';
     }
 
-    if (legislativeVote1.bill != legislativeVote2.bill) {
+    if (legislativeVote1.billVersion != legislativeVote2.billVersion) {
         match = false;
-        message += 'Bills do not match. ' + legislativeVote1.bill +' != ' + legislativeVote2.bill + '\n';
+        message += 'Bill Versions do not match. ' + legislativeVote1.billVersion +' != ' + legislativeVote2.billVersion + '\n';
     }
 
 	if (legislativeVote1.individualLegislativeVotes != null && legislativeVote2.individualLegislativeVotes != null) {

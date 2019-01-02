@@ -10,11 +10,12 @@ var mongoose = require('mongoose');
 var database = require('../../database');
 var Schema = mongoose.Schema;
 
-var IndividualLegislativeVote = require('./IndividualLegislativeVote');
-var VoteDefinition = require('../VoteDefinition');
-
 // Schema and Model Setup
 var VoteDefinitionSchema = new Schema({
+    name: {
+        type: String,
+        required: true
+    },
     positive: {
         type: Boolean
     },

@@ -7,7 +7,7 @@
 
 // MongoDB and Mongoose Setup
 var mongoose = require('mongoose');
-var database = require('../../database');
+var database = require('../../../database');
 var Schema = mongoose.Schema;
 
 var Legislator = require('./Legislator');
@@ -35,6 +35,10 @@ var BillVersionSchema = new Schema({
     legislators: {
         type: [Schema.Types.ObjectId],
         ref: 'Legislator'
+    },
+    legislativeVotes: {
+        type: [Schema.Types.ObjectId],
+        ref: 'LegislativeVote'
     }
 });
 

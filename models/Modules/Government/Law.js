@@ -9,7 +9,7 @@ var mongoose = require('mongoose');
 var database = require('../../database');
 var Schema = mongoose.Schema;
 
-var Bill = require('./Bill');
+var Bill = require('./Legislator/Bill');
 
 // Schema and Model Setup
 var LawSchema = new Schema({
@@ -18,7 +18,15 @@ var LawSchema = new Schema({
         required: true
     },
     expireDate: {
-        type: Date
+        type: Date,
+        validate: {
+            validator: function(value) {
+                if (value < this.startDate)
+                    return false;
+                return true;
+            },
+            message: 'Expire Date must be greater than or equal to Start Date.'
+        }
     },
     bills: {
         type: [Schema.Types.ObjectId],
