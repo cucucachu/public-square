@@ -109,13 +109,13 @@ var compare = function(positionDefinition1, positionDefinition2) {
 	if (positionDefinition1.governmentPowers != null && positionDefinition2.governmentPowers != null) {
 		if (positionDefinition1.governmentPowers.length != positionDefinition2.governmentPowers.length) {
 			match = false;
-			message += "Powers do not match. \n";
+			message += "Govrenment Powers do not match. \n";
 		}
 		else {
 			for (var i = 0; i < positionDefinition1.governmentPowers.length; i++) {
 				if (positionDefinition1.governmentPowers[i] != positionDefinition2.governmentPowers[i]) {
 					match = false;
-					message += "Powers Definitions do not match. \n";
+					message += "Government Powers Definitions do not match. \n";
 
 				}
 			}
@@ -125,13 +125,13 @@ var compare = function(positionDefinition1, positionDefinition2) {
 	if (positionDefinition1.acquisitionProcessDefinitions != null && positionDefinition2.acquisitionProcessDefinitions != null) {
 		if (positionDefinition1.acquisitionProcessDefinitions.length != positionDefinition2.acquisitionProcessDefinitions.length) {
 			match = false;
-			message += "Hiring Processes do not match. \n";
+			message += "Acquisition Process Definitions do not match. \n";
 		}
 		else {
 			for (var i = 0; i < positionDefinition1.acquisitionProcessDefinitions.length; i++) {
 				if (positionDefinition1.acquisitionProcessDefinitions[i] != positionDefinition2.acquisitionProcessDefinitions[i]) {
 					match = false;
-					message += "Hiring Processes do not match. \n";
+					message += "Acquisition Process Definitions do not match. \n";
 
 				}
 			}

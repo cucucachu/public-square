@@ -14,6 +14,7 @@ var Schema = mongoose.Schema;
 
 var GovernemntInstitution = require('./GovernmentInstitution');
 var EffectivePositionDefinition = require('./EffectivePositionDefinition');
+var OccupiedPosition = require('./OccupiedPosition');
 
 // Schema and Model Setup
 var GovernmentPositionSchema = new Schema({
@@ -35,7 +36,11 @@ var GovernmentPositionSchema = new Schema({
     effectivePositionDefinitions: {
         type: [Schema.Types.ObjectId],
         ref: 'EffectivePositionDefinition'
-    }
+	},
+	occupiedPositions: {
+		type: [Schema.Types.ObjectId],
+		ref: 'OccupiedPosition'
+	}
 });
 
 var GovernmentPosition = mongoose.model('GovernmentPosition', GovernmentPositionSchema);
@@ -101,6 +106,22 @@ var compare = function(governmentPosition1, governmentPosition2) {
 				if (governmentPosition1.effectivePositionDefinitions[i] != governmentPosition2.effectivePositionDefinitions[i]) {
 					match = false;
 					message += "Effective Position Definitions do not match. \n";
+
+				}
+			}
+		}
+	}
+
+	if (governmentPosition1.occupiedPositions != null && governmentPosition2.occupiedPositions != null) {
+		if (governmentPosition1.occupiedPositions.length != governmentPosition2.occupiedPositions.length) {
+			match = false;
+			message += "Occupied Position do not match. \n";
+		}
+		else {
+			for (var i = 0; i < governmentPosition1.occupiedPositions.length; i++) {
+				if (governmentPosition1.occupiedPositions[i] != governmentPosition2.occupiedPositions[i]) {
+					match = false;
+					message += "Occupied Position do not match. \n";
 
 				}
 			}

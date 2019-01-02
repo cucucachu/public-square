@@ -20,6 +20,10 @@ var GovernmentPower = require('../models/Modules/Government/GovernmentPower');
 var AcquisitionProcessDefinition = require('../models/Modules/Government/AcquisitionProcessDefinition');
 var Campaign = require('../models/Modules/Government/Campaign');
 var Candidate = require('../models/Modules/Government/Candidate');
+var OccupiedPosition = require('../models/Modules/Government/OccupiedPosition');
+var GovernmentRole = require('../models/Modules/Government/GovernmentRole');
+var GovernmentOfficial = require('../models/Modules/Government/GovernmentOfficial');
+var User = require('../models/Modules/User/User');
 
 describe('Government Module Tests', function() {
 	
@@ -44,7 +48,27 @@ describe('Government Module Tests', function() {
 																			function() {
 																				Campaign.clear().then(
 																					function() { 
-																						Candidate.clear().then(done,done);
+																						Candidate.clear().then(
+																							function() {
+																								OccupiedPosition.clear().then(
+																									function() {
+																										GovernmentRole.clear().then(
+																											function() {
+																												GovernmentOfficial.clear().then(
+																													function() {
+																														User.clear().then(done, done);
+																													},
+																													done
+																												);
+																											},
+																											done
+																										);
+																									},
+																									done
+																								);
+																							},
+																							done
+																						);
 																					},
 																					done
 																				);
@@ -619,6 +643,8 @@ describe('Government Module Tests', function() {
 				governmentPosition.title = 'Mayor';
 				governmentPosition.description = 'The chief executive for a city.';
 				governmentPosition.governmentInstitution = 'abcd1234efgh9876';
+				governmentPosition.effectivePositionDefinitions = [EffectivePositionDefinition.create()._id, EffectivePositionDefinition.create()._id];
+				governmentPosition.occupiedPositions = [OccupiedPosition.create()._id, OccupiedPosition.create()._id];
 
 				GovernmentPosition.save(governmentPosition).then(
 					function(result) {
@@ -656,6 +682,45 @@ describe('Government Module Tests', function() {
 				governmentPosition.description = 'The chief executive for a city.';
 				governmentPosition.governmentInstitution = GovernmentInstitution.create()._id;
 				governmentPosition.effectivePositionDefinitions = ['abcd1234efgh9876', 'abcd1234efgh9875'];
+				governmentPosition.occupiedPositions = [OccupiedPosition.create()._id, OccupiedPosition.create()._id];
+
+				GovernmentPosition.save(governmentPosition).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('GovernmentPosition.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'GovernmentPosition.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('GovernmentPosition.occupiedPositions must be a valid Array of IDs.', function(done) {
+				var governmentPosition = GovernmentPosition.create();
+				var testFailed = 0;
+				var error;
+
+				var expectedErrorMessage = 'GovernmentPosition validation failed: occupiedPositions: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "occupiedPositions"';
+
+				governmentPosition.title = 'Mayor';
+				governmentPosition.description = 'The chief executive for a city.';
+				governmentPosition.governmentInstitution = GovernmentInstitution.create()._id;
+				governmentPosition.effectivePositionDefinitions = [EffectivePositionDefinition.create()._id, EffectivePositionDefinition.create()._id];
+				governmentPosition.occupiedPositions = ['abcd1234efgh9876', 'abcd1234efgh9875'];
 
 				GovernmentPosition.save(governmentPosition).then(
 					function(result) {
@@ -691,6 +756,7 @@ describe('Government Module Tests', function() {
 				governmentPosition.description = 'The chief executive for a city.';
 				governmentPosition.governmentInstitution = GovernmentInstitution.create()._id;
 				governmentPosition.effectivePositionDefinitions = [EffectivePositionDefinition.create()._id, EffectivePositionDefinition.create()._id];
+				governmentPosition.occupiedPositions = [OccupiedPosition.create()._id, OccupiedPosition.create()._id];
 
 				GovernmentPosition.save(governmentPosition).then(
 					function(saved) {
@@ -1434,6 +1500,463 @@ describe('Government Module Tests', function() {
 					function(saved) {
 						AcquisitionProcessDefinition.Model.findById(acquisitionProcessDefinition._id, function(findError, found) {
 							compareResult = AcquisitionProcessDefinition.compare(acquisitionProcessDefinition, found);
+
+							if (compareResult.match == false)
+								error = new Error(compareResult.message);
+						});
+					},
+					function(saveErr) {
+						testFailed = 1;
+						error = saveErr;
+					}
+				).finally(function() {
+					if (error)
+						done(error);
+					else
+						done();
+				});
+			});
+
+		});
+
+	});
+
+	describe('Occupied Position Model Tests', function() {
+
+		describe('OccupiedPosition.create()', function() {
+		
+			it('OccupiedPosition.create() creates a OccupiedPosition instance.', function() {
+				var occupiedPosition = OccupiedPosition.create();
+				assert(typeof(occupiedPosition) === "object");
+			});
+
+			it('OccupiedPosition.create() creates a OccupiedPosition instance with _id field populated', function() {
+				var occupiedPosition = OccupiedPosition.create();
+				assert(typeof(occupiedPosition._id) === "object" && /^[a-f\d]{24}$/i.test(occupiedPosition._id));
+			});
+		});
+
+		describe('OccupiedPosition.save()', function() {
+
+			it('OccupiedPosition.save() throws an error if required fields are missing.', function(done) {
+				var occupiedPosition = OccupiedPosition.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'OccupiedPosition validation failed: governmentOfficial: Path `governmentOfficial` is required., governmentPosition: Path `governmentPosition` is required., startDate: Path `startDate` is required.';
+
+				OccupiedPosition.save(occupiedPosition).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('OccupiedPosition.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'OccupiedPosition.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('OccupiedPosition.governmentOfficial must be a valid ID', function(done) {
+				var occupiedPosition = OccupiedPosition.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'OccupiedPosition validation failed: governmentOfficial: Cast to ObjectID failed for value "abcd1234efgh9876" at path "governmentOfficial"';
+
+				occupiedPosition.startDate = new Date('2010-01-01');
+				occupiedPosition.endDate = new Date('2011-01-01');
+				occupiedPosition.governmentOfficial = 'abcd1234efgh9876';
+				occupiedPosition.governmentPosition = GovernmentPosition.create()._id;
+				occupiedPosition.governmentRoles = [GovernmentRole.create()._id, GovernmentRole.create()._id];
+
+				OccupiedPosition.save(occupiedPosition).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('OccupiedPosition.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'OccupiedPosition.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('OccupiedPosition.governmentPosition must be a valid ID', function(done) {
+				var occupiedPosition = OccupiedPosition.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'OccupiedPosition validation failed: governmentPosition: Cast to ObjectID failed for value "abcd1234efgh9876" at path "governmentPosition"';
+
+				occupiedPosition.startDate = new Date('2010-01-01');
+				occupiedPosition.endDate = new Date('2011-01-01');
+				occupiedPosition.governmentOfficial = GovernmentOfficial.create()._id;
+				occupiedPosition.governmentPosition = 'abcd1234efgh9876';
+				occupiedPosition.governmentRoles = [GovernmentRole.create()._id, GovernmentRole.create()._id];
+
+				OccupiedPosition.save(occupiedPosition).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('OccupiedPosition.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'OccupiedPosition.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('OccupiedPosition.governmentRoles must be a valid Array of IDs', function(done) {
+				var occupiedPosition = OccupiedPosition.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'OccupiedPosition validation failed: governmentRoles: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "governmentRoles"';
+
+				occupiedPosition.startDate = new Date('2010-01-01');
+				occupiedPosition.endDate = new Date('2011-01-01');
+				occupiedPosition.governmentOfficial = GovernmentOfficial.create()._id;
+				occupiedPosition.governmentPosition = GovernmentPosition.create()._id;
+				occupiedPosition.governmentRoles = ['abcd1234efgh9876', 'abcd1234efgh9875'];
+
+				OccupiedPosition.save(occupiedPosition).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('OccupiedPosition.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'OccupiedPosition.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('Valid Call Saves Occupied Position', function(done){
+				var occupiedPosition = OccupiedPosition.create();
+				var error = null;
+				var compareResult;
+
+				occupiedPosition.startDate = new Date('2010-01-01');
+				occupiedPosition.endDate = new Date('2011-01-01');
+				occupiedPosition.governmentOfficial = GovernmentOfficial.create()._id;
+				occupiedPosition.governmentPosition = GovernmentPosition.create()._id;
+				occupiedPosition.governmentRoles = [GovernmentRole.create()._id, GovernmentRole.create()._id];
+
+				OccupiedPosition.save(occupiedPosition).then(
+					function(saved) {
+						OccupiedPosition.Model.findById(occupiedPosition._id, function(findError, found) {
+							compareResult = OccupiedPosition.compare(occupiedPosition, found);
+
+							if (compareResult.match == false)
+								error = new Error(compareResult.message);
+						});
+					},
+					function(saveErr) {
+						testFailed = 1;
+						error = saveErr;
+					}
+				).finally(function() {
+					if (error)
+						done(error);
+					else
+						done();
+				});
+			});
+
+		});
+
+	});
+
+	describe('Government Official Model Tests', function() {
+
+		describe('GovernmentOfficial.create()', function() {
+		
+			it('GovernmentOfficial.create() creates a GovernmentOfficial instance.', function() {
+				var governmentOfficial = GovernmentOfficial.create();
+				assert(typeof(governmentOfficial) === "object");
+			});
+
+			it('GovernmentOfficial.create() creates a GovernmentOfficial instance with _id field populated', function() {
+				var governmentOfficial = GovernmentOfficial.create();
+				assert(typeof(governmentOfficial._id) === "object" && /^[a-f\d]{24}$/i.test(governmentOfficial._id));
+			});
+		});
+
+		describe('GovernmentOfficial.save()', function() {
+
+			it('GovernmentOfficial.save() throws an error if required fields are missing.', function(done) {
+				var governmentOfficial = GovernmentOfficial.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'GovernmentOfficial validation failed: user: Path `user` is required.';
+
+				GovernmentOfficial.save(governmentOfficial).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('GovernmentOfficial.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'GovernmentOfficial.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('GovernmentOfficial.user must be a valid ID.', function(done) {
+				var governmentOfficial = GovernmentOfficial.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'GovernmentOfficial validation failed: user: Cast to ObjectID failed for value "abcd1234efgh9876" at path "user"';
+
+				governmentOfficial.user = 'abcd1234efgh9876';
+				governmentOfficial.occupiedPositions = [OccupiedPosition.create()._id, OccupiedPosition.create()._id];
+
+				GovernmentOfficial.save(governmentOfficial).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('GovernmentOfficial.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'GovernmentOfficial.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('GovernmentOfficial.occupiedPositions must be a valid Array of IDs.', function(done) {
+				var governmentOfficial = GovernmentOfficial.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'GovernmentOfficial validation failed: occupiedPositions: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "occupiedPositions"';
+
+				governmentOfficial.user = User.create()._id;
+				governmentOfficial.occupiedPositions = ['abcd1234efgh9876', 'abcd1234efgh9875'];
+
+				GovernmentOfficial.save(governmentOfficial).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('GovernmentOfficial.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'GovernmentOfficial.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('Valid Call Saves Government Official.', function(done){
+				var governmentOfficial = GovernmentOfficial.create();
+				var error = null;
+				var compareResult;
+
+				governmentOfficial.user = User.create()._id;
+				governmentOfficial.occupiedPositions = [OccupiedPosition.create()._id, OccupiedPosition.create()._id];
+
+				GovernmentOfficial.save(governmentOfficial).then(
+					function(saved) {
+						GovernmentOfficial.Model.findById(governmentOfficial._id, function(findError, found) {
+							compareResult = GovernmentOfficial.compare(governmentOfficial, found);
+
+							if (compareResult.match == false)
+								error = new Error(compareResult.message);
+						});
+					},
+					function(saveErr) {
+						testFailed = 1;
+						error = saveErr;
+					}
+				).finally(function() {
+					if (error)
+						done(error);
+					else
+						done();
+				});
+			});
+
+		});
+
+	});
+
+	describe('Government Role Model Tests', function() {
+
+		describe('GovernmentRole.create()', function() {
+		
+			it('GovernmentRole.create() creates a GovernmentRole instance.', function() {
+				var governmentRole = GovernmentRole.create();
+				assert(typeof(governmentRole) === "object");
+			});
+
+			it('GovernmentRole.create() creates a GovernmentRole instance with _id field populated', function() {
+				var governmentRole = GovernmentRole.create();
+				assert(typeof(governmentRole._id) === "object" && /^[a-f\d]{24}$/i.test(governmentRole._id));
+			});
+		});
+
+		describe('GovernmentRole.save()', function() {
+
+			it('GovernmentRole.save() throws an error if required fields are missing.', function(done) {
+				var governmentRole = GovernmentRole.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'GovernmentRole validation failed: occupiedPosition: Path `occupiedPosition` is required.';
+
+				GovernmentRole.save(governmentRole).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('GovernmentRole.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'GovernmentRole.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('GovernmentRole.occupiedPosition must be a valid ID.', function(done) {
+				var governmentRole = GovernmentRole.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'GovernmentRole validation failed: occupiedPosition: Cast to ObjectID failed for value "abcd1234efgh9876" at path "occupiedPosition"';
+
+				governmentRole.occupiedPosition = 'abcd1234efgh9876';
+
+				GovernmentRole.save(governmentRole).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('GovernmentRole.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'GovernmentRole.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('Valid Call Saves Government Role.', function(done){
+				var governmentRole = GovernmentRole.create();
+				var error = null;
+				var compareResult;
+
+				governmentRole.occupiedPosition = OccupiedPosition.create()._id;
+
+				GovernmentRole.save(governmentRole).then(
+					function(saved) {
+						GovernmentRole.Model.findById(governmentRole._id, function(findError, found) {
+							compareResult = GovernmentRole.compare(governmentRole, found);
 
 							if (compareResult.match == false)
 								error = new Error(compareResult.message);
