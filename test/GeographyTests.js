@@ -16,6 +16,7 @@ var MapType = require('../models/Modules/Geography/MapType');
 var Address = require('../models/Modules/Geography/Address');
 var User = require('../models/Modules/User/User');
 var Government = require('../models/Modules/Government/Government');
+var ElectionResult = require('../models/Modules/Government/Election/ElectionResult');
 
 describe('Geography Module Tests', function() {
 	
@@ -108,6 +109,7 @@ describe('Geography Module Tests', function() {
 				geographicArea.geographicMap = 'abcd1234efgh9876';
 				geographicArea.government = Government.create()._id;
 				geographicArea.addresses = [Address.create()._id, Address.create()._id];
+				geographicArea.electionResults = [ElectionResult.create()._id, ElectionResult.create()._id];
 				
 
 				GeographicArea.save(geographicArea).then(
@@ -148,6 +150,7 @@ describe('Geography Module Tests', function() {
 				geographicArea.government = 'abcd1234efgh9876';
 				geographicArea.geographicMap = GeographicMap.create()._id;
 				geographicArea.addresses = [Address.create()._id, Address.create()._id];
+				geographicArea.electionResults = [ElectionResult.create()._id, ElectionResult.create()._id];
 				
 
 				GeographicArea.save(geographicArea).then(
@@ -188,6 +191,48 @@ describe('Geography Module Tests', function() {
 				geographicArea.government = Government.create()._id;
 				geographicArea.geographicMap = GeographicMap.create()._id;
 				geographicArea.addresses = ['abcd1234efgh9876'];
+				geographicArea.electionResults = [ElectionResult.create()._id, ElectionResult.create()._id];
+				
+
+				GeographicArea.save(geographicArea).then(
+					function(saved) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						error = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('GeographicArea.save() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'GeographicArea.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});	
+
+
+			it('GeographicArea.electionResults must be a valid Array of IDs.', function(done){
+				var geographicArea = GeographicArea.create();
+				var testFailed = 0;
+				var error = null;
+
+				var expectedErrorMessage ='GeographicArea validation failed: electionResults: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "electionResults"';
+
+				geographicArea.name = 'California';
+				geographicArea.government = Government.create()._id;
+				geographicArea.geographicMap = GeographicMap.create()._id;
+				geographicArea.addresses = [Address.create()._id, Address.create()._id];
+				geographicArea.electionResults = ['abcd1234efgh9876', 'abcd1234efgh9875'];
 				
 
 				GeographicArea.save(geographicArea).then(
@@ -225,6 +270,7 @@ describe('Geography Module Tests', function() {
 				geographicArea.government = Government.create()._id;
 				geographicArea.geographicMap = GeographicMap.create()._id;
 				geographicArea.addresses = [Address.create()._id, Address.create()._id];
+				geographicArea.electionResults = [ElectionResult.create()._id, ElectionResult.create()._id];
 
 				GeographicArea.save(geographicArea).then(
 					function(saved) {

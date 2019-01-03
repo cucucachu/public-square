@@ -6,6 +6,7 @@ var Schema = mongoose.Schema;
 var GeographicMap = require('./GeographicMap');
 var Government = require('../Government/Government');
 var Address = require('./Address');
+var ElectionResult = require('../Government/Election/ElectionResult');
 
 // Schema and Model Setup
 var GeographicAreaSchema = new Schema({
@@ -25,6 +26,10 @@ var GeographicAreaSchema = new Schema({
 	government: {
 		type: Schema.Types.ObjectId,
 		ref: 'Government'
+	},
+	electionResults: {
+		type: [Schema.Types.ObjectId],
+		ref: 'ElectionResult'
 	}
 });
 
@@ -84,13 +89,29 @@ var compare = function(geographicArea1, geographicArea2) {
 	if (geographicArea1.addresses != null && geographicArea2.addresses != null) {
 		if (geographicArea1.addresses.length != geographicArea2.addresses.length) {
 			match = false;
-			message += "Locations do not match. \n";
+			message += "Addresses do not match. \n";
 		}
 		else {
 			for (var i = 0; i < geographicArea1.addresses.length; i++) {
 				if (geographicArea1.addresses[i] != geographicArea2.addresses[i]) {
 					match = false;
-					message += "Locations do not match. \n";
+					message += "Addresses do not match. \n";
+
+				}
+			}
+		}
+	}
+
+	if (geographicArea1.electionResults != null && geographicArea2.electionResults != null) {
+		if (geographicArea1.electionResults.length != geographicArea2.electionResults.length) {
+			match = false;
+			message += "Election Results do not match. \n";
+		}
+		else {
+			for (var i = 0; i < geographicArea1.electionResults.length; i++) {
+				if (geographicArea1.electionResults[i] != geographicArea2.electionResults[i]) {
+					match = false;
+					message += "Election Results do not match. \n";
 
 				}
 			}
