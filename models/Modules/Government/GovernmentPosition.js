@@ -15,6 +15,7 @@ var Schema = mongoose.Schema;
 var GovernemntInstitution = require('./GovernmentInstitution');
 var EffectivePositionDefinition = require('./EffectivePositionDefinition');
 var OccupiedPosition = require('./OccupiedPosition');
+var PositionAcquisitionProcess = require('./PositionAcquisitionProcess');
 
 // Schema and Model Setup
 var GovernmentPositionSchema = new Schema({
@@ -40,6 +41,10 @@ var GovernmentPositionSchema = new Schema({
 	occupiedPositions: {
 		type: [Schema.Types.ObjectId],
 		ref: 'OccupiedPosition'
+	},
+	positionAcquisitionProcesses: {
+		type: [Schema.Types.ObjectId],
+		ref: 'PositionAcquisitionProcess'
 	}
 });
 
@@ -122,6 +127,22 @@ var compare = function(governmentPosition1, governmentPosition2) {
 				if (governmentPosition1.occupiedPositions[i] != governmentPosition2.occupiedPositions[i]) {
 					match = false;
 					message += "Occupied Position do not match. \n";
+
+				}
+			}
+		}
+	}
+
+	if (governmentPosition1.positionAcquisitionProcesses != null && governmentPosition2.positionAcquisitionProcesses != null) {
+		if (governmentPosition1.positionAcquisitionProcesses.length != governmentPosition2.positionAcquisitionProcesses.length) {
+			match = false;
+			message += "Position Acquisition Processes do not match. \n";
+		}
+		else {
+			for (var i = 0; i < governmentPosition1.positionAcquisitionProcesses.length; i++) {
+				if (governmentPosition1.positionAcquisitionProcesses[i] != governmentPosition2.positionAcquisitionProcesses[i]) {
+					match = false;
+					message += "Position Acquisition Processes do not match. \n";
 
 				}
 			}

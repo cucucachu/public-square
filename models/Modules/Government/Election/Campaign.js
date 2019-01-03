@@ -1,7 +1,7 @@
 /* 
  Mongoose Schema and Model Functions
- Model: Effective Position Definition
- Description: Joiner class between Government Position and Position Definition. Relates a Government Position to a Position Definition for a given date range.
+ Model: Campaign
+ Description: Joiner class between Government Position and Election. Relates a Election to a Position Definition for a given date range.
 */
 
 // MongoDB and Mongoose Setup
@@ -10,24 +10,25 @@ var database = require('../../database');
 var Schema = mongoose.Schema;
 
 var Candidate = require('./Candidate');
-var GovernmentPosition = require('./GovernmentPosition');
+var Election = require('./Election');
+var ElectionResult = require('./ElectionResult');
 
 // Schema and Model Setup
 var CampaignSchema = new Schema({
-    termStartDate: {
-        type: Date,
-        required: true
-    },
     candidate: {
     	type: Schema.Types.ObjectId,
     	ref: 'Candidate',
     	required: true
     },
-    governmentPosition: {
+    election: {
     	type: Schema.Types.ObjectId,
-    	ref: 'GovernmentPosition',
+    	ref: 'Election',
     	required: true
-    }
+	},
+	electionResults: {
+		type: [Schema.Types.ObjectId],
+		ref: 'ElectionResult'
+	}
 
 });
 
@@ -69,20 +70,31 @@ var compare = function(campaign1, campaign2) {
     var match = true;
     var message = '';
 
-    if (campaign1.termStartDate != campaign2.termStartDate) {
-        match = false;
-        message += 'Campaign Start Dates do not match. ' + campaign1.termStartDate +' != ' + campaign2.termStartDate + '\n';
-    }
-
     if (campaign1.candidate != campaign2.candidate) {
         match = false;
         message += 'Campaign Candidates do not match. ' + campaign1.candidate +' != ' + campaign2.candidate + '\n';
     }
 
-    if (campaign1.governmentPosition != campaign2.governmentPosition) {
+    if (campaign1.election != campaign2.election) {
         match = false;
-        message += 'Campaign Government Positions do not match. ' + campaign1.governmentPosition +' != ' + campaign2.governmentPosition + '\n';
+        message += 'Elections do not match. ' + campaign1.election +' != ' + campaign2.election + '\n';
     }
+
+	if (campaign1.electionResults != null && campaign2.electionResults != null) {
+		if (campaign1.positionAcquisitionProcesses.length != campaign2.electionResults.length) {
+			match = false;
+			message += "Election Results do not match. \n";
+		}
+		else {
+			for (var i = 0; i < campaign1.electionResults.length; i++) {
+				if (campaign1.electionResults[i] != campaign2.electionResults[i]) {
+					match = false;
+					message += "Election Resultss do not match. \n";
+
+				}
+			}
+		}
+	}
 
 	if (match)
 		message = 'Campaigns Match';

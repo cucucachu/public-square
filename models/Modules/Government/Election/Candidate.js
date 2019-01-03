@@ -1,16 +1,17 @@
 /* 
  Mongoose Schema and Model Functions
- Model: Effective Position Definition
- Description: Joiner class between Government Position and Position Definition. Relates a Government Position to a Position Definition for a given date range.
+ Model: Candidate
+ Super Class: User Role
+ Description: A User Role which connects a Person to Campaigns.
 */
 
 // MongoDB and Mongoose Setup
 var mongoose = require('mongoose');
-var database = require('../../database');
+var database = require('../../../database');
 var Schema = mongoose.Schema;
 
 var Campaign = require('./Campaign');
-var UserRole = require('../User/UserRole');
+var UserRole = require('../../User/UserRole');
 
 // Schema and Model Setup
 var CandidateSchema = new Schema({
@@ -62,6 +63,11 @@ var compare = function(candidate1, candidate2) {
     if (candidate1.campaign != candidate2.campaign) {
         match = false;
         message += 'Candidates campaigns do not match. ' + candidate1.campaign +' != ' + candidate2.campaign + '\n';
+    }
+
+    if (candidate1.user != candidate2.user) {
+        match = false;
+        message += 'Users do not match. ' + candidate1.user +' != ' + candidate2.user + '\n';
     }
 
 	if (match)

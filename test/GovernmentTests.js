@@ -18,6 +18,7 @@ var PositionDefinition = require('../models/Modules/Government/PositionDefinitio
 var TermDefinition = require('../models/Modules/Government/TermDefinition');
 var GovernmentPower = require('../models/Modules/Government/GovernmentPower');
 var AcquisitionProcessDefinition = require('../models/Modules/Government/AcquisitionProcessDefinition');
+var PositionAcquisitionProcess = require('../models/Modules/Government/PositionAcquisitionProcess')
 var Campaign = require('../models/Modules/Government/Campaign');
 var Candidate = require('../models/Modules/Government/Candidate');
 var OccupiedPosition = require('../models/Modules/Government/OccupiedPosition');
@@ -658,6 +659,7 @@ describe('Government Module Tests', function() {
 				governmentPosition.governmentInstitution = 'abcd1234efgh9876';
 				governmentPosition.effectivePositionDefinitions = [EffectivePositionDefinition.create()._id, EffectivePositionDefinition.create()._id];
 				governmentPosition.occupiedPositions = [OccupiedPosition.create()._id, OccupiedPosition.create()._id];
+				governmentPosition.positionAcquisitionProcesses = [PositionAcquisitionProcess.create()._id, PositionAcquisitionProcess.create()._id];
 
 				GovernmentPosition.save(governmentPosition).then(
 					function(result) {
@@ -696,6 +698,7 @@ describe('Government Module Tests', function() {
 				governmentPosition.governmentInstitution = GovernmentInstitution.create()._id;
 				governmentPosition.effectivePositionDefinitions = ['abcd1234efgh9876', 'abcd1234efgh9875'];
 				governmentPosition.occupiedPositions = [OccupiedPosition.create()._id, OccupiedPosition.create()._id];
+				governmentPosition.positionAcquisitionProcesses = [PositionAcquisitionProcess.create()._id, PositionAcquisitionProcess.create()._id];
 
 				GovernmentPosition.save(governmentPosition).then(
 					function(result) {
@@ -734,6 +737,46 @@ describe('Government Module Tests', function() {
 				governmentPosition.governmentInstitution = GovernmentInstitution.create()._id;
 				governmentPosition.effectivePositionDefinitions = [EffectivePositionDefinition.create()._id, EffectivePositionDefinition.create()._id];
 				governmentPosition.occupiedPositions = ['abcd1234efgh9876', 'abcd1234efgh9875'];
+				governmentPosition.positionAcquisitionProcesses = [PositionAcquisitionProcess.create()._id, PositionAcquisitionProcess.create()._id];
+
+				GovernmentPosition.save(governmentPosition).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('GovernmentPosition.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'GovernmentPosition.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('GovernmentPosition.positionAcquisitionProcesses must be a valid Array of IDs.', function(done) {
+				var governmentPosition = GovernmentPosition.create();
+				var testFailed = 0;
+				var error;
+
+				var expectedErrorMessage = 'GovernmentPosition validation failed: positionAcquisitionProcesses: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "positionAcquisitionProcesses"';
+
+				governmentPosition.title = 'Mayor';
+				governmentPosition.description = 'The chief executive for a city.';
+				governmentPosition.governmentInstitution = GovernmentInstitution.create()._id;
+				governmentPosition.effectivePositionDefinitions = [EffectivePositionDefinition.create()._id, EffectivePositionDefinition.create()._id];
+				governmentPosition.occupiedPositions = [OccupiedPosition.create()._id, OccupiedPosition.create()._id];
+				governmentPosition.positionAcquisitionProcesses = ['abcd1234efgh9876', 'abcd1234efgh9875'];
 
 				GovernmentPosition.save(governmentPosition).then(
 					function(result) {
@@ -770,6 +813,7 @@ describe('Government Module Tests', function() {
 				governmentPosition.governmentInstitution = GovernmentInstitution.create()._id;
 				governmentPosition.effectivePositionDefinitions = [EffectivePositionDefinition.create()._id, EffectivePositionDefinition.create()._id];
 				governmentPosition.occupiedPositions = [OccupiedPosition.create()._id, OccupiedPosition.create()._id];
+				governmentPosition.positionAcquisitionProcesses = [PositionAcquisitionProcess.create()._id, PositionAcquisitionProcess.create()._id];
 
 				GovernmentPosition.save(governmentPosition).then(
 					function(saved) {
@@ -2225,7 +2269,5 @@ describe('Government Module Tests', function() {
 		});
 
 	});
-
-
 
 });
