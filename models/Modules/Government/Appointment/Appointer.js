@@ -1,8 +1,8 @@
 /* 
  Mongoose Schema and Model Functions
- Model: Candidate
- Super Class: User Role
- Description: A User Role which connects a Person to Campaigns.
+ Model: Appointer
+ SuperClass: Government Role
+ Description: A Government Role allowing an Occupied Position to make an Appointment of a person to a Government Position. 
 */
 
 // MongoDB and Mongoose Setup
@@ -10,33 +10,33 @@ var mongoose = require('mongoose');
 var database = require('../../../database');
 var Schema = mongoose.Schema;
 
-var Campaign = require('./Campaign');
-var UserRole = require('../../User/UserRole');
+var GovernmentRole = require('../GovernmentRole');
+var OccupiedPosition = require('../OccupiedPosition');
+var Appointment = require('./Appointment');
 
 // Schema and Model Setup
-var CandidateSchema = new Schema({
-    campaigns: {
+var AppointerSchema = new Schema({
+    appointments: {
         type: [Schema.Types.ObjectId],
-        ref: 'Campaign',
-        required: true
+        ref: 'Appointment'
     }
 });
 
-var Candidate = UserRole.Model.discriminator('Candidate', CandidateSchema);
+var Appointer = GovernmentRole.Model.discriminator('Appointer', AppointerSchema);
 
 //Methods 
 
 // Create Method
 var create = function() {
-	return new Candidate({
+	return new Appointer({
         _id: new mongoose.Types.ObjectId()
 	});
 }
 
 // Save
-var save = function(candidate, errorMessage, successMessasge) {
+var save = function(appointer, errorMessage, successMessasge) {
 	return new Promise(function(resolve, reject) {
-		candidate.save(function(err, saved) {
+		appointer.save(function(err, saved) {
 			if (err) {
 				// if (errorMessage != null)
 				// 	console.log(errorMessage);
@@ -56,29 +56,25 @@ var save = function(candidate, errorMessage, successMessasge) {
 // Comparison Methods
 
 // This is a member comparison, not an instance comparison. i.e. two separate instances can be equal if their members are equal.
-var compare = function(candidate1, candidate2) {
+var compare = function(appointer1, appointer2) {
     var match = true;
     var message = '';
 
-    if (candidate1.startDate != candidate2.startDate) {
+    if (appointer1.occupiedPosition != appointer2.occupiedPosition) {
         match = false;
-        message += 'Start Dates do not match. ' + candidate1.startDate +' != ' + candidate2.startDate + '\n';
-    }
-    if (candidate1.user != candidate2.user) {
-        match = false;
-        message += 'Users do not match. ' + candidate1.user +' != ' + candidate2.user + '\n';
+        message += 'Occupied Positions do not match. ' + appointer1.occupiedPosition +' != ' + appointer2.occupiedPosition + '\n';
     }
 
-	if (candidate1.campaigns != null && candidate2.campaigns != null) {
-		if (candidate1.campaigns.length != candidate2.campaigns.length) {
+	if (appointer1.appointments != null && appointer2.appointments != null) {
+		if (appointer1.appointments.length != appointer2.appointments.length) {
 			match = false;
-			message += "Campaigns do not match. \n";
+			message += "Appointments do not match. \n";
 		}
 		else {
-			for (var i = 0; i < candidate1.campaigns.length; i++) {
-				if (candidate1.campaigns[i] != candidate2.campaigns[i]) {
+			for (var i = 0; i < appointer1.appointments.length; i++) {
+				if (appointer1.appointments[i] != appointer2.appointments[i]) {
 					match = false;
-					message += "Campaigns do not match. \n";
+					message += "Appointments do not match. \n";
 
 				}
 			}
@@ -86,7 +82,7 @@ var compare = function(candidate1, candidate2) {
 	}
 
 	if (match)
-		message = 'Candidates Match';
+		message = 'Appointers Match';
 
 	return {
 		match: match, 
@@ -97,7 +93,7 @@ var compare = function(candidate1, candidate2) {
 // Clear the collection. Never run in production! Only run in a test environment.
 var clear = function() {
 	return new Promise(function(resolve, reject) {	
-		Candidate.deleteMany({}, function(err) {
+		Appointer.deleteMany({}, function(err) {
 			if (err) reject(err);
 			else resolve();
 		});
@@ -106,7 +102,7 @@ var clear = function() {
 
 // Exports
 
-exports.Model = Candidate;
+exports.Model = Appointer;
 exports.create = create;
 exports.save = save;
 exports.compare = compare;
