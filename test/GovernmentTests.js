@@ -19,12 +19,11 @@ var TermDefinition = require('../models/Modules/Government/TermDefinition');
 var GovernmentPower = require('../models/Modules/Government/GovernmentPower');
 var AcquisitionProcessDefinition = require('../models/Modules/Government/AcquisitionProcessDefinition');
 var PositionAcquisitionProcess = require('../models/Modules/Government/PositionAcquisitionProcess')
-var Campaign = require('../models/Modules/Government/Campaign');
-var Candidate = require('../models/Modules/Government/Candidate');
 var OccupiedPosition = require('../models/Modules/Government/OccupiedPosition');
 var GovernmentRole = require('../models/Modules/Government/GovernmentRole');
 var GovernmentOfficial = require('../models/Modules/Government/GovernmentOfficial');
 var User = require('../models/Modules/User/User');
+var UserRole = require('../models/Modules/User/UserRole');
 var Law = require('../models/Modules/Government/Law');
 var VoteDefinition = require('../models/Modules/Government/VoteDefinition');
 var Bill = require('../models/Modules/Government/Legislator/Bill');
@@ -50,31 +49,26 @@ describe('Government Module Tests', function() {
 																	function() {
 																		AcquisitionProcessDefinition.clear().then(
 																			function() {
-																				Campaign.clear().then(
-																					function() { 
-																						Candidate.clear().then(
+																				OccupiedPosition.clear().then(
+																					function() {
+																						GovernmentRole.clear().then(
 																							function() {
-																								OccupiedPosition.clear().then(
+																								UserRole.clear().then(
 																									function() {
-																										GovernmentRole.clear().then(
+																										User.clear().then(
 																											function() {
-																												GovernmentOfficial.clear().then(
+																												Law.clear().then(
 																													function() {
-																														User.clear().then(
+																														VoteDefinition.clear().then(
 																															function() {
-																																Law.clear().then(
-																																	function() {
-																																		VoteDefinition.clear().then(done, done);
-																																	},
-																																	done
-																																);
+																																PositionAcquisitionProcess.clear().then(done, done);
 																															}, 
 																															done
 																														);
 																													},
 																													done
 																												);
-																											},
+																											}, 
 																											done
 																										);
 																									},
@@ -85,7 +79,7 @@ describe('Government Module Tests', function() {
 																						);
 																					},
 																					done
-																				);
+																				);																					
 																			}, 
 																			done
 																		);
@@ -2249,6 +2243,119 @@ describe('Government Module Tests', function() {
 					function(saved) {
 						VoteDefinition.Model.findById(voteDefinition._id, function(findError, found) {
 							compareResult = VoteDefinition.compare(voteDefinition, found);
+
+							if (compareResult.match == false)
+								error = new Error(compareResult.message);
+						});
+					},
+					function(saveErr) {
+						testFailed = 1;
+						error = saveErr;
+					}
+				).finally(function() {
+					if (error)
+						done(error);
+					else
+						done();
+				});
+			});
+
+		});
+
+	});
+    
+	describe('Position Aquisition Process Model Tests', function() {
+
+		describe('PositionAcquisitionProcess.create()', function() {
+		
+			it('PositionAcquisitionProcess.create() creates a PositionAcquisitionProcess instance.', function() {
+				var positionAquisitionProcess = PositionAcquisitionProcess.create();
+				assert(typeof(positionAquisitionProcess) === "object");
+			});
+
+			it('PositionAcquisitionProcess.create() creates a PositionAcquisitionProcess instance with _id field populated', function(){
+				var positionAquisitionProcess = PositionAcquisitionProcess.create();
+				assert(typeof(positionAquisitionProcess._id) === "object" && /^[a-f\d]{24}$/i.test(positionAquisitionProcess._id));
+			});
+		});
+
+		describe('PositionAcquisitionProcess.save()', function() {
+
+			it('PositionAcquisitionProcess.save() throws an error if required fields are missing.', function(done) {
+				var positionAquisitionProcess = PositionAcquisitionProcess.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'PositionAcquisitionProcess validation failed: governmentPosition: Path `governmentPosition` is required.';
+				
+				PositionAcquisitionProcess.save(positionAquisitionProcess).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('PositionAcquisitionProcess.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'PositionAcquisitionProcess.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('PositionAcquisitionProcess.governmentPosition must be a valid ID.', function(done) {
+				var positionAquisitionProcess = PositionAcquisitionProcess.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'PositionAcquisitionProcess validation failed: governmentPosition: Cast to ObjectID failed for value "abcd1234efgh9876" at path "governmentPosition"';
+				
+				positionAquisitionProcess.governmentPosition = 'abcd1234efgh9876';
+				
+				PositionAcquisitionProcess.save(positionAquisitionProcess).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('PositionAcquisitionProcess.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'PositionAcquisitionProcess.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+    
+			it('Valid Call Saves Position Acquisition Process.', function(done){
+				var positionAquisitionProcess = PositionAcquisitionProcess.create();
+				var error = null;
+				var compareResult;
+				
+				positionAquisitionProcess.governmentPosition = GovernmentPosition.create()._id;
+
+				PositionAcquisitionProcess.save(positionAquisitionProcess).then(
+					function(saved) {
+						PositionAcquisitionProcess.Model.findById(positionAquisitionProcess._id, function(findError, found) {
+							compareResult = PositionAcquisitionProcess.compare(positionAquisitionProcess, found);
 
 							if (compareResult.match == false)
 								error = new Error(compareResult.message);

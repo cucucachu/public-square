@@ -7,7 +7,7 @@ Super Class: Election Result
 
 // MongoDB and Mongoose Setup
 var mongoose = require('mongoose');
-var database = require('../../database');
+var database = require('../../../database');
 var Schema = mongoose.Schema;
 
 var ElectionResult = require('./ElectionResult');
@@ -32,7 +32,7 @@ var PrimaryElectionResultSchema = new Schema({
     }
 });
 
-var PrimaryElectionResult = mongoose.model('PrimaryElectionResult', PrimaryElectionResultSchema);
+var PrimaryElectionResult = ElectionResult.Model.discriminator('PrimaryElectionResult', PrimaryElectionResultSchema);
 
 //Methods 
 

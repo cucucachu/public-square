@@ -81,7 +81,7 @@ var compare = function(campaign1, campaign2) {
     }
 
 	if (campaign1.electionResults != null && campaign2.electionResults != null) {
-		if (campaign1.positionAcquisitionProcesses.length != campaign2.electionResults.length) {
+		if (campaign1.electionResults.length != campaign2.electionResults.length) {
 			match = false;
 			message += "Election Results do not match. \n";
 		}

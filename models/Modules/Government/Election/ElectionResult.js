@@ -18,7 +18,7 @@ var ElectionResultSchema = new Schema({
     citizenVotes: {
         type: Number
     },
-    representitiveVotes: {
+    representativeVotes: {
         type: Number
     },
     campaign: {
@@ -76,9 +76,9 @@ var compare = function(electionResult1, electionResult2) {
         message += 'Citizen Votes do not match. ' + electionResult1.citizenVotes +' != ' + electionResult2.citizenVotes + '\n';
     }
 
-    if (electionResult1.representitiveVotes != electionResult2.representitiveVotes) {
+    if (electionResult1.representativeVotes != electionResult2.representativeVotes) {
         match = false;
-        message += 'Representative Votes do not match. ' + electionResult1.representitiveVotes +' != ' + electionResult2.representitiveVotes + '\n';
+        message += 'Representative Votes do not match. ' + electionResult1.representativeVotes +' != ' + electionResult2.representativeVotes + '\n';
     }
 
     if (electionResult1.geographicArea != electionResult2.geographicArea) {

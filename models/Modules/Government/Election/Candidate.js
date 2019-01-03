@@ -15,8 +15,8 @@ var UserRole = require('../../User/UserRole');
 
 // Schema and Model Setup
 var CandidateSchema = new Schema({
-    campaign: {
-        type: Schema.Types.ObjectId,
+    campaigns: {
+        type: [Schema.Types.ObjectId],
         ref: 'Campaign',
         required: true
     }

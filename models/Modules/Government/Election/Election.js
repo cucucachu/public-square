@@ -19,7 +19,15 @@ var ElectionSchema = new Schema({
         type: Date
     },
     termStartDate: {
-        type: Date
+        type: Date,
+        validate: {
+            validator: function(value) {
+                if (value < this.electionDate)
+                    return false;
+                return true;
+            },
+            message: 'Term Start Date must be greater than or equal to Election Date.'
+        }
     },
     campaigns: {
         type: [Schema.Types.ObjectId],
