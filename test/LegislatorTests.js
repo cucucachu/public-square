@@ -25,33 +25,23 @@ var VoteDefinition = require('../models/Modules/Government/VoteDefinition');
 describe('Legislator Module Tests', function() {
 
     before(function(done) {
-		OccupiedPosition.clear().then(
+		Legislator.clear().then(
 			function() {
-				GovernmentRole.clear().then(
+				IndividualLegislativeVote.clear().then(
 					function() {
-						Legislator.clear().then(
+						LegislativeVoteDefinition.clear().then(
 							function() {
-								IndividualLegislativeVote.clear().then(
+								LegislativeVote.clear().then(
 									function() {
-										LegislativeVoteDefinition.clear().then(
+										BillSponsorship.clear().then(
 											function() {
-												LegislativeVote.clear().then(
+												Bill.clear().then(
 													function() {
-														BillSponsorship.clear().then(
+														BillVersion.clear().then(
 															function() {
-																Bill.clear().then(
-																	function() {
-																		BillVersion.clear().then(
-																			function() {
-																				Law.clear().then(
-																					function() { 
-																						VoteDefinition.clear().then(done, done);
-																					},
-																					done
-																				);
-																			}, 
-																			done
-																		);
+																Law.clear().then(
+																	function() { 
+																		VoteDefinition.clear().then(done, done);
 																	},
 																	done
 																);
@@ -64,7 +54,7 @@ describe('Legislator Module Tests', function() {
 											}, 
 											done
 										);
-									}, 
+									},
 									done
 								);
 							}, 
