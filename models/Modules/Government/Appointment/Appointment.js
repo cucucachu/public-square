@@ -27,7 +27,7 @@ var AppointmentSchema = new Schema({
                     return false;
                 return true;
             },
-            message: 'Term Start Date must be greater than or equal to Election Date.'
+            message: 'Term Start Date must be greater than or equal to Appointment Date.'
         }
     },
     appointer: {

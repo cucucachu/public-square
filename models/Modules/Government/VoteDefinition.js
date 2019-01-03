@@ -65,6 +65,11 @@ var compare = function(voteDefinition1, voteDefinition2) {
     var match = true;
     var message = '';
 
+    if (voteDefinition1.name != voteDefinition2.name) {
+        match = false;
+        message += 'Names do not match. ' + voteDefinition1.name +' != ' + voteDefinition2.name + '\n';
+    }
+
     if (voteDefinition1.positive != voteDefinition2.positive) {
         match = false;
         message += 'Positives do not match. ' + voteDefinition1.positive +' != ' + voteDefinition2.positive + '\n';

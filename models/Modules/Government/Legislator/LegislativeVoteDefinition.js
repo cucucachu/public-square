@@ -59,6 +59,11 @@ var compare = function(legislativeVoteDefinition1, legislativeVoteDefinition2) {
     var match = true;
     var message = '';
 
+    if (legislativeVoteDefinition1.name != legislativeVoteDefinition2.name) {
+        match = false;
+        message += 'Names do not match. ' + legislativeVoteDefinition1.name +' != ' + legislativeVoteDefinition2.name + '\n';
+    }
+
     if (legislativeVoteDefinition1.positive != legislativeVoteDefinition2.positive) {
         match = false;
         message += 'Positives do not match. ' + legislativeVoteDefinition1.positive +' != ' + legislativeVoteDefinition2.positive + '\n';

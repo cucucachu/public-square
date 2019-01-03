@@ -203,7 +203,7 @@ describe('Appointment Module Tests', function() {
 				var testFailed = 0;
                 var error;
                 
-                var expectedErrorMessage = 'Appointment validation failed: positionStartDate: Term Start Date must be greater than or equal to Election Date.';
+                var expectedErrorMessage = 'Appointment validation failed: positionStartDate: Term Start Date must be greater than or equal to Appointment Date.';
 
                 appointment.appointmentDate = new Date('2016-11-07');
                 appointment.positionStartDate = new Date('2015-01-06')
@@ -443,7 +443,7 @@ describe('Appointment Module Tests', function() {
 				var testFailed = 0;
 				var error;
                 var expectedErrorMessage = 'Appointee validation failed: user: Path `user` is required.';
-                
+
 				Appointee.save(appointee).then(
 					function(result) {
 						testFailed = 1;
