@@ -10,7 +10,7 @@ var database = require('../../../database');
 var Schema = mongoose.Schema;
 
 var IndividualLegislativeVote = require('./IndividualLegislativeVote');
-var Bill = require('./Bill');
+var BillVersion = require('./BillVersion');
 
 // Schema and Model Setup
 var LegislativeVoteSchema = new Schema({
