@@ -11,6 +11,7 @@ var Schema = mongoose.Schema;
 
 var JudicialCase = require('./JudicialCase');
 var Judge = require('./Judge');
+var Law = require('../Law');
 
 // Schema and Model Setup
 var JudicialOpinionSchema = new Schema({
@@ -30,7 +31,11 @@ var JudicialOpinionSchema = new Schema({
     signedByJudges: {
         type: [Schema.Types.ObjectId],
         ref: 'Judge'
-    }
+	},
+	laws: {
+		type: [Schema.Types.ObjectId],
+		ref: 'Law'
+	}
 });
 
 var JudicialOpinion = mongoose.model('JudicialOpinion', JudicialOpinionSchema);
@@ -107,6 +112,22 @@ var compare = function(judicialOpinion1, judicialOpinion2) {
 				if (judicialOpinion1.signedByJudges[i] != judicialOpinion2.signedByJudges[i]) {
 					match = false;
 					message += "Signed By Judges do not match. \n";
+
+				}
+			}
+		}
+	}
+
+	if (judicialOpinion1.laws != null && judicialOpinion2.laws != null) {
+		if (judicialOpinion1.laws.length != judicialOpinion2.laws.length) {
+			match = false;
+			message += "Laws do not match. \n";
+		}
+		else {
+			for (var i = 0; i < judicialOpinion1.laws.length; i++) {
+				if (judicialOpinion1.laws[i] != judicialOpinion2.laws[i]) {
+					match = false;
+					message += "Laws do not match. \n";
 
 				}
 			}

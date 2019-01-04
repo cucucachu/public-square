@@ -27,6 +27,7 @@ var UserRole = require('../models/Modules/User/UserRole');
 var Law = require('../models/Modules/Government/Law');
 var VoteDefinition = require('../models/Modules/Government/VoteDefinition');
 var Bill = require('../models/Modules/Government/Legislator/Bill');
+var JudicialOpinion = require('../models/Modules/Government/Judge/JudicialOpinion');
 
 describe('Government Module Tests', function() {
 	
@@ -2086,6 +2087,7 @@ describe('Government Module Tests', function() {
 				law.startDate = new Date('2019-01-01');
 				law.expireDate = new Date('2018-01-01');
 				law.bills = [Bill.create()._id, Bill.create()._id];
+				law.judicialOpinions = [JudicialOpinion.create()._id, JudicialOpinion.create()._id]
 
 				Law.save(law).then(
 					function(result) {
@@ -2121,6 +2123,43 @@ describe('Government Module Tests', function() {
 				law.startDate = new Date('2019-01-01');
 				law.expireDate = new Date('2020-01-01');
 				law.bills = ['abcd1234efgh9876', 'abcd1234efgh9875'];
+				law.judicialOpinions = [JudicialOpinion.create()._id, JudicialOpinion.create()._id]
+
+				Law.save(law).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('Law.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'Law.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('Law.judicialOpinions must be a valid Array of IDs.', function(done) {
+				var law = Law.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'Law validation failed: judicialOpinions: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "judicialOpinions"';
+
+				law.startDate = new Date('2019-01-01');
+				law.expireDate = new Date('2020-01-01');
+				law.bills = [Bill.create()._id, Bill.create()._id];
+				law.judicialOpinions = ['abcd1234efgh9876', 'abcd1234efgh9875']
 
 				Law.save(law).then(
 					function(result) {
@@ -2155,6 +2194,7 @@ describe('Government Module Tests', function() {
 				law.startDate = new Date('2019-01-01');
 				law.expireDate = new Date('2020-01-01');
 				law.bills = [Bill.create()._id, Bill.create()._id];
+				law.judicialOpinions = [JudicialOpinion.create()._id, JudicialOpinion.create()._id]
 
 				Law.save(law).then(
 					function(saved) {

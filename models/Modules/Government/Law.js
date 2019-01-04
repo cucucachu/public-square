@@ -10,6 +10,7 @@ var database = require('../../database');
 var Schema = mongoose.Schema;
 
 var Bill = require('./Legislator/Bill');
+var JudicialOpinion = require('./Judge/JudicialOpinion');
 
 // Schema and Model Setup
 var LawSchema = new Schema({
@@ -31,7 +32,11 @@ var LawSchema = new Schema({
     bills: {
         type: [Schema.Types.ObjectId],
         ref: 'Bill',
-    }
+	},
+	judicialOpinions: {
+		type: [Schema.Types.ObjectId],
+		ref: 'JudicialOpinion'
+	}
 });
 
 var Law = mongoose.model('Law', LawSchema);
@@ -92,6 +97,22 @@ var compare = function(law1, law2) {
 				if (law1.bills[i] != law2.bills[i]) {
 					match = false;
 					message += "Bills do not match. \n";
+
+				}
+			}
+		}
+	}
+
+	if (law1.judicialOpinions != null && law2.judicialOpinions != null) {
+		if (law1.judicialOpinions.length != law2.judicialOpinions.length) {
+			match = false;
+			message += "Judicial Opinions do not match. \n";
+		}
+		else {
+			for (var i = 0; i < law1.judicialOpinions.length; i++) {
+				if (law1.judicialOpinions[i] != law2.judicialOpinions[i]) {
+					match = false;
+					message += "Judicial Opinions do not match. \n";
 
 				}
 			}

@@ -16,6 +16,7 @@ var Judgement = require('../models/Modules/Government/Judge/Judgement');
 var JudicialCase = require('../models/Modules/Government/Judge/JudicialCase');
 var JudicialOpinion = require('../models/Modules/Government/Judge/JudicialOpinion');
 var OccupiedPosition = require('../models/Modules/Government/OccupiedPosition');
+var Law = require('../models/Modules/Government/Law');
 
 describe('Judge Module Tests', function() {
 
@@ -917,6 +918,7 @@ describe('Judge Module Tests', function() {
                 judicialOpinion.judicialCase = 'abcd1234efgh9876';
                 judicialOpinion.writtenByJudges = [Judge.create()._id, Judge.create()._id];
                 judicialOpinion.signedByJudges = [Judge.create()._id, Judge.create()._id];
+                judicialOpinion.laws = [Law.create()._id, Law.create()._id];
 
 				JudicialOpinion.save(judicialOpinion).then(
 					function(result) {
@@ -954,6 +956,7 @@ describe('Judge Module Tests', function() {
                 judicialOpinion.judicialCase = JudicialCase.create()._id;
                 judicialOpinion.writtenByJudges = ['abcd1234efgh9876', 'abcd1234efgh9876'];
                 judicialOpinion.signedByJudges = [Judge.create()._id, Judge.create()._id];
+                judicialOpinion.laws = [Law.create()._id, Law.create()._id];
 
 				JudicialOpinion.save(judicialOpinion).then(
 					function(result) {
@@ -991,6 +994,45 @@ describe('Judge Module Tests', function() {
                 judicialOpinion.judicialCase = JudicialCase.create()._id;
                 judicialOpinion.writtenByJudges = [Judge.create()._id, Judge.create()._id];
                 judicialOpinion.signedByJudges = ['abcd1234efgh9876', 'abcd1234efgh9876'];
+                judicialOpinion.laws = [Law.create()._id, Law.create()._id];
+
+				JudicialOpinion.save(judicialOpinion).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('JudicialOpinion.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'JudicialOpinion.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('JudicialOpinion.laws must be a valid Array of IDs.', function(done) {
+				var judicialOpinion = JudicialOpinion.create();
+				var testFailed = 0;
+                var error;
+                
+                var expectedErrorMessage = 'JudicialOpinion validation failed: laws: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9876\' ]" at path "laws"';
+
+                judicialOpinion.text = 'I think hamburgers are alright.';
+                judicialOpinion.judicialCase = JudicialCase.create()._id;
+                judicialOpinion.writtenByJudges = [Judge.create()._id, Judge.create()._id];
+                judicialOpinion.signedByJudges = [Judge.create()._id, Judge.create()._id];
+                judicialOpinion.laws = ['abcd1234efgh9876', 'abcd1234efgh9876'];
 
 				JudicialOpinion.save(judicialOpinion).then(
 					function(result) {
@@ -1026,6 +1068,7 @@ describe('Judge Module Tests', function() {
                 judicialOpinion.judicialCase = JudicialCase.create()._id;
                 judicialOpinion.writtenByJudges = [Judge.create()._id, Judge.create()._id];
                 judicialOpinion.signedByJudges = [Judge.create()._id, Judge.create()._id];
+                judicialOpinion.laws = [Law.create()._id, Law.create()._id];
 
 				JudicialOpinion.save(judicialOpinion).then(
 					function(saved) {
