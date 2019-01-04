@@ -85,7 +85,7 @@ var compare = function(individualConfirmationVote1, individualConfirmationVote2)
 
     if (individualConfirmationVote1.confirmationVoteOption != individualConfirmationVote2.confirmationVoteOption) {
         match = false;
-        message += 'Confirmation Vote Definitons do not match. ' + individualConfirmationVote1.confirmationVoteOption +' != ' + individualConfirmationVote2.confirmationVoteOption + '\n';
+        message += 'Confirmation Vote Options do not match. ' + individualConfirmationVote1.confirmationVoteOption +' != ' + individualConfirmationVote2.confirmationVoteOption + '\n';
     }
 
 	if (match)

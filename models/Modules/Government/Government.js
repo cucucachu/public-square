@@ -12,6 +12,7 @@ var database = require('../../database');
 var Schema = mongoose.Schema;
 
 var GeographicArea = require('../Geography/GeographicArea');
+//var Poll = require('../Poll/Poll');
 
 // Schema and Model Setup
 var GovernmentSchema = new Schema({
@@ -31,10 +32,15 @@ var GovernmentSchema = new Schema({
         ref: 'GeographicArea',
         required: true
     },
+	// poll: {
+	// 	type: Schema.Types.ObjectId,
+	// 	ref: 'Poll',
+	// 	required: true
+	// },
     governmentInstitutions: {
         type: [Schema.Types.ObjectId],
         ref: 'GovernmentInstitution'
-    }
+	}
 });
 
 var Government = mongoose.model('Government', GovernmentSchema);
@@ -90,6 +96,11 @@ var compare = function(government1, government2) {
         match = false;
         message += 'Geographic Areas do not match. ' + government1.geographicArea +' != ' + government2.geographicArea + '\n';
     }
+
+    // if (government1.poll != government2.poll) {
+    //     match = false;
+    //     message += 'Polls do not match. ' + government1.poll +' != ' + government2.poll + '\n';
+    // }
 
 	if (government1.governmentInstitutions != null && government2.governmentInstitutions != null) {
 		if (government1.governmentInstitutions.length != government2.governmentInstitutions.length) {

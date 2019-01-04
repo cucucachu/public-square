@@ -28,6 +28,7 @@ var Law = require('../models/Modules/Government/Law');
 var VoteOption = require('../models/Modules/Government/VoteOption');
 var Bill = require('../models/Modules/Government/Legislator/Bill');
 var JudicialOpinion = require('../models/Modules/Government/Judge/JudicialOpinion');
+//var Poll = require('../models/Modules/Poll/Poll');
 
 describe('Government Module Tests', function() {
 	
@@ -246,6 +247,7 @@ describe('Government Module Tests', function() {
                 government.foundedDate = new Date('1850-09-09');
 				government.geographicArea = GeographicArea.create()._id;
 				government.governmentInstitutions = [GovernmentInstitution.create()._id, GovernmentInstitution.create()._id];
+				//government.poll = Poll.create()._id;
 
 				Government.save(government).then(
 					function(saved) {
