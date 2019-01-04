@@ -2,7 +2,7 @@
  Mongoose Schema and Model Functions
  Model: Individual Legislative Vote
  Description: Represents a Legislator's vote for a particular Bill. Has a relationship to the Legislator who casted the vote, the Legislate Vote
-    (the class that groups the votes), and the Legislative Vote Definition. The Legislative Vote Definition can be thought of as the actual 'Yay'
+    (the class that groups the votes), and the Legislative Vote Option. The Legislative Vote Option can be thought of as the actual 'Yay'
     or 'Nay' vote. The reason we store on another class is for reusability, but also for flexibility. Some votes may have more than just 'Yay'
     or 'Nay'. For instance, there might be 'Abstain' or 'Absent', and how to count those votes can vary by institution.
 */
@@ -14,7 +14,7 @@ var Schema = mongoose.Schema;
 
 var Legislator = require('./Legislator');
 var LegislativeVote = require('./LegislativeVote');
-var LegislativeVoteDefinition = require('./LegislativeVoteDefinition');
+var LegislativeVoteOption = require('./LegislativeVoteOption');
 
 // Schema and Model Setup
 var IndividualLegislativeVoteSchema = new Schema({
@@ -28,9 +28,9 @@ var IndividualLegislativeVoteSchema = new Schema({
         ref: 'LegislativeVote',
         required: true
     },
-    legislativeVoteDefinition: {
+    legislativeVoteOption: {
         type: Schema.Types.ObjectId,
-        ref: 'LegislativeVoteDefinition',
+        ref: 'LegislativeVoteOption',
         required: true
     }
 });
@@ -83,9 +83,9 @@ var compare = function(individualLegislativeVote1, individualLegislativeVote2) {
         message += 'Legislative Votes do not match. ' + individualLegislativeVote1.legislativeVote +' != ' + individualLegislativeVote2.legislativeVote + '\n';
     }
 
-    if (individualLegislativeVote1.legislativeVoteDefinition != individualLegislativeVote2.legislativeVoteDefinition) {
+    if (individualLegislativeVote1.legislativeVoteOption != individualLegislativeVote2.legislativeVoteOption) {
         match = false;
-        message += 'Legislative Vote Definitons do not match. ' + individualLegislativeVote1.legislativeVoteDefinition +' != ' + individualLegislativeVote2.legislativeVoteDefinition + '\n';
+        message += 'Legislative Vote Definitons do not match. ' + individualLegislativeVote1.legislativeVoteOption +' != ' + individualLegislativeVote2.legislativeVoteOption + '\n';
     }
 
 	if (match)

@@ -25,7 +25,7 @@ var GovernmentOfficial = require('../models/Modules/Government/GovernmentOfficia
 var User = require('../models/Modules/User/User');
 var UserRole = require('../models/Modules/User/UserRole');
 var Law = require('../models/Modules/Government/Law');
-var VoteDefinition = require('../models/Modules/Government/VoteDefinition');
+var VoteOption = require('../models/Modules/Government/VoteOption');
 var Bill = require('../models/Modules/Government/Legislator/Bill');
 var JudicialOpinion = require('../models/Modules/Government/Judge/JudicialOpinion');
 
@@ -60,7 +60,7 @@ describe('Government Module Tests', function() {
 																											function() {
 																												Law.clear().then(
 																													function() {
-																														VoteDefinition.clear().then(
+																														VoteOption.clear().then(
 																															function() {
 																																PositionAcquisitionProcess.clear().then(done, done);
 																															}, 
@@ -2221,30 +2221,30 @@ describe('Government Module Tests', function() {
 
 	});
     
-	describe('VoteDefinition Model Tests', function() {
+	describe('VoteOption Model Tests', function() {
 
-		describe('VoteDefinition.create()', function() {
+		describe('VoteOption.create()', function() {
 		
-			it('VoteDefinition.create() creates a VoteDefinition instance.', function() {
-				var voteDefinition = VoteDefinition.create();
-				assert(typeof(voteDefinition) === "object");
+			it('VoteOption.create() creates a VoteOption instance.', function() {
+				var voteOption = VoteOption.create();
+				assert(typeof(voteOption) === "object");
 			});
 
-			it('VoteDefinition.create() creates a VoteDefinition instance with _id field populated', function(){
-				var voteDefinition = VoteDefinition.create();
-				assert(typeof(voteDefinition._id) === "object" && /^[a-f\d]{24}$/i.test(voteDefinition._id));
+			it('VoteOption.create() creates a VoteOption instance with _id field populated', function(){
+				var voteOption = VoteOption.create();
+				assert(typeof(voteOption._id) === "object" && /^[a-f\d]{24}$/i.test(voteOption._id));
 			});
 		});
 
-		describe('VoteDefinition.save()', function() {
+		describe('VoteOption.save()', function() {
 
-			it('VoteDefinition.save() throws an error if required fields are missing.', function(done) {
-				var voteDefinition = VoteDefinition.create();
+			it('VoteOption.save() throws an error if required fields are missing.', function(done) {
+				var voteOption = VoteOption.create();
 				var testFailed = 0;
 				var error;
-                var expectedErrorMessage = 'VoteDefinition validation failed: name: Path `name` is required.';
+                var expectedErrorMessage = 'VoteOption validation failed: name: Path `name` is required.';
 
-				VoteDefinition.save(voteDefinition).then(
+				VoteOption.save(voteOption).then(
 					function(result) {
 						testFailed = 1;
 					},
@@ -2253,14 +2253,14 @@ describe('Government Module Tests', function() {
 					}
 				)
 				.finally(function() {
-					if (testFailed) done(new Error('VoteDefinition.save() promise resolved when it should have been rejected with Validation Error'));
+					if (testFailed) done(new Error('VoteOption.save() promise resolved when it should have been rejected with Validation Error'));
 					else {
 						if (error != null && error.message == expectedErrorMessage) {
 							done();
 						}
 						else{
 							done(new Error(
-								'VoteDefinition.save() did not return the correct Validation Error.\n' +
+								'VoteOption.save() did not return the correct Validation Error.\n' +
 								'   Expected: ' + expectedErrorMessage + '\n' +
 								'   Actual:   ' + error.message
 							));
@@ -2269,20 +2269,20 @@ describe('Government Module Tests', function() {
 				});
 			});
     
-			it('Valid Call Saves Legislative Vote Definition.', function(done){
-				var voteDefinition = VoteDefinition.create();
+			it('Valid Call Saves Legislative Vote Option.', function(done){
+				var voteOption = VoteOption.create();
 				var error = null;
                 var compareResult;
 
-                voteDefinition.name = 'Yay';
-                voteDefinition.positive = true;
-                voteDefinition.negative = false;
-                voteDefinition.countsTowardsTotal = true;
+                voteOption.name = 'Yay';
+                voteOption.positive = true;
+                voteOption.negative = false;
+                voteOption.countsTowardsTotal = true;
 
-				VoteDefinition.save(voteDefinition).then(
+				VoteOption.save(voteOption).then(
 					function(saved) {
-						VoteDefinition.Model.findById(voteDefinition._id, function(findError, found) {
-							compareResult = VoteDefinition.compare(voteDefinition, found);
+						VoteOption.Model.findById(voteOption._id, function(findError, found) {
+							compareResult = VoteOption.compare(voteOption, found);
 
 							if (compareResult.match == false)
 								error = new Error(compareResult.message);

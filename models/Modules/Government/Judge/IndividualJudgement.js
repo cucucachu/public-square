@@ -2,7 +2,7 @@
  Mongoose Schema and Model Functions
  Model: Individual Judgement
  Description: Represents a Judges's decission for a particular Judicial Case. Has a relationship to the Judge who made the decision, the Judgement
-    (the class that groups the Individual Judgements), and the Judgement Definition. 
+    (the class that groups the Individual Judgements), and the Judgement Option. 
 */
 
 // MongoDB and Mongoose Setup
@@ -12,7 +12,7 @@ var Schema = mongoose.Schema;
 
 var Judge = require('./Judge');
 var Judgement = require('./Judgement');
-var JudgementDefinition = require('./JudgementDefinition');
+var JudgementOption = require('./JudgementOption');
 
 // Schema and Model Setup
 var IndividualJudgementSchema = new Schema({
@@ -26,9 +26,9 @@ var IndividualJudgementSchema = new Schema({
         ref: 'Judgement',
         required: true
     },
-    judgementDefinition: {
+    judgementOption: {
         type: Schema.Types.ObjectId,
-        ref: 'JudgementDefinition',
+        ref: 'JudgementOption',
         required: true
     }
 });
@@ -81,9 +81,9 @@ var compare = function(individualJudgement1, individualJudgement2) {
         message += 'Judgements do not match. ' + individualJudgement1.judgement +' != ' + individualJudgement2.judgement + '\n';
     }
 
-    if (individualJudgement1.judgementDefinition != individualJudgement2.judgementDefinition) {
+    if (individualJudgement1.judgementOption != individualJudgement2.judgementOption) {
         match = false;
-        message += 'Judgement Definitons do not match. ' + individualJudgement1.judgementDefinition +' != ' + individualJudgement2.judgementDefinition + '\n';
+        message += 'Judgement Definitons do not match. ' + individualJudgement1.judgementOption +' != ' + individualJudgement2.judgementOption + '\n';
     }
 
 	if (match)

@@ -15,13 +15,13 @@ var database = require('../../../database');
 var Schema = mongoose.Schema;
 
 var IndividualExecutiveVote = require('./IndividualExecutiveVote');
-var VoteDefinition = require('../VoteDefinition');
+var VoteOption = require('../VoteOption');
 
 // Schema and Model Setup
 var ExecutiveVoteOptionSchema = new Schema({
 });
 
-var ExecutiveVoteOption = VoteDefinition.Model.discriminator('ExecutiveVoteOption', ExecutiveVoteOptionSchema);
+var ExecutiveVoteOption = VoteOption.Model.discriminator('ExecutiveVoteOption', ExecutiveVoteOptionSchema);
 
 //Methods 
 

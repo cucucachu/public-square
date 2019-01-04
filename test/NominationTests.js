@@ -20,7 +20,7 @@ var Nominator = require('../models/Modules/Government/Nomination/Nominator');
 var Nominee = require('../models/Modules/Government/Nomination/Nominee');
 var ConfirmationVote = require('../models/Modules/Government/Nomination/ConfirmationVote');
 var IndividualConfirmationVote = require('../models/Modules/Government/Nomination/IndividualConfirmationVote');
-var ConfirmationVoteDefinition = require('../models/Modules/Government/Nomination/ConfirmationVoteDefinition');
+var ConfirmationVoteOption = require('../models/Modules/Government/Nomination/ConfirmationVoteOption');
 var Confirmer = require('../models/Modules/Government/Nomination/Confirmer');
 
 describe('Nomination Module Tests', function() {
@@ -36,7 +36,7 @@ describe('Nomination Module Tests', function() {
                                     function() {
                                         IndividualConfirmationVote.clear().then(
                                             function() {
-                                                ConfirmationVoteDefinition.clear().then(
+                                                ConfirmationVoteOption.clear().then(
                                                     function() {
                                                         Confirmer.clear().then(done, done);
                                                     },
@@ -811,7 +811,7 @@ describe('Nomination Module Tests', function() {
 				var individualConfirmationVote = IndividualConfirmationVote.create();
 				var testFailed = 0;
 				var error;
-                var expectedErrorMessage = 'IndividualConfirmationVote validation failed: confirmationVoteDefinition: Path `confirmationVoteDefinition` is required., confirmationVote: Path `confirmationVote` is required., confirmer: Path `confirmer` is required.'; 
+                var expectedErrorMessage = 'IndividualConfirmationVote validation failed: confirmationVoteOption: Path `confirmationVoteOption` is required., confirmationVote: Path `confirmationVote` is required., confirmer: Path `confirmer` is required.'; 
 
 				IndividualConfirmationVote.save(individualConfirmationVote).then(
 					function(result) {
@@ -846,7 +846,7 @@ describe('Nomination Module Tests', function() {
 
                 individualConfirmationVote.confirmer = 'abcd1234efgh9876';
                 individualConfirmationVote.confirmationVote = ConfirmationVote.create()._id;
-                individualConfirmationVote.confirmationVoteDefinition = ConfirmationVoteDefinition.create()._id;
+                individualConfirmationVote.confirmationVoteOption = ConfirmationVoteOption.create()._id;
 
                 IndividualConfirmationVote.save(individualConfirmationVote).then(
                     function(result) {
@@ -881,7 +881,7 @@ describe('Nomination Module Tests', function() {
 
                 individualConfirmationVote.confirmer = Confirmer.create()._id;
                 individualConfirmationVote.confirmationVote = 'abcd1234efgh9876';
-                individualConfirmationVote.confirmationVoteDefinition = ConfirmationVoteDefinition.create()._id;
+                individualConfirmationVote.confirmationVoteOption = ConfirmationVoteOption.create()._id;
 
                 IndividualConfirmationVote.save(individualConfirmationVote).then(
                     function(result) {
@@ -908,15 +908,15 @@ describe('Nomination Module Tests', function() {
                 });
             });
     
-            it('IndividualConfirmationVote.confirmationVoteDefinition must be a valid ID.', function(done) {
+            it('IndividualConfirmationVote.confirmationVoteOption must be a valid ID.', function(done) {
 				var individualConfirmationVote = IndividualConfirmationVote.create();
                 var testFailed = 0;
                 var error;
-                var expectedErrorMessage = 'IndividualConfirmationVote validation failed: confirmationVoteDefinition: Cast to ObjectID failed for value "abcd1234efgh9876" at path "confirmationVoteDefinition"';
+                var expectedErrorMessage = 'IndividualConfirmationVote validation failed: confirmationVoteOption: Cast to ObjectID failed for value "abcd1234efgh9876" at path "confirmationVoteOption"';
 
                 individualConfirmationVote.confirmer = Confirmer.create()._id;
                 individualConfirmationVote.confirmationVote = ConfirmationVote.create()._id;
-                individualConfirmationVote.confirmationVoteDefinition = 'abcd1234efgh9876';
+                individualConfirmationVote.confirmationVoteOption = 'abcd1234efgh9876';
 
                 IndividualConfirmationVote.save(individualConfirmationVote).then(
                     function(result) {
@@ -950,7 +950,7 @@ describe('Nomination Module Tests', function() {
                 
                 individualConfirmationVote.confirmer = Confirmer.create()._id;
                 individualConfirmationVote.confirmationVote = ConfirmationVote.create()._id;
-                individualConfirmationVote.confirmationVoteDefinition = ConfirmationVoteDefinition.create()._id;
+                individualConfirmationVote.confirmationVoteOption = ConfirmationVoteOption.create()._id;
 
 				IndividualConfirmationVote.save(individualConfirmationVote).then(
 					function(saved) {
@@ -977,30 +977,30 @@ describe('Nomination Module Tests', function() {
 
     });
     
-	describe('ConfirmationVoteDefinition Model Tests', function() {
+	describe('ConfirmationVoteOption Model Tests', function() {
 
-		describe('ConfirmationVoteDefinition.create()', function() {
+		describe('ConfirmationVoteOption.create()', function() {
 		
-			it('ConfirmationVoteDefinition.create() creates a ConfirmationVoteDefinition instance.', function() {
-				var confirmationVoteDefinition = ConfirmationVoteDefinition.create();
-				assert(typeof(confirmationVoteDefinition) === "object");
+			it('ConfirmationVoteOption.create() creates a ConfirmationVoteOption instance.', function() {
+				var confirmationVoteOption = ConfirmationVoteOption.create();
+				assert(typeof(confirmationVoteOption) === "object");
 			});
 
-			it('ConfirmationVoteDefinition.create() creates a ConfirmationVoteDefinition instance with _id field populated', function(){
-				var confirmationVoteDefinition = ConfirmationVoteDefinition.create();
-				assert(typeof(confirmationVoteDefinition._id) === "object" && /^[a-f\d]{24}$/i.test(confirmationVoteDefinition._id));
+			it('ConfirmationVoteOption.create() creates a ConfirmationVoteOption instance with _id field populated', function(){
+				var confirmationVoteOption = ConfirmationVoteOption.create();
+				assert(typeof(confirmationVoteOption._id) === "object" && /^[a-f\d]{24}$/i.test(confirmationVoteOption._id));
 			});
 		});
 
-		describe('ConfirmationVoteDefinition.save()', function() {
+		describe('ConfirmationVoteOption.save()', function() {
 
-			it('ConfirmationVoteDefinition.save() throws an error if required fields are missing.', function(done) {
-				var confirmationVoteDefinition = ConfirmationVoteDefinition.create();
+			it('ConfirmationVoteOption.save() throws an error if required fields are missing.', function(done) {
+				var confirmationVoteOption = ConfirmationVoteOption.create();
 				var testFailed = 0;
 				var error;
-                var expectedErrorMessage = 'ConfirmationVoteDefinition validation failed: name: Path `name` is required.';
+                var expectedErrorMessage = 'ConfirmationVoteOption validation failed: name: Path `name` is required.';
 
-				ConfirmationVoteDefinition.save(confirmationVoteDefinition).then(
+				ConfirmationVoteOption.save(confirmationVoteOption).then(
 					function(result) {
 						testFailed = 1;
 					},
@@ -1009,14 +1009,14 @@ describe('Nomination Module Tests', function() {
 					}
 				)
 				.finally(function() {
-					if (testFailed) done(new Error('ConfirmationVoteDefinition.save() promise resolved when it should have been rejected with Validation Error'));
+					if (testFailed) done(new Error('ConfirmationVoteOption.save() promise resolved when it should have been rejected with Validation Error'));
 					else {
 						if (error != null && error.message == expectedErrorMessage) {
 							done();
 						}
 						else{
 							done(new Error(
-								'ConfirmationVoteDefinition.save() did not return the correct Validation Error.\n' +
+								'ConfirmationVoteOption.save() did not return the correct Validation Error.\n' +
 								'   Expected: ' + expectedErrorMessage + '\n' +
 								'   Actual:   ' + error.message
 							));
@@ -1026,19 +1026,19 @@ describe('Nomination Module Tests', function() {
 			});
     
 			it('Valid Call Saves Confirmation Vote Definition.', function(done){
-				var confirmationVoteDefinition = ConfirmationVoteDefinition.create();
+				var confirmationVoteOption = ConfirmationVoteOption.create();
 				var error = null;
                 var compareResult;
 
-                confirmationVoteDefinition.name = 'Yay';
-                confirmationVoteDefinition.positive = true;
-                confirmationVoteDefinition.negative = false;
-                confirmationVoteDefinition.countsTowardsTotal = true;
+                confirmationVoteOption.name = 'Yay';
+                confirmationVoteOption.positive = true;
+                confirmationVoteOption.negative = false;
+                confirmationVoteOption.countsTowardsTotal = true;
 
-				ConfirmationVoteDefinition.save(confirmationVoteDefinition).then(
+				ConfirmationVoteOption.save(confirmationVoteOption).then(
 					function(saved) {
-						ConfirmationVoteDefinition.Model.findById(confirmationVoteDefinition._id, function(findError, found) {
-							compareResult = ConfirmationVoteDefinition.compare(confirmationVoteDefinition, found);
+						ConfirmationVoteOption.Model.findById(confirmationVoteOption._id, function(findError, found) {
+							compareResult = ConfirmationVoteOption.compare(confirmationVoteOption, found);
 
 							if (compareResult.match == false)
 								error = new Error(compareResult.message);

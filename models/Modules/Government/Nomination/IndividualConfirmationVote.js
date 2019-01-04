@@ -2,7 +2,7 @@
  Mongoose Schema and Model Functions
  Model: Individual Confirmation Vote
  Description: Represents a Confirmers's vote for a particular Nomination. Has a relationship to the Confirmer who casted the vote, the Confirmation 
-    Vote (the class that groups the votes), and the Confirmation Vote Definition. The Confirmation Vote Definition can be thought of as the actual
+    Vote (the class that groups the votes), and the Confirmation Vote Option. The Confirmation Vote Option can be thought of as the actual
     'Yay' or 'Nay' vote. The reason we store on another class is for reusability, but also for flexibility. Some votes may have more than just 'Yay'
     or 'Nay'. For instance, there might be 'Abstain' or 'Absent', and how to count those votes can vary by institution.
 */
@@ -14,7 +14,7 @@ var Schema = mongoose.Schema;
 
 var Confirmer = require('./Confirmer');
 var ConfirmationVote = require('./ConfirmationVote');
-var ConfirmationVoteDefinition = require('./ConfirmationVoteDefinition');
+var ConfirmationVoteOption = require('./ConfirmationVoteOption');
 
 // Schema and Model Setup
 var IndividualConfirmationVoteSchema = new Schema({
@@ -28,9 +28,9 @@ var IndividualConfirmationVoteSchema = new Schema({
         ref: 'ConfirmationVote',
         required: true
     },
-    confirmationVoteDefinition: {
+    confirmationVoteOption: {
         type: Schema.Types.ObjectId,
-        ref: 'ConfirmationVoteDefinition',
+        ref: 'ConfirmationVoteOption',
         required: true
     }
 });
@@ -83,9 +83,9 @@ var compare = function(individualConfirmationVote1, individualConfirmationVote2)
         message += 'Confirmation Votes do not match. ' + individualConfirmationVote1.confirmationVote +' != ' + individualConfirmationVote2.confirmationVote + '\n';
     }
 
-    if (individualConfirmationVote1.confirmationVoteDefinition != individualConfirmationVote2.confirmationVoteDefinition) {
+    if (individualConfirmationVote1.confirmationVoteOption != individualConfirmationVote2.confirmationVoteOption) {
         match = false;
-        message += 'Confirmation Vote Definitons do not match. ' + individualConfirmationVote1.confirmationVoteDefinition +' != ' + individualConfirmationVote2.confirmationVoteDefinition + '\n';
+        message += 'Confirmation Vote Definitons do not match. ' + individualConfirmationVote1.confirmationVoteOption +' != ' + individualConfirmationVote2.confirmationVoteOption + '\n';
     }
 
 	if (match)

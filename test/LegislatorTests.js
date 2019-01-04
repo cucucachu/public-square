@@ -13,13 +13,13 @@ var OccupiedPosition = require('../models/Modules/Government/OccupiedPosition');
 var GovernmentRole = require('../models/Modules/Government/GovernmentRole');
 var Legislator = require('../models/Modules/Government/Legislator/Legislator');
 var IndividualLegislativeVote = require('../models/Modules/Government/Legislator/IndividualLegislativeVote');
-var LegislativeVoteDefinition = require('../models/Modules/Government/Legislator/LegislativeVoteDefinition');
+var LegislativeVoteOption = require('../models/Modules/Government/Legislator/LegislativeVoteOption');
 var LegislativeVote = require('../models/Modules/Government/Legislator/LegislativeVote');
 var BillSponsorship = require('../models/Modules/Government/Legislator/BillSponsorship');
 var Bill = require('../models/Modules/Government/Legislator/Bill');
 var BillVersion = require('../models/Modules/Government/Legislator/BillVersion');
 var Law = require('../models/Modules/Government/Law');
-var VoteDefinition = require('../models/Modules/Government/VoteDefinition');
+var VoteOption = require('../models/Modules/Government/VoteOption');
 
 
 describe('Legislator Module Tests', function() {
@@ -29,7 +29,7 @@ describe('Legislator Module Tests', function() {
 			function() {
 				IndividualLegislativeVote.clear().then(
 					function() {
-						LegislativeVoteDefinition.clear().then(
+						LegislativeVoteOption.clear().then(
 							function() {
 								LegislativeVote.clear().then(
 									function() {
@@ -41,7 +41,7 @@ describe('Legislator Module Tests', function() {
 															function() {
 																Law.clear().then(
 																	function() { 
-																		VoteDefinition.clear().then(done, done);
+																		VoteOption.clear().then(done, done);
 																	},
 																	done
 																);
@@ -317,7 +317,7 @@ describe('Legislator Module Tests', function() {
 				var individualLegislativeVote = IndividualLegislativeVote.create();
 				var testFailed = 0;
 				var error;
-                var expectedErrorMessage = 'IndividualLegislativeVote validation failed: legislativeVoteDefinition: Path `legislativeVoteDefinition` is required., legislativeVote: Path `legislativeVote` is required., legislator: Path `legislator` is required.'; 
+                var expectedErrorMessage = 'IndividualLegislativeVote validation failed: legislativeVoteOption: Path `legislativeVoteOption` is required., legislativeVote: Path `legislativeVote` is required., legislator: Path `legislator` is required.'; 
 
 				IndividualLegislativeVote.save(individualLegislativeVote).then(
 					function(result) {
@@ -352,7 +352,7 @@ describe('Legislator Module Tests', function() {
 
                 individualLegislativeVote.legislator = 'abcd1234efgh9876';
                 individualLegislativeVote.legislativeVote = LegislativeVote.create()._id;
-                individualLegislativeVote.legislativeVoteDefinition = LegislativeVoteDefinition.create()._id;
+                individualLegislativeVote.legislativeVoteOption = LegislativeVoteOption.create()._id;
 
                 IndividualLegislativeVote.save(individualLegislativeVote).then(
                     function(result) {
@@ -387,7 +387,7 @@ describe('Legislator Module Tests', function() {
 
                 individualLegislativeVote.legislator = Legislator.create()._id;
                 individualLegislativeVote.legislativeVote = 'abcd1234efgh9876';
-                individualLegislativeVote.legislativeVoteDefinition = LegislativeVoteDefinition.create()._id;
+                individualLegislativeVote.legislativeVoteOption = LegislativeVoteOption.create()._id;
 
                 IndividualLegislativeVote.save(individualLegislativeVote).then(
                     function(result) {
@@ -414,15 +414,15 @@ describe('Legislator Module Tests', function() {
                 });
             });
     
-            it('IndividualLegislativeVote.legislativeVoteDefinition must be a valid ID.', function(done) {
+            it('IndividualLegislativeVote.legislativeVoteOption must be a valid ID.', function(done) {
 				var individualLegislativeVote = IndividualLegislativeVote.create();
                 var testFailed = 0;
                 var error;
-                var expectedErrorMessage = 'IndividualLegislativeVote validation failed: legislativeVoteDefinition: Cast to ObjectID failed for value "abcd1234efgh9876" at path "legislativeVoteDefinition"';
+                var expectedErrorMessage = 'IndividualLegislativeVote validation failed: legislativeVoteOption: Cast to ObjectID failed for value "abcd1234efgh9876" at path "legislativeVoteOption"';
 
                 individualLegislativeVote.legislator = Legislator.create()._id;
                 individualLegislativeVote.legislativeVote = LegislativeVote.create()._id;
-                individualLegislativeVote.legislativeVoteDefinition = 'abcd1234efgh9876';
+                individualLegislativeVote.legislativeVoteOption = 'abcd1234efgh9876';
 
                 IndividualLegislativeVote.save(individualLegislativeVote).then(
                     function(result) {
@@ -456,7 +456,7 @@ describe('Legislator Module Tests', function() {
                 
                 individualLegislativeVote.legislator = Legislator.create()._id;
                 individualLegislativeVote.legislativeVote = LegislativeVote.create()._id;
-                individualLegislativeVote.legislativeVoteDefinition = LegislativeVoteDefinition.create()._id;
+                individualLegislativeVote.legislativeVoteOption = LegislativeVoteOption.create()._id;
 
 				IndividualLegislativeVote.save(individualLegislativeVote).then(
 					function(saved) {
@@ -635,30 +635,30 @@ describe('Legislator Module Tests', function() {
 
 	});
     
-	describe('LegislativeVoteDefinition Model Tests', function() {
+	describe('LegislativeVoteOption Model Tests', function() {
 
-		describe('LegislativeVoteDefinition.create()', function() {
+		describe('LegislativeVoteOption.create()', function() {
 		
-			it('LegislativeVoteDefinition.create() creates a LegislativeVoteDefinition instance.', function() {
-				var legislativeVoteDefinition = LegislativeVoteDefinition.create();
-				assert(typeof(legislativeVoteDefinition) === "object");
+			it('LegislativeVoteOption.create() creates a LegislativeVoteOption instance.', function() {
+				var legislativeVoteOption = LegislativeVoteOption.create();
+				assert(typeof(legislativeVoteOption) === "object");
 			});
 
-			it('LegislativeVoteDefinition.create() creates a LegislativeVoteDefinition instance with _id field populated', function(){
-				var legislativeVoteDefinition = LegislativeVoteDefinition.create();
-				assert(typeof(legislativeVoteDefinition._id) === "object" && /^[a-f\d]{24}$/i.test(legislativeVoteDefinition._id));
+			it('LegislativeVoteOption.create() creates a LegislativeVoteOption instance with _id field populated', function(){
+				var legislativeVoteOption = LegislativeVoteOption.create();
+				assert(typeof(legislativeVoteOption._id) === "object" && /^[a-f\d]{24}$/i.test(legislativeVoteOption._id));
 			});
 		});
 
-		describe('LegislativeVoteDefinition.save()', function() {
+		describe('LegislativeVoteOption.save()', function() {
 
-			it('LegislativeVoteDefinition.save() throws an error if required fields are missing.', function(done) {
-				var legislativeVoteDefinition = LegislativeVoteDefinition.create();
+			it('LegislativeVoteOption.save() throws an error if required fields are missing.', function(done) {
+				var legislativeVoteOption = LegislativeVoteOption.create();
 				var testFailed = 0;
 				var error;
-                var expectedErrorMessage = 'LegislativeVoteDefinition validation failed: name: Path `name` is required.';
+                var expectedErrorMessage = 'LegislativeVoteOption validation failed: name: Path `name` is required.';
 
-				LegislativeVoteDefinition.save(legislativeVoteDefinition).then(
+				LegislativeVoteOption.save(legislativeVoteOption).then(
 					function(result) {
 						testFailed = 1;
 					},
@@ -667,14 +667,14 @@ describe('Legislator Module Tests', function() {
 					}
 				)
 				.finally(function() {
-					if (testFailed) done(new Error('LegislativeVoteDefinition.save() promise resolved when it should have been rejected with Validation Error'));
+					if (testFailed) done(new Error('LegislativeVoteOption.save() promise resolved when it should have been rejected with Validation Error'));
 					else {
 						if (error != null && error.message == expectedErrorMessage) {
 							done();
 						}
 						else{
 							done(new Error(
-								'LegislativeVoteDefinition.save() did not return the correct Validation Error.\n' +
+								'LegislativeVoteOption.save() did not return the correct Validation Error.\n' +
 								'   Expected: ' + expectedErrorMessage + '\n' +
 								'   Actual:   ' + error.message
 							));
@@ -684,19 +684,19 @@ describe('Legislator Module Tests', function() {
 			});
     
 			it('Valid Call Saves Legislative Vote Definition.', function(done){
-				var legislativeVoteDefinition = LegislativeVoteDefinition.create();
+				var legislativeVoteOption = LegislativeVoteOption.create();
 				var error = null;
                 var compareResult;
 
-                legislativeVoteDefinition.name = 'Yay';
-                legislativeVoteDefinition.positive = true;
-                legislativeVoteDefinition.negative = false;
-                legislativeVoteDefinition.countsTowardsTotal = true;
+                legislativeVoteOption.name = 'Yay';
+                legislativeVoteOption.positive = true;
+                legislativeVoteOption.negative = false;
+                legislativeVoteOption.countsTowardsTotal = true;
 
-				LegislativeVoteDefinition.save(legislativeVoteDefinition).then(
+				LegislativeVoteOption.save(legislativeVoteOption).then(
 					function(saved) {
-						LegislativeVoteDefinition.Model.findById(legislativeVoteDefinition._id, function(findError, found) {
-							compareResult = LegislativeVoteDefinition.compare(legislativeVoteDefinition, found);
+						LegislativeVoteOption.Model.findById(legislativeVoteOption._id, function(findError, found) {
+							compareResult = LegislativeVoteOption.compare(legislativeVoteOption, found);
 
 							if (compareResult.match == false)
 								error = new Error(compareResult.message);

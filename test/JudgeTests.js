@@ -11,7 +11,7 @@ process.on('unhandledRejection', error => {
 
 var Judge = require('../models/Modules/Government/Judge/Judge');
 var IndividualJudgement = require('../models/Modules/Government/Judge/IndividualJudgement');
-var JudgementDefinition = require('../models/Modules/Government/Judge/JudgementDefinition');
+var JudgementOption = require('../models/Modules/Government/Judge/JudgementOption');
 var Judgement = require('../models/Modules/Government/Judge/Judgement');
 var JudicialCase = require('../models/Modules/Government/Judge/JudicialCase');
 var JudicialOpinion = require('../models/Modules/Government/Judge/JudicialOpinion');
@@ -25,7 +25,7 @@ describe('Judge Module Tests', function() {
             function() {
                 IndividualJudgement.clear().then(
                     function() {
-                        JudgementDefinition.clear().then(
+                        JudgementOption.clear().then(
                             function() {
                                 Judgement.clear().then(
                                     function() {
@@ -298,7 +298,7 @@ describe('Judge Module Tests', function() {
 				var individualJudgement = IndividualJudgement.create();
 				var testFailed = 0;
 				var error;
-                var expectedErrorMessage = 'IndividualJudgement validation failed: judgementDefinition: Path `judgementDefinition` is required., judgement: Path `judgement` is required., judge: Path `judge` is required.'; 
+                var expectedErrorMessage = 'IndividualJudgement validation failed: judgementOption: Path `judgementOption` is required., judgement: Path `judgement` is required., judge: Path `judge` is required.'; 
 
 				IndividualJudgement.save(individualJudgement).then(
 					function(result) {
@@ -333,7 +333,7 @@ describe('Judge Module Tests', function() {
 
                 individualJudgement.judge = 'abcd1234efgh9876';
                 individualJudgement.judgement = Judgement.create()._id;
-                individualJudgement.judgementDefinition = JudgementDefinition.create()._id;
+                individualJudgement.judgementOption = JudgementOption.create()._id;
 
                 IndividualJudgement.save(individualJudgement).then(
                     function(result) {
@@ -368,7 +368,7 @@ describe('Judge Module Tests', function() {
 
                 individualJudgement.judge = Judge.create()._id;
                 individualJudgement.judgement = 'abcd1234efgh9876';
-                individualJudgement.judgementDefinition = JudgementDefinition.create()._id;
+                individualJudgement.judgementOption = JudgementOption.create()._id;
 
                 IndividualJudgement.save(individualJudgement).then(
                     function(result) {
@@ -395,15 +395,15 @@ describe('Judge Module Tests', function() {
                 });
             });
     
-            it('IndividualJudgement.judgementDefinition must be a valid ID.', function(done) {
+            it('IndividualJudgement.judgementOption must be a valid ID.', function(done) {
 				var individualJudgement = IndividualJudgement.create();
                 var testFailed = 0;
                 var error;
-                var expectedErrorMessage = 'IndividualJudgement validation failed: judgementDefinition: Cast to ObjectID failed for value "abcd1234efgh9876" at path "judgementDefinition"';
+                var expectedErrorMessage = 'IndividualJudgement validation failed: judgementOption: Cast to ObjectID failed for value "abcd1234efgh9876" at path "judgementOption"';
 
                 individualJudgement.judge = Judge.create()._id;
                 individualJudgement.judgement = Judgement.create()._id;
-                individualJudgement.judgementDefinition = 'abcd1234efgh9876';
+                individualJudgement.judgementOption = 'abcd1234efgh9876';
 
                 IndividualJudgement.save(individualJudgement).then(
                     function(result) {
@@ -437,7 +437,7 @@ describe('Judge Module Tests', function() {
                 
                 individualJudgement.judge = Judge.create()._id;
                 individualJudgement.judgement = Judgement.create()._id;
-                individualJudgement.judgementDefinition = JudgementDefinition.create()._id;
+                individualJudgement.judgementOption = JudgementOption.create()._id;
 
 				IndividualJudgement.save(individualJudgement).then(
 					function(saved) {
@@ -464,30 +464,30 @@ describe('Judge Module Tests', function() {
 
     });
     
-	describe('JudgementDefinition Model Tests', function() {
+	describe('JudgementOption Model Tests', function() {
 
-		describe('JudgementDefinition.create()', function() {
+		describe('JudgementOption.create()', function() {
 		
-			it('JudgementDefinition.create() creates a JudgementDefinition instance.', function() {
-				var judgementDefinition = JudgementDefinition.create();
-				assert(typeof(judgementDefinition) === "object");
+			it('JudgementOption.create() creates a JudgementOption instance.', function() {
+				var judgementOption = JudgementOption.create();
+				assert(typeof(judgementOption) === "object");
 			});
 
-			it('JudgementDefinition.create() creates a JudgementDefinition instance with _id field populated', function(){
-				var judgementDefinition = JudgementDefinition.create();
-				assert(typeof(judgementDefinition._id) === "object" && /^[a-f\d]{24}$/i.test(judgementDefinition._id));
+			it('JudgementOption.create() creates a JudgementOption instance with _id field populated', function(){
+				var judgementOption = JudgementOption.create();
+				assert(typeof(judgementOption._id) === "object" && /^[a-f\d]{24}$/i.test(judgementOption._id));
 			});
 		});
 
-		describe('JudgementDefinition.save()', function() {
+		describe('JudgementOption.save()', function() {
 
-			it('JudgementDefinition.save() throws an error if required fields are missing.', function(done) {
-				var judgementDefinition = JudgementDefinition.create();
+			it('JudgementOption.save() throws an error if required fields are missing.', function(done) {
+				var judgementOption = JudgementOption.create();
 				var testFailed = 0;
 				var error;
-                var expectedErrorMessage = 'JudgementDefinition validation failed: name: Path `name` is required.';
+                var expectedErrorMessage = 'JudgementOption validation failed: name: Path `name` is required.';
 
-				JudgementDefinition.save(judgementDefinition).then(
+				JudgementOption.save(judgementOption).then(
 					function(result) {
 						testFailed = 1;
 					},
@@ -496,14 +496,14 @@ describe('Judge Module Tests', function() {
 					}
 				)
 				.finally(function() {
-					if (testFailed) done(new Error('JudgementDefinition.save() promise resolved when it should have been rejected with Validation Error'));
+					if (testFailed) done(new Error('JudgementOption.save() promise resolved when it should have been rejected with Validation Error'));
 					else {
 						if (error != null && error.message == expectedErrorMessage) {
 							done();
 						}
 						else{
 							done(new Error(
-								'JudgementDefinition.save() did not return the correct Validation Error.\n' +
+								'JudgementOption.save() did not return the correct Validation Error.\n' +
 								'   Expected: ' + expectedErrorMessage + '\n' +
 								'   Actual:   ' + error.message
 							));
@@ -513,19 +513,19 @@ describe('Judge Module Tests', function() {
 			});
     
 			it('Valid Call Saves Judgement Definition.', function(done){
-				var judgementDefinition = JudgementDefinition.create();
+				var judgementOption = JudgementOption.create();
 				var error = null;
                 var compareResult;
 
-                judgementDefinition.name = 'Yay';
-                judgementDefinition.positive = true;
-                judgementDefinition.negative = false;
-                judgementDefinition.countsTowardsTotal = true;
+                judgementOption.name = 'Yay';
+                judgementOption.positive = true;
+                judgementOption.negative = false;
+                judgementOption.countsTowardsTotal = true;
 
-				JudgementDefinition.save(judgementDefinition).then(
+				JudgementOption.save(judgementOption).then(
 					function(saved) {
-						JudgementDefinition.Model.findById(judgementDefinition._id, function(findError, found) {
-							compareResult = JudgementDefinition.compare(judgementDefinition, found);
+						JudgementOption.Model.findById(judgementOption._id, function(findError, found) {
+							compareResult = JudgementOption.compare(judgementOption, found);
 
 							if (compareResult.match == false)
 								error = new Error(compareResult.message);
