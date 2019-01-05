@@ -11,8 +11,6 @@ var database = require('../../../database');
 var Schema = mongoose.Schema;
 
 var GovernmentRole = require('../GovernmentRole');
-var IndividualExecutiveVote = require('./IndividualExecutiveVote');
-var ExecutiveAction = require('./ExecutiveAction');
 
 // Schema and Model Setup
 var ExecutiveSchema = new Schema({

@@ -10,16 +10,36 @@ var mongoose = require('mongoose');
 var database = require('../../database').database;
 var Schema = mongoose.Schema;
 
-var PollResponse = require('./PollResponse');
-var PollOption = require('./PollOption');
-var Government = require('../Government/Government');
-var GovernmentInstitution = require('../Government/GovernmentInstitution');
-var OccupiedPosition = require('../Government/OccupiedPosition');
-var Bill = require('../Government/Legislator/Bill');
-var Judgement = require('../Government/Judge/Judgement');
-var JudicialOpinion = require('../Government/Judge/JudicialOpinion');
-var ExecutiveAction = require('../Government/Executive/ExecutiveAction');
+// Validation Methods
 
+
+// Returns false if more than one of the Pollable relationships is set.
+var pollableMutuallyExclusive = function() {
+    var numberOfPollables = 0;
+
+    if (this.government) 
+        numberOfPollables++;
+
+    if (this.governmentInstitution) 
+        numberOfPollables++;
+
+    if (this.occupiedPosition) 
+        numberOfPollables++;
+
+    if (this.bill) 
+        numberOfPollables++;
+
+    if (this.judgement) 
+        numberOfPollables++;
+
+    if (this.judicialOpinion) 
+        numberOfPollables++;
+
+    if (this.executiveAction) 
+        numberOfPollables++;
+
+    return numberOfPollables <= 1;
+}
 
 // Schema and Model Setup
 var PollSchema = new Schema({
@@ -103,55 +123,22 @@ var create = function() {
 // Save
 var save = function(poll, errorMessage, successMessasge){
 	return new Promise(function(resolve, reject) {
-		poll.save(function(err, saved){
-			if (err) {
-				// if (errorMessage != null)
-				// 	console.log(errorMessage);
+            poll.save(function(err, saved){
+                if (err) {
+                    // if (errorMessage != null)
+                    // 	console.log(errorMessage);
 
-				// console.error(err);
-				reject(err);
-			}
-			else {
-				// if (successMessasge != null)
-				// 	console.log(successMessasge);
+                    // console.error(err);
+                    reject(err);
+                }
+                else {
+                    // if (successMessasge != null)
+                    // 	console.log(successMessasge);
 
-				resolve(saved);
-			}
-		});
+                    resolve(saved);
+                }
+            });
 	});
-}
-
-// Validation Methods
-
-// Returns false if more than one of the Pollable relationships is set.
-var pollableMutuallyExclusive = function() {
-    var numberOfPollables = 0;
-
-    if (this.government) 
-        numberOfPollables++;
-
-    if (this.governmentInstitution) 
-        numberOfPollables++;
-
-    if (this.occupiedPosition) 
-        numberOfPollables++;
-
-    if (this.bill) 
-        numberOfPollables++;
-
-    if (this.judgement) 
-        numberOfPollables++;
-
-    if (this.judicialOpinion) 
-        numberOfPollables++;
-
-    if (this.executiveAction) 
-        numberOfPollables++;
-    
-    if (numberOfPollables > 1)
-        return false;
-    
-    return true;
 }
 
 // Comparison Methods

@@ -11,7 +11,6 @@ var database = require('../../../database');
 var Schema = mongoose.Schema;
 
 var ExecutiveAction = require('./ExecutiveAction');
-var ExecutiveVote = require('./ExecutiveVote');
 
 // Schema and Model Setup
 var GroupExecutiveActionSchema = new Schema({

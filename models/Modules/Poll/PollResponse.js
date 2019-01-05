@@ -24,7 +24,7 @@ var PollResponseSchema = new Schema({
         type: Boolean
     },
     date: {
-        type: Boolean,
+        type: Date,
         required: true
     },
     civilian: {
