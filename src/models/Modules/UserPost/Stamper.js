@@ -1,7 +1,7 @@
 /* 
  Mongoose Schema and Model Functions
- Model: Poster
- Description: Links a User to a Post they have made.
+ Model: Stamper
+ Description: Relates a User to a UserPost that they have stamp they have assigned to a User Post.
  Super Class: User Role
 */
 
@@ -10,35 +10,34 @@ var mongoose = require('mongoose');
 var database = require('../../database');
 var Schema = mongoose.Schema;
 
-// Related Model
 var UserRole = require('../User/UserRole');
 
 // Schema and Model Setup
-var PosterSchema = new Schema({
-	userPosts: 
+var StamperSchema = new Schema({
+	stamps: 
 	{
 		type: [Schema.Types.ObjectId],
-		ref: 'UserPost',
+		ref: 'Stamp',
 		required: true
 	}
 });
 
-var Poster = UserRole.Model.discriminator('Poster', PosterSchema);
+var Stamper = UserRole.Model.discriminator('Stamper', StamperSchema);
 
 //Methods 
 
 // Create Method
 var create = function() {
-	return new Poster({
+	return new Stamper({
 		_id: new mongoose.Types.ObjectId(),
 		startDate: new Date()
 	});
 }
 
 // Save
-var save = function(poster, errorMessage, successMessasge){
+var save = function(stamper, errorMessage, successMessasge){
 	return new Promise(function(resolve, reject) {
-		poster.save(function(err, saved) {
+		stamper.save(function(err, saved) {
 			if (err) {
 				// if (errorMessage != null)
 				// 	console.log(errorMessage);
@@ -57,35 +56,35 @@ var save = function(poster, errorMessage, successMessasge){
 // Comparison Methods
 
 // This is a member comparison, not an instance comparison. i.e. two separate instances can be equal if their members are equal.
-var compare = function(poster1, poster2) {
-	match = true;
-	message = '';
+var compare = function(stamper1, stamper2) {
+	var match = true;
+	var message = '';
 	
-	if (poster1.user != poster2.user){
+	if (stamper1.user != stamper2.user){
 		match = false;
-		message += 'Users do not match. ' + poster1.user +' != ' + poster2.user + '\n';
+		message += 'Users do not match. ' + stamper1.user +' != ' + stamper2.user + '\n';
 	}
 
-	if (poster1.startDate != poster2.startDate) {
+	if (stamper1.startDate != stamper2.startDate) {
 		match = false;
-		message += 'Start Dates do not match. ' + poster1.startDate +' != ' + poster2.startDate + '\n';
+		message += 'Start Dates do not match. ' + stamper1.startDate +' != ' + stamper2.startDate + '\n';
 	}
 
-	if (poster1.endDate != poster2.endDate) {
+	if (stamper1.endDate != stamper2.endDate) {
 		match = false;
-		message += 'End Dates do not match. ' + poster1.endDate +' != ' + poster2.endDate + '\n';
+		message += 'End Dates do not match. ' + stamper1.endDate +' != ' + stamper2.endDate + '\n';
 	}
 	
-	if (poster1.userPosts != null && poster2.userPosts != null) {
-		if (poster1.userPosts.length != poster2.userPosts.length) {
+	if (stamper1.stamps != null && stamper2.stamps != null) {
+		if (stamper1.stamps.length != stamper2.stamps.length) {
 			match = false;
-			message += "User Posts do not match. \n";
+			message += "Stamps do not match. \n";
 		}
 		else {
-			for (var i = 0; i < poster1.userPosts.length; i++) {
-				if (poster1.userPosts[i] != poster2.userPosts[i]) {
+			for (var i = 0; i < stamper1.stamps.length; i++) {
+				if (stamper1.stamps[i] != stamper2.stamps[i]) {
 					match = false;
-					message += "User Posts do not match. \n";
+					message += "Stamps do not match. \n";
 
 				}
 			}
@@ -93,7 +92,7 @@ var compare = function(poster1, poster2) {
 	}
 	
 	if (match)
-		message = 'Posters Match';
+		message = 'Stampers Match';
 
 	return {
 		match: match, 
@@ -104,7 +103,7 @@ var compare = function(poster1, poster2) {
 // Clear the collection. Never run in production! Only run in a test environment.
 var clear = function() {
 	return new Promise(function(resolve, reject) {	
-		Poster.deleteMany({}, function(err) {
+		Stamper.deleteMany({}, function(err) {
 			if (err) reject(err);
 			else resolve();
 		});
@@ -113,7 +112,7 @@ var clear = function() {
 
 // Exports
 
-exports.Model = Poster;
+exports.Model = Stamper;
 exports.create = create;
 exports.save = save;
 exports.compare = compare;

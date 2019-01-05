@@ -33,8 +33,8 @@ var StampType = mongoose.model('StampType', StampTypeSchema);
 
 // This is a member comparison, not an instance comparison. i.e. two separate instances can be equal if their members are equal.
 var compare = function(stampType1, stampType2) {
-	match = true;
-	message = '';
+	var match = true;
+	var message = '';
 	
 	if (stampType1.name != stampType2.name) {
 		match = false;

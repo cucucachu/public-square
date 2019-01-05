@@ -112,38 +112,38 @@ var addUserRoletoUser = function(user, userRole) {
 
 // This is a member comparison, not an instance comparison. i.e. two separate instances can be equal if their members are equal.
 var compare = function(user1, user2) {
-	usersMatch = true;
-	message = '';
+	var match = true;
+	var message = '';
 
 	if (user1.firstName != user2.firstName) {
-		usersMatch = false;
+		match = false;
 		message += 'First names do not match. ' + user1.firstName +' != ' + user2.firstName + '\n';
 	}
 	
 	if (user1.middleName != user2.middleName) {
-		usersMatch = false;
+		match = false;
 		message += 'Middle names do not match. ' + user1.middleName +' != ' + user2.middleName + '\n';
 	}
 	
 	if (user1.lastName != user2.lastName) {
-		usersMatch = false;
+		match = false;
 		message += 'Last names do not match. ' + user1.lastName +' != ' + user2.lastName + '\n';
 	}
 	
 	if (user1.userAccount != user2.userAccount){
-		usersMatch = false;
+		match = false;
 		message += 'User Accounts do not match. ' + user1.userAccount +' != ' + user2.userAccount + '\n';
 	}
 
 	if (user1.userRoles != null && user2.userRoles != null) {
 		if (user1.userRoles.length != user2.userRoles.length) {
-			usersMatch = false;
+			match = false;
 			message += "User Roles do not match. \n";
 		}
 		else {
 			for (var i = 0; i < user1.userRoles.length; i++) {
 				if (user1.userRoles[i] != user2.userRoles[i]) {
-					usersMatch = false;
+					match = false;
 					message += "User Roles do not match. \n";
 
 				}
@@ -151,11 +151,11 @@ var compare = function(user1, user2) {
 		}
 	}
 	
-	if (usersMatch)
+	if (match)
 		message = 'Users Match';
 
 	return {
-		match: usersMatch, 
+		match: match, 
 		message: message
 	};
 }

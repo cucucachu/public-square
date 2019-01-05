@@ -1,7 +1,8 @@
 /* 
  Mongoose Schema and Model Functions
- Model: Post Stream
- Description: A collection of User Posts for a particular Postable instance.
+ Model: Poster
+ Description: Links a User to a Post they have made.
+ Super Class: User Role
 */
 
 // MongoDB and Mongoose Setup
@@ -9,36 +10,35 @@ var mongoose = require('mongoose');
 var database = require('../../database');
 var Schema = mongoose.Schema;
 
+// Related Model
+var UserRole = require('../User/UserRole');
+
 // Schema and Model Setup
-var PostStreamSchema = new Schema({
-    _id: Schema.Types.ObjectId,
-    userGroup: {
-        type: Schema.Types.ObjectId,
-        ref: 'UserGroup',
-        required: true
-    },
-	userPosts: {
+var PosterSchema = new Schema({
+	userPosts: 
+	{
 		type: [Schema.Types.ObjectId],
 		ref: 'UserPost',
 		required: true
 	}
 });
 
-var PostStream = mongoose.model('PostStream', PostStreamSchema);
+var Poster = UserRole.Model.discriminator('Poster', PosterSchema);
 
 //Methods 
 
 // Create Method
 var create = function() {
-	return new PostStream({
+	return new Poster({
 		_id: new mongoose.Types.ObjectId(),
+		startDate: new Date()
 	});
 }
 
 // Save
-var save = function(postStream, errorMessage, successMessasge) {
+var save = function(poster, errorMessage, successMessasge){
 	return new Promise(function(resolve, reject) {
-		postStream.save(function(err, saved) {
+		poster.save(function(err, saved) {
 			if (err) {
 				// if (errorMessage != null)
 				// 	console.log(errorMessage);
@@ -54,27 +54,36 @@ var save = function(postStream, errorMessage, successMessasge) {
 	});
 }
 
-
 // Comparison Methods
 
 // This is a member comparison, not an instance comparison. i.e. two separate instances can be equal if their members are equal.
-var compare = function(postStream1, postStream2) {
-	match = true;
-	message = '';
+var compare = function(poster1, poster2) {
+	var match = true;
+	var message = '';
 	
-	if (postStream1.userGroup != postStream2.userGroup){
+	if (poster1.user != poster2.user){
 		match = false;
-		message += 'User Groups do not match. ' + postStream1.userGroup +' != ' + postStream2.userGroup + '\n';
+		message += 'Users do not match. ' + poster1.user +' != ' + poster2.user + '\n';
+	}
+
+	if (poster1.startDate != poster2.startDate) {
+		match = false;
+		message += 'Start Dates do not match. ' + poster1.startDate +' != ' + poster2.startDate + '\n';
+	}
+
+	if (poster1.endDate != poster2.endDate) {
+		match = false;
+		message += 'End Dates do not match. ' + poster1.endDate +' != ' + poster2.endDate + '\n';
 	}
 	
-	if (postStream1.userPosts != null && postStream2.userPosts != null) {
-		if (postStream1.userPosts.length != postStream2.userPosts.length) {
+	if (poster1.userPosts != null && poster2.userPosts != null) {
+		if (poster1.userPosts.length != poster2.userPosts.length) {
 			match = false;
 			message += "User Posts do not match. \n";
 		}
 		else {
-			for (var i = 0; i < postStream1.userPosts.length; i++) {
-				if (postStream1.userPosts[i] != postStream2.userPosts[i]) {
+			for (var i = 0; i < poster1.userPosts.length; i++) {
+				if (poster1.userPosts[i] != poster2.userPosts[i]) {
 					match = false;
 					message += "User Posts do not match. \n";
 
@@ -84,7 +93,7 @@ var compare = function(postStream1, postStream2) {
 	}
 	
 	if (match)
-		message = 'Post Streams Match';
+		message = 'Posters Match';
 
 	return {
 		match: match, 
@@ -95,7 +104,7 @@ var compare = function(postStream1, postStream2) {
 // Clear the collection. Never run in production! Only run in a test environment.
 var clear = function() {
 	return new Promise(function(resolve, reject) {	
-		PostStream.deleteMany({}, function(err) {
+		Poster.deleteMany({}, function(err) {
 			if (err) reject(err);
 			else resolve();
 		});
@@ -104,9 +113,8 @@ var clear = function() {
 
 // Exports
 
-exports.Model = PostStream;
+exports.Model = Poster;
 exports.create = create;
 exports.save = save;
 exports.compare = compare;
 exports.clear = clear;
-

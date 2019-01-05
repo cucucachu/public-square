@@ -131,8 +131,8 @@ var saveUserPostAndPoster = function(userPost, poster) {
 
 // This is a member comparison, not an instance comparison. i.e. two separate instances can be equal if their members are equal.
 var compare = function(userPost1, userPost2) {
-	match = true;
-	message = '';
+	var match = true;
+	var message = '';
 	
 	if (userPost1.poster != userPost2.poster){
 		match = false;

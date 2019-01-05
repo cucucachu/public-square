@@ -145,8 +145,8 @@ var save = function(poll, errorMessage, successMessasge){
 
 // This is a member comparison, not an instance comparison. i.e. two separate instances can be equal if their members are equal.
 var compare = function(poll1, poll2) {
-	match = true;
-	message = '';
+	var match = true;
+	var message = '';
 
 	if (poll1.government != poll2.government) {
 		match = false;

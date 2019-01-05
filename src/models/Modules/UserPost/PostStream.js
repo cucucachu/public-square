@@ -1,7 +1,7 @@
 /* 
  Mongoose Schema and Model Functions
- Model: External Link
- Description: A link to an external web page.
+ Model: Post Stream
+ Description: A collection of User Posts for a particular Postable instance.
 */
 
 // MongoDB and Mongoose Setup
@@ -10,14 +10,11 @@ var database = require('../../database');
 var Schema = mongoose.Schema;
 
 // Schema and Model Setup
-var ExternalLinkSchema = new Schema({
+var PostStreamSchema = new Schema({
     _id: Schema.Types.ObjectId,
-    createdAt: {
-        type: Date,
-        required: true
-    },
-    url: {
-        type: String,
+    userGroup: {
+        type: Schema.Types.ObjectId,
+        ref: 'UserGroup',
         required: true
     },
 	userPosts: {
@@ -27,22 +24,21 @@ var ExternalLinkSchema = new Schema({
 	}
 });
 
-var ExternalLink = mongoose.model('ExternalLink', ExternalLinkSchema);
+var PostStream = mongoose.model('PostStream', PostStreamSchema);
 
 //Methods 
 
 // Create Method
 var create = function() {
-	return new ExternalLink({
-        _id: new mongoose.Types.ObjectId(),
-        createdAt: new Date()
+	return new PostStream({
+		_id: new mongoose.Types.ObjectId(),
 	});
 }
 
 // Save
-var save = function(externalLink, errorMessage, successMessasge) {
+var save = function(postStream, errorMessage, successMessasge) {
 	return new Promise(function(resolve, reject) {
-		externalLink.save(function(err, saved) {
+		postStream.save(function(err, saved) {
 			if (err) {
 				// if (errorMessage != null)
 				// 	console.log(errorMessage);
@@ -62,32 +58,33 @@ var save = function(externalLink, errorMessage, successMessasge) {
 // Comparison Methods
 
 // This is a member comparison, not an instance comparison. i.e. two separate instances can be equal if their members are equal.
-var compare = function(externalLink1, externalLink2) {
-	match = true;
-	message = '';
+var compare = function(postStream1, postStream2) {
+	var match = true;
+	var message = '';
 	
-	if (externalLink1.url != externalLink2.url){
+	if (postStream1.userGroup != postStream2.userGroup){
 		match = false;
-		message += 'URLs do not match. ' + externalLink1.url +' != ' + externalLink2.url + '\n';
+		message += 'User Groups do not match. ' + postStream1.userGroup +' != ' + postStream2.userGroup + '\n';
 	}
 	
-	if (externalLink1.userPosts != null && externalLink2.userPosts != null) {
-		if (externalLink1.userPosts.length != externalLink2.userPosts.length) {
+	if (postStream1.userPosts != null && postStream2.userPosts != null) {
+		if (postStream1.userPosts.length != postStream2.userPosts.length) {
 			match = false;
 			message += "User Posts do not match. \n";
 		}
 		else {
-			for (var i = 0; i < externalLink1.userPosts.length; i++) {
-				if (externalLink1.userPosts[i] != externalLink2.userPosts[i]) {
+			for (var i = 0; i < postStream1.userPosts.length; i++) {
+				if (postStream1.userPosts[i] != postStream2.userPosts[i]) {
 					match = false;
 					message += "User Posts do not match. \n";
+
 				}
 			}
 		}
 	}
 	
 	if (match)
-		message = 'External Links Match';
+		message = 'Post Streams Match';
 
 	return {
 		match: match, 
@@ -98,7 +95,7 @@ var compare = function(externalLink1, externalLink2) {
 // Clear the collection. Never run in production! Only run in a test environment.
 var clear = function() {
 	return new Promise(function(resolve, reject) {	
-		ExternalLink.deleteMany({}, function(err) {
+		PostStream.deleteMany({}, function(err) {
 			if (err) reject(err);
 			else resolve();
 		});
@@ -107,7 +104,7 @@ var clear = function() {
 
 // Exports
 
-exports.Model = ExternalLink;
+exports.Model = PostStream;
 exports.create = create;
 exports.save = save;
 exports.compare = compare;

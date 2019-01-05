@@ -72,8 +72,8 @@ var save = function(stamp, errorMessage, successMessasge) {
 
 // This is a member comparison, not an instance comparison. i.e. two separate instances can be equal if their members are equal.
 var compare = function(stamp1, stamp2) {
-	match = true;
-	message = '';
+	var match = true;
+	var message = '';
 	
 	if (stamp1.stamper != stamp2.stamper){
 		match = false;

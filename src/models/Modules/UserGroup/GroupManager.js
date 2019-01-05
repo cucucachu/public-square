@@ -1,10 +1,11 @@
 /* 
  Mongoose Schema and Model Functions
- Model: Group Member
- Description: A user Role which grants membership priviliges to a User for a particular User Group.  
+ Model: Group Manager
+ Description: A user Role which grants management priviliges to a User for a particular User Group.  
  Super Class: UserRole
+*/
 
-*/// MongoDB and Mongoose Setup
+// MongoDB and Mongoose Setup
 var mongoose = require('mongoose');
 var database = require('../../database');
 var Schema = mongoose.Schema;
@@ -12,7 +13,7 @@ var Schema = mongoose.Schema;
 var UserRole = require('../User/UserRole');
 
 // Schema and Model Setup
-var GroupMemberSchema = new Schema({
+var GroupManagerSchema = new Schema({
 	userGroup: {
 		type: Schema.Types.ObjectId,
 		ref: 'UserGoup',
@@ -20,22 +21,22 @@ var GroupMemberSchema = new Schema({
 	}
 });
 
-var GroupMember = UserRole.Model.discriminator('GroupMember', GroupMemberSchema);
+var GroupManager = UserRole.Model.discriminator('GroupManager', GroupManagerSchema);
 
 //Methods 
 
 // Create Method
 var create = function() {
-	return new GroupMember({
+	return new GroupManager({
 		_id: new mongoose.Types.ObjectId(),
 		startDate: new Date()
 	});
 }
 
 // Save
-var save = function(groupMember, errorMessage, successMessasge){
+var save = function(groupManager, errorMessage, successMessasge){
 	return new Promise(function(resolve, reject) {
-		groupMember.save(function(err, savedGroupMember) {
+		groupManager.save(function(err, savedGroupManager) {
 			if (err) {
 				// if (errorMessage != null)
 				// 	console.log(errorMessage);
@@ -45,7 +46,7 @@ var save = function(groupMember, errorMessage, successMessasge){
 				// if (successMessasge != null)
 				// 	console.log(successMessasge);
 
-				resolve(groupMember);
+				resolve(groupManager);
 			}
 		});
 	});
@@ -54,32 +55,32 @@ var save = function(groupMember, errorMessage, successMessasge){
 // Comparison Methods
 
 // This is a member comparison, not an instance comparison. i.e. two separate instances can be equal if their members are equal.
-var compare = function(groupMember1, groupMember2) {
-	match = true;
-	message = '';
+var compare = function(groupManager1, groupManager2) {
+	var match = true;
+	var message = '';
 	
-	if (groupMember1.group != groupMember2.group){
+	if (groupManager1.group != groupManager2.group){
 		match = false;
-		message += 'User Groups do not match. ' + groupMember1.group +' != ' + groupMember2.group + '\n';
+		message += 'UserGroups do not match. ' + groupManager1.group +' != ' + groupManager2.group + '\n';
 	}
 	
-	if (groupMember1.user != groupMember2.user){
+	if (groupManager1.user != groupManager2.user){
 		match = false;
-		message += 'Users do not match. ' + groupMember1.user +' != ' + groupMember2.user + '\n';
+		message += 'Users do not match. ' + groupManager1.user +' != ' + groupManager2.user + '\n';
 	}
 
-	if (groupMember1.startDate != groupMember2.startDate) {
+	if (groupManager1.startDate != groupManager2.startDate) {
 		match = false;
-		message += 'Start Dates do not match. ' + groupMember1.startDate +' != ' + groupMember2.startDate + '\n';
+		message += 'Start Dates do not match. ' + groupManager1.startDate +' != ' + groupManager2.startDate + '\n';
 	}
 
-	if (groupMember1.endDate != groupMember2.endDate) {
+	if (groupManager1.endDate != groupManager2.endDate) {
 		match = false;
-		message += 'End Dates do not match. ' + groupMember1.endDate +' != ' + groupMember2.endDate + '\n';
+		message += 'End Dates do not match. ' + groupManager1.endDate +' != ' + groupManager2.endDate + '\n';
 	}
 	
 	if (match)
-		message = 'Group Members Match';
+		message = 'Group Managers Match';
 
 	return {
 		match: match, 
@@ -90,7 +91,7 @@ var compare = function(groupMember1, groupMember2) {
 // Clear the collection. Never run in production! Only run in a test environment.
 var clear = function() {
 	return new Promise(function(resolve, reject) {	
-		GroupMember.deleteMany({}, function(err) {
+		GroupManager.deleteMany({}, function(err) {
 			if (err) reject(err);
 			else resolve();
 		});
@@ -99,8 +100,9 @@ var clear = function() {
 
 // Exports
 
-exports.Model = GroupMember;
+exports.Model = GroupManager;
 exports.create = create;
 exports.save = save;
 exports.compare = compare;
 exports.clear = clear;
+

@@ -3,3 +3,5 @@ npm-debug.log
 .bash*
 *.DS_Store
 package-lock.json
+dist/*
+test/*

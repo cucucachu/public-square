@@ -61,8 +61,8 @@ var save = function(userRole, errorMessage, successMessasge){
 
 // This is a member comparison, not an instance comparison. i.e. two separate instances can be equal if their members are equal.
 var compare = function(userRole1, userRole2) {
-	match = true;
-	message = '';
+	var match = true;
+	var message = '';
 	
 	if (userRole1.user != userRole2.user){
 		match = false;

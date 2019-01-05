@@ -169,8 +169,8 @@ var addChildren = function(parent, children) {
 
 // This is a member comparison, not an instance comparison. i.e. two separate instances can be equal if their members are equal.
 var compare = function(userGroup1, userGroup2) {
-	match = true;
-	message = '';
+	var match = true;
+	var message = '';
 
 	if (userGroup1.startDate != userGroup2.startDate) {
 		match = false;
