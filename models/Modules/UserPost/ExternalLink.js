@@ -1,10 +1,13 @@
+/* 
+ Mongoose Schema and Model Functions
+ Model: External Link
+ Description: A link to an external web page.
+*/
+
 // MongoDB and Mongoose Setup
 var mongoose = require('mongoose');
 var database = require('../../database');
 var Schema = mongoose.Schema;
-
-// Related Models
-var UserPost = require('./UserPost');
 
 // Schema and Model Setup
 var ExternalLinkSchema = new Schema({

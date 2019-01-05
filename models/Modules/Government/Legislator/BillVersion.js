@@ -10,9 +10,6 @@ var mongoose = require('mongoose');
 var database = require('../../../database');
 var Schema = mongoose.Schema;
 
-var Legislator = require('./Legislator');
-var Bill = require('./Bill');
-
 // Schema and Model Setup
 var BillVersionSchema = new Schema({
     versionNumber: {

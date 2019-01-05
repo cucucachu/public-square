@@ -12,9 +12,6 @@ var database = require('../../../database');
 var Schema = mongoose.Schema;
 
 var GovernmentRole = require('../GovernmentRole');
-var BillVersion = require('./BillVersion');
-var BillSponsorship = require('./BillSponsorship');
-var IndividualLegislativeVote = require('./IndividualLegislativeVote');
 
 // Schema and Model Setup
 var LegislatorSchema = new Schema({

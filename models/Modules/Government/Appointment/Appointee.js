@@ -11,7 +11,6 @@ var database = require('../../../database');
 var Schema = mongoose.Schema;
 
 var UserRole = require('../../User/UserRole');
-var Appointment = require('./Appointment');
 
 // Schema and Model Setup
 var AppointeeSchema = new Schema({

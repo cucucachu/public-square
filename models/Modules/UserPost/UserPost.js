@@ -1,3 +1,9 @@
+/* 
+ Mongoose Schema and Model Functions
+ Model: User Post
+ Description: A submission of text and external links that a User wishes to Post to a particular Post Stream.
+*/
+
 // MongoDB and Mongoose Setup
 var mongoose = require('mongoose');
 var database = require('../../database');

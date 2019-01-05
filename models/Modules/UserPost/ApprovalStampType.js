@@ -1,3 +1,9 @@
+/* 
+ Mongoose Schema and Model Functions
+ Model: Approval Stamp Type
+ Description: A subclass of Stamp Type which is positive.
+*/
+
 // MongoDB and Mongoose Setup
 var mongoose = require('mongoose');
 var database = require('../../database');

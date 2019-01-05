@@ -1,12 +1,15 @@
-// MongoDB and Mongoose Setup
+/* 
+ Mongoose Schema and Model Functions
+ Model: Group Member
+ Description: A user Role which grants membership priviliges to a User for a particular User Group.  
+ Super Class: UserRole
+
+*/// MongoDB and Mongoose Setup
 var mongoose = require('mongoose');
 var database = require('../../database');
 var Schema = mongoose.Schema;
 
-// Related Models
-var User = require('../User/User');
 var UserRole = require('../User/UserRole');
-var UserGroup = require('./UserGroup');
 
 // Schema and Model Setup
 var GroupMemberSchema = new Schema({

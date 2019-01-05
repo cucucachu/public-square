@@ -11,7 +11,6 @@ var database = require('../../../database');
 var Schema = mongoose.Schema;
 
 var UserRole = require('../../User/UserRole');
-var Nomination = require('./Nomination');
 
 // Schema and Model Setup
 var NomineeSchema = new Schema({

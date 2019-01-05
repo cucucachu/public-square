@@ -3,11 +3,6 @@ var mongoose = require('mongoose');
 var database = require('../../database');
 var Schema = mongoose.Schema;
 
-var GeographicMap = require('./GeographicMap');
-var Government = require('../Government/Government');
-var Address = require('./Address');
-var ElectionResult = require('../Government/Election/ElectionResult');
-
 // Schema and Model Setup
 var GeographicAreaSchema = new Schema({
     name: {

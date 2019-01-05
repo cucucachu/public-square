@@ -1,11 +1,16 @@
+/* 
+ Mongoose Schema and Model Functions
+ Model: Stamper
+ Description: Relates a User to a UserPost that they have stamp they have assigned to a User Post.
+ Super Class: User Role
+*/
+
 // MongoDB and Mongoose Setup
 var mongoose = require('mongoose');
 var database = require('../../database');
 var Schema = mongoose.Schema;
 
-// Related Model
 var UserRole = require('../User/UserRole');
-var Stamp = require('./Stamp');
 
 // Schema and Model Setup
 var StamperSchema = new Schema({

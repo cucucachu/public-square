@@ -10,9 +10,6 @@ var mongoose = require('mongoose');
 var database = require('../../../database');
 var Schema = mongoose.Schema;
 
-var GeographicArea = require('../../Geography/GeographicArea');
-var Campaign = require('./Campaign');
-
 // Schema and Model Setup
 var ElectionResultSchema = new Schema({
     citizenVotes: {

@@ -11,7 +11,6 @@ var database = require('../../database');
 var Schema = mongoose.Schema;
 
 var UserRole = require('../User/UserRole');
-var PollResponse = require('./PollResponse');
 
 // Schema and Model Setup
 var CivilianSchema = new Schema({

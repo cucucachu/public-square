@@ -1,3 +1,9 @@
+/* 
+ Mongoose Schema and Model Functions
+ Model: Objection Stamp Type
+ Description: A subclass of Stamp Type which is negative.
+*/
+
 // MongoDB and Mongoose Setup
 var mongoose = require('mongoose');
 var database = require('../../database');
@@ -6,8 +12,7 @@ var Schema = mongoose.Schema;
 var StampType = require('./StampType');
 
 // Schema and Model Setup
-var ObjectionStampTypeSchema = new Schema({
-});
+var ObjectionStampTypeSchema = new Schema({});
 
 var ObjectionStampType = StampType.Model.discriminator('ObjectionStampType', ObjectionStampTypeSchema);
 

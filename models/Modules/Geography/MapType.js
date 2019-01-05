@@ -9,8 +9,6 @@ var mongoose = require('mongoose');
 var database = require('../../database');
 var Schema = mongoose.Schema;
 
-var GeographicMap = require('./GeographicMap');
-
 // Schema and Model Setup
 var MapTypeSchema = new Schema({
     name: {

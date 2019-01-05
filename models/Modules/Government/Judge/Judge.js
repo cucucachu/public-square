@@ -12,8 +12,6 @@ var database = require('../../../database');
 var Schema = mongoose.Schema;
 
 var GovernmentRole = require('../GovernmentRole');
-var JudicialOpinion = require('./JudicialOpinion');
-var IndividualJudgement = require('./IndividualJudgement');
 
 // Schema and Model Setup
 var JudgeSchema = new Schema({

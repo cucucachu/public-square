@@ -1,11 +1,13 @@
+/* 
+ Mongoose Schema and Model Functions
+ Model: Post Stream
+ Description: A collection of User Posts for a particular Postable instance.
+*/
+
 // MongoDB and Mongoose Setup
 var mongoose = require('mongoose');
 var database = require('../../database');
 var Schema = mongoose.Schema;
-
-// Related Models
-var UserPost = require('./UserPost');
-var UserGoup = require('../UserGroup/UserGroup');
 
 // Schema and Model Setup
 var PostStreamSchema = new Schema({

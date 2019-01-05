@@ -10,11 +10,6 @@ var mongoose = require('mongoose');
 var database = require('../../database');
 var Schema = mongoose.Schema;
 
-var Civilian = require('./Civilian');
-var Citizen = require('./Citizen');
-var Poll = require('./Poll');
-var PollOption = require('./PollOption');
-
 // Schema and Model Setup
 var PollResponseSchema = new Schema({
     comment: {

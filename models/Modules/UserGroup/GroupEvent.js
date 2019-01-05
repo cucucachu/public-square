@@ -1,15 +1,14 @@
 /* 
  Mongoose Schema and Model Functions
- Model: GroupEvents
- Description: Describes a GroupEvent which is an instance of a UserGroup with a location, start date, and end date.  
+ Model: Group Event
+ Description: A subclass of a UserGroup with a address, start date, and end date.  
+ Super Class: UserGroup
 */
 
 // MongoDB and Mongoose Setup
 var mongoose = require('mongoose');
 var database = require('../../database');
 var Schema = mongoose.Schema;
-
-var UserGroup = require('./UserGroup');
 
 var GroupEventSchema = new Schema({
     createdAt : {

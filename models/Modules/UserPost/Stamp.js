@@ -1,11 +1,13 @@
+/* 
+ Mongoose Schema and Model Functions
+ Model: Stamp
+ Description: A stamp represents a user marking a User Post as either good or bad.
+*/
+
 // MongoDB and Mongoose Setup
 var mongoose = require('mongoose');
 var database = require('../../database');
 var Schema = mongoose.Schema;
-
-// Related Models
-var UserPost = require('./UserPost');
-var Stamper = require('./Stamper');
 
 // Schema and Model Setup
 var StampSchema = new Schema({

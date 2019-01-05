@@ -12,7 +12,6 @@ var database = require('../../../database');
 var Schema = mongoose.Schema;
 
 var GovernmentRole = require('../GovernmentRole');
-var IndividualConfirmationVote = require('./IndividualConfirmationVote');
 
 // Schema and Model Setup
 var ConfirmerSchema = new Schema({

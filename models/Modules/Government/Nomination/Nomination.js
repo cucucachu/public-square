@@ -12,9 +12,6 @@ var database = require('../../../database');
 var Schema = mongoose.Schema;
 
 var PositionAcquisitionProcess = require('../PositionAcquisitionProcess');
-var Nominator = require('./Nominator');
-var Nominee = require('./Nominee');
-var ConfirmationVote = require('./ConfirmationVote');
 
 // Schema and Model Setup
 var NominationSchema = new Schema({

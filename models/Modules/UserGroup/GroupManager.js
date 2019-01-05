@@ -1,12 +1,16 @@
+/* 
+ Mongoose Schema and Model Functions
+ Model: Group Manager
+ Description: A user Role which grants management priviliges to a User for a particular User Group.  
+ Super Class: UserRole
+*/
+
 // MongoDB and Mongoose Setup
 var mongoose = require('mongoose');
 var database = require('../../database');
 var Schema = mongoose.Schema;
 
-// Related Models
-var User = require('../User/User');
 var UserRole = require('../User/UserRole');
-var UserGroup = require('./UserGroup');
 
 // Schema and Model Setup
 var GroupManagerSchema = new Schema({

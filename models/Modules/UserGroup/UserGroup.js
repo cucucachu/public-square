@@ -1,11 +1,14 @@
+/* 
+ Mongoose Schema and Model Functions
+ Model: User Group
+ Description: Definies a group of users, which has members and managers, and which has an associated Post Stream.  
+ Super Class: UserGroup
+*/
+
 // MongoDB and Mongoose Setup
 var mongoose = require('mongoose');
 var database = require('../../database');
 var Schema = mongoose.Schema;
-
-// Related Models
-var GroupMember = require('./GroupMember');
-var GroupManager = require('./GroupManager');
 
 // Schema and Model Setup
 var userGroupSchema = new Schema({

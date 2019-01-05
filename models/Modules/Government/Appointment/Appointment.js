@@ -11,8 +11,6 @@ var database = require('../../../database');
 var Schema = mongoose.Schema;
 
 var PositionAcquisitionProcess = require('../PositionAcquisitionProcess');
-var Appointer = require('./Appointer');
-var Appointee = require('./Appointee');
 
 // Schema and Model Setup
 var AppointmentSchema = new Schema({

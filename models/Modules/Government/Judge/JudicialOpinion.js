@@ -9,10 +9,6 @@ var mongoose = require('mongoose');
 var database = require('../../../database');
 var Schema = mongoose.Schema;
 
-var JudicialCase = require('./JudicialCase');
-var Judge = require('./Judge');
-var Law = require('../Law');
-
 // Schema and Model Setup
 var JudicialOpinionSchema = new Schema({
     text: {

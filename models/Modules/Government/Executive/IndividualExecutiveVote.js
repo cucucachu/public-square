@@ -10,10 +10,6 @@ var mongoose = require('mongoose');
 var database = require('../../../database');
 var Schema = mongoose.Schema;
 
-var Executive = require('./Executive');
-var ExecutiveVote = require('./ExecutiveVote');
-var ExecutiveVoteOption = require('./ExecutiveVoteOption');
-
 // Schema and Model Setup
 var IndividualExecutiveVoteSchema = new Schema({
     executive: {

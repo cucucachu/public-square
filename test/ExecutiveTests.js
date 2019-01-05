@@ -2,6 +2,7 @@ var assert = require('assert');
 var expect = require('expect');
 var promiseFinally = require('promise.prototype.finally');
 
+require('../models/Modules/Government/Executive/ExecutiveModule');
 // Add 'finally()' to 'Promis.prototype'
 promiseFinally.shim();
 

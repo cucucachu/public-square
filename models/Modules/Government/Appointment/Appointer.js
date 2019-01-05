@@ -11,8 +11,6 @@ var database = require('../../../database');
 var Schema = mongoose.Schema;
 
 var GovernmentRole = require('../GovernmentRole');
-var OccupiedPosition = require('../OccupiedPosition');
-var Appointment = require('./Appointment');
 
 // Schema and Model Setup
 var AppointerSchema = new Schema({

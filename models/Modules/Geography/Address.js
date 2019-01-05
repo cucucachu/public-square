@@ -3,9 +3,6 @@ var mongoose = require('mongoose');
 var database = require('../../database');
 var Schema = mongoose.Schema;
 
-var GeographicArea = require('./GeographicArea');
-var User = require('../User/User');
-
 // Schema and Model Setup
 var AddressSchema = new Schema({
     streetNumber: {

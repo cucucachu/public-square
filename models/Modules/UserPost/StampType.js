@@ -1,3 +1,9 @@
+/* 
+ Mongoose Schema and Model Functions
+ Model: Stamp Type
+ Description: A particular stamp a User wishes to assign to a User Post.
+*/
+
 // MongoDB and Mongoose Setup
 var mongoose = require('mongoose');
 var database = require('../../database');

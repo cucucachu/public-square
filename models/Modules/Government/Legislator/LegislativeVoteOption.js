@@ -14,7 +14,6 @@ var mongoose = require('mongoose');
 var database = require('../../../database');
 var Schema = mongoose.Schema;
 
-var IndividualLegislativeVote = require('./IndividualLegislativeVote');
 var VoteOption = require('../VoteOption');
 
 // Schema and Model Setup

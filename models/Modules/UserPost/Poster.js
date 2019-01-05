@@ -1,3 +1,10 @@
+/* 
+ Mongoose Schema and Model Functions
+ Model: Poster
+ Description: Links a User to a Post they have made.
+ Super Class: User Role
+*/
+
 // MongoDB and Mongoose Setup
 var mongoose = require('mongoose');
 var database = require('../../database');
@@ -5,7 +12,6 @@ var Schema = mongoose.Schema;
 
 // Related Model
 var UserRole = require('../User/UserRole');
-var UserPost = require('./UserPost');
 
 // Schema and Model Setup
 var PosterSchema = new Schema({

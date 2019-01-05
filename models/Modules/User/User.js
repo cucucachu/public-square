@@ -1,14 +1,18 @@
+/* 
+ Mongoose Schema and Model Functions
+ Model: User
+ Description: Describes attributes of a Person such as names, Addresses, etc.
+*/
+
 // MongoDB and Mongoose Setup
 var mongoose = require('mongoose');
 var database = require('../../database').database;
 var Schema = mongoose.Schema;
 
-var UserAccount = require('./UserAccount');
 var UserRole = require('./UserRole');
 
-
 // Schema and Model Setup
-var userSchema = new Schema({
+var UserSchema = new Schema({
 	_id: Schema.Types.ObjectId,
 	firstName: {
 		type: String,
@@ -34,7 +38,7 @@ var userSchema = new Schema({
 	}]
 });
 
-var User = mongoose.model('User', userSchema);
+var User = mongoose.model('User', UserSchema);
 
 // Methods
 

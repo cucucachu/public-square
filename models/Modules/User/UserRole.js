@@ -1,13 +1,17 @@
+/* 
+ Mongoose Schema and Model Functions
+ Model: User Role
+ Description: A Super class giving access to functionallity tied to a Person.
+ Sub Classes: Candidate, Government Official, Appointer, Nominee, Citizen, Civilian, Group Manager, Group Member
+*/
+
 // MongoDB and Mongoose Setup
 var mongoose = require('mongoose');
 var database = require('../../database');
 var Schema = mongoose.Schema;
 
-// Related Models
-var User = require('./User');
-
 // Schema and Model Setup
-var userRoleSchema = new Schema({
+var UserRoleSchema = new Schema({
 	_id: Schema.Types.ObjectId,
 	startDate: {
 		type: Date,
@@ -21,7 +25,7 @@ var userRoleSchema = new Schema({
 	}
 });
 
-var UserRole = mongoose.model('UserRole', userRoleSchema);
+var UserRole = mongoose.model('UserRole', UserRoleSchema);
 
 
 //Methods 

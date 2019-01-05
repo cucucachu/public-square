@@ -1,3 +1,9 @@
+/* 
+ Mongoose Schema and Model Functions
+ Model: User Account
+ Description: Holds the email, hashed password and other information for a user of Public Square.
+*/
+
 // MongoDB and Mongoose Setup
 var mongoose = require('mongoose');
 var database = require('../../database');
@@ -7,7 +13,7 @@ var Schema = mongoose.Schema;
 var User = require('./User');
 
 // Schema and Model Setup
-var userAccountSchema = new Schema({
+var UserAccountSchema = new Schema({
 	_id: Schema.Types.ObjectId,
 	email: {
 		type: String,
@@ -31,7 +37,7 @@ var userAccountSchema = new Schema({
 	}
 });
 
-var UserAccount = mongoose.model('UserAccount', userAccountSchema);
+var UserAccount = mongoose.model('UserAccount', UserAccountSchema);
 
 //Methods 
 

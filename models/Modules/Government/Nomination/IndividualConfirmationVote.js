@@ -12,10 +12,6 @@ var mongoose = require('mongoose');
 var database = require('../../../database');
 var Schema = mongoose.Schema;
 
-var Confirmer = require('./Confirmer');
-var ConfirmationVote = require('./ConfirmationVote');
-var ConfirmationVoteOption = require('./ConfirmationVoteOption');
-
 // Schema and Model Setup
 var IndividualConfirmationVoteSchema = new Schema({
     confirmer: {

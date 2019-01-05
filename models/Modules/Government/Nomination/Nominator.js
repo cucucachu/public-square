@@ -11,7 +11,6 @@ var database = require('../../../database');
 var Schema = mongoose.Schema;
 
 var GovernmentRole = require('../GovernmentRole');
-var Nomination = require('./Nomination');
 
 // Schema and Model Setup
 var NominatorSchema = new Schema({

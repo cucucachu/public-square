@@ -9,10 +9,6 @@ var mongoose = require('mongoose');
 var database = require('../../../database');
 var Schema = mongoose.Schema;
 
-var Candidate = require('./Candidate');
-var Election = require('./Election');
-var ElectionResult = require('./ElectionResult');
-
 // Schema and Model Setup
 var CampaignSchema = new Schema({
     candidate: {

@@ -11,7 +11,6 @@ var database = require('../../../database');
 var Schema = mongoose.Schema;
 
 var PositionAcquisitionProcess = require('../PositionAcquisitionProcess');
-var Campaign = require('./Campaign');
 
 // Schema and Model Setup
 var ElectionSchema = new Schema({

@@ -9,9 +9,6 @@ var mongoose = require('mongoose');
 var database = require('../../../database');
 var Schema = mongoose.Schema;
 
-var IndividualConfirmationVote = require('./IndividualConfirmationVote');
-var Nomination = require('./Nomination');
-
 // Schema and Model Setup
 var ConfirmationVoteSchema = new Schema({
     date: {

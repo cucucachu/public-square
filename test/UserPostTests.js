@@ -2,6 +2,8 @@ var assert = require('assert');
 var expect = require('expect');
 var promiseFinally = require('promise.prototype.finally');
 
+require('../models/Modules/UserPost/UserPostModule');
+
 // Add 'finally()' to 'Promis.prototype'
 promiseFinally.shim();
 
