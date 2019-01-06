@@ -66,27 +66,27 @@ class ClassModel {
         var match = true;
         var message = '';
 
-        var schema = this.schema
+        var schema = this.schema;
+        var className = this.className;
 
         Object.keys(schema).forEach(function(key) {
             if (key != '_id') {
                 if (schema[key].singular == true) {
                     if (instance1[key] != instance2[key]) {
                         match = false;
-                        message += key + '\'s do not match';
+                        message += className + '.' + key + '\'s do not match.';
                     }
                 }
                 else {
                     if (instance1[key].length != instance2[key].length) {
                         match = false;
-                        message += key + '\'s not match. \n';
+                        message += className + '.' + key + '\'s do not match.';
                     }
                     else {
                         for (var i = 0; i < instance1[key].length; i++) {
                             if (instance1[key][i] != instance2[key][i]) {
                                 match = false;
-                                message += key + '\'s not match. \n';
-            
+                                message += className + '.' + key + '\'s do not match.';
                             }
                         }
                     }

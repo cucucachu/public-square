@@ -104,7 +104,7 @@ describe('Class Model Tests', function() {
             type: String,
             required: true
         },
-        Class2: {
+        class2: {
             type: Schema.Types.ObjectId,
             ref: 'Class2',
             required: true,
@@ -117,7 +117,7 @@ describe('Class Model Tests', function() {
             type: String,
             required: true
         },
-        Class1s: {
+        class1s: {
             type: [Schema.Types.ObjectId],
             ref: 'Class1'
         }
@@ -140,7 +140,7 @@ describe('Class Model Tests', function() {
             var compareResult;
 
             instance1.name = " Name 1";
-            instance1.Class2 = Class2.create()._id;
+            instance1.class2 = Class2.create()._id;
 
             compareResult = Class1.compare(instance1, instance1);
 
@@ -157,10 +157,10 @@ describe('Class Model Tests', function() {
             var relatedinstance1 = Class2.create();
 
             instance1.name = "Name 1";
-            instance1.Class2 = relatedinstance1._id;
+            instance1.class2 = relatedinstance1._id;
 
             instance2.name = "Name 1";
-            instance2.Class2 = relatedinstance1._id;
+            instance2.class2 = relatedinstance1._id;
 
             compareResult = Class1.compare(instance1, instance2);
 
@@ -173,19 +173,27 @@ describe('Class Model Tests', function() {
             var instance1 = Class1.create();
             var instance2 = Class1.create();
             var compareResult;
+            var expectedCompareMessage = 'Class1.name\'s do not match.';
             
             var relatedinstance1 = Class2.create();
 
             instance1.name = "Name 1";
-            instance1.Class2 = relatedinstance1;
+            instance1.class2 = relatedinstance1;
 
             instance2.name = "Name 2";
-            instance2.Class2 = relatedinstance1;
+            instance2.class2 = relatedinstance1;
 
             compareResult = Class1.compare(instance1, instance2);
 
             if (compareResult.match == true) {
                 throw new Error('ClassModel.compare should have returned false because the names are different.')
+            }
+            if (compareResult.message != expectedCompareMessage) {
+                throw new Error(
+                    'ClassModel.compare() returned the wrong error message.\n' + 
+                    'Expected: ' + expectedCompareMessage + '\n' +
+                    'Actual: ' + compareResult.message
+                );
             }
         });
 
@@ -193,17 +201,25 @@ describe('Class Model Tests', function() {
             var instance1 = Class1.create();
             var instance2 = Class1.create();
             var compareResult;
+            var expectedCompareMessage = 'Class1.class2\'s do not match.';
 
             instance1.name = "Name 1";
-            instance1.Class2 = Class2.create()._id;
+            instance1.class2 = Class2.create()._id;
 
             instance2.name = "Name 1";
-            instance2.Class2 = Class2.create()._id;
+            instance2.class2 = Class2.create()._id;
 
             compareResult = Class1.compare(instance1, instance2);
 
             if (compareResult.match == true) {
-                throw new Error('ClassModel.compare should have returned true.')
+                throw new Error('ClassModel.compare should have returned false because the names are different.')
+            }
+            if (compareResult.message != expectedCompareMessage) {
+                throw new Error(
+                    'ClassModel.compare() returned the wrong error message.\n' + 
+                    'Expected: ' + expectedCompareMessage + '\n' +
+                    'Actual: ' + compareResult.message
+                );
             }
         });
 
@@ -211,19 +227,27 @@ describe('Class Model Tests', function() {
             var instance1 = Class2.create();
             var instance2 = Class2.create();
             var compareResult;
+            var expectedCompareMessage = 'Class2.class1s\'s do not match.';
 
             var relatedinstance1 = Class2.create();
 
             instance1.name = "Name 1";
-            instance1.Class1s = [relatedinstance1._id, Class1.create()._id];
+            instance1.class1s = [relatedinstance1._id, Class1.create()._id];
 
             instance2.name = "Name 1";
-            instance2.Class1s =  [relatedinstance1._id, Class1.create()._id];
+            instance2.class1s =  [relatedinstance1._id, Class1.create()._id];
 
             compareResult = Class2.compare(instance1, instance2);
 
             if (compareResult.match == true) {
-                throw new Error('ClassModel.compare should have returned false because one of the instances in the non-singular relationship is different.')
+                throw new Error('ClassModel.compare should have returned false because the names are different.')
+            }
+            if (compareResult.message != expectedCompareMessage) {
+                throw new Error(
+                    'ClassModel.compare() returned the wrong error message.\n' + 
+                    'Expected: ' + expectedCompareMessage + '\n' +
+                    'Actual: ' + compareResult.message
+                );
             }
         });
 
