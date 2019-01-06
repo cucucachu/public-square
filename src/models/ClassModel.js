@@ -16,28 +16,67 @@ class ClassModel {
             throw new Error('schema is required.');
 
         this.className = parameters.className;
-        this.schema = parameters.schema;
+        this.schema = parameters.schema.obj;
         this.superClasses = parameters.superClasses;
         this.discriminatorFor = parameters.discriminatorFor;
 
-        if (this.discriminatorFor) {
-            this.model = discriminatorFor.model.discriminator(this.className, this.discriminatorFor)
-        }
-        else {
-            this.model = mongoose.model(this.className, this.schema);
+        if (!this.superClasses) {
+            if (this.discriminatorFor) {
+                this.Model = discriminatorFor.model.discriminator(this.className, this.discriminatorFor)
+            }
+            else {
+                this.Model = mongoose.model(this.className, this.schema);
+            }
         }
     }
 
     // Create
     create() {
-        return new this.model({
+        return new this.Model({
             _id: new mongoose.Types.ObjectId
         })
     }
 
+    // Validation
+    validate(schema, instance) {
+        let muti = [];
+        let violations = [];
+        let message = '';
+
+        // Check for Mutex Violations
+        Object.keys(schema).forEach(function(key) {
+            if (schema[key].mutex) {
+                if (instance[key]) {
+                    if (muti.includes(schema[key].mutex)) {
+                        violations.push(schema[key].mutex);
+                    }
+                    else {
+                        muti.push(schema[key].mutex);
+                    }
+                }
+            }
+        });
+
+        if (violations.length) {
+            message = 'Mutex violations found for instance ' + instance._id + '.';
+            Object.keys(schema).forEach(function(key) {
+                if (violations.includes(schema[key].mutex) && instance[key]) {
+                    message += ' Field ' + key + ' with mutex \'' + schema[key].mutex + '\'.'
+                }
+            });
+
+            throw new Error(message);
+        }
+        return true;
+    }
+
     // Save
-    save(instance) {	
+    save(instance) {
+        let schema = this.schema;
+        let validate = this.validate;
+
         return new Promise(function(resolve, reject) {
+            validate(schema, instance);
             instance.save(function(err, saved) {
                 if (err) {
                     // if (errorMessage != null)
@@ -56,7 +95,7 @@ class ClassModel {
 
     // Query Methods
     findById(id, callback) {
-        this.model.findById(id, callback);
+        this.Model.findById(id, callback);
     }
 
 
@@ -106,7 +145,7 @@ class ClassModel {
 
     // Clear the collection. Never run in production! Only run in a test environment.
     clear() {
-        var model = this.model;
+        var model = this.Model;
 
         return new Promise(function(resolve, reject) {	
 		    model.deleteMany({}, function(err) {

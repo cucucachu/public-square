@@ -5,6 +5,7 @@
   "scripts": {
     "start": "nodemon --exec babel-node src/bin/www",
     "test": "babel src/test --out-dir test && babel src --out-dir dist && mocha",
+    "test-quick": "babel src/test --out-dir test && mocha",
     "build": "babel src --out-dir dist",
     "serve": "node dist/bin/www"
   },

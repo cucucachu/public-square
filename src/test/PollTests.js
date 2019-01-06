@@ -349,7 +349,8 @@ describe('Poll Module Tests', function() {
 				var poll = Poll.create();
 				var testFailed = 0;
 				var error;
-                var expectedErrorMessage = 'Poll validation failed: judicialOpinion: Only one pollable class allowed per Poll, executiveAction: Only one pollable class allowed per Poll';
+				var expectedErrorMessage = 'Mutex violations found for instance <ObjectId>. Field judicialOpinion with mutex \'a\'. Field executiveAction with mutex \'a\'.';
+				var expectedErrorRegex = /^Mutex violations found for instance .*Field judicialOpinion with mutex 'a'. Field executiveAction with mutex 'a'.$/;
 
                 poll.judicialOpinion = JudicialOpinion.create()._id;
                 poll.executiveAction = ExecutiveAction.create()._id;
@@ -367,7 +368,7 @@ describe('Poll Module Tests', function() {
 				.finally(function() {
 					if (testFailed) done(new Error('Poll.save() promise resolved when it should have been rejected with Validation Error'));
 					else {
-						if (error != null && error.message == expectedErrorMessage) {
+						if (error != null && expectedErrorRegex.test(error.message)) {
 							done();
 						}
 						else{
@@ -385,9 +386,10 @@ describe('Poll Module Tests', function() {
 				var poll = Poll.create();
 				var testFailed = 0;
 				var error;
-                var expectedErrorMessage = 'Poll validation failed: government: Only one pollable class allowed per Poll, governmentInstitution: Only one pollable class allowed per Poll, occupiedPosition: Only one pollable class allowed per Poll, bill: Only one pollable class allowed per Poll, judgement: Only one pollable class allowed per Poll, judicialOpinion: Only one pollable class allowed per Poll, executiveAction: Only one pollable class allowed per Poll';
-
-                poll.government = Government.create()._id;
+				const expectedErrorMessage = 'Mutex violations found for instance <ObjectId>. Field government with mutex \'a\'. Field governmentInstitution with mutex \'a\'. Field occupiedPosition with mutex \'a\'. Field bill with mutex \'a\'. Field judgement with mutex \'a\'. Field judicialOpinion with mutex \'a\'. Field executiveAction with mutex \'a\'';
+				const expectedErrorRegex = /^Mutex violations found for instance.*Field government with mutex 'a'. Field governmentInstitution with mutex 'a'. Field occupiedPosition with mutex 'a'. Field bill with mutex 'a'. Field judgement with mutex 'a'. Field judicialOpinion with mutex 'a'. Field executiveAction with mutex 'a'.$/;
+				
+				poll.government = Government.create()._id;
                 poll.governmentInstitution = GovernmentInstitution.create()._id;
                 poll.occupiedPosition = OccupiedPosition.create()._id;
                 poll.bill = Bill.create()._id;
@@ -408,7 +410,7 @@ describe('Poll Module Tests', function() {
 				.finally(function() {
 					if (testFailed) done(new Error('Poll.save() promise resolved when it should have been rejected with Validation Error'));
 					else {
-						if (error != null && error.message == expectedErrorMessage) {
+						if (error != null && expectedErrorRegex.test(error.message)) {
 							done();
 						}
 						else{
