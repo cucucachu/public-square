@@ -258,10 +258,11 @@ describe('Class Model Tests', function() {
         it('ClassModel.save() works properly.', function(done) {
             var instance1 = Class1.create();
             var error = null;
+            var testFailed;
             var compareResult;
 
             instance1.name = "Name 1";
-            instance1.Class2 = Class2.create()._id;
+            instance1.class2 = Class2.create()._id;
 
             Class1.save(instance1).then(    
                 function(saved) {
@@ -284,6 +285,10 @@ describe('Class Model Tests', function() {
             });
         });
 
+    });
+
+    after(function(done) {
+        Class1.clear().then(done, done);
     });
 
 });

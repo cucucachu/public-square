@@ -4,6 +4,7 @@
 */
 
 var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
 
 class ClassModel {
 
@@ -71,7 +72,7 @@ class ClassModel {
 
         Object.keys(schema).forEach(function(key) {
             if (key != '_id') {
-                if (schema[key].singular == true) {
+                if (schema[key].type != [Schema.Types.ObjectId] || schema[key].singular == true) {
                     if (instance1[key] != instance2[key]) {
                         match = false;
                         message += className + '.' + key + '\'s do not match.';
@@ -104,9 +105,11 @@ class ClassModel {
     }
 
     // Clear the collection. Never run in production! Only run in a test environment.
-    clear() {	
+    clear() {
+        var model = this.model;
+
         return new Promise(function(resolve, reject) {	
-		    this.model.deleteMany({}, function(err) {
+		    model.deleteMany({}, function(err) {
                 if (err) reject(err);
                 else resolve();
             });
