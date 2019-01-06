@@ -6,14 +6,14 @@
 var mongoose = require('mongoose');
 
 class ClassModel {
-    // className;
-    // schema = {};
-    // model;
-    // discriminatorFor;
-    // superClasses = [];
-    // subClasses =[];
 
     constructor(parameters) {
+        if (!parameters.className)
+            throw new Error('className is required.');
+            
+        if (!parameters.schema)
+            throw new Error('schema is required.');
+
         this.className = parameters.className;
         this.schema = parameters.schema;
         this.superClasses = parameters.superClasses;
@@ -25,6 +25,13 @@ class ClassModel {
         else {
             this.model = mongoose.model(this.className, this.schema);
         }
+    }
+
+    // Create
+    create() {
+        return new this.model({
+            _id: new mongoose.Types.ObjectId
+        })
     }
 
     // Save
@@ -46,42 +53,49 @@ class ClassModel {
         });
     }
 
+    // Query Methods
+    findById(id, callback) {
+        this.model.findById(id, callback);
+    }
+
 
     // Comparison Methods
     
     // This is a member comparison, not an instance comparison. i.e. two separate instances can be equal if their members are equal.
-    compare(civilian1, civilian2) {
+    compare(instance1, instance2) {
         var match = true;
         var message = '';
-    
-        if (civilian1.startDate != civilian2.startDate) {
-            match = false;
-            message += 'Start Dates do not match. ' + civilian1.startDate +' != ' + civilian2.startDate + '\n';
-        }
-    
-        if (civilian1.user != civilian2.user) {
-            match = false;
-            message += 'Users do not match. ' + civilian1.user +' != ' + civilian2.user + '\n';
-        }
-    
-        if (civilian1.pollResponses != null && civilian2.pollResponses != null) {
-            if (civilian1.pollResponses.length != civilian2.pollResponses.length) {
-                match = false;
-                message += "Poll Responses do not match. \n";
-            }
-            else {
-                for (var i = 0; i < civilian1.pollResponses.length; i++) {
-                    if (civilian1.pollResponses[i] != civilian2.pollResponses[i]) {
+
+        var schema = this.schema
+
+        Object.keys(schema).forEach(function(key) {
+            if (key != '_id') {
+                if (schema[key].singular == true) {
+                    if (instance1[key] != instance2[key]) {
                         match = false;
-                        message += "Poll Responses do not match. \n";
-    
+                        message += key + '\'s do not match';
+                    }
+                }
+                else {
+                    if (instance1[key].length != instance2[key].length) {
+                        match = false;
+                        message += key + '\'s not match. \n';
+                    }
+                    else {
+                        for (var i = 0; i < instance1[key].length; i++) {
+                            if (instance1[key][i] != instance2[key][i]) {
+                                match = false;
+                                message += key + '\'s not match. \n';
+            
+                            }
+                        }
                     }
                 }
             }
-        }
+        });
     
         if (match)
-            message = 'Civilians Match';
+            message = this.className + 's Match';
     
         return {
             match: match, 
