@@ -37,13 +37,14 @@ class ClassModel {
         })
     }
 
-    // Validation
-    validate(schema, instance) {
+    // Validation Methods
+
+    // Throws an error if multiple fields with the same mutex have a value.
+    static mutexValidation(schema, instance) {
         let muti = [];
         let violations = [];
         let message = '';
-
-        // Check for Mutex Violations
+        let valid = true;
         Object.keys(schema).forEach(function(key) {
             if (schema[key].mutex) {
                 if (instance[key]) {
@@ -58,25 +59,42 @@ class ClassModel {
         });
 
         if (violations.length) {
+            valid = false;
             message = 'Mutex violations found for instance ' + instance._id + '.';
             Object.keys(schema).forEach(function(key) {
                 if (violations.includes(schema[key].mutex) && instance[key]) {
                     message += ' Field ' + key + ' with mutex \'' + schema[key].mutex + '\'.'
                 }
             });
-
-            throw new Error(message);
         }
-        return true;
+        return {
+            valid: valid,
+            message: message,
+        }
+    }
+
+    static validate(schema, instance) {
+        let mutexValidationResult;
+        let message = '';
+        let valid = true;
+
+        mutexValidationResult = ClassModel.mutexValidation(schema, instance);
+
+        if (mutexValidationResult.valid == false) {
+            valid = false;
+            message += mutexValidationResult.message;
+        }
+
+        if (!valid)
+            throw new Error(message);
     }
 
     // Save
     save(instance) {
         let schema = this.schema;
-        let validate = this.validate;
 
         return new Promise(function(resolve, reject) {
-            validate(schema, instance);
+            ClassModel.validate(schema, instance);
             instance.save(function(err, saved) {
                 if (err) {
                     // if (errorMessage != null)

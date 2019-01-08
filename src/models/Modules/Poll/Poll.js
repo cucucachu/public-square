@@ -11,101 +11,49 @@ var ClassModel = require('../../ClassModel');
 var database = require('../../database').database;
 var Schema = mongoose.Schema;
 
-// Validation Methods
-
-
-// Returns false if more than one of the Pollable relationships is set.
-var pollableMutuallyExclusive = function() {
-    var numberOfPollables = 0;
-
-    if (this.government) 
-        numberOfPollables++;
-
-    if (this.governmentInstitution) 
-        numberOfPollables++;
-
-    if (this.occupiedPosition) 
-        numberOfPollables++;
-
-    if (this.bill) 
-        numberOfPollables++;
-
-    if (this.judgement) 
-        numberOfPollables++;
-
-    if (this.judicialOpinion) 
-        numberOfPollables++;
-
-    if (this.executiveAction) 
-        numberOfPollables++;
-
-    return numberOfPollables <= 1;
-}
-
 // Schema and Model Setup
 var PollSchema = new Schema({
     government: {
         type: Schema.Types.ObjectId,
         ref: 'Government',
-        mutex: 'a'
-        // validate: {
-        //     validator: pollableMutuallyExclusive,
-        //     message: 'Only one pollable class allowed per Poll'
-        // }
+        mutex: 'a',
+        requiredGroup: 'a'
     },
     governmentInstitution: {
         type: Schema.Types.ObjectId,
         ref: 'GovernmentInstitution',
-        mutex: 'a'
-        // validate: {
-        //     validator: pollableMutuallyExclusive,
-        //     message: 'Only one pollable class allowed per Poll'
-        // }
+        mutex: 'a',
+        requiredGroup: 'a'
     },
     occupiedPosition: {
         type: Schema.Types.ObjectId,
         ref: 'OccupiedPosition',
-        mutex: 'a'
-        // validate: {
-        //     validator: pollableMutuallyExclusive,
-        //     message: 'Only one pollable class allowed per Poll'
-        // }
+        mutex: 'a',
+        requiredGroup: 'a'
     },
     bill: {
         type: Schema.Types.ObjectId,
         ref: 'Bill',
-        mutex: 'a'
-        // validate: {
-        //     validator: pollableMutuallyExclusive,
-        //     message: 'Only one pollable class allowed per Poll'
-        // }
+        mutex: 'a',
+        requiredGroup: 'a'
     },
     judgement: {
         type: Schema.Types.ObjectId,
         ref: 'Judgement',
-        mutex: 'a'
-        // validate: {
-        //     validator: pollableMutuallyExclusive,
-        //     message: 'Only one pollable class allowed per Poll'
-        // }
+        mutex: 'a',
+        requiredGroup: 'a'
     },
     judicialOpinion: {
         type: Schema.Types.ObjectId,
         ref: 'JudicialOpinion',
-        mutex: 'a'
-        // validate: {
-        //     validator: pollableMutuallyExclusive,
-        //     message: 'Only one pollable class allowed per Poll'
-        // }
+        mutex: 'a',
+        requiredGroup: 'a'
     },
     executiveAction: {
         type: Schema.Types.ObjectId,
         ref: 'ExecutiveAction',
-        mutex: 'a'
-        // validate: {
-        //     validator: pollableMutuallyExclusive,
-        //     message: 'Only one pollable class allowed per Poll'
-        // }
+        mutex: 'a',
+        requiredGroup: 'a'
     },
     pollResponses: {
         type: [Schema.Types.ObjectId],
