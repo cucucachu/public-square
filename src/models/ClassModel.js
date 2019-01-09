@@ -73,16 +73,62 @@ class ClassModel {
         }
     }
 
-    static validate(schema, instance) {
-        let mutexValidationResult;
+    static requiredGroupValidation(schema, instance) {
+        let requiredGroups = [];
         let message = '';
         let valid = true;
 
-        mutexValidationResult = ClassModel.mutexValidation(schema, instance);
+        // Iterate through the schema to find required groups.
+        Object.keys(schema).forEach(function(key) {
+            if (schema[key].requiredGroup && !requiredGroups.includes(schema[key].requiredGroup)) {
+                requiredGroups.push(schema[key].requiredGroup);
+            }
+        });
+
+        // Iterate through the instance members to check that at least one member for each required group is set.
+        Object.keys(schema).forEach(function(key) {
+            if (schema[key].requiredGroup && instance[key]) {
+                requiredGroups = requiredGroups.filter(function(value) { return value != schema[key].requiredGroup; });
+            }
+        });
+
+        if (requiredGroups.length) {
+            valid = false;
+            message = 'Required Group violations found for requirement group(s): ';
+            requiredGroups.forEach(function(requiredGroup) {
+                message += ' ' + requiredGroup;
+            });
+        }
+        return {
+            valid: valid,
+            message: message,
+        }
+        
+    }
+
+    static validate(schema, instance) {
+        let message = '';
+        let valid = true;
+        let numberOfMessages = 0;
+
+        let mutexValidationResult = ClassModel.mutexValidation(schema, instance);
+        let requiredGroupValidationResult = ClassModel.requiredGroupValidation(schema, instance);
 
         if (mutexValidationResult.valid == false) {
+            numberOfMessages++;
             valid = false;
             message += mutexValidationResult.message;
+        }
+
+        if (requiredGroupValidationResult.valid == false) {
+            valid = false;
+            if (numberOfMessages) {
+                message += ' ';
+            }
+            
+            numberOfMessages++;
+
+            message += requiredGroupValidationResult.message;
         }
 
         if (!valid)
