@@ -16,16 +16,18 @@ class ClassModel {
             throw new Error('schema is required.');
 
         this.className = parameters.className;
-        this.schema = parameters.schema.obj;
+        this.schema = parameters.schema;
         this.superClasses = parameters.superClasses;
         this.discriminatorFor = parameters.discriminatorFor;
 
+        let schemaObject = new Schema(this.schema);
+
         if (!this.superClasses) {
             if (this.discriminatorFor) {
-                this.Model = discriminatorFor.model.discriminator(this.className, this.discriminatorFor)
+                this.Model = discriminatorFor.Model.discriminator(this.className, this.discriminatorFor)
             }
             else {
-                this.Model = mongoose.model(this.className, this.schema);
+                this.Model = mongoose.model(this.className, schemaObject);
             }
         }
     }
@@ -131,6 +133,20 @@ class ClassModel {
             message += requiredGroupValidationResult.message;
         }
 
+        try {
+            instance.validate();
+        }
+        catch (validationError) {
+            valid = false;
+            if (numberOfMessages) {
+                message += ' ';
+            }
+            
+            numberOfMessages++;
+
+            message += validationError.message;
+        }
+
         if (!valid)
             throw new Error(message);
     }
@@ -141,6 +157,7 @@ class ClassModel {
 
         return new Promise(function(resolve, reject) {
             ClassModel.validate(schema, instance);
+
             instance.save(function(err, saved) {
                 if (err) {
                     // if (errorMessage != null)

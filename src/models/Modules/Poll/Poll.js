@@ -12,7 +12,7 @@ var database = require('../../database').database;
 var Schema = mongoose.Schema;
 
 // Schema and Model Setup
-var PollSchema = new Schema({
+var PollSchema = {
     government: {
         type: Schema.Types.ObjectId,
         ref: 'Government',
@@ -63,7 +63,7 @@ var PollSchema = new Schema({
         type: [Schema.Types.ObjectId],
         ref: 'PollOption',
     }
-});
+};
 
 var Poll = new ClassModel({
     className: 'Poll',
