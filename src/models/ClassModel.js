@@ -47,16 +47,30 @@ class ClassModel {
         let violations = [];
         let message = '';
         let valid = true;
+
         Object.keys(schema).forEach(function(key) {
             if (schema[key].mutex) {
-                if (instance[key]) {
-                    if (muti.includes(schema[key].mutex)) {
-                        violations.push(schema[key].mutex);
-                    }
-                    else {
-                        muti.push(schema[key].mutex);
+                if (Array.isArray(schema[key].type)) {
+                    if (instance[key].length) {
+                        if (muti.includes(schema[key].mutex)) {
+                            violations.push(schema[key].mutex);
+                        }
+                        else {
+                            muti.push(schema[key].mutex);
+                        }
                     }
                 }
+                else {
+                    if (instance[key]) {
+                        if (muti.includes(schema[key].mutex)) {
+                            violations.push(schema[key].mutex);
+                        }
+                        else {
+                            muti.push(schema[key].mutex);
+                        }
+                    }
+                }
+
             }
         });
 
@@ -192,7 +206,7 @@ class ClassModel {
 
         Object.keys(schema).forEach(function(key) {
             if (key != '_id') {
-                if (schema[key].type != [Schema.Types.ObjectId] || schema[key].singular == true) {
+                if (schema[key].type != [Schema.Types.ObjectId]) {
                     if (instance1[key] != instance2[key]) {
                         match = false;
                         message += className + '.' + key + '\'s do not match.';

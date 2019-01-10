@@ -97,43 +97,43 @@ describe('Class Model Tests', function() {
         });
         
     });
+    
+    //Define 2 Classes to be used in the rest of the tests.
+    var Class1Schema = {
+        name: {
+            type: String,
+            required: true
+        },
+        class2: {
+            type: Schema.Types.ObjectId,
+            ref: 'Class2',
+            required: true,
+            singular: true
+        }
+    }
+
+    var Class2Schema = {
+        name: {
+            type: String,
+            required: true
+        },
+        class1s: {
+            type: [Schema.Types.ObjectId],
+            ref: 'Class1'
+        }
+    }
+
+    var Class1 = new ClassModel({
+        className: 'Class1',
+        schema: Class1Schema
+    });
+
+    var Class2 = new ClassModel({
+        className: 'Class2',
+        schema: Class2Schema
+    });
 
     describe('ClassModel.compare()', function() {
-    
-        //Define 2 Classes to be used in the rest of the tests.
-        var Class1Schema = {
-            name: {
-                type: String,
-                required: true
-            },
-            class2: {
-                type: Schema.Types.ObjectId,
-                ref: 'Class2',
-                required: true,
-                singular: true
-            }
-        }
-    
-        var Class2Schema = {
-            name: {
-                type: String,
-                required: true
-            },
-            class1s: {
-                type: [Schema.Types.ObjectId],
-                ref: 'Class1'
-            }
-        }
-    
-        var Class1 = new ClassModel({
-            className: 'Class1',
-            schema: Class1Schema
-        });
-    
-        var Class2 = new ClassModel({
-            className: 'Class2',
-            schema: Class2Schema
-        });
 
         it('ClassModel.compare() returns true if instances are the same instance.', function() {
             var instance1 = Class1.create();
@@ -359,76 +359,289 @@ describe('Class Model Tests', function() {
 
     });
 
-    // describe('ClassModel.save()', function() {    
-        
-    //     before(function() {
-    //         //Define 2 Classes to be used in the rest of the tests.
-    //         var Class1Schema = {
-    //             name: {
-    //                 type: String,
-    //                 required: true
-    //             },
-    //             class2: {
-    //                 type: Schema.Types.ObjectId,
-    //                 ref: 'Class2',
-    //                 required: true,
-    //                 singular: true
-    //             }
-    //         }
-        
-    //         var Class2Schema = {
-    //             name: {
-    //                 type: String,
-    //                 required: true
-    //             },
-    //             class1s: {
-    //                 type: [Schema.Types.ObjectId],
-    //                 ref: 'Class1'
-    //             }
-    //         }
-        
-    //         var Class1 = new ClassModel({
-    //             className: 'Class1',
-    //             schema: Class1Schema
-    //         });
-        
-    //         var Class2 = new ClassModel({
-    //             className: 'Class2',
-    //             schema: Class2Schema
-    //         });
+    describe('ClassModel.validate()', function() {
 
-    //     })
-
-    //     it('ClassModel.save() works properly.', function(done) {
-    //         var instance1 = Class1.create();
-    //         var error = null;
-    //         var compareResult;
-
-    //         instance1.name = "Name 1";
-    //         instance1.Class2 = Class2.create()._id;
-
-    //         Class1.save(instance1).then(    
-    //             function(saved) {
-    //                 Class1.findById(instance1._id, function(findError, found) {
-    //                     compareResult = Class1.compare(instance1, found);
+        describe('Mutex Validation', function() {
             
-    //                     if (compareResult.match == false)
-    //                         error = new Error(compareResult.message);
-    //                 });
-    //             },
-    //             function(saveErr) {
-    //                 testFailed = 1;
-    //                 error = saveErr;
-    //             }
-    //         ).finally(function() {
-    //             if (error)
-    //                 done(error);
-    //             else
-    //                 done();
-    //         });
-    //     });
+            it('2 attribute fields have a mutex and both are set. Error thrown.', function() {
+                let expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field boolean with mutex \'a\'. Field date with mutex \'a\'.';
+                let expectedErrorMutex = /^Mutex violations found for instance .* Field boolean with mutex \'a\'. Field date with mutex \'a\'.$/;
+                
+                let schema = {
+                    boolean: {
+                        type: Boolean,
+                        mutex: 'a'
+                    },
+                    date: {
+                        type: Date,
+                        mutex: 'a'
+                    }
+                };
 
-    // });
+                let MutexClassA = new ClassModel({
+                    className: 'MutexClassA', 
+                    schema: schema
+                });
+
+                let instance = MutexClassA.create();
+
+                instance.boolean = true;
+                instance.date = new Date();
+
+                try {
+                    ClassModel.validate(schema, instance);
+                }
+                catch (validationError) {
+                    if (expectedErrorMutex.test(validationError.message)) {
+                        return true;
+                    }
+                    else {
+                        throw new Error(
+                            'ClassModel.validate returned the wrong error message.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' +
+                            'Actual:   ' + validationError.message
+                        );
+                    }
+                }
+
+                throw new Error('ClassModel.validate did not throw an error when it should have.');
+            });
+            
+            it('2 attribute fields have a mutex and one is set. No error thrown.', function() {
+                let schema = {
+                    boolean: {
+                        type: Boolean,
+                        mutex: 'a'
+                    },
+                    date: {
+                        type: Date,
+                        mutex: 'a'
+                    }
+                };
+
+                let MutexClassAA = new ClassModel({
+                    className: 'MutexClassAA', 
+                    schema: schema
+                });
+
+                let instance = MutexClassAA.create();
+
+                instance.boolean = true;
+
+                try {
+                    ClassModel.validate(schema, instance);
+                }
+                catch (validationError) {
+                    throw new Error(
+                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'Error: ' + validationError.message
+                    );
+                }
+                
+                return true;
+            });
+            
+            it('2 singular relationship fields have a mutex and both are set. Error thrown.', function() {
+                let expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field class1 with mutex \'a\'. Field class2 with mutex \'a\'.';
+                let expectedErrorMutex = /^Mutex violations found for instance .* Field class1 with mutex \'a\'. Field class2 with mutex \'a\'.$/;
+            
+                let schema = {
+                    class1: {
+                        type: Schema.Types.ObjectId,
+                        ref: 'Class1',
+                        mutex: 'a'
+                    },
+                    class2: {
+                        type: Schema.Types.ObjectId,
+                        ref: 'Class2',
+                        mutex: 'a'
+                    }
+                };
+
+                let MutexClassB = new ClassModel({
+                    className: 'MutexClassB', 
+                    schema: schema
+                });
+
+                let instance = MutexClassB.create();
+
+                instance.class1 = Class1.create()._id;
+                instance.class2 = Class2.create()._id;
+
+                try {
+                    ClassModel.validate(schema, instance);
+                }
+                catch (validationError) {
+                    if (expectedErrorMutex.test(validationError.message)) {
+                        return true;
+                    }
+                    else {
+                        throw new Error(
+                            'ClassModel.validate returned the wrong error message.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' +
+                            'Actual:   ' + validationError.message
+                        );
+                    }
+                }
+
+                throw new Error('ClassModel.validate did not throw an error when it should have.');
+            });
+            
+            it('2 singular relationship fields have a mutex and one is set. No error thrown.', function() {
+                let schema = {
+                    class1: {
+                        type: Schema.Types.ObjectId,
+                        ref: 'Class1',
+                        mutex: 'a'
+                    },
+                    class2: {
+                        type: Schema.Types.ObjectId,
+                        ref: 'Class2',
+                        mutex: 'a'
+                    }
+                };
+
+                let MutexClassBB = new ClassModel({
+                    className: 'MutexClassBB', 
+                    schema: schema
+                });
+
+                let instance = MutexClassBB.create();
+
+                instance.class1 = Class1.create()._id;
+
+                try {
+                    ClassModel.validate(schema, instance);
+                }
+                catch (validationError) {
+                    throw new Error(
+                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'Error: ' + validationError.message
+                    );
+                }
+
+                return true;
+            });
+            
+            it('2 non-singular relationship fields have a mutex and both are set. Error thrown.', function() {
+                let expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field class1s with mutex \'a\'. Field class2s with mutex \'a\'.';
+                let expectedErrorMutex = /^Mutex violations found for instance .* Field class1s with mutex \'a\'. Field class2s with mutex \'a\'.$/;
+            
+                let schema = {
+                    class1s: {
+                        type: [Schema.Types.ObjectId],
+                        ref: 'Class1',
+                        mutex: 'a'
+                    },
+                    class2s: {
+                        type: [Schema.Types.ObjectId],
+                        ref: 'Class2',
+                        mutex: 'a'
+                    }
+                };
+
+                let MutexClassC = new ClassModel({
+                    className: 'MutexClassC', 
+                    schema: schema
+                });
+
+                let instance = MutexClassC.create();
+
+                instance.class1s = [Class1.create()._id, Class1.create()._id];
+                instance.class2s = [Class2.create()._id, Class2.create()._id];
+
+                try {
+                    ClassModel.validate(schema, instance);
+                }
+                catch (validationError) {
+                    if (expectedErrorMutex.test(validationError.message)) {
+                        return true;
+                    }
+                    else {
+                        throw new Error(
+                            'ClassModel.validate returned the wrong error message.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' +
+                            'Actual:   ' + validationError.message
+                        );
+                    }
+                }
+
+                throw new Error('ClassModel.validate did not throw an error when it should have.');
+            });
+            
+            it('2 non-singular relationship fields have a mutex and one is set. No error thrown.', function() {
+                let schema = {
+                    class1s: {
+                        type: [Schema.Types.ObjectId],
+                        ref: 'Class1',
+                        mutex: 'a'
+                    },
+                    class2s: {
+                        type: [Schema.Types.ObjectId],
+                        ref: 'Class2',
+                        mutex: 'a'
+                    }
+                };
+
+                let MutexClassCC = new ClassModel({
+                    className: 'MutexClassCC', 
+                    schema: schema
+                });
+
+                let instance = MutexClassCC.create();
+
+                instance.class1s = [Class1.create()._id, Class1.create()._id];
+
+                try {
+                    ClassModel.validate(schema, instance);
+                }
+                catch (validationError) {
+                    throw new Error(
+                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'Error: ' + validationError.message
+                    );
+                }
+
+                return true;
+            });
+
+        });
+
+    });
+
+    describe('ClassModel.save()', function() {    
+
+        it('ClassModel.save() works properly.', function(done) {
+            var instance1 = Class1.create();
+            var error = null;
+            var compareResult;
+            var testFailed;
+
+            instance1.name = "Name 1";
+            instance1.class2 = Class2.create()._id;
+
+            Class1.save(instance1).then(    
+                function(saved) {
+                    Class1.findById(instance1._id, function(findError, found) {
+                        compareResult = Class1.compare(instance1, found);
+            
+                        if (compareResult.match == false)
+                            error = new Error(compareResult.message);
+                    });
+                },
+                function(saveErr) {
+                    testFailed = 1;
+                    error = saveErr;
+                }
+            ).finally(function() {
+                if (error)
+                    done(error);
+                else
+                    done();
+            });
+        });
+
+    });
 
 });
 
