@@ -41,6 +41,26 @@ class ClassModel {
 
     // Validation Methods
 
+    // Defines what it means for a field to be set. Any value for a non-Array field counts as a set field. For a field that has an Array type,
+    //    an empty array does not count as being set. A number field set to 0 also counts as set.
+    static fieldIsSet(schema, instance, key) {
+        if (Array.isArray(schema[key].type)) {
+            if (instance[key].length) {
+                return true;
+            }
+        }
+        else if (schema[key].type == Number) {
+            if (instance[key] || instance[key] == 0)
+                return true;
+        }
+        else {
+            if (instance[key]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // Throws an error if multiple fields with the same mutex have a value.
     static mutexValidation(schema, instance) {
         let muti = [];
@@ -49,37 +69,22 @@ class ClassModel {
         let valid = true;
 
         Object.keys(schema).forEach(function(key) {
-            if (schema[key].mutex) {
-                if (Array.isArray(schema[key].type)) {
-                    if (instance[key].length) {
-                        if (muti.includes(schema[key].mutex)) {
-                            violations.push(schema[key].mutex);
-                        }
-                        else {
-                            muti.push(schema[key].mutex);
-                        }
+            if (schema[key].mutex && ClassModel.fieldIsSet(schema, instance, key)) {
+                    if (muti.includes(schema[key].mutex)) {
+                        violations.push(schema[key].mutex);
+                    }
+                    else {
+                        muti.push(schema[key].mutex);
                     }
                 }
-                else {
-                    if (instance[key]) {
-                        if (muti.includes(schema[key].mutex)) {
-                            violations.push(schema[key].mutex);
-                        }
-                        else {
-                            muti.push(schema[key].mutex);
-                        }
-                    }
-                }
-
-            }
         });
 
         if (violations.length) {
             valid = false;
             message = 'Mutex violations found for instance ' + instance._id + '.';
             Object.keys(schema).forEach(function(key) {
-                if (violations.includes(schema[key].mutex) && instance[key]) {
-                    message += ' Field ' + key + ' with mutex \'' + schema[key].mutex + '\'.'
+                if (violations.includes(schema[key].mutex) && ClassModel.fieldIsSet(schema, instance, key)) {
+                            message += ' Field ' + key + ' with mutex \'' + schema[key].mutex + '\'.'
                 }
             });
         }

@@ -605,6 +605,373 @@ describe('Class Model Tests', function() {
                 return true;
             });
 
+            var schema = {
+                string: {
+                    type:String,
+                    mutex: 'a'
+                },
+                date: {
+                    type: Date,
+                    mutex: 'a'
+                },
+                boolean: {
+                    type: String,
+                    mutex: 'a'
+                },
+                number: {
+                    type: Number,
+                    mutex: 'a'
+                },
+                numbers: {
+                    type: [Number],
+                    mutex: 'a'
+                },
+                class1: {
+                    type: Schema.Types.ObjectId,
+                    ref: 'Class1',
+                    mutex: 'a'
+                },
+                class2s: {
+                    type: [Schema.Types.ObjectId],
+                    ref: 'Class2',
+                    mutex: 'a'
+                }
+            };
+
+            var MutexClassD = new ClassModel({
+                className: 'MutexClassD', 
+                schema: schema
+            });
+            
+            it('multiple fields of different types have a mutex and string is set. No error thrown.', function() {
+
+                let instance = MutexClassD.create();
+
+                instance.string = 'String';
+
+                try {
+                    ClassModel.validate(schema, instance);
+                }
+                catch (validationError) {
+                    throw new Error(
+                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'Error: ' + validationError.message
+                    );
+                }
+
+                return true;
+            });
+            
+            it('multiple fields of different types have a mutex and date is set. No error thrown.', function() {
+
+                let instance = MutexClassD.create();
+
+                instance.date = new Date();
+
+                try {
+                    ClassModel.validate(schema, instance);
+                }
+                catch (validationError) {
+                    throw new Error(
+                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'Error: ' + validationError.message
+                    );
+                }
+
+                return true;
+            });
+            
+            it('multiple fields of different types have a mutex and boolean is set to false. No error thrown.', function() {
+
+                let instance = MutexClassD.create();
+
+                instance.boolean = false;
+
+                try {
+                    ClassModel.validate(schema, instance);
+                }
+                catch (validationError) {
+                    throw new Error(
+                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'Error: ' + validationError.message
+                    );
+                }
+
+                return true;
+            });
+            
+            it('multiple fields of different types have a mutex and boolean is set to true. No error thrown.', function() {
+
+                let instance = MutexClassD.create();
+
+                instance.boolean = true;
+
+                try {
+                    ClassModel.validate(schema, instance);
+                }
+                catch (validationError) {
+                    throw new Error(
+                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'Error: ' + validationError.message
+                    );
+                }
+
+                return true;
+            });
+            
+            it('multiple fields of different types have a mutex and number is set to 0. No error thrown.', function() {
+
+                let instance = MutexClassD.create();
+
+                instance.number = 0;
+
+                try {
+                    ClassModel.validate(schema, instance);
+                }
+                catch (validationError) {
+                    throw new Error(
+                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'Error: ' + validationError.message
+                    );
+                }
+
+                return true;
+            });
+            
+            it('multiple fields of different types have a mutex and number is set to 1. No error thrown.', function() {
+
+                let instance = MutexClassD.create();
+
+                instance.number = 1;
+
+                try {
+                    ClassModel.validate(schema, instance);
+                }
+                catch (validationError) {
+                    throw new Error(
+                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'Error: ' + validationError.message
+                    );
+                }
+
+                return true;
+            });
+            
+            it('multiple fields of different types have a mutex and numbers is set to empty array. No error thrown.', function() {
+
+                let instance = MutexClassD.create();
+
+                instance.numbers = [];
+
+                try {
+                    ClassModel.validate(schema, instance);
+                }
+                catch (validationError) {
+                    throw new Error(
+                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'Error: ' + validationError.message
+                    );
+                }
+
+                return true;
+            });
+            
+            it('multiple fields of different types have a mutex and numbers is set to an array of 0s. No error thrown.', function() {
+
+                let instance = MutexClassD.create();
+
+                instance.numbers = [0, 0, 0];
+
+                try {
+                    ClassModel.validate(schema, instance);
+                }
+                catch (validationError) {
+                    throw new Error(
+                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'Error: ' + validationError.message
+                    );
+                }
+
+                return true;
+            });
+            
+            it('multiple fields of different types have a mutex and numbers is set to an array of 1s. No error thrown.', function() {
+
+                let instance = MutexClassD.create();
+
+                instance.numbers = [1, 1, 1];
+
+                try {
+                    ClassModel.validate(schema, instance);
+                }
+                catch (validationError) {
+                    throw new Error(
+                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'Error: ' + validationError.message
+                    );
+                }
+
+                return true;
+            });
+            
+            it('multiple fields of different types have a mutex and class1 is set. No error thrown.', function() {
+
+                let instance = MutexClassD.create();
+
+                instance.class1 = Class1.create()._id;
+
+                try {
+                    ClassModel.validate(schema, instance);
+                }
+                catch (validationError) {
+                    throw new Error(
+                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'Error: ' + validationError.message
+                    );
+                }
+
+                return true;
+            });
+            
+            it('multiple fields of different types have a mutex and class2s are set to a single instance. No error thrown.', function() {
+
+                let instance = MutexClassD.create();
+
+                instance.class2s = Class2.create()._id;
+
+                try {
+                    ClassModel.validate(schema, instance);
+                }
+                catch (validationError) {
+                    throw new Error(
+                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'Error: ' + validationError.message
+                    );
+                }
+
+                return true;
+            });
+            
+            it('multiple fields of different types have a mutex and class2s are set to multiple instances. No error thrown.', function() {
+
+                let instance = MutexClassD.create();
+
+                instance.class2s = [Class2.create()._id, Class2.create()._id];
+
+                try {
+                    ClassModel.validate(schema, instance);
+                }
+                catch (validationError) {
+                    throw new Error(
+                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'Error: ' + validationError.message
+                    );
+                }
+
+                return true;
+            });
+            
+            it('multiple fields of different types have a mutex and none are set. No error thrown.', function() {
+
+                let instance = MutexClassD.create();
+
+                try {
+                    ClassModel.validate(schema, instance);
+                }
+                catch (validationError) {
+                    throw new Error(
+                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'Error: ' + validationError.message
+                    );
+                }
+
+                return true;
+            });
+            
+            it('multiple fields of different types have a mutex and boolean is set to false and class2s are set to one instance in array. Error thrown.', function() {
+                let expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field boolean with mutex \'a\'. Field class2s with mutex \'a\'.';
+                let expectedErrorMutex = /^Mutex violations found for instance .* Field boolean with mutex \'a\'. Field class2s with mutex \'a\'.$/;
+            
+                let instance = MutexClassD.create();
+
+                instance.boolean = false;
+                instance.class2s = [Class2.create()._id];
+
+                try {
+                    ClassModel.validate(schema, instance);
+                }
+                catch (validationError) {
+                    if (expectedErrorMutex.test(validationError.message)) {
+                        return true;
+                    }
+                    else {
+                        throw new Error(
+                            'ClassModel.validate returned the wrong error message.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' +
+                            'Actual:   ' + validationError.message
+                        );
+                    }
+                }
+
+                throw new Error('ClassModel.validate did not throw an error when it should have.');
+            });
+            
+            it('multiple fields of different types have a mutex and number is set to 0 and numbers are set to an array of 0s. Error thrown.', function() {
+                let expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field number with mutex \'a\'. Field numbers with mutex \'a\'.';
+                let expectedErrorMutex = /^Mutex violations found for instance .* Field number with mutex \'a\'. Field numbers with mutex \'a\'.$/;
+            
+                let instance = MutexClassD.create();
+
+                instance.number = 0;
+                instance.numbers = [0, 0, 0];
+
+                try {
+                    ClassModel.validate(schema, instance);
+                }
+                catch (validationError) {
+                    if (expectedErrorMutex.test(validationError.message)) {
+                        return true;
+                    }
+                    else {
+                        throw new Error(
+                            'ClassModel.validate returned the wrong error message.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' +
+                            'Actual:   ' + validationError.message
+                        );
+                    }
+                }
+
+                throw new Error('ClassModel.validate did not throw an error when it should have.');
+            });
+            
+            it('multiple fields of different types have a mutex and boolean is set to false and number is set to 0. Error thrown.', function() {
+                let expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field boolean with mutex \'a\'. Field number with mutex \'a\'.';
+                let expectedErrorMutex = /^Mutex violations found for instance .* Field boolean with mutex \'a\'. Field number with mutex \'a\'.$/;
+            
+                let instance = MutexClassD.create();
+
+                instance.number = 0;
+                instance.boolean = false;
+
+                try {
+                    ClassModel.validate(schema, instance);
+                }
+                catch (validationError) {
+                    if (expectedErrorMutex.test(validationError.message)) {
+                        return true;
+                    }
+                    else {
+                        throw new Error(
+                            'ClassModel.validate returned the wrong error message.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' +
+                            'Actual:   ' + validationError.message
+                        );
+                    }
+                }
+
+                throw new Error('ClassModel.validate did not throw an error when it should have.');
+            });
+
         });
 
     });
