@@ -114,7 +114,7 @@ class ClassModel {
 
         // Iterate through the instance members to check that at least one member for each required group is set.
         Object.keys(schema).forEach(function(key) {
-            if (schema[key].requiredGroup && instance[key]) {
+            if (schema[key].requiredGroup && ClassModel.fieldIsSet(schema, instance, key)) {
                 requiredGroups = requiredGroups.filter(function(value) { return value != schema[key].requiredGroup; });
             }
         });
