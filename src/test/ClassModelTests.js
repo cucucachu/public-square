@@ -133,6 +133,52 @@ describe('Class Model Tests', function() {
         schema: Class2Schema
     });           
     
+    var allFieldsRequiredClassSchema = {
+        string: {
+            type:String,
+            required: true
+        },
+        strings: {
+            type:[String],
+            required: true
+        },
+        date: {
+            type: Date,
+            required: true
+        },
+        boolean: {
+            type: Boolean,
+            required: true
+        },
+        booleans: {
+            type: [Boolean],
+            required: true
+        },
+        number: {
+            type: Number,
+            required: true
+        },
+        numbers: {
+            type: [Number],
+            required: true
+        },
+        class1: {
+            type: Schema.Types.ObjectId,
+            ref: 'Class1',
+            required: true
+        },
+        class2s: {
+            type: [Schema.Types.ObjectId],
+            ref: 'Class2',
+            required: true
+        }
+    };
+
+    var AllFieldsRequiredClass = new ClassModel({
+        className: 'AllFieldsRequiredClass', 
+        schema: allFieldsRequiredClassSchema
+    });           
+    
     var allFieldsMutexClassSchema = {
         string: {
             type:String,
@@ -453,6 +499,697 @@ describe('Class Model Tests', function() {
 
     describe('ClassModel.validate()', function() {
 
+        describe('Required Validation', function() {
+
+            it('All fields are required. All are set. No error thrown.', function() {
+                let instance = AllFieldsRequiredClass.create();
+
+                instance.string = 'String';
+                instance.strings = ['String'];
+                instance.date = new Date();
+                instance.boolean = true;
+                instance.booleans = [true];
+                instance.number = 1;
+                instance.numbers = [1];
+                instance.class1 = Class1.create()._id;
+                instance.class2s = [Class2.create()._id];
+
+                try {
+                    ClassModel.validate(AllFieldsRequiredClass, instance);
+                }
+                catch (validationError) {
+                    throw new Error(
+                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'Error: ' + validationError.message
+                    );
+                }
+
+                return true;
+
+            });
+                
+            it('All fields are required. All but string are set. Error thrown.', function() {
+                let expectedErrorMessage = 'AllFieldsRequiredClass validation failed: string: Path `string` is required.';
+                let instance = AllFieldsRequiredClass.create();
+
+                instance.strings = ['String'];
+                instance.date = new Date();
+                instance.boolean = true;
+                instance.booleans = [true];
+                instance.number = 1;
+                instance.numbers = [1];
+                instance.class1 = Class1.create()._id;
+                instance.class2s = [Class2.create()._id];
+    
+                try {
+                    ClassModel.validate(AllFieldsRequiredClass, instance);
+                }
+                catch (validationError) {
+                    if (validationError.message == expectedErrorMessage) {
+                        return true;
+                    }
+                    else {
+                        throw new Error(
+                            'ClassModel.validate returned the wrong error message.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' +
+                            'Actual:   ' + validationError.message
+                        );
+                    }
+                }
+    
+                throw new Error('ClassModel.validate did not throw an error when it should have.');
+            });
+                
+            it('All fields are required. All are set, but string is set to empty string. Error thrown.', function() {
+                let expectedErrorMessage = 'AllFieldsRequiredClass validation failed: string: Path `string` is required.';
+                let instance = AllFieldsRequiredClass.create();
+
+                instance.string = '';
+                instance.strings = ['String'];
+                instance.date = new Date();
+                instance.boolean = true;
+                instance.booleans = [true];
+                instance.number = 1;
+                instance.numbers = [1];
+                instance.class1 = Class1.create()._id;
+                instance.class2s = [Class2.create()._id];
+    
+                try {
+                    ClassModel.validate(AllFieldsRequiredClass, instance);
+                }
+                catch (validationError) {
+                    if (validationError.message == expectedErrorMessage) {
+                        return true;
+                    }
+                    else {
+                        throw new Error(
+                            'ClassModel.validate returned the wrong error message.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' +
+                            'Actual:   ' + validationError.message
+                        );
+                    }
+                }
+    
+                throw new Error('ClassModel.validate did not throw an error when it should have.');
+            });
+                
+            it('All fields are required. All but strings are set. Error thrown.', function() {
+                let expectedErrorMessage = 'AllFieldsRequiredClass validation failed: strings: Path `strings` is required.';
+                let instance = AllFieldsRequiredClass.create();
+
+                instance.string = 'String';
+                instance.date = new Date();
+                instance.boolean = true;
+                instance.booleans = [true];
+                instance.number = 1;
+                instance.numbers = [1];
+                instance.class1 = Class1.create()._id;
+                instance.class2s = [Class2.create()._id];
+
+    
+                try {
+                    ClassModel.validate(AllFieldsRequiredClass, instance);
+                }
+                catch (validationError) {
+                    if (validationError.message == expectedErrorMessage) {
+                        return true;
+                    }
+                    else {
+                        throw new Error(
+                            'ClassModel.validate returned the wrong error message.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' +
+                            'Actual:   ' + validationError.message
+                        );
+                    }
+                }
+    
+                throw new Error('ClassModel.validate did not throw an error when it should have.');
+            });
+                
+            it('All fields are required. All but date are set. Error thrown.', function() {
+                let expectedErrorMessage = 'AllFieldsRequiredClass validation failed: date: Path `date` is required.';
+                let instance = AllFieldsRequiredClass.create();
+
+                instance.string = 'String';
+                instance.strings = ['String'];
+                instance.boolean = true;
+                instance.booleans = [true];
+                instance.number = 1;
+                instance.numbers = [1];
+                instance.class1 = Class1.create()._id;
+                instance.class2s = [Class2.create()._id];
+
+    
+                try {
+                    ClassModel.validate(AllFieldsRequiredClass, instance);
+                }
+                catch (validationError) {
+                    if (validationError.message == expectedErrorMessage) {
+                        return true;
+                    }
+                    else {
+                        throw new Error(
+                            'ClassModel.validate returned the wrong error message.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' +
+                            'Actual:   ' + validationError.message
+                        );
+                    }
+                }
+    
+                throw new Error('ClassModel.validate did not throw an error when it should have.');
+            });
+                
+            it('All fields are required. All but boolean are set. Error thrown.', function() {
+                let expectedErrorMessage = 'AllFieldsRequiredClass validation failed: boolean: Path `boolean` is required.';
+                let instance = AllFieldsRequiredClass.create();
+
+                instance.string = 'String';
+                instance.strings = ['String'];
+                instance.date = new Date();
+                instance.booleans = [true];
+                instance.number = 1;
+                instance.numbers = [1];
+                instance.class1 = Class1.create()._id;
+                instance.class2s = [Class2.create()._id];
+
+    
+                try {
+                    ClassModel.validate(AllFieldsRequiredClass, instance);
+                }
+                catch (validationError) {
+                    if (validationError.message == expectedErrorMessage) {
+                        return true;
+                    }
+                    else {
+                        throw new Error(
+                            'ClassModel.validate returned the wrong error message.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' +
+                            'Actual:   ' + validationError.message
+                        );
+                    }
+                }
+    
+                throw new Error('ClassModel.validate did not throw an error when it should have.');
+            });
+                
+            it('All fields are required. All are set, but boolean is set to false. Error thrown.', function() {
+                let expectedErrorMessage = 'AllFieldsRequiredClass validation failed: boolean: Path `boolean` is required.';
+                let instance = AllFieldsRequiredClass.create();
+
+                instance.string = 'String';
+                instance.strings = ['String'];
+                instance.date = new Date();
+                instance.boolean = false;
+                instance.booleans = [true];
+                instance.number = 1;
+                instance.numbers = [1];
+                instance.class1 = Class1.create()._id;
+                instance.class2s = [Class2.create()._id];
+
+    
+                try {
+                    ClassModel.validate(AllFieldsRequiredClass, instance);
+                }
+                catch (validationError) {
+                    if (validationError.message == expectedErrorMessage) {
+                        return true;
+                    }
+                    else {
+                        throw new Error(
+                            'ClassModel.validate returned the wrong error message.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' +
+                            'Actual:   ' + validationError.message
+                        );
+                    }
+                }
+    
+                throw new Error('ClassModel.validate did not throw an error when it should have.');
+            });
+                
+            it('All fields are required. All but booleans are set. Error thrown.', function() {
+                let expectedErrorMessage = 'AllFieldsRequiredClass validation failed: booleans: Path `booleans` is required.';
+                let instance = AllFieldsRequiredClass.create();
+
+                instance.string = 'String';
+                instance.strings = ['String'];
+                instance.date = new Date();
+                instance.boolean = true;
+                instance.number = 1;
+                instance.numbers = [1];
+                instance.class1 = Class1.create()._id;
+                instance.class2s = [Class2.create()._id];
+
+    
+                try {
+                    ClassModel.validate(AllFieldsRequiredClass, instance);
+                }
+                catch (validationError) {
+                    if (validationError.message == expectedErrorMessage) {
+                        return true;
+                    }
+                    else {
+                        throw new Error(
+                            'ClassModel.validate returned the wrong error message.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' +
+                            'Actual:   ' + validationError.message
+                        );
+                    }
+                }
+    
+                throw new Error('ClassModel.validate did not throw an error when it should have.');
+            });
+                
+            it('All fields are required. All but number are set. Error thrown.', function() {
+                let expectedErrorMessage = 'AllFieldsRequiredClass validation failed: number: Path `number` is required.';
+                let instance = AllFieldsRequiredClass.create();
+
+                instance.string = 'String';
+                instance.strings = ['String'];
+                instance.date = new Date();
+                instance.boolean = true;
+                instance.booleans = [true];
+                instance.numbers = [1];
+                instance.class1 = Class1.create()._id;
+                instance.class2s = [Class2.create()._id];
+
+    
+                try {
+                    ClassModel.validate(AllFieldsRequiredClass, instance);
+                }
+                catch (validationError) {
+                    if (validationError.message == expectedErrorMessage) {
+                        return true;
+                    }
+                    else {
+                        throw new Error(
+                            'ClassModel.validate returned the wrong error message.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' +
+                            'Actual:   ' + validationError.message
+                        );
+                    }
+                }
+    
+                throw new Error('ClassModel.validate did not throw an error when it should have.');
+            });
+                
+            it('All fields are required. All but numbers are set. Error thrown.', function() {
+                let expectedErrorMessage = 'AllFieldsRequiredClass validation failed: numbers: Path `numbers` is required.';
+                let instance = AllFieldsRequiredClass.create();
+
+                instance.string = 'String';
+                instance.strings = ['String'];
+                instance.date = new Date();
+                instance.boolean = true;
+                instance.booleans = [true];
+                instance.number = 1;
+                instance.class1 = Class1.create()._id;
+                instance.class2s = [Class2.create()._id];
+
+    
+                try {
+                    ClassModel.validate(AllFieldsRequiredClass, instance);
+                }
+                catch (validationError) {
+                    if (validationError.message == expectedErrorMessage) {
+                        return true;
+                    }
+                    else {
+                        throw new Error(
+                            'ClassModel.validate returned the wrong error message.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' +
+                            'Actual:   ' + validationError.message
+                        );
+                    }
+                }
+    
+                throw new Error('ClassModel.validate did not throw an error when it should have.');
+            });
+                
+            it('All fields are required. All but class1 are set. Error thrown.', function() {
+                let expectedErrorMessage = 'AllFieldsRequiredClass validation failed: class1: Path `class1` is required.';
+                let instance = AllFieldsRequiredClass.create();
+
+                instance.string = 'String';
+                instance.strings = ['String'];
+                instance.date = new Date();
+                instance.boolean = true;
+                instance.booleans = [true];
+                instance.number = 1;
+                instance.numbers = [1];
+                instance.class2s = [Class2.create()._id];
+
+    
+                try {
+                    ClassModel.validate(AllFieldsRequiredClass, instance);
+                }
+                catch (validationError) {
+                    if (validationError.message == expectedErrorMessage) {
+                        return true;
+                    }
+                    else {
+                        throw new Error(
+                            'ClassModel.validate returned the wrong error message.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' +
+                            'Actual:   ' + validationError.message
+                        );
+                    }
+                }
+    
+                throw new Error('ClassModel.validate did not throw an error when it should have.');
+            });
+                
+            it('All fields are required. All but class2s are set. Error thrown.', function() {
+                let expectedErrorMessage = 'AllFieldsRequiredClass validation failed: class2s: Path `class2s` is required.';
+                let instance = AllFieldsRequiredClass.create();
+
+                instance.string = 'String';
+                instance.strings = ['String'];
+                instance.date = new Date();
+                instance.boolean = true;
+                instance.booleans = [true];
+                instance.number = 1;
+                instance.numbers = [1];
+                instance.class1 = Class1.create()._id;
+
+    
+                try {
+                    ClassModel.validate(AllFieldsRequiredClass, instance);
+                }
+                catch (validationError) {
+                    if (validationError.message == expectedErrorMessage) {
+                        return true;
+                    }
+                    else {
+                        throw new Error(
+                            'ClassModel.validate returned the wrong error message.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' +
+                            'Actual:   ' + validationError.message
+                        );
+                    }
+                }
+    
+                throw new Error('ClassModel.validate did not throw an error when it should have.');
+            });
+
+        });
+
+        describe('Required Group Validation', function() {
+                
+            it('multiple fields (one of each type) share a required group no fields are set. Error thrown.', function() {
+                let expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
+            
+                let instance = AllFieldsInRequiredGroupClass.create();
+    
+                try {
+                    ClassModel.validate(AllFieldsInRequiredGroupClass, instance);
+                }
+                catch (validationError) {
+                    if (validationError.message == expectedErrorMessage) {
+                        return true;
+                    }
+                    else {
+                        throw new Error(
+                            'ClassModel.validate returned the wrong error message.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' +
+                            'Actual:   ' + validationError.message
+                        );
+                    }
+                }
+    
+                throw new Error('ClassModel.validate did not throw an error when it should have.');
+            });
+                
+            it('multiple fields (one of each type) share a required group boolean is set to false. Error thrown.', function() {
+                let expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
+            
+                let instance = AllFieldsInRequiredGroupClass.create();
+
+                instance.boolean = false;
+    
+                try {
+                    ClassModel.validate(AllFieldsInRequiredGroupClass, instance);
+                }
+                catch (validationError) {
+                    if (validationError.message == expectedErrorMessage) {
+                        return true;
+                    }
+                    else {
+                        throw new Error(
+                            'ClassModel.validate returned the wrong error message.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' +
+                            'Actual:   ' + validationError.message
+                        );
+                    }
+                }
+    
+                throw new Error('ClassModel.validate did not throw an error when it should have.');
+            });
+                
+            it('multiple fields (one of each type) share a required group string is set to "". Error thrown.', function() {
+                let expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
+            
+                let instance = AllFieldsInRequiredGroupClass.create();
+    
+                instance.string = '';
+
+                try {
+                    ClassModel.validate(AllFieldsInRequiredGroupClass, instance);
+                }
+                catch (validationError) {
+                    if (validationError.message == expectedErrorMessage) {
+                        return true;
+                    }
+                    else {
+                        throw new Error(
+                            'ClassModel.validate returned the wrong error message.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' +
+                            'Actual:   ' + validationError.message
+                        );
+                    }
+                }
+    
+                throw new Error('ClassModel.validate did not throw an error when it should have.');
+            });
+                
+            it('multiple fields (one of each type) share a required group class2s is set to empty array. Error thrown.', function() {
+                let expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
+            
+                let instance = AllFieldsInRequiredGroupClass.create();
+
+                instance.class2s = [];
+    
+                try {
+                    ClassModel.validate(AllFieldsInRequiredGroupClass, instance);
+                }
+                catch (validationError) {
+                    if (validationError.message == expectedErrorMessage) {
+                        return true;
+                    }
+                    else {
+                        throw new Error(
+                            'ClassModel.validate returned the wrong error message.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' +
+                            'Actual:   ' + validationError.message
+                        );
+                    }
+                }
+    
+                throw new Error('ClassModel.validate did not throw an error when it should have.');
+            });
+            
+            it('multiple fields (one of each type) share a required group and string is set. No error thrown.', function() {
+
+                let instance = AllFieldsInRequiredGroupClass.create();
+
+                instance.string = 'String';
+
+                try {
+                    ClassModel.validate(AllFieldsInRequiredGroupClass, instance);
+                }
+                catch (validationError) {
+                    throw new Error(
+                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'Error: ' + validationError.message
+                    );
+                }
+
+                return true;
+            });
+            
+            it('multiple fields (one of each type) share a required group and strings is set. No error thrown.', function() {
+
+                let instance = AllFieldsInRequiredGroupClass.create();
+
+                instance.strings = ['String'];
+
+                try {
+                    ClassModel.validate(AllFieldsInRequiredGroupClass, instance);
+                }
+                catch (validationError) {
+                    throw new Error(
+                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'Error: ' + validationError.message
+                    );
+                }
+
+                return true;
+            });
+            
+            it('multiple fields (one of each type) share a required group and boolean is set. No error thrown.', function() {
+
+                let instance = AllFieldsInRequiredGroupClass.create();
+
+                instance.boolean = true;
+
+                try {
+                    ClassModel.validate(AllFieldsInRequiredGroupClass, instance);
+                }
+                catch (validationError) {
+                    throw new Error(
+                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'Error: ' + validationError.message
+                    );
+                }
+
+                return true;
+            });
+            
+            it('multiple fields (one of each type) share a required group and booleans is set. No error thrown.', function() {
+
+                let instance = AllFieldsInRequiredGroupClass.create();
+
+                instance.booleans = [true];
+
+                try {
+                    ClassModel.validate(AllFieldsInRequiredGroupClass, instance);
+                }
+                catch (validationError) {
+                    throw new Error(
+                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'Error: ' + validationError.message
+                    );
+                }
+
+                return true;
+            });
+            
+            it('multiple fields (one of each type) share a required group and date is set. No error thrown.', function() {
+
+                let instance = AllFieldsInRequiredGroupClass.create();
+
+                instance.date = new Date();
+
+                try {
+                    ClassModel.validate(AllFieldsInRequiredGroupClass, instance);
+                }
+                catch (validationError) {
+                    throw new Error(
+                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'Error: ' + validationError.message
+                    );
+                }
+
+                return true;
+            });
+            
+            it('multiple fields (one of each type) share a required group and number is set. No error thrown.', function() {
+
+                let instance = AllFieldsInRequiredGroupClass.create();
+
+                instance.number = 1;
+
+                try {
+                    ClassModel.validate(AllFieldsInRequiredGroupClass, instance);
+                }
+                catch (validationError) {
+                    throw new Error(
+                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'Error: ' + validationError.message
+                    );
+                }
+
+                return true;
+            });
+            
+            it('multiple fields (one of each type) share a required group and number is set to 0. No error thrown.', function() {
+
+                let instance = AllFieldsInRequiredGroupClass.create();
+
+                instance.number = 0;
+
+                try {
+                    ClassModel.validate(AllFieldsInRequiredGroupClass, instance);
+                }
+                catch (validationError) {
+                    throw new Error(
+                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'Error: ' + validationError.message
+                    );
+                }
+
+                return true;
+            });
+            
+            it('multiple fields (one of each type) share a required group and numbers is set. No error thrown.', function() {
+
+                let instance = AllFieldsInRequiredGroupClass.create();
+
+                instance.numbers = [1];
+
+                try {
+                    ClassModel.validate(AllFieldsInRequiredGroupClass, instance);
+                }
+                catch (validationError) {
+                    throw new Error(
+                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'Error: ' + validationError.message
+                    );
+                }
+
+                return true;
+            });
+            
+            it('multiple fields (one of each type) share a required group and class1 is set. No error thrown.', function() {
+
+                let instance = AllFieldsInRequiredGroupClass.create();
+
+                instance.class1 = Class1.create()._id;
+
+                try {
+                    ClassModel.validate(AllFieldsInRequiredGroupClass, instance);
+                }
+                catch (validationError) {
+                    throw new Error(
+                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'Error: ' + validationError.message
+                    );
+                }
+
+                return true;
+            });
+            
+            it('multiple fields (one of each type) share a required group and class2s is set. No error thrown.', function() {
+
+                let instance = AllFieldsInRequiredGroupClass.create();
+
+                instance.class2s = [Class2.create()._id];
+
+                try {
+                    ClassModel.validate(AllFieldsInRequiredGroupClass, instance);
+                }
+                catch (validationError) {
+                    throw new Error(
+                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'Error: ' + validationError.message
+                    );
+                }
+
+                return true;
+            });
+
+
+        });
+
         describe('Mutex Validation', function() {
             
             it('2 attribute fields (boolean, date) have a mutex and both are set. Error thrown.', function() {
@@ -481,7 +1218,7 @@ describe('Class Model Tests', function() {
                 instance.date = new Date();
 
                 try {
-                    ClassModel.validate(schema, instance);
+                    ClassModel.validate(MutexClassA, instance);
                 }
                 catch (validationError) {
                     if (expectedErrorMutex.test(validationError.message)) {
@@ -521,7 +1258,7 @@ describe('Class Model Tests', function() {
                 instance.boolean = true;
 
                 try {
-                    ClassModel.validate(schema, instance);
+                    ClassModel.validate(MutexClassAA, instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -561,7 +1298,7 @@ describe('Class Model Tests', function() {
                 instance.class2 = Class2.create()._id;
 
                 try {
-                    ClassModel.validate(schema, instance);
+                    ClassModel.validate(MutexClassB, instance);
                 }
                 catch (validationError) {
                     if (expectedErrorMutex.test(validationError.message)) {
@@ -603,7 +1340,7 @@ describe('Class Model Tests', function() {
                 instance.class1 = Class1.create()._id;
 
                 try {
-                    ClassModel.validate(schema, instance);
+                    ClassModel.validate(MutexClassBB, instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -643,7 +1380,7 @@ describe('Class Model Tests', function() {
                 instance.class2s = [Class2.create()._id, Class2.create()._id];
 
                 try {
-                    ClassModel.validate(schema, instance);
+                    ClassModel.validate(MutexClassC, instance);
                 }
                 catch (validationError) {
                     if (expectedErrorMutex.test(validationError.message)) {
@@ -685,7 +1422,7 @@ describe('Class Model Tests', function() {
                 instance.class1s = [Class1.create()._id, Class1.create()._id];
 
                 try {
-                    ClassModel.validate(schema, instance);
+                    ClassModel.validate(MutexClassCC, instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -704,7 +1441,7 @@ describe('Class Model Tests', function() {
                 instance.string = 'String';
 
                 try {
-                    ClassModel.validate(allFieldsMutexClassSchema, instance);
+                    ClassModel.validate(AllFieldsMutexClass, instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -723,7 +1460,7 @@ describe('Class Model Tests', function() {
                 instance.date = new Date();
 
                 try {
-                    ClassModel.validate(allFieldsMutexClassSchema, instance);
+                    ClassModel.validate(AllFieldsMutexClass, instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -742,7 +1479,7 @@ describe('Class Model Tests', function() {
                 instance.boolean = false;
 
                 try {
-                    ClassModel.validate(allFieldsMutexClassSchema, instance);
+                    ClassModel.validate(AllFieldsMutexClass, instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -761,7 +1498,7 @@ describe('Class Model Tests', function() {
                 instance.boolean = true;
 
                 try {
-                    ClassModel.validate(allFieldsMutexClassSchema, instance);
+                    ClassModel.validate(AllFieldsMutexClass, instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -780,7 +1517,7 @@ describe('Class Model Tests', function() {
                 instance.number = 0;
 
                 try {
-                    ClassModel.validate(allFieldsMutexClassSchema, instance);
+                    ClassModel.validate(AllFieldsMutexClass, instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -799,7 +1536,7 @@ describe('Class Model Tests', function() {
                 instance.number = 1;
 
                 try {
-                    ClassModel.validate(allFieldsMutexClassSchema, instance);
+                    ClassModel.validate(AllFieldsMutexClass, instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -818,7 +1555,7 @@ describe('Class Model Tests', function() {
                 instance.numbers = [];
 
                 try {
-                    ClassModel.validate(allFieldsMutexClassSchema, instance);
+                    ClassModel.validate(AllFieldsMutexClass, instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -837,7 +1574,7 @@ describe('Class Model Tests', function() {
                 instance.numbers = [0, 0, 0];
 
                 try {
-                    ClassModel.validate(allFieldsMutexClassSchema, instance);
+                    ClassModel.validate(AllFieldsMutexClass, instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -856,7 +1593,7 @@ describe('Class Model Tests', function() {
                 instance.numbers = [1, 1, 1];
 
                 try {
-                    ClassModel.validate(allFieldsMutexClassSchema, instance);
+                    ClassModel.validate(AllFieldsMutexClass, instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -875,7 +1612,7 @@ describe('Class Model Tests', function() {
                 instance.class1 = Class1.create()._id;
 
                 try {
-                    ClassModel.validate(allFieldsMutexClassSchema, instance);
+                    ClassModel.validate(AllFieldsMutexClass, instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -894,7 +1631,7 @@ describe('Class Model Tests', function() {
                 instance.class2s = Class2.create()._id;
 
                 try {
-                    ClassModel.validate(allFieldsMutexClassSchema, instance);
+                    ClassModel.validate(AllFieldsMutexClass, instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -913,7 +1650,7 @@ describe('Class Model Tests', function() {
                 instance.class2s = [Class2.create()._id, Class2.create()._id];
 
                 try {
-                    ClassModel.validate(allFieldsMutexClassSchema, instance);
+                    ClassModel.validate(AllFieldsMutexClass, instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -930,7 +1667,7 @@ describe('Class Model Tests', function() {
                 let instance = AllFieldsMutexClass.create();
 
                 try {
-                    ClassModel.validate(allFieldsMutexClassSchema, instance);
+                    ClassModel.validate(AllFieldsMutexClass, instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -953,7 +1690,7 @@ describe('Class Model Tests', function() {
                 instance.class2s = [];
 
                 try {
-                    ClassModel.validate(allFieldsMutexClassSchema, instance);
+                    ClassModel.validate(AllFieldsMutexClass, instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -975,7 +1712,7 @@ describe('Class Model Tests', function() {
                 instance.numbers = [0, 0, 0];
 
                 try {
-                    ClassModel.validate(allFieldsMutexClassSchema, instance);
+                    ClassModel.validate(AllFieldsMutexClass, instance);
                 }
                 catch (validationError) {
                     if (expectedErrorMutex.test(validationError.message)) {
@@ -1003,7 +1740,7 @@ describe('Class Model Tests', function() {
                 instance.booleans = [false];
     
                 try {
-                    ClassModel.validate(allFieldsMutexClassSchema, instance);
+                    ClassModel.validate(AllFieldsMutexClass, instance);
                 }
                 catch (validationError) {
                     if (expectedErrorMutex.test(validationError.message)) {
@@ -1031,7 +1768,7 @@ describe('Class Model Tests', function() {
                 instance.strings = [''];
     
                 try {
-                    ClassModel.validate(allFieldsMutexClassSchema, instance);
+                    ClassModel.validate(AllFieldsMutexClass, instance);
                 }
                 catch (validationError) {
                     if (expectedErrorMutex.test(validationError.message)) {
@@ -1048,303 +1785,6 @@ describe('Class Model Tests', function() {
     
                 throw new Error('ClassModel.validate did not throw an error when it should have.');
             });
-
-        });
-
-        describe('Required Group Validation', function() {
-                
-            it('multiple fields (one of each type) share a required group no fields are set. Error thrown.', function() {
-                let expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
-            
-                let instance = AllFieldsInRequiredGroupClass.create();
-    
-                try {
-                    ClassModel.validate(allFieldsInRequiredGroupClassSchema, instance);
-                }
-                catch (validationError) {
-                    if (validationError.message == expectedErrorMessage) {
-                        return true;
-                    }
-                    else {
-                        throw new Error(
-                            'ClassModel.validate returned the wrong error message.\n' + 
-                            'Expected: ' + expectedErrorMessage + '\n' +
-                            'Actual:   ' + validationError.message
-                        );
-                    }
-                }
-    
-                throw new Error('ClassModel.validate did not throw an error when it should have.');
-            });
-                
-            it('multiple fields (one of each type) share a required group boolean is set to false. Error thrown.', function() {
-                let expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
-            
-                let instance = AllFieldsInRequiredGroupClass.create();
-
-                instance.boolean = false;
-    
-                try {
-                    ClassModel.validate(allFieldsInRequiredGroupClassSchema, instance);
-                }
-                catch (validationError) {
-                    if (validationError.message == expectedErrorMessage) {
-                        return true;
-                    }
-                    else {
-                        throw new Error(
-                            'ClassModel.validate returned the wrong error message.\n' + 
-                            'Expected: ' + expectedErrorMessage + '\n' +
-                            'Actual:   ' + validationError.message
-                        );
-                    }
-                }
-    
-                throw new Error('ClassModel.validate did not throw an error when it should have.');
-            });
-                
-            it('multiple fields (one of each type) share a required group string is set to "". Error thrown.', function() {
-                let expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
-            
-                let instance = AllFieldsInRequiredGroupClass.create();
-    
-                instance.string = '';
-
-                try {
-                    ClassModel.validate(allFieldsInRequiredGroupClassSchema, instance);
-                }
-                catch (validationError) {
-                    if (validationError.message == expectedErrorMessage) {
-                        return true;
-                    }
-                    else {
-                        throw new Error(
-                            'ClassModel.validate returned the wrong error message.\n' + 
-                            'Expected: ' + expectedErrorMessage + '\n' +
-                            'Actual:   ' + validationError.message
-                        );
-                    }
-                }
-    
-                throw new Error('ClassModel.validate did not throw an error when it should have.');
-            });
-                
-            it('multiple fields (one of each type) share a required group class2s is set to empty array. Error thrown.', function() {
-                let expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
-            
-                let instance = AllFieldsInRequiredGroupClass.create();
-
-                instance.class2s = [];
-    
-                try {
-                    ClassModel.validate(allFieldsInRequiredGroupClassSchema, instance);
-                }
-                catch (validationError) {
-                    if (validationError.message == expectedErrorMessage) {
-                        return true;
-                    }
-                    else {
-                        throw new Error(
-                            'ClassModel.validate returned the wrong error message.\n' + 
-                            'Expected: ' + expectedErrorMessage + '\n' +
-                            'Actual:   ' + validationError.message
-                        );
-                    }
-                }
-    
-                throw new Error('ClassModel.validate did not throw an error when it should have.');
-            });
-            
-            it('multiple fields (one of each type) share a required group and string is set. No error thrown.', function() {
-
-                let instance = AllFieldsInRequiredGroupClass.create();
-
-                instance.string = 'String';
-
-                try {
-                    ClassModel.validate(allFieldsInRequiredGroupClassSchema, instance);
-                }
-                catch (validationError) {
-                    throw new Error(
-                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
-                        'Error: ' + validationError.message
-                    );
-                }
-
-                return true;
-            });
-            
-            it('multiple fields (one of each type) share a required group and strings is set. No error thrown.', function() {
-
-                let instance = AllFieldsInRequiredGroupClass.create();
-
-                instance.strings = ['String'];
-
-                try {
-                    ClassModel.validate(allFieldsInRequiredGroupClassSchema, instance);
-                }
-                catch (validationError) {
-                    throw new Error(
-                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
-                        'Error: ' + validationError.message
-                    );
-                }
-
-                return true;
-            });
-            
-            it('multiple fields (one of each type) share a required group and boolean is set. No error thrown.', function() {
-
-                let instance = AllFieldsInRequiredGroupClass.create();
-
-                instance.boolean = true;
-
-                try {
-                    ClassModel.validate(allFieldsInRequiredGroupClassSchema, instance);
-                }
-                catch (validationError) {
-                    throw new Error(
-                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
-                        'Error: ' + validationError.message
-                    );
-                }
-
-                return true;
-            });
-            
-            it('multiple fields (one of each type) share a required group and booleans is set. No error thrown.', function() {
-
-                let instance = AllFieldsInRequiredGroupClass.create();
-
-                instance.booleans = [true];
-
-                try {
-                    ClassModel.validate(allFieldsInRequiredGroupClassSchema, instance);
-                }
-                catch (validationError) {
-                    throw new Error(
-                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
-                        'Error: ' + validationError.message
-                    );
-                }
-
-                return true;
-            });
-            
-            it('multiple fields (one of each type) share a required group and date is set. No error thrown.', function() {
-
-                let instance = AllFieldsInRequiredGroupClass.create();
-
-                instance.date = new Date();
-
-                try {
-                    ClassModel.validate(allFieldsInRequiredGroupClassSchema, instance);
-                }
-                catch (validationError) {
-                    throw new Error(
-                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
-                        'Error: ' + validationError.message
-                    );
-                }
-
-                return true;
-            });
-            
-            it('multiple fields (one of each type) share a required group and number is set. No error thrown.', function() {
-
-                let instance = AllFieldsInRequiredGroupClass.create();
-
-                instance.number = 1;
-
-                try {
-                    ClassModel.validate(allFieldsInRequiredGroupClassSchema, instance);
-                }
-                catch (validationError) {
-                    throw new Error(
-                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
-                        'Error: ' + validationError.message
-                    );
-                }
-
-                return true;
-            });
-            
-            it('multiple fields (one of each type) share a required group and number is set to 0. No error thrown.', function() {
-
-                let instance = AllFieldsInRequiredGroupClass.create();
-
-                instance.number = 0;
-
-                try {
-                    ClassModel.validate(allFieldsInRequiredGroupClassSchema, instance);
-                }
-                catch (validationError) {
-                    throw new Error(
-                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
-                        'Error: ' + validationError.message
-                    );
-                }
-
-                return true;
-            });
-            
-            it('multiple fields (one of each type) share a required group and numbers is set. No error thrown.', function() {
-
-                let instance = AllFieldsInRequiredGroupClass.create();
-
-                instance.numbers = [1];
-
-                try {
-                    ClassModel.validate(allFieldsInRequiredGroupClassSchema, instance);
-                }
-                catch (validationError) {
-                    throw new Error(
-                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
-                        'Error: ' + validationError.message
-                    );
-                }
-
-                return true;
-            });
-            
-            it('multiple fields (one of each type) share a required group and class1 is set. No error thrown.', function() {
-
-                let instance = AllFieldsInRequiredGroupClass.create();
-
-                instance.class1 = Class1.create()._id;
-
-                try {
-                    ClassModel.validate(allFieldsInRequiredGroupClassSchema, instance);
-                }
-                catch (validationError) {
-                    throw new Error(
-                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
-                        'Error: ' + validationError.message
-                    );
-                }
-
-                return true;
-            });
-            
-            it('multiple fields (one of each type) share a required group and class2s is set. No error thrown.', function() {
-
-                let instance = AllFieldsInRequiredGroupClass.create();
-
-                instance.class2s = [Class2.create()._id];
-
-                try {
-                    ClassModel.validate(allFieldsInRequiredGroupClassSchema, instance);
-                }
-                catch (validationError) {
-                    throw new Error(
-                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
-                        'Error: ' + validationError.message
-                    );
-                }
-
-                return true;
-            });
-
 
         });
 
