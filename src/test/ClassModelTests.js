@@ -363,7 +363,7 @@ describe('Class Model Tests', function() {
 
         describe('Mutex Validation', function() {
             
-            it('2 attribute fields have a mutex and both are set. Error thrown.', function() {
+            it('2 attribute fields (boolean, date) have a mutex and both are set. Error thrown.', function() {
                 let expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field boolean with mutex \'a\'. Field date with mutex \'a\'.';
                 let expectedErrorMutex = /^Mutex violations found for instance .* Field boolean with mutex \'a\'. Field date with mutex \'a\'.$/;
                 
@@ -407,7 +407,7 @@ describe('Class Model Tests', function() {
                 throw new Error('ClassModel.validate did not throw an error when it should have.');
             });
             
-            it('2 attribute fields have a mutex and one is set. No error thrown.', function() {
+            it('2 attribute fields (boolean, date) have a mutex and one (boolean) is set. No error thrown.', function() {
                 let schema = {
                     boolean: {
                         type: Boolean,
@@ -610,12 +610,20 @@ describe('Class Model Tests', function() {
                     type:String,
                     mutex: 'a'
                 },
+                strings: {
+                    type:[String],
+                    mutex: 'a'
+                },
                 date: {
                     type: Date,
                     mutex: 'a'
                 },
                 boolean: {
-                    type: String,
+                    type: Boolean,
+                    mutex: 'a'
+                },
+                booleans: {
+                    type: [Boolean],
                     mutex: 'a'
                 },
                 number: {
@@ -643,7 +651,7 @@ describe('Class Model Tests', function() {
                 schema: schema
             });
             
-            it('multiple fields of different types have a mutex and string is set. No error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and string is set. No error thrown.', function() {
 
                 let instance = MutexClassD.create();
 
@@ -662,7 +670,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields of different types have a mutex and date is set. No error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and date is set. No error thrown.', function() {
 
                 let instance = MutexClassD.create();
 
@@ -681,7 +689,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields of different types have a mutex and boolean is set to false. No error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and boolean is set to false. No error thrown.', function() {
 
                 let instance = MutexClassD.create();
 
@@ -700,7 +708,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields of different types have a mutex and boolean is set to true. No error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and boolean is set to true. No error thrown.', function() {
 
                 let instance = MutexClassD.create();
 
@@ -719,7 +727,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields of different types have a mutex and number is set to 0. No error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and number is set to 0. No error thrown.', function() {
 
                 let instance = MutexClassD.create();
 
@@ -738,7 +746,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields of different types have a mutex and number is set to 1. No error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and number is set to 1. No error thrown.', function() {
 
                 let instance = MutexClassD.create();
 
@@ -757,7 +765,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields of different types have a mutex and numbers is set to empty array. No error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and numbers is set to empty array. No error thrown.', function() {
 
                 let instance = MutexClassD.create();
 
@@ -776,7 +784,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields of different types have a mutex and numbers is set to an array of 0s. No error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and numbers is set to an array of 0s. No error thrown.', function() {
 
                 let instance = MutexClassD.create();
 
@@ -795,7 +803,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields of different types have a mutex and numbers is set to an array of 1s. No error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and numbers is set to an array of 1s. No error thrown.', function() {
 
                 let instance = MutexClassD.create();
 
@@ -814,7 +822,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields of different types have a mutex and class1 is set. No error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and class1 is set. No error thrown.', function() {
 
                 let instance = MutexClassD.create();
 
@@ -833,7 +841,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields of different types have a mutex and class2s are set to a single instance. No error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and class2s are set to a single instance. No error thrown.', function() {
 
                 let instance = MutexClassD.create();
 
@@ -852,7 +860,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields of different types have a mutex and class2s are set to multiple instances. No error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and class2s are set to multiple instances. No error thrown.', function() {
 
                 let instance = MutexClassD.create();
 
@@ -871,7 +879,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields of different types have a mutex and none are set. No error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and none are set. No error thrown.', function() {
 
                 let instance = MutexClassD.create();
 
@@ -888,35 +896,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields of different types have a mutex and boolean is set to false and class2s are set to one instance in array. Error thrown.', function() {
-                let expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field boolean with mutex \'a\'. Field class2s with mutex \'a\'.';
-                let expectedErrorMutex = /^Mutex violations found for instance .* Field boolean with mutex \'a\'. Field class2s with mutex \'a\'.$/;
-            
-                let instance = MutexClassD.create();
-
-                instance.boolean = false;
-                instance.class2s = [Class2.create()._id];
-
-                try {
-                    ClassModel.validate(schema, instance);
-                }
-                catch (validationError) {
-                    if (expectedErrorMutex.test(validationError.message)) {
-                        return true;
-                    }
-                    else {
-                        throw new Error(
-                            'ClassModel.validate returned the wrong error message.\n' + 
-                            'Expected: ' + expectedErrorMessage + '\n' +
-                            'Actual:   ' + validationError.message
-                        );
-                    }
-                }
-
-                throw new Error('ClassModel.validate did not throw an error when it should have.');
-            });
-            
-            it('multiple fields of different types have a mutex and number is set to 0 and numbers are set to an array of 0s. Error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and number is set to 0 and numbers are set to an array of 0s. Error thrown.', function() {
                 let expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field number with mutex \'a\'. Field numbers with mutex \'a\'.';
                 let expectedErrorMutex = /^Mutex violations found for instance .* Field number with mutex \'a\'. Field numbers with mutex \'a\'.$/;
             
@@ -943,16 +923,16 @@ describe('Class Model Tests', function() {
 
                 throw new Error('ClassModel.validate did not throw an error when it should have.');
             });
-            
-            it('multiple fields of different types have a mutex and boolean is set to false and number is set to 0. Error thrown.', function() {
-                let expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field boolean with mutex \'a\'. Field number with mutex \'a\'.';
-                let expectedErrorMutex = /^Mutex violations found for instance .* Field boolean with mutex \'a\'. Field number with mutex \'a\'.$/;
+                
+            it('multiple fields (one of each type) have a mutex and number is set to 1 and booleans is set to [false]. Error thrown.', function() {
+                let expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field booleans with mutex \'a\'. Field number with mutex \'a\'.';
+                let expectedErrorMutex = /^Mutex violations found for instance .* Field booleans with mutex \'a\'. Field number with mutex \'a\'.$/;
             
                 let instance = MutexClassD.create();
-
-                instance.number = 0;
-                instance.boolean = false;
-
+    
+                instance.number = 1;
+                instance.booleans = [false];
+    
                 try {
                     ClassModel.validate(schema, instance);
                 }
@@ -968,7 +948,35 @@ describe('Class Model Tests', function() {
                         );
                     }
                 }
-
+    
+                throw new Error('ClassModel.validate did not throw an error when it should have.');
+            });
+                
+            it('multiple fields (one of each type) have a mutex and number is set to 1 and strings is set to [\"\"]. Error thrown.', function() {
+                let expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field strings with mutex \'a\'. Field number with mutex \'a\'.';
+                let expectedErrorMutex = /^Mutex violations found for instance .* Field strings with mutex \'a\'. Field number with mutex \'a\'.$/;
+            
+                let instance = MutexClassD.create();
+    
+                instance.number = 1;
+                instance.strings = [''];
+    
+                try {
+                    ClassModel.validate(schema, instance);
+                }
+                catch (validationError) {
+                    if (expectedErrorMutex.test(validationError.message)) {
+                        return true;
+                    }
+                    else {
+                        throw new Error(
+                            'ClassModel.validate returned the wrong error message.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' +
+                            'Actual:   ' + validationError.message
+                        );
+                    }
+                }
+    
                 throw new Error('ClassModel.validate did not throw an error when it should have.');
             });
 

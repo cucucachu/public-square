@@ -41,8 +41,14 @@ class ClassModel {
 
     // Validation Methods
 
-    // Defines what it means for a field to be set. Any value for a non-Array field counts as a set field. For a field that has an Array type,
-    //    an empty array does not count as being set. A number field set to 0 also counts as set.
+    /*
+     * Defines what it means for a filed to be set. Valid values that count as 'set' are as follows:
+     * boolean: True
+     * number: Any value including 0.
+     * string: Any thing of type string, excluding an empty string.
+     * Array: Any array with a length greater than 0.
+     * Object/Relationship: Any Value
+     */
     static fieldIsSet(schema, instance, key) {
         if (Array.isArray(schema[key].type)) {
             if (instance[key].length) {
