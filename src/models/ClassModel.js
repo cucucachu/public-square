@@ -49,8 +49,8 @@ class ClassModel {
      * Array: Any array with a length greater than 0.
      * Object/Relationship: Any Value
      */
-    static fieldIsSet(classModel, instance, key) {
-        let schema = classModel.schema;
+    fieldIsSet(instance, key) {
+        let schema = this.schema;
 
         if (Array.isArray(schema[key].type)) {
             if (instance[key].length) {
@@ -74,15 +74,16 @@ class ClassModel {
     }
 
     // Throws an error if multiple fields with the same mutex have a value.
-    static mutexValidation(classModel, instance) {
+    mutexValidation(instance) {
         let muti = [];
         let violations = [];
         let message = '';
         let valid = true;
+        let classModel = this;
         let schema = classModel.schema;
 
         Object.keys(schema).forEach(function(key) {
-            if (schema[key].mutex && ClassModel.fieldIsSet(classModel, instance, key)) {
+            if (schema[key].mutex && classModel.fieldIsSet(instance, key)) {
                     if (muti.includes(schema[key].mutex)) {
                         violations.push(schema[key].mutex);
                     }
@@ -96,7 +97,7 @@ class ClassModel {
             valid = false;
             message = 'Mutex violations found for instance ' + instance._id + '.';
             Object.keys(schema).forEach(function(key) {
-                if (violations.includes(schema[key].mutex) && ClassModel.fieldIsSet(classModel, instance, key)) {
+                if (violations.includes(schema[key].mutex) && classModel.fieldIsSet(instance, key)) {
                             message += ' Field ' + key + ' with mutex \'' + schema[key].mutex + '\'.'
                 }
             });
@@ -113,16 +114,16 @@ class ClassModel {
      * are left to the built in mongoose validation. 
      */
 
-    static requiredValidation(classModel, instance) {
+    requiredValidation(instance) {
         let message = '';
         let valid = true;
-        let schema = classModel.schema;
-
+        let schema = this.schema;
+        let classModel = this;
 
         // Iterate through the schema to find required groups.
         Object.keys(schema).forEach(function(key) {
             if (schema[key].required) {
-                if (Array.isArray(schema[key].type) && !ClassModel.fieldIsSet(classModel, instance, key)) {
+                if (Array.isArray(schema[key].type) && !classModel.fieldIsSet(instance, key)) {
                         if (valid) {
                             valid = false;
                         }
@@ -147,10 +148,11 @@ class ClassModel {
 
     }
 
-    static requiredGroupValidation(classModel, instance) {
+    requiredGroupValidation(instance) {
         let requiredGroups = [];
         let message = '';
         let valid = true;
+        let classModel = this;
         let schema = classModel.schema;
 
         // Iterate through the schema to find required groups.
@@ -162,7 +164,7 @@ class ClassModel {
 
         // Iterate through the instance members to check that at least one member for each required group is set.
         Object.keys(schema).forEach(function(key) {
-            if (schema[key].requiredGroup && ClassModel.fieldIsSet(classModel, instance, key)) {
+            if (schema[key].requiredGroup && classModel.fieldIsSet(instance, key)) {
                 requiredGroups = requiredGroups.filter(function(value) { return value != schema[key].requiredGroup; });
             }
         });
@@ -181,28 +183,19 @@ class ClassModel {
         
     }
 
-    static validate(classModel, instance) {
+    validate(instance) {
         let message = '';
         let valid = true;
         let numberOfMessages = 0;
 
-        let requiredFieldValidation = ClassModel.requiredValidation(classModel, instance);
-        let mutexValidationResult = ClassModel.mutexValidation(classModel, instance);
-        let requiredGroupValidationResult = ClassModel.requiredGroupValidation(classModel, instance);
+        let requiredFieldValidation = this.requiredValidation(instance);
+        let requiredGroupValidationResult = this.requiredGroupValidation(instance);
+        let mutexValidationResult = this.mutexValidation(instance);
 
         if (requiredFieldValidation.valid == false) {
             numberOfMessages++;
             valid = false;
             message += requiredFieldValidation.message;
-        }
-
-        if (mutexValidationResult.valid == false) {
-            valid = false;
-            if (numberOfMessages) {
-                message += ' ';
-            }
-            numberOfMessages++;
-            message += mutexValidationResult.message;
         }
 
         if (requiredGroupValidationResult.valid == false) {
@@ -212,6 +205,15 @@ class ClassModel {
             }
             numberOfMessages++;
             message += requiredGroupValidationResult.message;
+        }
+
+        if (mutexValidationResult.valid == false) {
+            valid = false;
+            if (numberOfMessages) {
+                message += ' ';
+            }
+            numberOfMessages++;
+            message += mutexValidationResult.message;
         }
 
         let internalValidationError = instance.validateSync();
@@ -235,7 +237,7 @@ class ClassModel {
         let classModel = this;
 
         return new Promise(function(resolve, reject) {
-            ClassModel.validate(classModel, instance);
+            classModel.validate(instance);
 
             instance.save(function(err, saved) {
                 if (err) {

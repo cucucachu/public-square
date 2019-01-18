@@ -515,7 +515,7 @@ describe('Class Model Tests', function() {
                 instance.class2s = [Class2.create()._id];
 
                 try {
-                    ClassModel.validate(AllFieldsRequiredClass, instance);
+                    AllFieldsRequiredClass.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -542,7 +542,7 @@ describe('Class Model Tests', function() {
                 instance.class2s = [Class2.create()._id];
     
                 try {
-                    ClassModel.validate(AllFieldsRequiredClass, instance);
+                    AllFieldsRequiredClass.validate(instance);
                 }
                 catch (validationError) {
                     if (validationError.message == expectedErrorMessage) {
@@ -575,7 +575,7 @@ describe('Class Model Tests', function() {
                 instance.class2s = [Class2.create()._id];
     
                 try {
-                    ClassModel.validate(AllFieldsRequiredClass, instance);
+                    AllFieldsRequiredClass.validate(instance);
                 }
                 catch (validationError) {
                     if (validationError.message == expectedErrorMessage) {
@@ -608,7 +608,7 @@ describe('Class Model Tests', function() {
 
     
                 try {
-                    ClassModel.validate(AllFieldsRequiredClass, instance);
+                    AllFieldsRequiredClass.validate(instance);
                 }
                 catch (validationError) {
                     if (validationError.message == expectedErrorMessage) {
@@ -641,7 +641,7 @@ describe('Class Model Tests', function() {
 
     
                 try {
-                    ClassModel.validate(AllFieldsRequiredClass, instance);
+                    AllFieldsRequiredClass.validate(instance);
                 }
                 catch (validationError) {
                     if (validationError.message == expectedErrorMessage) {
@@ -674,7 +674,7 @@ describe('Class Model Tests', function() {
 
     
                 try {
-                    ClassModel.validate(AllFieldsRequiredClass, instance);
+                    AllFieldsRequiredClass.validate(instance);
                 }
                 catch (validationError) {
                     if (validationError.message == expectedErrorMessage) {
@@ -708,7 +708,7 @@ describe('Class Model Tests', function() {
 
     
                 try {
-                    ClassModel.validate(AllFieldsRequiredClass, instance);
+                    AllFieldsRequiredClass.validate(instance);
                 }
                 catch (validationError) {
                     if (validationError.message == expectedErrorMessage) {
@@ -741,7 +741,7 @@ describe('Class Model Tests', function() {
 
     
                 try {
-                    ClassModel.validate(AllFieldsRequiredClass, instance);
+                    AllFieldsRequiredClass.validate(instance);
                 }
                 catch (validationError) {
                     if (validationError.message == expectedErrorMessage) {
@@ -774,7 +774,7 @@ describe('Class Model Tests', function() {
 
     
                 try {
-                    ClassModel.validate(AllFieldsRequiredClass, instance);
+                    AllFieldsRequiredClass.validate(instance);
                 }
                 catch (validationError) {
                     if (validationError.message == expectedErrorMessage) {
@@ -807,7 +807,7 @@ describe('Class Model Tests', function() {
 
     
                 try {
-                    ClassModel.validate(AllFieldsRequiredClass, instance);
+                    AllFieldsRequiredClass.validate(instance);
                 }
                 catch (validationError) {
                     if (validationError.message == expectedErrorMessage) {
@@ -840,7 +840,7 @@ describe('Class Model Tests', function() {
 
     
                 try {
-                    ClassModel.validate(AllFieldsRequiredClass, instance);
+                    AllFieldsRequiredClass.validate(instance);
                 }
                 catch (validationError) {
                     if (validationError.message == expectedErrorMessage) {
@@ -873,7 +873,7 @@ describe('Class Model Tests', function() {
 
     
                 try {
-                    ClassModel.validate(AllFieldsRequiredClass, instance);
+                    AllFieldsRequiredClass.validate(instance);
                 }
                 catch (validationError) {
                     if (validationError.message == expectedErrorMessage) {
@@ -901,7 +901,7 @@ describe('Class Model Tests', function() {
                 let instance = AllFieldsInRequiredGroupClass.create();
     
                 try {
-                    ClassModel.validate(AllFieldsInRequiredGroupClass, instance);
+                    AllFieldsInRequiredGroupClass.validate(instance);
                 }
                 catch (validationError) {
                     if (validationError.message == expectedErrorMessage) {
@@ -927,7 +927,7 @@ describe('Class Model Tests', function() {
                 instance.boolean = false;
     
                 try {
-                    ClassModel.validate(AllFieldsInRequiredGroupClass, instance);
+                    AllFieldsInRequiredGroupClass.validate(instance);
                 }
                 catch (validationError) {
                     if (validationError.message == expectedErrorMessage) {
@@ -953,7 +953,7 @@ describe('Class Model Tests', function() {
                 instance.string = '';
 
                 try {
-                    ClassModel.validate(AllFieldsInRequiredGroupClass, instance);
+                    AllFieldsInRequiredGroupClass.validate(instance);
                 }
                 catch (validationError) {
                     if (validationError.message == expectedErrorMessage) {
@@ -979,7 +979,7 @@ describe('Class Model Tests', function() {
                 instance.class2s = [];
     
                 try {
-                    ClassModel.validate(AllFieldsInRequiredGroupClass, instance);
+                    AllFieldsInRequiredGroupClass.validate(instance);
                 }
                 catch (validationError) {
                     if (validationError.message == expectedErrorMessage) {
@@ -1004,7 +1004,7 @@ describe('Class Model Tests', function() {
                 instance.string = 'String';
 
                 try {
-                    ClassModel.validate(AllFieldsInRequiredGroupClass, instance);
+                    AllFieldsInRequiredGroupClass.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1023,7 +1023,7 @@ describe('Class Model Tests', function() {
                 instance.strings = ['String'];
 
                 try {
-                    ClassModel.validate(AllFieldsInRequiredGroupClass, instance);
+                    AllFieldsInRequiredGroupClass.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1042,7 +1042,7 @@ describe('Class Model Tests', function() {
                 instance.boolean = true;
 
                 try {
-                    ClassModel.validate(AllFieldsInRequiredGroupClass, instance);
+                    AllFieldsInRequiredGroupClass.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1061,7 +1061,7 @@ describe('Class Model Tests', function() {
                 instance.booleans = [true];
 
                 try {
-                    ClassModel.validate(AllFieldsInRequiredGroupClass, instance);
+                    AllFieldsInRequiredGroupClass.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1080,7 +1080,7 @@ describe('Class Model Tests', function() {
                 instance.date = new Date();
 
                 try {
-                    ClassModel.validate(AllFieldsInRequiredGroupClass, instance);
+                    AllFieldsInRequiredGroupClass.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1099,7 +1099,7 @@ describe('Class Model Tests', function() {
                 instance.number = 1;
 
                 try {
-                    ClassModel.validate(AllFieldsInRequiredGroupClass, instance);
+                    AllFieldsInRequiredGroupClass.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1118,7 +1118,7 @@ describe('Class Model Tests', function() {
                 instance.number = 0;
 
                 try {
-                    ClassModel.validate(AllFieldsInRequiredGroupClass, instance);
+                    AllFieldsInRequiredGroupClass.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1137,7 +1137,7 @@ describe('Class Model Tests', function() {
                 instance.numbers = [1];
 
                 try {
-                    ClassModel.validate(AllFieldsInRequiredGroupClass, instance);
+                    AllFieldsInRequiredGroupClass.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1156,7 +1156,7 @@ describe('Class Model Tests', function() {
                 instance.class1 = Class1.create()._id;
 
                 try {
-                    ClassModel.validate(AllFieldsInRequiredGroupClass, instance);
+                    AllFieldsInRequiredGroupClass.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1175,7 +1175,7 @@ describe('Class Model Tests', function() {
                 instance.class2s = [Class2.create()._id];
 
                 try {
-                    ClassModel.validate(AllFieldsInRequiredGroupClass, instance);
+                    AllFieldsInRequiredGroupClass.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1218,7 +1218,7 @@ describe('Class Model Tests', function() {
                 instance.date = new Date();
 
                 try {
-                    ClassModel.validate(MutexClassA, instance);
+                    MutexClassA.validate(instance);
                 }
                 catch (validationError) {
                     if (expectedErrorMutex.test(validationError.message)) {
@@ -1258,7 +1258,7 @@ describe('Class Model Tests', function() {
                 instance.boolean = true;
 
                 try {
-                    ClassModel.validate(MutexClassAA, instance);
+                    MutexClassAA.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1298,7 +1298,7 @@ describe('Class Model Tests', function() {
                 instance.class2 = Class2.create()._id;
 
                 try {
-                    ClassModel.validate(MutexClassB, instance);
+                    MutexClassB.validate(instance);
                 }
                 catch (validationError) {
                     if (expectedErrorMutex.test(validationError.message)) {
@@ -1340,7 +1340,7 @@ describe('Class Model Tests', function() {
                 instance.class1 = Class1.create()._id;
 
                 try {
-                    ClassModel.validate(MutexClassBB, instance);
+                    MutexClassBB.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1380,7 +1380,7 @@ describe('Class Model Tests', function() {
                 instance.class2s = [Class2.create()._id, Class2.create()._id];
 
                 try {
-                    ClassModel.validate(MutexClassC, instance);
+                    MutexClassC.validate(instance);
                 }
                 catch (validationError) {
                     if (expectedErrorMutex.test(validationError.message)) {
@@ -1422,7 +1422,7 @@ describe('Class Model Tests', function() {
                 instance.class1s = [Class1.create()._id, Class1.create()._id];
 
                 try {
-                    ClassModel.validate(MutexClassCC, instance);
+                    MutexClassCC.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1441,7 +1441,7 @@ describe('Class Model Tests', function() {
                 instance.string = 'String';
 
                 try {
-                    ClassModel.validate(AllFieldsMutexClass, instance);
+                    AllFieldsMutexClass.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1460,7 +1460,7 @@ describe('Class Model Tests', function() {
                 instance.date = new Date();
 
                 try {
-                    ClassModel.validate(AllFieldsMutexClass, instance);
+                    AllFieldsMutexClass.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1479,7 +1479,7 @@ describe('Class Model Tests', function() {
                 instance.boolean = false;
 
                 try {
-                    ClassModel.validate(AllFieldsMutexClass, instance);
+                    AllFieldsMutexClass.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1498,7 +1498,7 @@ describe('Class Model Tests', function() {
                 instance.boolean = true;
 
                 try {
-                    ClassModel.validate(AllFieldsMutexClass, instance);
+                    AllFieldsMutexClass.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1517,7 +1517,7 @@ describe('Class Model Tests', function() {
                 instance.number = 0;
 
                 try {
-                    ClassModel.validate(AllFieldsMutexClass, instance);
+                    AllFieldsMutexClass.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1536,7 +1536,7 @@ describe('Class Model Tests', function() {
                 instance.number = 1;
 
                 try {
-                    ClassModel.validate(AllFieldsMutexClass, instance);
+                    AllFieldsMutexClass.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1555,7 +1555,7 @@ describe('Class Model Tests', function() {
                 instance.numbers = [];
 
                 try {
-                    ClassModel.validate(AllFieldsMutexClass, instance);
+                    AllFieldsMutexClass.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1574,7 +1574,7 @@ describe('Class Model Tests', function() {
                 instance.numbers = [0, 0, 0];
 
                 try {
-                    ClassModel.validate(AllFieldsMutexClass, instance);
+                    AllFieldsMutexClass.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1593,7 +1593,7 @@ describe('Class Model Tests', function() {
                 instance.numbers = [1, 1, 1];
 
                 try {
-                    ClassModel.validate(AllFieldsMutexClass, instance);
+                    AllFieldsMutexClass.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1612,7 +1612,7 @@ describe('Class Model Tests', function() {
                 instance.class1 = Class1.create()._id;
 
                 try {
-                    ClassModel.validate(AllFieldsMutexClass, instance);
+                    AllFieldsMutexClass.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1631,7 +1631,7 @@ describe('Class Model Tests', function() {
                 instance.class2s = Class2.create()._id;
 
                 try {
-                    ClassModel.validate(AllFieldsMutexClass, instance);
+                    AllFieldsMutexClass.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1650,7 +1650,7 @@ describe('Class Model Tests', function() {
                 instance.class2s = [Class2.create()._id, Class2.create()._id];
 
                 try {
-                    ClassModel.validate(AllFieldsMutexClass, instance);
+                    AllFieldsMutexClass.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1667,7 +1667,7 @@ describe('Class Model Tests', function() {
                 let instance = AllFieldsMutexClass.create();
 
                 try {
-                    ClassModel.validate(AllFieldsMutexClass, instance);
+                    AllFieldsMutexClass.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1690,7 +1690,7 @@ describe('Class Model Tests', function() {
                 instance.class2s = [];
 
                 try {
-                    ClassModel.validate(AllFieldsMutexClass, instance);
+                    AllFieldsMutexClass.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1712,7 +1712,7 @@ describe('Class Model Tests', function() {
                 instance.numbers = [0, 0, 0];
 
                 try {
-                    ClassModel.validate(AllFieldsMutexClass, instance);
+                    AllFieldsMutexClass.validate(instance);
                 }
                 catch (validationError) {
                     if (expectedErrorMutex.test(validationError.message)) {
@@ -1740,7 +1740,7 @@ describe('Class Model Tests', function() {
                 instance.booleans = [false];
     
                 try {
-                    ClassModel.validate(AllFieldsMutexClass, instance);
+                    AllFieldsMutexClass.validate(instance);
                 }
                 catch (validationError) {
                     if (expectedErrorMutex.test(validationError.message)) {
@@ -1768,7 +1768,7 @@ describe('Class Model Tests', function() {
                 instance.strings = [''];
     
                 try {
-                    ClassModel.validate(AllFieldsMutexClass, instance);
+                    AllFieldsMutexClass.validate(instance);
                 }
                 catch (validationError) {
                     if (expectedErrorMutex.test(validationError.message)) {
