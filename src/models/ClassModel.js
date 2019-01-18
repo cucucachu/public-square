@@ -15,28 +15,36 @@ class ClassModel {
         if (!parameters.schema)
             throw new Error('schema is required.');
 
+        if (parameters.superClasses && !Array.isArray(parameters.superClasses))
+            throw new Error('If superClasses is set, it must be an Array.');
+
+        if (parameters.superClasses && parameters.superClasses.length == 0)
+            throw new Error('If superClasses is set, it cannot be an empty Array.');
+
+        if (parameters.discriminatorSuperClass && Array.isArray(parameters.discriminatorSuperClass))
+            throw new Error('If discriminatorSuperClass is set, it can only be a single class.');
+
+        if (parameters.superClasses && parameters.discriminatorSuperClass)
+            throw new Error('A ClassModel cannot have both superClasses and discriminatorSuperClass.');
+
         this.className = parameters.className;
         this.schema = parameters.schema;
         this.superClasses = parameters.superClasses;
-        this.discriminatorFor = parameters.discriminatorFor;
+        this.discriminatorSuperClass = parameters.discriminatorSuperClass;
+        this.abstract = parameters.abstract;
+        this.discriminated = parameters.discriminated;
 
         let schemaObject = new Schema(this.schema);
 
-        if (!this.superClasses) {
-            if (this.discriminatorFor) {
-                this.Model = discriminatorFor.Model.discriminator(this.className, this.discriminatorFor)
-            }
-            else {
-                this.Model = mongoose.model(this.className, schemaObject);
-            }
-        }
+        this.Model = mongoose.model(this.className, schemaObject);
+
     }
 
     // Create
     create() {
         return new this.Model({
             _id: new mongoose.Types.ObjectId
-        })
+        });
     }
 
     // Validation Methods

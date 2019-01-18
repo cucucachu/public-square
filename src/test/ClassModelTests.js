@@ -95,6 +95,101 @@ describe('Class Model Tests', function() {
 
             throw new Error('Constructor should have thrown an error: schema is required.');
         });
+
+        var SuperClassModelA = new ClassModel({
+            className: "SuperClassModelA",
+            schema: {}
+        });
+
+        var DiscriminatorSuperClassA = new ClassModel({
+            className: "DiscriminatorSuperClassA",
+            schema: {}
+        });
+
+        it('If superClasses is set, it must be an Array.', function() {
+            try {
+
+                var SubClassModel = new ClassModel({
+                    className: 'SubClassModel',
+                    schema: {
+                        boolean: Boolean
+                    },
+                    superClasses: SuperClassModelA
+                });
+            }
+            catch(error) {
+                if (error.message == 'If superClasses is set, it must be an Array.')
+                    return true;
+                else 
+                    throw new Error(error.message);
+            }
+
+            throw new Error('Constructor should have thrown an error: If superClasses is set, it must be an Array.');
+        });
+
+        it('If superClasses is set, it cannot be an empty Array.', function() {
+            try {
+
+                var SubClassModel = new ClassModel({
+                    className: 'SubClassModel',
+                    schema: {
+                        boolean: Boolean
+                    },
+                    superClasses: []
+                });
+            }
+            catch(error) {
+                if (error.message == 'If superClasses is set, it cannot be an empty Array.')
+                    return true;
+                else 
+                    throw new Error(error.message);
+            }
+
+            throw new Error('Constructor should have thrown an error: If superClasses is set, it cannot be an empty Array.');
+        });
+
+        it('If discriminatorSuperClass is set, it can only be a single class.', function() {
+            try {
+
+                var SubClassModel = new ClassModel({
+                    className: 'SubClassModel',
+                    schema: {
+                        boolean: Boolean
+                    },
+                    discriminatorSuperClass: [SuperClassModelA, DiscriminatorSuperClassA]
+                });
+            }
+            catch(error) {
+                if (error.message == 'If discriminatorSuperClass is set, it can only be a single class.')
+                    return true;
+                else 
+                    throw new Error(error.message);
+            }
+
+            throw new Error('Constructor should have thrown an error: If discriminatorSuperClass is set, it can only be a single class.');
+        });
+
+        it('A ClassModel cannot have both superClasses and discriminatorSuperClass.', function() {
+            try {
+
+                var SubClassModel = new ClassModel({
+                    className: 'SubClassModel',
+                    schema: {
+                        boolean: Boolean
+                    },
+                    superClasses: [SuperClassModelA],
+                    discriminatorSuperClass: DiscriminatorSuperClassA
+                });
+            }
+            catch(error) {
+                if (error.message == 'A ClassModel cannot have both superClasses and discriminatorSuperClass.')
+                    return true;
+                else 
+                    throw new Error(error.message);
+            }
+
+            throw new Error('Constructor should have thrown an error: A ClassModel cannot have both superClasses and discriminatorSuperClass.');
+        });
         
     });
     
