@@ -27,21 +27,68 @@ class ClassModel {
         if (parameters.superClasses && parameters.discriminatorSuperClass)
             throw new Error('A ClassModel cannot have both superClasses and discriminatorSuperClass.');
 
+        if (parameters.discriminatorSuperClass && !parameters.discriminatorSuperClass.discriminated)
+            throw new Error('If a class is used as a discriminatedSuperClass, that class must have its "discriminated" field set to true.');
+        
+        if (parameters.superClasses)
+            parameters.superClasses.forEach(function(superClass) {
+                if (superClass.discriminated)
+                    throw new Error('If a class is set as a superClass, that class cannot have its "discriminated" field set to true.');
+            });
+
+        if (parameters.superClasses) {
+            parameters.superClasses.forEach(function(superClass) {
+                Object.keys(superClass.schema).forEach(function(key) {
+                    if (key in parameters.schema)
+                        throw new Error('Sub class schema cannot contain the same field names as a super class schema.');
+                });
+            });
+        }
+
+        let schema;
+
+        // If this class has super classes, combine all the super class schemas and combine with the given parameters.schema, and set the
+        //    SuperClasses.subClasses field to this class.
+        if (parameters.superClasses) {
+            let superClassSchemas = {};
+            let currentClassModel = this;
+
+            parameters.superClasses.forEach(function(superClass) {
+                superClass.subClasses.push(currentClassModel);
+
+                Object.assign(superClassSchemas, superClass.schema);
+            });
+            schema = Object.assign(superClassSchemas, parameters.schema);
+        }
+        else {
+            schema = parameters.schema;
+        }
+
         this.className = parameters.className;
-        this.schema = parameters.schema;
-        this.superClasses = parameters.superClasses;
+        this.schema = schema;
+        this.subClasses = [];
         this.discriminatorSuperClass = parameters.discriminatorSuperClass;
         this.abstract = parameters.abstract;
         this.discriminated = parameters.discriminated;
 
         let schemaObject = new Schema(this.schema);
 
-        this.Model = mongoose.model(this.className, schemaObject);
+        // If discriminatorSuperClass is set, create the Model as a discriminator of that class. Otherwise create a stand-alone Model.
+        if (this.discriminatorSuperClass) {
+            this.Model = discriminatorSuperClass.Model.discriminator(this.className, schemaObject);
+        }
+        else {
+            if (!this.abstract || (this.abstract && this.discriminated))
+                this.Model = mongoose.model(this.className, schemaObject);
+        }
 
     }
 
     // Create
     create() {
+        if (this.abstract)
+            throw new Error('You cannot created an instance of an abstract class.');
+
         return new this.Model({
             _id: new mongoose.Types.ObjectId
         });

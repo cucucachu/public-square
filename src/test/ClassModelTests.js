@@ -19,35 +19,6 @@ describe('Class Model Tests', function() {
 
     describe('Class Model Constructor', function() {
 
-        it('Constructor excepts and sets parameters.', function() {
-            var schema = {
-                text: {
-                    type: String,
-                    required: true
-                },
-                singularRelationship: {
-                    type: Schema.Types.ObjectId,
-                    ref: 'OtherClass',
-                    required: true
-                },
-                nonSingularRelationship: {
-                    type: [Schema.Types.ObjectId],
-                    ref: 'OtherClass'
-                }
-            }
-
-            var classModel = new ClassModel({
-                className: 'Class',
-                schema: schema
-            });
-
-            if (classModel.className != 'Class')
-                return false;
-            if (classModel.schema != schema)
-                return false;
-            return true;
-        });
-
         it('ClassName is required.', function() {
             var schema = {
                 text: {
@@ -66,7 +37,7 @@ describe('Class Model Tests', function() {
             }
 
             try {
-                var classModel = new ClassModel({
+                new ClassModel({
                     schema: schema
                 });
             }
@@ -82,7 +53,7 @@ describe('Class Model Tests', function() {
 
         it('Schema is required.', function() {
             try {
-                var classModel = new ClassModel({
+                new ClassModel({
                     className: 'Class'
                 });
             }
@@ -96,25 +67,54 @@ describe('Class Model Tests', function() {
             throw new Error('Constructor should have thrown an error: schema is required.');
         });
 
-        var SuperClassModelA = new ClassModel({
-            className: "SuperClassModelA",
-            schema: {}
+        var SuperClassModel = new ClassModel({
+            className: "SuperClassModel",
+            schema: {
+                boolean: {
+                    type: Boolean,
+                },
+                number: {
+                    type: Number
+                }
+            }
         });
 
-        var DiscriminatorSuperClassA = new ClassModel({
-            className: "DiscriminatorSuperClassA",
-            schema: {}
+        var AbstractSuperClassModel = new ClassModel({
+            className: "AbstractSuperClassModel",
+            abstract: true,
+            schema: {
+                abstractBoolean: Boolean,
+                abstractNumber: Number
+            }
+        });
+
+        var DiscriminatedSuperClass = new ClassModel({
+            className: "DiscriminatedSuperClass",
+            discriminated: true,
+            schema: {
+                boolean: Boolean,
+                number: Number
+            }
+        });
+
+        var AbstractDiscriminatedSuperClass = new ClassModel({
+            className: "AbstractDiscriminatedSuperClass",
+            discriminated: true,
+            abstract: true,
+            schema: {
+                boolean: Boolean,
+                number: Number
+            }
         });
 
         it('If superClasses is set, it must be an Array.', function() {
             try {
-
-                var SubClassModel = new ClassModel({
+                new ClassModel({
                     className: 'SubClassModel',
                     schema: {
                         boolean: Boolean
                     },
-                    superClasses: SuperClassModelA
+                    superClasses: SuperClassModel
                 });
             }
             catch(error) {
@@ -129,8 +129,7 @@ describe('Class Model Tests', function() {
 
         it('If superClasses is set, it cannot be an empty Array.', function() {
             try {
-
-                var SubClassModel = new ClassModel({
+                new ClassModel({
                     className: 'SubClassModel',
                     schema: {
                         boolean: Boolean
@@ -150,13 +149,12 @@ describe('Class Model Tests', function() {
 
         it('If discriminatorSuperClass is set, it can only be a single class.', function() {
             try {
-
-                var SubClassModel = new ClassModel({
+                new ClassModel({
                     className: 'SubClassModel',
                     schema: {
                         boolean: Boolean
                     },
-                    discriminatorSuperClass: [SuperClassModelA, DiscriminatorSuperClassA]
+                    discriminatorSuperClass: [SuperClassModel, DiscriminatedSuperClass]
                 });
             }
             catch(error) {
@@ -171,14 +169,13 @@ describe('Class Model Tests', function() {
 
         it('A ClassModel cannot have both superClasses and discriminatorSuperClass.', function() {
             try {
-
-                var SubClassModel = new ClassModel({
+                new ClassModel({
                     className: 'SubClassModel',
                     schema: {
                         boolean: Boolean
                     },
-                    superClasses: [SuperClassModelA],
-                    discriminatorSuperClass: DiscriminatorSuperClassA
+                    superClasses: [SuperClassModel],
+                    discriminatorSuperClass: DiscriminatedSuperClass
                 });
             }
             catch(error) {
@@ -189,6 +186,264 @@ describe('Class Model Tests', function() {
             }
 
             throw new Error('Constructor should have thrown an error: A ClassModel cannot have both superClasses and discriminatorSuperClass.');
+        });
+
+        it('A ClassModel cannot have both superClasses and discriminatorSuperClass.', function() {
+            try {
+                new ClassModel({
+                    className: 'SubClassModel',
+                    schema: {
+                        boolean: Boolean
+                    },
+                    superClasses: [SuperClassModel],
+                    discriminatorSuperClass: DiscriminatedSuperClass
+                });
+            }
+            catch(error) {
+                if (error.message == 'A ClassModel cannot have both superClasses and discriminatorSuperClass.')
+                    return true;
+                else 
+                    throw new Error(error.message);
+            }
+
+            throw new Error('Constructor should have thrown an error: A ClassModel cannot have both superClasses and discriminatorSuperClass.');
+        });
+
+        it('If a class is used as a discriminatedSuperClass, that class must have its "discriminated" field set to true.', function() {
+            try {
+                new ClassModel({
+                    className: 'SubClassModel',
+                    schema: {},
+                    discriminatorSuperClass: SuperClassModel
+                });
+            }
+            catch(error) {
+                if (error.message == 'If a class is used as a discriminatedSuperClass, that class must have its "discriminated" field set to true.')
+                    return true;
+                else 
+                    throw new Error(error.message);
+            }
+
+            throw new Error('Constructor should have thrown an error: If a class is used as a discriminatedSuperClass, that class must have its "discriminated" field set to true.');
+        });
+
+        it('If a class is set as a superClass, that class cannot have its "discriminated" field set to true.', function() {
+            try {
+                new ClassModel({
+                    className: 'SubClassModel',
+                    schema: {},
+                    superClasses: [DiscriminatedSuperClass]
+                });
+            }
+            catch(error) {
+                if (error.message == 'If a class is set as a superClass, that class cannot have its "discriminated" field set to true.')
+                    return true;
+                else 
+                    throw new Error(error.message);
+            }
+
+            throw new Error('Constructor should have thrown an error: If a class is set as a superClass, that class cannot have its "discriminated" field set to true.');
+        });  
+
+        it('Sub class schema cannot contain the same field names as a super class schema.', function() {
+            try {
+                new ClassModel({
+                    className: 'SubClassModel',
+                    schema: {
+                        boolean: {
+                            type: Boolean
+                        }
+                    },
+                    superClasses: [SuperClassModel]
+                });
+            }
+            catch(error) {
+                if (error.message == 'Sub class schema cannot contain the same field names as a super class schema.')
+                    return true;
+                else 
+                    throw new Error(error.message);
+            }
+
+            throw new Error('Constructor should have thrown an error: Sub class schema cannot contain the same field names as a super class schema.');
+        });  
+
+        var SubClassOfSuperClassSchema = {
+            subBoolean: {
+                type: Boolean,
+                required: true
+            },
+            subNumber: {
+                type: Number,
+                required: true
+            }
+        };        
+
+        var SubClassOfSuperClass = new ClassModel({
+            className: 'SubClassOfSuperClass',
+            schema: SubClassOfSuperClassSchema,
+            superClasses: [SuperClassModel]
+        });
+
+        it('If a sub class is created, it is pushed to the super class\'s "subClasses" array.', function() {
+
+            if (SuperClassModel.subClasses.length == 0)
+                throw new Error('SuperClass.subClasses array has no entries in it.');
+            if (!SuperClassModel.subClasses.includes(SubClassOfSuperClass)) 
+                throw new Error('SuperClass.subClasses does not contain sub class.');
+
+            return true;
+        });
+
+        it('A subclass schema is the combination of its direct schema with the schema of a super class.', function() {
+
+            if(Object.keys(SubClassOfSuperClass.schema).includes('boolean') == false) {
+                throw new Error('Sub Class is missing the field "boolean".');
+            }
+
+            if(Object.keys(SubClassOfSuperClass.schema).includes('number') == false) {
+                throw new Error('Sub Class is missing the field "number".');
+            }
+
+            if(Object.keys(SubClassOfSuperClass.schema).includes('subBoolean') == false) {
+                throw new Error('Sub Class is missing the field "subBoolean".');
+            }
+
+            if(Object.keys(SubClassOfSuperClass.schema).includes('subNumber') == false) {
+                throw new Error('Sub Class is missing the field "subNumber".');
+            }
+
+            if (SuperClassModel.schema.boolean.type != SubClassOfSuperClass.schema.boolean.type) {
+                throw new Error('The field boolean.type was not copied correctly.')
+            }
+
+            return true;
+        });
+
+        var SubClassOfSubCLassOfSuperClassSchema = {
+            subSubBoolean: {
+                type: Boolean,
+                required: true
+            },
+            subSubNumber: {
+                type: Number,
+                required: true
+            }
+        };        
+
+        var SubClassOfSubCLassOfSuperClass = new ClassModel({
+            className: 'SubClassOfSubCLassOfSuperClass',
+            schema: SubClassOfSubCLassOfSuperClassSchema,
+            superClasses: [SubClassOfSuperClass]
+        });
+
+        it('A subclass schema is the combination of its direct schema with the schema the whole chane of Super Classes.', function() {
+            if(Object.keys(SubClassOfSubCLassOfSuperClass.schema).includes('boolean') == false) {
+                throw new Error('Sub Class is missing the field "boolean".');
+            }
+
+            if(Object.keys(SubClassOfSubCLassOfSuperClass.schema).includes('number') == false) {
+                throw new Error('Sub Class is missing the field "number".');
+            }
+
+            if(Object.keys(SubClassOfSubCLassOfSuperClass.schema).includes('subBoolean') == false) {
+                throw new Error('Sub Class is missing the field "subBoolean".');
+            }
+
+            if(Object.keys(SubClassOfSubCLassOfSuperClass.schema).includes('subNumber') == false) {
+                throw new Error('Sub Class is missing the field "subNumber".');
+            }
+
+            if(Object.keys(SubClassOfSubCLassOfSuperClass.schema).includes('subSubBoolean') == false) {
+                throw new Error('Sub Class is missing the field "subSubBoolean".');
+            }
+
+            if(Object.keys(SubClassOfSubCLassOfSuperClass.schema).includes('subSubNumber') == false) {
+                throw new Error('Sub Class is missing the field "subSubNumber".');
+            }
+
+            if (SuperClassModel.schema.boolean.type != SubClassOfSubCLassOfSuperClass.schema.boolean.type) {
+                throw new Error('The field boolean.type was not copied correctly.')
+            }
+
+            return true;
+        });
+
+        var SubClassOfMultipleSuperClassesSchema = {
+            subBoolean: {
+                type: Boolean,
+                required: true
+            },
+            subNumber: {
+                type: Number,
+                required: true
+            }
+        };        
+
+        var SubClassOfMultipleSuperClasses = new ClassModel({
+            className: 'SubClassOfMultipleSuperClasses',
+            schema: SubClassOfMultipleSuperClassesSchema,
+            superClasses: [SuperClassModel, AbstractSuperClassModel]
+        });
+
+        it('A subclass schema is the combination of its direct schema with the schema of each of its super classes.', function() {
+            if(Object.keys(SubClassOfMultipleSuperClasses.schema).includes('boolean') == false) {
+                throw new Error('Sub Class is missing the field "boolean".');
+            }
+
+            if(Object.keys(SubClassOfMultipleSuperClasses.schema).includes('number') == false) {
+                throw new Error('Sub Class is missing the field "number".');
+            }
+
+            if(Object.keys(SubClassOfMultipleSuperClasses.schema).includes('subBoolean') == false) {
+                throw new Error('Sub Class is missing the field "subBoolean".');
+            }
+
+            if(Object.keys(SubClassOfMultipleSuperClasses.schema).includes('subNumber') == false) {
+                throw new Error('Sub Class is missing the field "subNumber".');
+            }
+
+            if(Object.keys(SubClassOfMultipleSuperClasses.schema).includes('abstractBoolean') == false) {
+                throw new Error('Sub Class is missing the field "abstractBoolean".');
+            }
+
+            if(Object.keys(SubClassOfMultipleSuperClasses.schema).includes('abstractNumber') == false) {
+                throw new Error('Sub Class is missing the field "abstractNumber".');
+            }
+
+            if (SuperClassModel.schema.boolean.type != SubClassOfMultipleSuperClasses.schema.boolean.type) {
+                throw new Error('The field boolean.type was not copied correctly.')
+            }
+
+            return true;
+        });
+
+        it('Constructor excepts and sets parameters.', function() {
+            var schema = {
+                text: {
+                    type: String,
+                    required: true
+                },
+                singularRelationship: {
+                    type: Schema.Types.ObjectId,
+                    ref: 'OtherClass',
+                    required: true
+                },
+                nonSingularRelationship: {
+                    type: [Schema.Types.ObjectId],
+                    ref: 'OtherClass'
+                }
+            }
+
+            var SimpleClassModel = new ClassModel({
+                className: 'SimpleClassModel',
+                schema: schema
+            });
+
+            if (SimpleClassModel.className != 'SimpleClassModel')
+                return false;
+            if (SimpleClassModel.schema != schema)
+                return false;
+            return true;
         });
         
     });
@@ -205,7 +460,12 @@ describe('Class Model Tests', function() {
             required: true,
             singular: true
         }
-    }
+    };
+
+    var Class1 = new ClassModel({
+        className: 'Class1',
+        schema: Class1Schema
+    });
 
     var Class2Schema = {
         name: {
@@ -217,11 +477,6 @@ describe('Class Model Tests', function() {
             ref: 'Class1'
         }
     }
-
-    var Class1 = new ClassModel({
-        className: 'Class1',
-        schema: Class1Schema
-    });
 
     var Class2 = new ClassModel({
         className: 'Class2',
@@ -318,7 +573,7 @@ describe('Class Model Tests', function() {
     var AllFieldsMutexClass = new ClassModel({
         className: 'AllFieldsMutexClass', 
         schema: allFieldsMutexClassSchema
-    });       
+    });
     
     var allFieldsInRequiredGroupClassSchema = {
         string: {
@@ -1888,18 +2143,26 @@ describe('Class Model Tests', function() {
     describe('ClassModel.save()', function() {    
 
         it('ClassModel.save() works properly.', function(done) {
-            var instance1 = Class1.create();
+            var instance = AllFieldsRequiredClass.create();
             var error = null;
             var compareResult;
             var testFailed;
 
-            instance1.name = "Name 1";
-            instance1.class2 = Class2.create()._id;
 
-            Class1.save(instance1).then(    
+            instance.string = 'String';
+            instance.strings = ['String'];
+            instance.date = new Date();
+            instance.boolean = true;
+            instance.booleans = [true];
+            instance.number = 1;
+            instance.numbers = [1];
+            instance.class1 = Class1.create()._id;
+            instance.class2s = [Class2.create()._id];
+
+            AllFieldsRequiredClass.save(instance).then(    
                 function(saved) {
-                    Class1.findById(instance1._id, function(findError, found) {
-                        compareResult = Class1.compare(instance1, found);
+                    AllFieldsRequiredClass.findById(instance._id, function(findError, found) {
+                        compareResult = AllFieldsRequiredClass.compare(instance, found);
             
                         if (compareResult.match == false)
                             error = new Error(compareResult.message);
