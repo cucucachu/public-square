@@ -194,8 +194,8 @@ describe('Class Model Tests', function() {
             schema: allFieldsInRequiredGroupClassSchema
         });
 
-        var SuperClassModel = new ClassModel({
-            className: "SuperClassModel",
+        var SuperClass = new ClassModel({
+            className: "SuperClass",
             schema: {
                 name: {
                     type: String
@@ -209,8 +209,8 @@ describe('Class Model Tests', function() {
             }
         });
 
-        var AbstractSuperClassModel = new ClassModel({
-            className: "AbstractSuperClassModel",
+        var AbstractSuperClass = new ClassModel({
+            className: "AbstractSuperClass",
             abstract: true,
             schema: {
                 name: {
@@ -258,7 +258,7 @@ describe('Class Model Tests', function() {
         var SubClassOfSuperClass = new ClassModel({
             className: 'SubClassOfSuperClass',
             schema: SubClassOfSuperClassSchema,
-            superClasses: [SuperClassModel]
+            superClasses: [SuperClass]
         });
 
         var SubClassOfSubCLassOfSuperClassSchema = {
@@ -292,7 +292,7 @@ describe('Class Model Tests', function() {
         var SubClassOfMultipleSuperClasses = new ClassModel({
             className: 'SubClassOfMultipleSuperClasses',
             schema: SubClassOfMultipleSuperClassesSchema,
-            superClasses: [SuperClassModel, AbstractSuperClassModel]
+            superClasses: [SuperClass, AbstractSuperClass]
         });
 
         var SubClassOfDiscriminatorSuperClassSchema = {
@@ -368,7 +368,7 @@ describe('Class Model Tests', function() {
                     schema: {
                         boolean: Boolean
                     },
-                    superClasses: SuperClassModel
+                    superClasses: SuperClass
                 });
             }
             catch(error) {
@@ -408,7 +408,7 @@ describe('Class Model Tests', function() {
                     schema: {
                         boolean: Boolean
                     },
-                    discriminatorSuperClass: [SuperClassModel, DiscriminatedSuperClass]
+                    discriminatorSuperClass: [SuperClass, DiscriminatedSuperClass]
                 });
             }
             catch(error) {
@@ -428,7 +428,7 @@ describe('Class Model Tests', function() {
                     schema: {
                         boolean: Boolean
                     },
-                    superClasses: [SuperClassModel],
+                    superClasses: [SuperClass],
                     discriminatorSuperClass: DiscriminatedSuperClass
                 });
             }
@@ -449,7 +449,7 @@ describe('Class Model Tests', function() {
                     schema: {
                         boolean: Boolean
                     },
-                    superClasses: [SuperClassModel],
+                    superClasses: [SuperClass],
                     discriminatorSuperClass: DiscriminatedSuperClass
                 });
             }
@@ -468,7 +468,7 @@ describe('Class Model Tests', function() {
                 new ClassModel({
                     className: 'SubClassModel',
                     schema: {},
-                    discriminatorSuperClass: SuperClassModel
+                    discriminatorSuperClass: SuperClass
                 });
             }
             catch(error) {
@@ -546,7 +546,7 @@ describe('Class Model Tests', function() {
                             type: Boolean
                         }
                     },
-                    superClasses: [SuperClassModel]
+                    superClasses: [SuperClass]
                 });
             }
             catch(error) {
@@ -561,9 +561,9 @@ describe('Class Model Tests', function() {
 
         it('If a sub class is created, it is pushed to the super class\'s "subClasses" array.', function() {
 
-            if (SuperClassModel.subClasses.length == 0)
+            if (SuperClass.subClasses.length == 0)
                 throw new Error('SuperClass.subClasses array has no entries in it.');
-            if (!SuperClassModel.subClasses.includes(SubClassOfSuperClass)) 
+            if (!SuperClass.subClasses.includes(SubClassOfSuperClass)) 
                 throw new Error('SuperClass.subClasses does not contain sub class.');
 
             return true;
@@ -586,7 +586,7 @@ describe('Class Model Tests', function() {
                 throw new Error('Sub Class is missing the field "subNumber".');
             }
 
-            if (SuperClassModel.schema.boolean.type != SubClassOfSuperClass.schema.boolean.type) {
+            if (SuperClass.schema.boolean.type != SubClassOfSuperClass.schema.boolean.type) {
                 throw new Error('The field boolean.type was not copied correctly.')
             }
 
@@ -618,7 +618,7 @@ describe('Class Model Tests', function() {
                 throw new Error('Sub Class is missing the field "subSubNumber".');
             }
 
-            if (SuperClassModel.schema.boolean.type != SubClassOfSubCLassOfSuperClass.schema.boolean.type) {
+            if (SuperClass.schema.boolean.type != SubClassOfSubCLassOfSuperClass.schema.boolean.type) {
                 throw new Error('The field boolean.type was not copied correctly.')
             }
 
@@ -650,7 +650,7 @@ describe('Class Model Tests', function() {
                 throw new Error('Sub Class is missing the field "abstractNumber".');
             }
 
-            if (SuperClassModel.schema.boolean.type != SubClassOfMultipleSuperClasses.schema.boolean.type) {
+            if (SuperClass.schema.boolean.type != SubClassOfMultipleSuperClasses.schema.boolean.type) {
                 throw new Error('The field boolean.type was not copied correctly.')
             }
 
@@ -676,7 +676,7 @@ describe('Class Model Tests', function() {
         });
 
         it('An abstract, non-discriminated class should have no Model.', function() {
-            if (AbstractSuperClassModel.Model)
+            if (AbstractSuperClass.Model)
                 throw new Error('An abstract, non-discriminated class should have no Model.');
         });
 
@@ -717,7 +717,7 @@ describe('Class Model Tests', function() {
             let expectedErrorMessage = 'You cannot create an instance of an abstract class.';
 
             try {
-                AbstractSuperClassModel.create();
+                AbstractSuperClass.create();
             }
             catch(error) {
                 if (error.message != expectedErrorMessage) {
@@ -2413,53 +2413,23 @@ describe('Class Model Tests', function() {
 
             var instanceOfAllFieldsMutexClass = AllFieldsMutexClass.create();
             var instanceOfDiscriminatedSuperClass = DiscriminatedSuperClass.create();
-            var instanceOfSuperClassModel = SuperClassModel.create();
+            var instanceOfSuperClass = SuperClass.create();
             var instanceOfSubClassOfSuperClass = SubClassOfSuperClass.create();
             var instanceOfSubClassOfDiscriminatorSuperClass = SubClassOfDiscriminatorSuperClass.create();
 
             instanceOfAllFieldsMutexClass.string = 'instanceOfAllFieldsMutexClass';
             instanceOfDiscriminatedSuperClass.name = 'instanceOfDiscriminatedSuperClass';
-            instanceOfSuperClassModel.name = 'instanceOfSuperClassModel';
+            instanceOfSuperClass.name = 'instanceOfSuperClass';
             instanceOfSubClassOfSuperClass.name = 'instanceOfSubClassOfSuperClass';
             instanceOfSubClassOfDiscriminatorSuperClass.name = 'instanceOfSubClassOfDiscriminatorSuperClass';
 
-            // AllFieldsMutexClass.save(instanceOfAllFieldsMutexClass).then(
-            //     function() {
-            //         DiscriminatedSuperClass.save(instanceOfDiscriminatedSuperClass).then(
-            //             function() {
-            //                 SuperClassModel.save(instanceOfSuperClassModel).then(
-            //                     function() {
-            //                         SubClassOfSuperClass.save(instanceOfSubClassOfSuperClass).then(
-            //                             function() {
-            //                                 SubClassOfDiscriminatorSuperClass.save(instanceOfSubClassOfDiscriminatorSuperClass).finally();
-            //                             }
-            //                         )
-            //                     }
-            //                 )
-            //             }
-            //         )
-            //     }
-            // );
-
-            // Create and save instances for use in the findById Tests.
             before(function(done) {
-                // var instanceOfAllFieldsMutexClass = AllFieldsMutexClass.create();
-                // var instanceOfDiscriminatedSuperClass = DiscriminatedSuperClass.create();
-                // var instanceOfSuperClassModel = SuperClassModel.create();
-                // var instanceOfSubClassOfSuperClass = SubClassOfSuperClass.create();
-                // var instanceOfSubClassOfDiscriminatorSuperClass = SubClassOfDiscriminatorSuperClass.create();
-
-                // instanceOfAllFieldsMutexClass.string = 'instanceOfAllFieldsMutexClass';
-                // instanceOfDiscriminatedSuperClass.name = 'instanceOfDiscriminatedSuperClass';
-                // instanceOfSuperClassModel.name = 'instanceOfSuperClassModel';
-                // instanceOfSubClassOfSuperClass.name = 'instanceOfSubClassOfSuperClass';
-                // instanceOfSubClassOfDiscriminatorSuperClass.name = 'instanceOfSubClassOfDiscriminatorSuperClass';
 
                 AllFieldsMutexClass.save(instanceOfAllFieldsMutexClass).then(
                     function() {
                         DiscriminatedSuperClass.save(instanceOfDiscriminatedSuperClass).then(
                             function() {
-                                SuperClassModel.save(instanceOfSuperClassModel).then(
+                                SuperClass.save(instanceOfSuperClass).then(
                                     function() {
                                         SubClassOfSuperClass.save(instanceOfSubClassOfSuperClass).then(
                                             function() {
@@ -2503,19 +2473,100 @@ describe('Class Model Tests', function() {
                             }
                         }
                     }
-                })
+                });
             });
     
             it('An instance of a concrete discriminated class can be found by Id.', function(done) {
-                done();
+                let error;
+                let instance;
+
+                SubClassOfDiscriminatorSuperClass.findById(instanceOfSubClassOfDiscriminatorSuperClass._id).then(
+                    function(foundInstance) {
+                        instance = foundInstance;
+                    },
+                    function(findError) {
+                        error = findError;
+                    }
+                ).finally(function() {
+                    if (error)
+                        done(error);
+                    else {
+                        if (instance == null) {
+                            done(new Error('findById() did not return an instance.'));
+                        }
+                        else {
+                            let compareResult = SubClassOfDiscriminatorSuperClass.compare(instance, instanceOfSubClassOfDiscriminatorSuperClass);
+                            if (!instance._id.equals(instanceOfSubClassOfDiscriminatorSuperClass._id) || compareResult.match == false) {
+                                done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                            }
+                            else {
+                                done();
+                            }
+                        }
+                    }
+                });
             });
     
             it('An instance of a concrete super class can be found by Id.', function(done) {
-                done();
+                let error;
+                let instance;
+
+                SuperClass.findById(instanceOfSuperClass._id).then(
+                    function(foundInstance) {
+                        instance = foundInstance;
+                    },
+                    function(findError) {
+                        error = findError;
+                    }
+                ).finally(function() {
+                    if (error)
+                        done(error);
+                    else {
+                        if (instance == null) {
+                            done(new Error('findById() did not return an instance.'));
+                        }
+                        else {
+                            let compareResult = SuperClass.compare(instance, instanceOfSuperClass);
+                            if (!instance._id.equals(instanceOfSuperClass._id) || compareResult.match == false) {
+                                done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                            }
+                            else {
+                                done();
+                            }
+                        }
+                    }
+                });
             });
     
             it('An instance of a concrete discriminated sub-class can be found by Id.', function(done) {
-                done();
+                let error;
+                let instance;
+
+                DiscriminatedSuperClass.findById(instanceOfDiscriminatedSuperClass._id).then(
+                    function(foundInstance) {
+                        instance = foundInstance;
+                    },
+                    function(findError) {
+                        error = findError;
+                    }
+                ).finally(function() {
+                    if (error)
+                        done(error);
+                    else {
+                        if (instance == null) {
+                            done(new Error('findById() did not return an instance.'));
+                        }
+                        else {
+                            let compareResult = DiscriminatedSuperClass.compare(instance, instanceOfDiscriminatedSuperClass);
+                            if (!instance._id.equals(instanceOfDiscriminatedSuperClass._id) || compareResult.match == false) {
+                                done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                            }
+                            else {
+                                done();
+                            }
+                        }
+                    }
+                });
             });
 
         });
