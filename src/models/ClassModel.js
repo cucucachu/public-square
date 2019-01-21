@@ -45,6 +45,20 @@ class ClassModel {
             });
         }
 
+        if (parameters.discriminatorSuperClass && parameters.abstract) 
+            throw new Error('A discriminator sub class cannot be abstract.');
+
+        if (parameters.discriminatorSuperClass && parameters.discriminated)
+            throw new Error('A sub class of a discriminated super class cannot be discriminated.');
+
+        if (parameters.superClasses) {
+            parameters.superClasses.forEach(function(superClass) {
+                if (superClass.discriminatorSuperClass) {
+                    throw new Error('A class cannot be a sub class of a sub class of a discriminated class.');
+                }
+            });
+        }
+
         let schema;
 
         // If this class has super classes, combine all the super class schemas and combine with the given parameters.schema, and set the
@@ -75,19 +89,18 @@ class ClassModel {
 
         // If discriminatorSuperClass is set, create the Model as a discriminator of that class. Otherwise create a stand-alone Model.
         if (this.discriminatorSuperClass) {
-            this.Model = discriminatorSuperClass.Model.discriminator(this.className, schemaObject);
+            this.Model = this.discriminatorSuperClass.Model.discriminator(this.className, schemaObject);
         }
         else {
             if (!this.abstract || (this.abstract && this.discriminated))
                 this.Model = mongoose.model(this.className, schemaObject);
         }
-
     }
 
     // Create
     create() {
         if (this.abstract)
-            throw new Error('You cannot created an instance of an abstract class.');
+            throw new Error('You cannot create an instance of an abstract class.');
 
         return new this.Model({
             _id: new mongoose.Types.ObjectId
@@ -311,8 +324,95 @@ class ClassModel {
     }
 
     // Query Methods
-    findById(id, callback) {
-        this.Model.findById(id, callback);
+    findById(id) {
+        let concrete = !this.abstract;
+        let abstract = this.abstract;
+        let discriminated = this.discriminated;
+        let isSuperClass = (this.subClasses.length > 0 || this.discriminated);
+        let subClasses = this.subClasses;
+        let className = this.className;
+        let Model = this.Model;
+
+        return new Promise(function(resolve, reject) {
+            // If this class is a non-discriminated abstract class and it doesn't have any sub classes, throw an error
+            if (abstract && !isSuperClass)
+                throw new Error('Error in ' + className + '.findById(). This class is abstract and non-discriminated, but it has no sub-classes.');
+
+            // If this class is a not a super class and is concrete, or if the class is discriminated, then call the built in mongoose query.
+            if ((concrete && !isSuperClass) || discriminated) {
+                let instance;
+                let error;
+
+                Model.findById(id).exec().then(
+                    function(foundInstance) {
+                        instance = foundInstance;
+                    },
+                    function(findError) {
+                        error = findError;
+                    }
+                ).finally(function() {
+                    if (error)
+                        reject(error)
+                    else {
+                        resolve(instance);
+                    }  
+                });
+            }
+
+            // If class is a non-discriminated super class, we need to combine the query on this class with the queries for each sub class, 
+            //    until we find an instance. If this class is abstract, we do not query for this class directly.
+            else if (isSuperClass && !discriminated) {
+                if (!abstract) {
+                    Model.findById(id, function(err, foundInstance) {
+                        if (err) {
+                            reject(err);
+                        }
+                        else if (foundInstance) {
+                            resolve(foundInstance);
+                        }
+                        else {
+                            for (var subClass in subClasses) {
+                                let found = false;
+                                subClass.findById(id).then(
+                                    function(foundInstance) {
+                                        if (foundInstance) {
+                                            found = true;
+                                            resolve(foundInstance);
+                                        }
+                                    },
+                                    function(err) {
+                                        reject(err);
+                                    }
+                                );
+                                if (found) 
+                                    break;
+                            }
+                        }
+                    });
+                }
+                else {
+                    for (var subClass in subClasses) {
+                        let found = false;
+                        subClass.findById(id).then(
+                            function(foundInstance) {
+                                if (foundInstance) {
+                                    found = true;
+                                    resolve(foundInstance);
+                                }
+                            },
+                            function(err) {
+                                reject(err);
+                            }
+                        );
+                        if (found) 
+                            break;
+                }
+    
+                }
+            }
+        });
+
+
     }
 
 
@@ -322,34 +422,49 @@ class ClassModel {
     compare(instance1, instance2) {
         var match = true;
         var message = '';
-
         var schema = this.schema;
         var className = this.className;
 
-        Object.keys(schema).forEach(function(key) {
-            if (key != '_id') {
-                if (schema[key].type != [Schema.Types.ObjectId]) {
-                    if (instance1[key] != instance2[key]) {
-                        match = false;
-                        message += className + '.' + key + '\'s do not match.';
-                    }
-                }
-                else {
-                    if (instance1[key].length != instance2[key].length) {
-                        match = false;
-                        message += className + '.' + key + '\'s do not match.';
+        if (!instance1 && !instance2) {
+            return {
+                match: true,
+                message: 'Both instances are null.'
+            }
+        }
+        else if (!instance1) {
+            match = false;
+            message = 'First instance is null.';
+        }
+        else if (!instance2) {
+            match = false;
+            message = 'Second instance is null.';
+        }
+        else {
+            Object.keys(schema).forEach(function(key) {
+                if (key != '_id') {
+                    if (schema[key].type != [Schema.Types.ObjectId]) {
+                        if (instance1[key] != instance2[key]) {
+                            match = false;
+                            message += className + '.' + key + '\'s do not match.';
+                        }
                     }
                     else {
-                        for (var i = 0; i < instance1[key].length; i++) {
-                            if (instance1[key][i] != instance2[key][i]) {
-                                match = false;
-                                message += className + '.' + key + '\'s do not match.';
+                        if (instance1[key].length != instance2[key].length) {
+                            match = false;
+                            message += className + '.' + key + '\'s do not match.';
+                        }
+                        else {
+                            for (var i = 0; i < instance1[key].length; i++) {
+                                if (instance1[key][i] != instance2[key][i]) {
+                                    match = false;
+                                    message += className + '.' + key + '\'s do not match.';
+                                }
                             }
                         }
                     }
                 }
-            }
-        });
+            });
+        }
     
         if (match)
             message = this.className + 's Match';

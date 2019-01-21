@@ -17,6 +17,289 @@ process.on('unhandledRejection', error => {
 
 describe('Class Model Tests', function() {
 
+    // Create Class Models that will be used across tests.
+    {
+        var Class1Schema = {
+            name: {
+                type: String,
+                required: true
+            },
+            class2: {
+                type: Schema.Types.ObjectId,
+                ref: 'Class2',
+                required: true,
+                singular: true
+            }
+        };
+    
+        var Class1 = new ClassModel({
+            className: 'Class1',
+            schema: Class1Schema
+        });
+    
+        var Class2Schema = {
+            name: {
+                type: String,
+                required: true
+            },
+            class1s: {
+                type: [Schema.Types.ObjectId],
+                ref: 'Class1'
+            }
+        }
+    
+        var Class2 = new ClassModel({
+            className: 'Class2',
+            schema: Class2Schema
+        });           
+        
+        var allFieldsRequiredClassSchema = {
+            string: {
+                type:String,
+                required: true
+            },
+            strings: {
+                type:[String],
+                required: true
+            },
+            date: {
+                type: Date,
+                required: true
+            },
+            boolean: {
+                type: Boolean,
+                required: true
+            },
+            booleans: {
+                type: [Boolean],
+                required: true
+            },
+            number: {
+                type: Number,
+                required: true
+            },
+            numbers: {
+                type: [Number],
+                required: true
+            },
+            class1: {
+                type: Schema.Types.ObjectId,
+                ref: 'Class1',
+                required: true
+            },
+            class2s: {
+                type: [Schema.Types.ObjectId],
+                ref: 'Class2',
+                required: true
+            }
+        };
+    
+        var AllFieldsRequiredClass = new ClassModel({
+            className: 'AllFieldsRequiredClass', 
+            schema: allFieldsRequiredClassSchema
+        });           
+        
+        var allFieldsMutexClassSchema = {
+            string: {
+                type:String,
+                mutex: 'a'
+            },
+            strings: {
+                type:[String],
+                mutex: 'a'
+            },
+            date: {
+                type: Date,
+                mutex: 'a'
+            },
+            boolean: {
+                type: Boolean,
+                mutex: 'a'
+            },
+            booleans: {
+                type: [Boolean],
+                mutex: 'a'
+            },
+            number: {
+                type: Number,
+                mutex: 'a'
+            },
+            numbers: {
+                type: [Number],
+                mutex: 'a'
+            },
+            class1: {
+                type: Schema.Types.ObjectId,
+                ref: 'Class1',
+                mutex: 'a'
+            },
+            class2s: {
+                type: [Schema.Types.ObjectId],
+                ref: 'Class2',
+                mutex: 'a'
+            }
+        };
+    
+        var AllFieldsMutexClass = new ClassModel({
+            className: 'AllFieldsMutexClass', 
+            schema: allFieldsMutexClassSchema
+        });
+        
+        var allFieldsInRequiredGroupClassSchema = {
+            string: {
+                type:String,
+                requiredGroup: 'a'
+            },
+            strings: {
+                type:[String],
+                requiredGroup: 'a'
+            },
+            date: {
+                type: Date,
+                requiredGroup: 'a'
+            },
+            boolean: {
+                type: Boolean,
+                requiredGroup: 'a'
+            },
+            booleans: {
+                type: [Boolean],
+                requiredGroup: 'a'
+            },
+            number: {
+                type: Number,
+                requiredGroup: 'a'
+            },
+            numbers: {
+                type: [Number],
+                requiredGroup: 'a'
+            },
+            class1: {
+                type: Schema.Types.ObjectId,
+                ref: 'Class1',
+                requiredGroup: 'a'
+            },
+            class2s: {
+                type: [Schema.Types.ObjectId],
+                ref: 'Class2',
+                requiredGroup: 'a'
+            }
+        };
+    
+        var AllFieldsInRequiredGroupClass = new ClassModel({
+            className: 'AllFieldsInRequiredGroupClass',
+            schema: allFieldsInRequiredGroupClassSchema
+        });
+
+        var SuperClassModel = new ClassModel({
+            className: "SuperClassModel",
+            schema: {
+                boolean: {
+                    type: Boolean,
+                },
+                number: {
+                    type: Number
+                }
+            }
+        });
+
+        var AbstractSuperClassModel = new ClassModel({
+            className: "AbstractSuperClassModel",
+            abstract: true,
+            schema: {
+                abstractBoolean: Boolean,
+                abstractNumber: Number
+            }
+        });
+
+        var DiscriminatedSuperClass = new ClassModel({
+            className: "DiscriminatedSuperClass",
+            discriminated: true,
+            schema: {
+                boolean: Boolean,
+                number: Number
+            }
+        });
+
+        var AbstractDiscriminatedSuperClass = new ClassModel({
+            className: "AbstractDiscriminatedSuperClass",
+            discriminated: true,
+            abstract: true,
+            schema: {
+                boolean: Boolean,
+                number: Number
+            }
+        });
+
+        var SubClassOfSuperClassSchema = {
+            subBoolean: {
+                type: Boolean,
+                required: true
+            },
+            subNumber: {
+                type: Number,
+                required: true
+            }
+        };        
+
+        var SubClassOfSuperClass = new ClassModel({
+            className: 'SubClassOfSuperClass',
+            schema: SubClassOfSuperClassSchema,
+            superClasses: [SuperClassModel]
+        });
+
+        var SubClassOfSubCLassOfSuperClassSchema = {
+            subSubBoolean: {
+                type: Boolean,
+                required: true
+            },
+            subSubNumber: {
+                type: Number,
+                required: true
+            }
+        };        
+
+        var SubClassOfSubCLassOfSuperClass = new ClassModel({
+            className: 'SubClassOfSubCLassOfSuperClass',
+            schema: SubClassOfSubCLassOfSuperClassSchema,
+            superClasses: [SubClassOfSuperClass]
+        });
+
+        var SubClassOfMultipleSuperClassesSchema = {
+            subBoolean: {
+                type: Boolean,
+                required: true
+            },
+            subNumber: {
+                type: Number,
+                required: true
+            }
+        };        
+
+        var SubClassOfMultipleSuperClasses = new ClassModel({
+            className: 'SubClassOfMultipleSuperClasses',
+            schema: SubClassOfMultipleSuperClassesSchema,
+            superClasses: [SuperClassModel, AbstractSuperClassModel]
+        });
+
+        var SubClassOfDiscriminatorSuperClassSchema = {
+            discriminatedBoolean: {
+                type: Boolean,
+                required: true
+            },
+            discriminatedNumber: {
+                type: Number,
+                required: true
+            }
+        };        
+
+        var SubClassOfDiscriminatorSuperClass = new ClassModel({
+            className: 'SubClassOfDiscriminatorSuperClass',
+            schema: SubClassOfDiscriminatorSuperClassSchema,
+            discriminatorSuperClass: DiscriminatedSuperClass
+        });
+    }
+
     describe('Class Model Constructor', function() {
 
         it('ClassName is required.', function() {
@@ -65,46 +348,6 @@ describe('Class Model Tests', function() {
             }
 
             throw new Error('Constructor should have thrown an error: schema is required.');
-        });
-
-        var SuperClassModel = new ClassModel({
-            className: "SuperClassModel",
-            schema: {
-                boolean: {
-                    type: Boolean,
-                },
-                number: {
-                    type: Number
-                }
-            }
-        });
-
-        var AbstractSuperClassModel = new ClassModel({
-            className: "AbstractSuperClassModel",
-            abstract: true,
-            schema: {
-                abstractBoolean: Boolean,
-                abstractNumber: Number
-            }
-        });
-
-        var DiscriminatedSuperClass = new ClassModel({
-            className: "DiscriminatedSuperClass",
-            discriminated: true,
-            schema: {
-                boolean: Boolean,
-                number: Number
-            }
-        });
-
-        var AbstractDiscriminatedSuperClass = new ClassModel({
-            className: "AbstractDiscriminatedSuperClass",
-            discriminated: true,
-            abstract: true,
-            schema: {
-                boolean: Boolean,
-                number: Number
-            }
         });
 
         it('If superClasses is set, it must be an Array.', function() {
@@ -245,6 +488,44 @@ describe('Class Model Tests', function() {
             throw new Error('Constructor should have thrown an error: If a class is set as a superClass, that class cannot have its "discriminated" field set to true.');
         });  
 
+        it('A discriminator sub class cannot be abstract.', function() {
+            try {
+                new ClassModel({
+                    className: 'SubClassModel',
+                    schema: {},
+                    discriminatorSuperClass: DiscriminatedSuperClass,
+                    abstract: true
+                });
+            }
+            catch(error) {
+                if (error.message == 'A discriminator sub class cannot be abstract.')
+                    return true;
+                else 
+                    throw new Error(error.message);
+            }
+
+            throw new Error('Constructor should have thrown an error: A discriminator sub class cannot be abstract.');
+        });  
+
+        it('A sub class of a discriminated super class cannot be discriminated.', function() {
+            try {
+                new ClassModel({
+                    className: 'SubClassModel',
+                    schema: {},
+                    discriminatorSuperClass: DiscriminatedSuperClass,
+                    discriminated: true
+                });
+            }
+            catch(error) {
+                if (error.message == 'A sub class of a discriminated super class cannot be discriminated.')
+                    return true;
+                else 
+                    throw new Error(error.message);
+            }
+
+            throw new Error('A sub class of a discriminated super class cannot be discriminated.');
+        });  
+
         it('Sub class schema cannot contain the same field names as a super class schema.', function() {
             try {
                 new ClassModel({
@@ -267,23 +548,6 @@ describe('Class Model Tests', function() {
             throw new Error('Constructor should have thrown an error: Sub class schema cannot contain the same field names as a super class schema.');
         });  
 
-        var SubClassOfSuperClassSchema = {
-            subBoolean: {
-                type: Boolean,
-                required: true
-            },
-            subNumber: {
-                type: Number,
-                required: true
-            }
-        };        
-
-        var SubClassOfSuperClass = new ClassModel({
-            className: 'SubClassOfSuperClass',
-            schema: SubClassOfSuperClassSchema,
-            superClasses: [SuperClassModel]
-        });
-
         it('If a sub class is created, it is pushed to the super class\'s "subClasses" array.', function() {
 
             if (SuperClassModel.subClasses.length == 0)
@@ -295,7 +559,6 @@ describe('Class Model Tests', function() {
         });
 
         it('A subclass schema is the combination of its direct schema with the schema of a super class.', function() {
-
             if(Object.keys(SubClassOfSuperClass.schema).includes('boolean') == false) {
                 throw new Error('Sub Class is missing the field "boolean".');
             }
@@ -317,23 +580,6 @@ describe('Class Model Tests', function() {
             }
 
             return true;
-        });
-
-        var SubClassOfSubCLassOfSuperClassSchema = {
-            subSubBoolean: {
-                type: Boolean,
-                required: true
-            },
-            subSubNumber: {
-                type: Number,
-                required: true
-            }
-        };        
-
-        var SubClassOfSubCLassOfSuperClass = new ClassModel({
-            className: 'SubClassOfSubCLassOfSuperClass',
-            schema: SubClassOfSubCLassOfSuperClassSchema,
-            superClasses: [SubClassOfSuperClass]
         });
 
         it('A subclass schema is the combination of its direct schema with the schema the whole chane of Super Classes.', function() {
@@ -368,23 +614,6 @@ describe('Class Model Tests', function() {
             return true;
         });
 
-        var SubClassOfMultipleSuperClassesSchema = {
-            subBoolean: {
-                type: Boolean,
-                required: true
-            },
-            subNumber: {
-                type: Number,
-                required: true
-            }
-        };        
-
-        var SubClassOfMultipleSuperClasses = new ClassModel({
-            className: 'SubClassOfMultipleSuperClasses',
-            schema: SubClassOfMultipleSuperClassesSchema,
-            superClasses: [SuperClassModel, AbstractSuperClassModel]
-        });
-
         it('A subclass schema is the combination of its direct schema with the schema of each of its super classes.', function() {
             if(Object.keys(SubClassOfMultipleSuperClasses.schema).includes('boolean') == false) {
                 throw new Error('Sub Class is missing the field "boolean".');
@@ -417,6 +646,29 @@ describe('Class Model Tests', function() {
             return true;
         });
 
+        it('A class cannot be a sub class of a sub class of a discriminated class.', function() {
+            try {
+                new ClassModel({
+                    className: 'SubClassModel',
+                    schema: {},
+                    superClasses: [SubClassOfDiscriminatorSuperClass]
+                });
+            }
+            catch(error) {
+                if (error.message == 'A class cannot be a sub class of a sub class of a discriminated class.')
+                    return true;
+                else 
+                    throw new Error(error.message);
+            }
+
+            throw new Error('Constructor should have thrown an error: A class cannot be a sub class of a sub class of a discriminated class.');
+        });
+
+        it('An abstract, non-discriminated class should have no Model.', function() {
+            if (AbstractSuperClassModel.Model)
+                throw new Error('An abstract, non-discriminated class should have no Model.');
+        });
+
         it('Constructor excepts and sets parameters.', function() {
             var schema = {
                 text: {
@@ -447,179 +699,52 @@ describe('Class Model Tests', function() {
         });
         
     });
-    
-    //Define 2 Classes to be used in the rest of the tests.
-    var Class1Schema = {
-        name: {
-            type: String,
-            required: true
-        },
-        class2: {
-            type: Schema.Types.ObjectId,
-            ref: 'Class2',
-            required: true,
-            singular: true
-        }
-    };
 
-    var Class1 = new ClassModel({
-        className: 'Class1',
-        schema: Class1Schema
+    describe('ClassModel.create()', function() {
+
+        it('You cannot created an instance of an abstract class.', function() {
+            let expectedErrorMessage = 'You cannot create an instance of an abstract class.';
+
+            try {
+                AbstractSuperClassModel.create();
+            }
+            catch(error) {
+                if (error.message != expectedErrorMessage) {
+                    throw new Error('ClassModel.create() did not throw the expected error.\n' +
+                        'Expected: ' + expectedErrorMessage + '\n' + 
+                        'Actual:   ' + error.message
+                    );
+                }
+                else {
+                    return true;
+                }
+            }
+
+            throw new Error('ClassModel.create() should have thrown the error: ' + expectedErrorMessage);
+        });
+
+        it('You cannot created an instance of an abstract discriminated class.', function() {
+            let expectedErrorMessage = 'You cannot create an instance of an abstract class.';
+
+            try {
+                AbstractDiscriminatedSuperClass.create();
+            }
+            catch(error) {
+                if (error.message != expectedErrorMessage) {
+                    throw new Error('ClassModel.create() did not throw the expected error.\n' +
+                        'Expected: ' + expectedErrorMessage + '\n' + 
+                        'Actual:   ' + error.message
+                    );
+                }
+                else {
+                    return true;
+                }
+            }
+
+            throw new Error('ClassModel.create() should have thrown the error: ' + expectedErrorMessage);
+        });
+
     });
-
-    var Class2Schema = {
-        name: {
-            type: String,
-            required: true
-        },
-        class1s: {
-            type: [Schema.Types.ObjectId],
-            ref: 'Class1'
-        }
-    }
-
-    var Class2 = new ClassModel({
-        className: 'Class2',
-        schema: Class2Schema
-    });           
-    
-    var allFieldsRequiredClassSchema = {
-        string: {
-            type:String,
-            required: true
-        },
-        strings: {
-            type:[String],
-            required: true
-        },
-        date: {
-            type: Date,
-            required: true
-        },
-        boolean: {
-            type: Boolean,
-            required: true
-        },
-        booleans: {
-            type: [Boolean],
-            required: true
-        },
-        number: {
-            type: Number,
-            required: true
-        },
-        numbers: {
-            type: [Number],
-            required: true
-        },
-        class1: {
-            type: Schema.Types.ObjectId,
-            ref: 'Class1',
-            required: true
-        },
-        class2s: {
-            type: [Schema.Types.ObjectId],
-            ref: 'Class2',
-            required: true
-        }
-    };
-
-    var AllFieldsRequiredClass = new ClassModel({
-        className: 'AllFieldsRequiredClass', 
-        schema: allFieldsRequiredClassSchema
-    });           
-    
-    var allFieldsMutexClassSchema = {
-        string: {
-            type:String,
-            mutex: 'a'
-        },
-        strings: {
-            type:[String],
-            mutex: 'a'
-        },
-        date: {
-            type: Date,
-            mutex: 'a'
-        },
-        boolean: {
-            type: Boolean,
-            mutex: 'a'
-        },
-        booleans: {
-            type: [Boolean],
-            mutex: 'a'
-        },
-        number: {
-            type: Number,
-            mutex: 'a'
-        },
-        numbers: {
-            type: [Number],
-            mutex: 'a'
-        },
-        class1: {
-            type: Schema.Types.ObjectId,
-            ref: 'Class1',
-            mutex: 'a'
-        },
-        class2s: {
-            type: [Schema.Types.ObjectId],
-            ref: 'Class2',
-            mutex: 'a'
-        }
-    };
-
-    var AllFieldsMutexClass = new ClassModel({
-        className: 'AllFieldsMutexClass', 
-        schema: allFieldsMutexClassSchema
-    });
-    
-    var allFieldsInRequiredGroupClassSchema = {
-        string: {
-            type:String,
-            requiredGroup: 'a'
-        },
-        strings: {
-            type:[String],
-            requiredGroup: 'a'
-        },
-        date: {
-            type: Date,
-            requiredGroup: 'a'
-        },
-        boolean: {
-            type: Boolean,
-            requiredGroup: 'a'
-        },
-        booleans: {
-            type: [Boolean],
-            requiredGroup: 'a'
-        },
-        number: {
-            type: Number,
-            requiredGroup: 'a'
-        },
-        numbers: {
-            type: [Number],
-            requiredGroup: 'a'
-        },
-        class1: {
-            type: Schema.Types.ObjectId,
-            ref: 'Class1',
-            requiredGroup: 'a'
-        },
-        class2s: {
-            type: [Schema.Types.ObjectId],
-            ref: 'Class2',
-            requiredGroup: 'a'
-        }
-    };
-
-    var AllFieldsInRequiredGroupClass = new ClassModel({
-        className: 'AllFieldsInRequiredGroupClass',
-        schema: allFieldsInRequiredGroupClassSchema
-    })
 
     describe('ClassModel.compare()', function() {
 
@@ -634,6 +759,60 @@ describe('Class Model Tests', function() {
 
             if (compareResult.match == false) {
                 throw new Error('ClassModel.compare should have returned true.')
+            }
+        });
+
+        it('ClassModel.compare() returns true if both instances are null.', function() {
+            var compareResult = Class1.compare(null, null);
+
+            if (compareResult.match == false) {
+                throw new Error('ClassModel.compare should have returned true.')
+            }
+
+            if (compareResult.message != 'Both instances are null.') {
+                throw new Error('ClassModel.compare should have returned the message "Both instances are null.". but it returned: ' + compareResult.message);
+            }
+        });
+
+        it('ClassModel.compare() returns false if first instance is null.', function() {
+            var instance2 = Class1.create();
+            var compareResult;
+            var expectedCompareMessage = 'First instance is null.';
+
+            instance2.name = "Name 2";
+
+            compareResult = Class1.compare(null, instance2);
+
+            if (compareResult.match == true) {
+                throw new Error('ClassModel.compare should have returned false because the first instance is null.')
+            }
+            if (compareResult.message != expectedCompareMessage) {
+                throw new Error(
+                    'ClassModel.compare() returned the wrong error message.\n' + 
+                    'Expected: ' + expectedCompareMessage + '\n' +
+                    'Actual:   ' + compareResult.message
+                );
+            }
+        });
+
+        it('ClassModel.compare() returns false if second instance is null.', function() {
+            var instance1 = Class1.create();
+            var compareResult;
+            var expectedCompareMessage = 'Second instance is null.';
+
+            instance1.name = "Name 2";
+
+            compareResult = Class1.compare(instance1, null);
+
+            if (compareResult.match == true) {
+                throw new Error('ClassModel.compare should have returned false because the second instance is null.')
+            }
+            if (compareResult.message != expectedCompareMessage) {
+                throw new Error(
+                    'ClassModel.compare() returned the wrong error message.\n' + 
+                    'Expected: ' + expectedCompareMessage + '\n' +
+                    'Actual:   ' + compareResult.message
+                );
             }
         });
 
@@ -2161,12 +2340,17 @@ describe('Class Model Tests', function() {
 
             AllFieldsRequiredClass.save(instance).then(    
                 function(saved) {
-                    AllFieldsRequiredClass.findById(instance._id, function(findError, found) {
-                        compareResult = AllFieldsRequiredClass.compare(instance, found);
-            
-                        if (compareResult.match == false)
-                            error = new Error(compareResult.message);
-                    });
+                    AllFieldsRequiredClass.findById(instance._id).then(
+                        function(found) {
+                            compareResult = AllFieldsRequiredClass.compare(instance, found);
+                            if (compareResult.match == false)
+                                error = new Error(compareResult.message);
+                        },
+                        function(findError) {
+                            console.log('error');
+                            error = findError;
+                        }
+                    );
                 },
                 function(saveErr) {
                     testFailed = 1;
@@ -2179,6 +2363,10 @@ describe('Class Model Tests', function() {
                     done();
             });
         });
+
+    });
+
+    describe('ClassModel.validate', function() {
 
     });
 
