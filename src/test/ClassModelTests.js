@@ -19,38 +19,41 @@ describe('Class Model Tests', function() {
 
     // Create Class Models that will be used across tests.
     {
-        var Class1Schema = {
+        var CompareClass1Schema = {
             name: {
                 type: String,
                 required: true
             },
+            numbers: {
+                type: [Number]
+            },
             class2: {
                 type: Schema.Types.ObjectId,
-                ref: 'Class2',
+                ref: 'CompareClass2',
                 required: true,
                 singular: true
             }
         };
     
-        var Class1 = new ClassModel({
-            className: 'Class1',
-            schema: Class1Schema
+        var CompareClass1 = new ClassModel({
+            className: 'CompareClass1',
+            schema: CompareClass1Schema
         });
     
-        var Class2Schema = {
+        var CompareClass2Schema = {
             name: {
                 type: String,
                 required: true
             },
             class1s: {
                 type: [Schema.Types.ObjectId],
-                ref: 'Class1'
+                ref: 'CompareClass1'
             }
         }
     
-        var Class2 = new ClassModel({
-            className: 'Class2',
-            schema: Class2Schema
+        var CompareClass2 = new ClassModel({
+            className: 'CompareClass2',
+            schema: CompareClass2Schema
         });           
         
         var allFieldsRequiredClassSchema = {
@@ -84,12 +87,12 @@ describe('Class Model Tests', function() {
             },
             class1: {
                 type: Schema.Types.ObjectId,
-                ref: 'Class1',
+                ref: 'CompareClass1',
                 required: true
             },
             class2s: {
                 type: [Schema.Types.ObjectId],
-                ref: 'Class2',
+                ref: 'CompareClass2',
                 required: true
             }
         };
@@ -130,12 +133,12 @@ describe('Class Model Tests', function() {
             },
             class1: {
                 type: Schema.Types.ObjectId,
-                ref: 'Class1',
+                ref: 'CompareClass1',
                 mutex: 'a'
             },
             class2s: {
                 type: [Schema.Types.ObjectId],
-                ref: 'Class2',
+                ref: 'CompareClass2',
                 mutex: 'a'
             }
         };
@@ -176,12 +179,12 @@ describe('Class Model Tests', function() {
             },
             class1: {
                 type: Schema.Types.ObjectId,
-                ref: 'Class1',
+                ref: 'CompareClass1',
                 requiredGroup: 'a'
             },
             class2s: {
                 type: [Schema.Types.ObjectId],
-                ref: 'Class2',
+                ref: 'CompareClass2',
                 requiredGroup: 'a'
             }
         };
@@ -194,6 +197,9 @@ describe('Class Model Tests', function() {
         var SuperClassModel = new ClassModel({
             className: "SuperClassModel",
             schema: {
+                name: {
+                    type: String
+                },
                 boolean: {
                     type: Boolean,
                 },
@@ -207,6 +213,9 @@ describe('Class Model Tests', function() {
             className: "AbstractSuperClassModel",
             abstract: true,
             schema: {
+                name: {
+                    type: String
+                },
                 abstractBoolean: Boolean,
                 abstractNumber: Number
             }
@@ -216,6 +225,9 @@ describe('Class Model Tests', function() {
             className: "DiscriminatedSuperClass",
             discriminated: true,
             schema: {
+                name: {
+                    type: String
+                },
                 boolean: Boolean,
                 number: Number
             }
@@ -226,6 +238,9 @@ describe('Class Model Tests', function() {
             discriminated: true,
             abstract: true,
             schema: {
+                name: {
+                    type: String
+                },
                 boolean: Boolean,
                 number: Number
             }
@@ -233,12 +248,10 @@ describe('Class Model Tests', function() {
 
         var SubClassOfSuperClassSchema = {
             subBoolean: {
-                type: Boolean,
-                required: true
+                type: Boolean
             },
             subNumber: {
-                type: Number,
-                required: true
+                type: Number
             }
         };        
 
@@ -284,12 +297,10 @@ describe('Class Model Tests', function() {
 
         var SubClassOfDiscriminatorSuperClassSchema = {
             discriminatedBoolean: {
-                type: Boolean,
-                required: true
+                type: Boolean
             },
             discriminatedNumber: {
-                type: Number,
-                required: true
+                type: Number
             }
         };        
 
@@ -749,13 +760,13 @@ describe('Class Model Tests', function() {
     describe('ClassModel.compare()', function() {
 
         it('ClassModel.compare() returns true if instances are the same instance.', function() {
-            var instance1 = Class1.create();
+            var instance1 = CompareClass1.create();
             var compareResult;
 
             instance1.name = " Name 1";
-            instance1.class2 = Class2.create()._id;
+            instance1.class2 = CompareClass2.create()._id;
 
-            compareResult = Class1.compare(instance1, instance1);
+            compareResult = CompareClass1.compare(instance1, instance1);
 
             if (compareResult.match == false) {
                 throw new Error('ClassModel.compare should have returned true.')
@@ -763,7 +774,7 @@ describe('Class Model Tests', function() {
         });
 
         it('ClassModel.compare() returns true if both instances are null.', function() {
-            var compareResult = Class1.compare(null, null);
+            var compareResult = CompareClass1.compare(null, null);
 
             if (compareResult.match == false) {
                 throw new Error('ClassModel.compare should have returned true.')
@@ -775,13 +786,13 @@ describe('Class Model Tests', function() {
         });
 
         it('ClassModel.compare() returns false if first instance is null.', function() {
-            var instance2 = Class1.create();
+            var instance2 = CompareClass1.create();
             var compareResult;
             var expectedCompareMessage = 'First instance is null.';
 
             instance2.name = "Name 2";
 
-            compareResult = Class1.compare(null, instance2);
+            compareResult = CompareClass1.compare(null, instance2);
 
             if (compareResult.match == true) {
                 throw new Error('ClassModel.compare should have returned false because the first instance is null.')
@@ -796,13 +807,13 @@ describe('Class Model Tests', function() {
         });
 
         it('ClassModel.compare() returns false if second instance is null.', function() {
-            var instance1 = Class1.create();
+            var instance1 = CompareClass1.create();
             var compareResult;
             var expectedCompareMessage = 'Second instance is null.';
 
             instance1.name = "Name 2";
 
-            compareResult = Class1.compare(instance1, null);
+            compareResult = CompareClass1.compare(instance1, null);
 
             if (compareResult.match == true) {
                 throw new Error('ClassModel.compare should have returned false because the second instance is null.')
@@ -817,11 +828,11 @@ describe('Class Model Tests', function() {
         });
 
         it('ClassModel.compare() returns true if all fields are the same.', function() {
-            var instance1 = Class1.create();
-            var instance2 = Class1.create();
+            var instance1 = CompareClass1.create();
+            var instance2 = CompareClass1.create();
             var compareResult;
 
-            var relatedInstance1 = Class2.create();
+            var relatedInstance1 = CompareClass2.create();
 
             instance1.name = "Name 1";
             instance1.class2 = relatedInstance1._id;
@@ -829,7 +840,7 @@ describe('Class Model Tests', function() {
             instance2.name = "Name 1";
             instance2.class2 = relatedInstance1._id;
 
-            compareResult = Class1.compare(instance1, instance2);
+            compareResult = CompareClass1.compare(instance1, instance2);
 
             if (compareResult.match == false) {
                 throw new Error('ClassModel.compare should have returned true.')
@@ -837,12 +848,12 @@ describe('Class Model Tests', function() {
         });
 
         it('ClassModel.compare() returns false if an attribute is different.', function() {
-            var instance1 = Class1.create();
-            var instance2 = Class1.create();
+            var instance1 = CompareClass1.create();
+            var instance2 = CompareClass1.create();
             var compareResult;
-            var expectedCompareMessage = 'Class1.name\'s do not match.';
+            var expectedCompareMessage = 'CompareClass1.name\'s do not match.';
             
-            var relatedInstance1 = Class2.create();
+            var relatedInstance1 = CompareClass2.create();
 
             instance1.name = "Name 1";
             instance1.class2 = relatedInstance1;
@@ -850,7 +861,7 @@ describe('Class Model Tests', function() {
             instance2.name = "Name 2";
             instance2.class2 = relatedInstance1;
 
-            compareResult = Class1.compare(instance1, instance2);
+            compareResult = CompareClass1.compare(instance1, instance2);
 
             if (compareResult.match == true) {
                 throw new Error('ClassModel.compare should have returned false because the names are different.')
@@ -864,19 +875,49 @@ describe('Class Model Tests', function() {
             }
         });
 
-        it('ClassModel.compare() returns false if singular relationship is different.', function() {
-            var instance1 = Class1.create();
-            var instance2 = Class1.create();
+        it('ClassModel.compare() returns false if an attribute in an array is different.', function() {
+            var instance1 = CompareClass1.create();
+            var instance2 = CompareClass1.create();
             var compareResult;
-            var expectedCompareMessage = 'Class1.class2\'s do not match.';
+            var expectedCompareMessage = 'CompareClass1.numbers\'s do not match.';
+            
+            var relatedInstance1 = CompareClass2.create();
 
             instance1.name = "Name 1";
-            instance1.class2 = Class2.create()._id;
+            instance1.numbers = [1, 2];
+            instance1.class2 = relatedInstance1;
 
             instance2.name = "Name 1";
-            instance2.class2 = Class2.create()._id;
+            instance2.numbers = [1, 3];
+            instance2.class2 = relatedInstance1;
 
-            compareResult = Class1.compare(instance1, instance2);
+            compareResult = CompareClass1.compare(instance1, instance2);
+
+            if (compareResult.match == true) {
+                throw new Error('ClassModel.compare should have returned false because the numbers are different.')
+            }
+            if (compareResult.message != expectedCompareMessage) {
+                throw new Error(
+                    'ClassModel.compare() returned the wrong error message.\n' + 
+                    'Expected: ' + expectedCompareMessage + '\n' +
+                    'Actual:   ' + compareResult.message
+                );
+            }
+        });
+
+        it('ClassModel.compare() returns false if singular relationship is different.', function() {
+            var instance1 = CompareClass1.create();
+            var instance2 = CompareClass1.create();
+            var compareResult;
+            var expectedCompareMessage = 'CompareClass1.class2\'s do not match.';
+
+            instance1.name = "Name 1";
+            instance1.class2 = CompareClass2.create()._id;
+
+            instance2.name = "Name 1";
+            instance2.class2 = CompareClass2.create()._id;
+
+            compareResult = CompareClass1.compare(instance1, instance2);
 
             if (compareResult.match == true) {
                 throw new Error('ClassModel.compare should have returned false because singular relationships are different.')
@@ -891,17 +932,17 @@ describe('Class Model Tests', function() {
         });
 
         it('ClassModel.compare() returns false one of the singular relationships is empty.', function() {
-            var instance1 = Class1.create();
-            var instance2 = Class1.create();
+            var instance1 = CompareClass1.create();
+            var instance2 = CompareClass1.create();
             var compareResult;
-            var expectedCompareMessage = 'Class1.class2\'s do not match.';
+            var expectedCompareMessage = 'CompareClass1.class2\'s do not match.';
 
             instance1.name = "Name 1";
-            instance1.class2 = Class2.create()._id;
+            instance1.class2 = CompareClass2.create()._id;
 
             instance2.name = "Name 1";
 
-            compareResult = Class1.compare(instance1, instance2);
+            compareResult = CompareClass1.compare(instance1, instance2);
 
             if (compareResult.match == true) {
                 throw new Error('ClassModel.compare should have returned false because singular relationships are different.')
@@ -916,20 +957,20 @@ describe('Class Model Tests', function() {
         });
 
         it('ClassModel.compare() returns false if one instance in a non-singular relationship is different.', function() {
-            var instance1 = Class2.create();
-            var instance2 = Class2.create();
+            var instance1 = CompareClass2.create();
+            var instance2 = CompareClass2.create();
             var compareResult;
-            var expectedCompareMessage = 'Class2.class1s\'s do not match.';
+            var expectedCompareMessage = 'CompareClass2.class1s\'s do not match.';
 
-            var relatedInstance1 = Class2.create();
+            var relatedInstance1 = CompareClass2.create();
 
             instance1.name = "Name 1";
-            instance1.class1s = [relatedInstance1._id, Class1.create()._id];
+            instance1.class1s = [relatedInstance1._id, CompareClass1.create()._id];
 
             instance2.name = "Name 1";
-            instance2.class1s =  [relatedInstance1._id, Class1.create()._id];
+            instance2.class1s =  [relatedInstance1._id, CompareClass1.create()._id];
 
-            compareResult = Class2.compare(instance1, instance2);
+            compareResult = CompareClass2.compare(instance1, instance2);
 
             if (compareResult.match == true) {
                 throw new Error('ClassModel.compare should have returned false because singular relationships are different.')
@@ -944,18 +985,18 @@ describe('Class Model Tests', function() {
         });
 
         it('ClassModel.compare() returns false if all instances in a non-singular relationship is different.', function() {
-            var instance1 = Class2.create();
-            var instance2 = Class2.create();
+            var instance1 = CompareClass2.create();
+            var instance2 = CompareClass2.create();
             var compareResult;
-            var expectedCompareMessage = 'Class2.class1s\'s do not match.';
+            var expectedCompareMessage = 'CompareClass2.class1s\'s do not match.';
 
             instance1.name = "Name 1";
-            instance1.class1s = [Class1.create()._id, Class1.create()._id];
+            instance1.class1s = [CompareClass1.create()._id, CompareClass1.create()._id];
 
             instance2.name = "Name 1";
-            instance2.class1s =  [Class1.create()._id, Class1.create()._id];
+            instance2.class1s =  [CompareClass1.create()._id, CompareClass1.create()._id];
 
-            compareResult = Class2.compare(instance1, instance2);
+            compareResult = CompareClass2.compare(instance1, instance2);
 
             if (compareResult.match == true) {
                 throw new Error('ClassModel.compare should have returned false because singular relationships are different.')
@@ -970,18 +1011,18 @@ describe('Class Model Tests', function() {
         });
 
         it('ClassModel.compare() returns false if non-singular relationship is different (one not set).', function() {
-            var instance1 = Class2.create();
-            var instance2 = Class2.create();
+            var instance1 = CompareClass2.create();
+            var instance2 = CompareClass2.create();
             var compareResult;
-            var expectedCompareMessage = 'Class2.class1s\'s do not match.';
+            var expectedCompareMessage = 'CompareClass2.class1s\'s do not match.';
 
             instance1.name = "Name 1";
-            instance1.class1s = [Class1.create()._id, Class1.create()._id];
+            instance1.class1s = [CompareClass1.create()._id, CompareClass1.create()._id];
 
             instance2.name = "Name 1";
             instance2.class1s =  [];
 
-            compareResult = Class2.compare(instance1, instance2);
+            compareResult = CompareClass2.compare(instance1, instance2);
 
             if (compareResult.match == true) {
                 throw new Error('ClassModel.compare should have returned false because singular relationships are different.')
@@ -996,13 +1037,13 @@ describe('Class Model Tests', function() {
         });
 
         it('ClassModel.compare() returns false if non-singular relationship have different lengths.', function() {
-            var instance1 = Class2.create();
-            var instance2 = Class2.create();
+            var instance1 = CompareClass2.create();
+            var instance2 = CompareClass2.create();
             var compareResult;
-            var expectedCompareMessage = 'Class2.class1s\'s do not match.';
+            var expectedCompareMessage = 'CompareClass2.class1s\'s do not match.';
 
-            let relatedInstance1 = Class2.create();
-            let relatedInstance2 = Class2.create();
+            let relatedInstance1 = CompareClass2.create();
+            let relatedInstance2 = CompareClass2.create();
 
             instance1.name = "Name 1";
             instance1.class1s = [relatedInstance1, relatedInstance2];
@@ -1010,7 +1051,7 @@ describe('Class Model Tests', function() {
             instance2.name = "Name 1";
             instance2.class1s = [relatedInstance1, relatedInstance2, relatedInstance1];
 
-            compareResult = Class2.compare(instance1, instance2);
+            compareResult = CompareClass2.compare(instance1, instance2);
 
             if (compareResult.match == true) {
                 throw new Error('ClassModel.compare should have returned false because singular relationships are different.')
@@ -1040,8 +1081,8 @@ describe('Class Model Tests', function() {
                 instance.booleans = [true];
                 instance.number = 1;
                 instance.numbers = [1];
-                instance.class1 = Class1.create()._id;
-                instance.class2s = [Class2.create()._id];
+                instance.class1 = CompareClass1.create()._id;
+                instance.class2s = [CompareClass2.create()._id];
 
                 try {
                     AllFieldsRequiredClass.validate(instance);
@@ -1067,8 +1108,8 @@ describe('Class Model Tests', function() {
                 instance.booleans = [true];
                 instance.number = 1;
                 instance.numbers = [1];
-                instance.class1 = Class1.create()._id;
-                instance.class2s = [Class2.create()._id];
+                instance.class1 = CompareClass1.create()._id;
+                instance.class2s = [CompareClass2.create()._id];
     
                 try {
                     AllFieldsRequiredClass.validate(instance);
@@ -1100,8 +1141,8 @@ describe('Class Model Tests', function() {
                 instance.booleans = [true];
                 instance.number = 1;
                 instance.numbers = [1];
-                instance.class1 = Class1.create()._id;
-                instance.class2s = [Class2.create()._id];
+                instance.class1 = CompareClass1.create()._id;
+                instance.class2s = [CompareClass2.create()._id];
     
                 try {
                     AllFieldsRequiredClass.validate(instance);
@@ -1132,8 +1173,8 @@ describe('Class Model Tests', function() {
                 instance.booleans = [true];
                 instance.number = 1;
                 instance.numbers = [1];
-                instance.class1 = Class1.create()._id;
-                instance.class2s = [Class2.create()._id];
+                instance.class1 = CompareClass1.create()._id;
+                instance.class2s = [CompareClass2.create()._id];
 
     
                 try {
@@ -1165,8 +1206,8 @@ describe('Class Model Tests', function() {
                 instance.booleans = [true];
                 instance.number = 1;
                 instance.numbers = [1];
-                instance.class1 = Class1.create()._id;
-                instance.class2s = [Class2.create()._id];
+                instance.class1 = CompareClass1.create()._id;
+                instance.class2s = [CompareClass2.create()._id];
 
     
                 try {
@@ -1198,8 +1239,8 @@ describe('Class Model Tests', function() {
                 instance.booleans = [true];
                 instance.number = 1;
                 instance.numbers = [1];
-                instance.class1 = Class1.create()._id;
-                instance.class2s = [Class2.create()._id];
+                instance.class1 = CompareClass1.create()._id;
+                instance.class2s = [CompareClass2.create()._id];
 
     
                 try {
@@ -1232,8 +1273,8 @@ describe('Class Model Tests', function() {
                 instance.booleans = [true];
                 instance.number = 1;
                 instance.numbers = [1];
-                instance.class1 = Class1.create()._id;
-                instance.class2s = [Class2.create()._id];
+                instance.class1 = CompareClass1.create()._id;
+                instance.class2s = [CompareClass2.create()._id];
 
     
                 try {
@@ -1265,8 +1306,8 @@ describe('Class Model Tests', function() {
                 instance.boolean = true;
                 instance.number = 1;
                 instance.numbers = [1];
-                instance.class1 = Class1.create()._id;
-                instance.class2s = [Class2.create()._id];
+                instance.class1 = CompareClass1.create()._id;
+                instance.class2s = [CompareClass2.create()._id];
 
     
                 try {
@@ -1298,8 +1339,8 @@ describe('Class Model Tests', function() {
                 instance.boolean = true;
                 instance.booleans = [true];
                 instance.numbers = [1];
-                instance.class1 = Class1.create()._id;
-                instance.class2s = [Class2.create()._id];
+                instance.class1 = CompareClass1.create()._id;
+                instance.class2s = [CompareClass2.create()._id];
 
     
                 try {
@@ -1331,8 +1372,8 @@ describe('Class Model Tests', function() {
                 instance.boolean = true;
                 instance.booleans = [true];
                 instance.number = 1;
-                instance.class1 = Class1.create()._id;
-                instance.class2s = [Class2.create()._id];
+                instance.class1 = CompareClass1.create()._id;
+                instance.class2s = [CompareClass2.create()._id];
 
     
                 try {
@@ -1365,7 +1406,7 @@ describe('Class Model Tests', function() {
                 instance.booleans = [true];
                 instance.number = 1;
                 instance.numbers = [1];
-                instance.class2s = [Class2.create()._id];
+                instance.class2s = [CompareClass2.create()._id];
 
     
                 try {
@@ -1398,7 +1439,7 @@ describe('Class Model Tests', function() {
                 instance.booleans = [true];
                 instance.number = 1;
                 instance.numbers = [1];
-                instance.class1 = Class1.create()._id;
+                instance.class1 = CompareClass1.create()._id;
 
     
                 try {
@@ -1682,7 +1723,7 @@ describe('Class Model Tests', function() {
 
                 let instance = AllFieldsInRequiredGroupClass.create();
 
-                instance.class1 = Class1.create()._id;
+                instance.class1 = CompareClass1.create()._id;
 
                 try {
                     AllFieldsInRequiredGroupClass.validate(instance);
@@ -1701,7 +1742,7 @@ describe('Class Model Tests', function() {
 
                 let instance = AllFieldsInRequiredGroupClass.create();
 
-                instance.class2s = [Class2.create()._id];
+                instance.class2s = [CompareClass2.create()._id];
 
                 try {
                     AllFieldsInRequiredGroupClass.validate(instance);
@@ -1806,12 +1847,12 @@ describe('Class Model Tests', function() {
                 let schema = {
                     class1: {
                         type: Schema.Types.ObjectId,
-                        ref: 'Class1',
+                        ref: 'CompareClass1',
                         mutex: 'a'
                     },
                     class2: {
                         type: Schema.Types.ObjectId,
-                        ref: 'Class2',
+                        ref: 'CompareClass2',
                         mutex: 'a'
                     }
                 };
@@ -1823,8 +1864,8 @@ describe('Class Model Tests', function() {
 
                 let instance = MutexClassB.create();
 
-                instance.class1 = Class1.create()._id;
-                instance.class2 = Class2.create()._id;
+                instance.class1 = CompareClass1.create()._id;
+                instance.class2 = CompareClass2.create()._id;
 
                 try {
                     MutexClassB.validate(instance);
@@ -1849,12 +1890,12 @@ describe('Class Model Tests', function() {
                 let schema = {
                     class1: {
                         type: Schema.Types.ObjectId,
-                        ref: 'Class1',
+                        ref: 'CompareClass1',
                         mutex: 'a'
                     },
                     class2: {
                         type: Schema.Types.ObjectId,
-                        ref: 'Class2',
+                        ref: 'CompareClass2',
                         mutex: 'a'
                     }
                 };
@@ -1866,7 +1907,7 @@ describe('Class Model Tests', function() {
 
                 let instance = MutexClassBB.create();
 
-                instance.class1 = Class1.create()._id;
+                instance.class1 = CompareClass1.create()._id;
 
                 try {
                     MutexClassBB.validate(instance);
@@ -1888,12 +1929,12 @@ describe('Class Model Tests', function() {
                 let schema = {
                     class1s: {
                         type: [Schema.Types.ObjectId],
-                        ref: 'Class1',
+                        ref: 'CompareClass1',
                         mutex: 'a'
                     },
                     class2s: {
                         type: [Schema.Types.ObjectId],
-                        ref: 'Class2',
+                        ref: 'CompareClass2',
                         mutex: 'a'
                     }
                 };
@@ -1905,8 +1946,8 @@ describe('Class Model Tests', function() {
 
                 let instance = MutexClassC.create();
 
-                instance.class1s = [Class1.create()._id, Class1.create()._id];
-                instance.class2s = [Class2.create()._id, Class2.create()._id];
+                instance.class1s = [CompareClass1.create()._id, CompareClass1.create()._id];
+                instance.class2s = [CompareClass2.create()._id, CompareClass2.create()._id];
 
                 try {
                     MutexClassC.validate(instance);
@@ -1931,12 +1972,12 @@ describe('Class Model Tests', function() {
                 let schema = {
                     class1s: {
                         type: [Schema.Types.ObjectId],
-                        ref: 'Class1',
+                        ref: 'CompareClass1',
                         mutex: 'a'
                     },
                     class2s: {
                         type: [Schema.Types.ObjectId],
-                        ref: 'Class2',
+                        ref: 'CompareClass2',
                         mutex: 'a'
                     }
                 };
@@ -1948,7 +1989,7 @@ describe('Class Model Tests', function() {
 
                 let instance = MutexClassCC.create();
 
-                instance.class1s = [Class1.create()._id, Class1.create()._id];
+                instance.class1s = [CompareClass1.create()._id, CompareClass1.create()._id];
 
                 try {
                     MutexClassCC.validate(instance);
@@ -2138,7 +2179,7 @@ describe('Class Model Tests', function() {
 
                 let instance = AllFieldsMutexClass.create();
 
-                instance.class1 = Class1.create()._id;
+                instance.class1 = CompareClass1.create()._id;
 
                 try {
                     AllFieldsMutexClass.validate(instance);
@@ -2157,7 +2198,7 @@ describe('Class Model Tests', function() {
 
                 let instance = AllFieldsMutexClass.create();
 
-                instance.class2s = Class2.create()._id;
+                instance.class2s = CompareClass2.create()._id;
 
                 try {
                     AllFieldsMutexClass.validate(instance);
@@ -2176,7 +2217,7 @@ describe('Class Model Tests', function() {
 
                 let instance = AllFieldsMutexClass.create();
 
-                instance.class2s = [Class2.create()._id, Class2.create()._id];
+                instance.class2s = [CompareClass2.create()._id, CompareClass2.create()._id];
 
                 try {
                     AllFieldsMutexClass.validate(instance);
@@ -2335,8 +2376,8 @@ describe('Class Model Tests', function() {
             instance.booleans = [true];
             instance.number = 1;
             instance.numbers = [1];
-            instance.class1 = Class1.create()._id;
-            instance.class2s = [Class2.create()._id];
+            instance.class1 = CompareClass1.create()._id;
+            instance.class2s = [CompareClass2.create()._id];
 
             AllFieldsRequiredClass.save(instance).then(    
                 function(saved) {
@@ -2366,7 +2407,150 @@ describe('Class Model Tests', function() {
 
     });
 
-    describe('ClassModel.validate', function() {
+    describe('ClassModel.findById()', function() {
+
+        describe('Calling findById on the Class of the instance you want to find. (Direct)', function() {
+
+            var instanceOfAllFieldsMutexClass = AllFieldsMutexClass.create();
+            var instanceOfDiscriminatedSuperClass = DiscriminatedSuperClass.create();
+            var instanceOfSuperClassModel = SuperClassModel.create();
+            var instanceOfSubClassOfSuperClass = SubClassOfSuperClass.create();
+            var instanceOfSubClassOfDiscriminatorSuperClass = SubClassOfDiscriminatorSuperClass.create();
+
+            instanceOfAllFieldsMutexClass.string = 'instanceOfAllFieldsMutexClass';
+            instanceOfDiscriminatedSuperClass.name = 'instanceOfDiscriminatedSuperClass';
+            instanceOfSuperClassModel.name = 'instanceOfSuperClassModel';
+            instanceOfSubClassOfSuperClass.name = 'instanceOfSubClassOfSuperClass';
+            instanceOfSubClassOfDiscriminatorSuperClass.name = 'instanceOfSubClassOfDiscriminatorSuperClass';
+
+            // AllFieldsMutexClass.save(instanceOfAllFieldsMutexClass).then(
+            //     function() {
+            //         DiscriminatedSuperClass.save(instanceOfDiscriminatedSuperClass).then(
+            //             function() {
+            //                 SuperClassModel.save(instanceOfSuperClassModel).then(
+            //                     function() {
+            //                         SubClassOfSuperClass.save(instanceOfSubClassOfSuperClass).then(
+            //                             function() {
+            //                                 SubClassOfDiscriminatorSuperClass.save(instanceOfSubClassOfDiscriminatorSuperClass).finally();
+            //                             }
+            //                         )
+            //                     }
+            //                 )
+            //             }
+            //         )
+            //     }
+            // );
+
+            // Create and save instances for use in the findById Tests.
+            before(function(done) {
+                // var instanceOfAllFieldsMutexClass = AllFieldsMutexClass.create();
+                // var instanceOfDiscriminatedSuperClass = DiscriminatedSuperClass.create();
+                // var instanceOfSuperClassModel = SuperClassModel.create();
+                // var instanceOfSubClassOfSuperClass = SubClassOfSuperClass.create();
+                // var instanceOfSubClassOfDiscriminatorSuperClass = SubClassOfDiscriminatorSuperClass.create();
+
+                // instanceOfAllFieldsMutexClass.string = 'instanceOfAllFieldsMutexClass';
+                // instanceOfDiscriminatedSuperClass.name = 'instanceOfDiscriminatedSuperClass';
+                // instanceOfSuperClassModel.name = 'instanceOfSuperClassModel';
+                // instanceOfSubClassOfSuperClass.name = 'instanceOfSubClassOfSuperClass';
+                // instanceOfSubClassOfDiscriminatorSuperClass.name = 'instanceOfSubClassOfDiscriminatorSuperClass';
+
+                AllFieldsMutexClass.save(instanceOfAllFieldsMutexClass).then(
+                    function() {
+                        DiscriminatedSuperClass.save(instanceOfDiscriminatedSuperClass).then(
+                            function() {
+                                SuperClassModel.save(instanceOfSuperClassModel).then(
+                                    function() {
+                                        SubClassOfSuperClass.save(instanceOfSubClassOfSuperClass).then(
+                                            function() {
+                                                SubClassOfDiscriminatorSuperClass.save(instanceOfSubClassOfDiscriminatorSuperClass).finally(done);
+                                            }
+                                        )
+                                    }
+                                )
+                            }
+                        )
+                    }
+                );
+
+            });
+
+            it('An instance of a concrete class with no subclasses can be found by Id.', function(done) {
+                let error;
+                let instance;
+
+                AllFieldsMutexClass.findById(instanceOfAllFieldsMutexClass._id).then(
+                    function(foundInstance) {
+                        instance = foundInstance;
+                    },
+                    function(findError) {
+                        error = findError;
+                    }
+                ).finally(function() {
+                    if (error)
+                        done(error);
+                    else {
+                        if (instance == null) {
+                            done(new Error('findById() did not return an instance.'));
+                        }
+                        else {
+                            let compareResult = AllFieldsMutexClass.compare(instance, instanceOfAllFieldsMutexClass);
+                            if (!instance._id.equals(instanceOfAllFieldsMutexClass._id) || compareResult.match == false) {
+                                done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                            }
+                            else {
+                                done();
+                            }
+                        }
+                    }
+                })
+            });
+    
+            it('An instance of a concrete discriminated class can be found by Id.', function(done) {
+                done();
+            });
+    
+            it('An instance of a concrete super class can be found by Id.', function(done) {
+                done();
+            });
+    
+            it('An instance of a concrete discriminated sub-class can be found by Id.', function(done) {
+                done();
+            });
+
+        });
+
+        describe('Calling findById on a super class of the class of the instance you want to find. (Indirect)', function() {
+    
+            it('An instance of a sub class of a discrimintated super class can be found by Id from the super class.', function(done) {
+                done();
+            });
+    
+            it('An instance of a concrete sub class of a non-discriminated super class can be found by Id from the super class.', function(done) {
+                done();
+            });
+
+        });
+
+        describe('Calling findById on a super class of the super class of the instance you want to find. (Recursive)', function() {
+    
+            it('SuperClass -> Discriminated Sub Class -> Sub Sub Class', function(done) {
+                done();
+            });
+    
+            it('SuperClass -> Abstract Discriminated Sub Class -> Sub Sub Class', function(done) {
+                done();
+            });
+    
+            it('SuperClass -> Sub Class -> Sub Sub Class', function(done) {
+                done();
+            });
+    
+            it('SuperClass -> Abstract Sub Class -> Sub Sub Class', function(done) {
+                done();
+            });
+
+        });
 
     });
 

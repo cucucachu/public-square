@@ -442,7 +442,7 @@ class ClassModel {
         else {
             Object.keys(schema).forEach(function(key) {
                 if (key != '_id') {
-                    if (schema[key].type != [Schema.Types.ObjectId]) {
+                    if (!Array.isArray(schema[key].type)) {
                         if (instance1[key] != instance2[key]) {
                             match = false;
                             message += className + '.' + key + '\'s do not match.';
@@ -458,6 +458,7 @@ class ClassModel {
                                 if (instance1[key][i] != instance2[key][i]) {
                                     match = false;
                                     message += className + '.' + key + '\'s do not match.';
+                                    break;
                                 }
                             }
                         }
