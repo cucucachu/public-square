@@ -2409,41 +2409,41 @@ describe('Class Model Tests', function() {
 
     describe('ClassModel.findById()', function() {
 
+        var instanceOfAllFieldsMutexClass = AllFieldsMutexClass.create();
+        var instanceOfDiscriminatedSuperClass = DiscriminatedSuperClass.create();
+        var instanceOfSuperClass = SuperClass.create();
+        var instanceOfSubClassOfSuperClass = SubClassOfSuperClass.create();
+        var instanceOfSubClassOfDiscriminatorSuperClass = SubClassOfDiscriminatorSuperClass.create();
+
+        instanceOfAllFieldsMutexClass.string = 'instanceOfAllFieldsMutexClass';
+        instanceOfDiscriminatedSuperClass.name = 'instanceOfDiscriminatedSuperClass';
+        instanceOfSuperClass.name = 'instanceOfSuperClass';
+        instanceOfSubClassOfSuperClass.name = 'instanceOfSubClassOfSuperClass';
+        instanceOfSubClassOfDiscriminatorSuperClass.name = 'instanceOfSubClassOfDiscriminatorSuperClass';
+
+        before(function(done) {
+
+            AllFieldsMutexClass.save(instanceOfAllFieldsMutexClass).then(
+                function() {
+                    DiscriminatedSuperClass.save(instanceOfDiscriminatedSuperClass).then(
+                        function() {
+                            SuperClass.save(instanceOfSuperClass).then(
+                                function() {
+                                    SubClassOfSuperClass.save(instanceOfSubClassOfSuperClass).then(
+                                        function() {
+                                            SubClassOfDiscriminatorSuperClass.save(instanceOfSubClassOfDiscriminatorSuperClass).finally(done);
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
+                }
+            );
+
+        });
+
         describe('Calling findById on the Class of the instance you want to find. (Direct)', function() {
-
-            var instanceOfAllFieldsMutexClass = AllFieldsMutexClass.create();
-            var instanceOfDiscriminatedSuperClass = DiscriminatedSuperClass.create();
-            var instanceOfSuperClass = SuperClass.create();
-            var instanceOfSubClassOfSuperClass = SubClassOfSuperClass.create();
-            var instanceOfSubClassOfDiscriminatorSuperClass = SubClassOfDiscriminatorSuperClass.create();
-
-            instanceOfAllFieldsMutexClass.string = 'instanceOfAllFieldsMutexClass';
-            instanceOfDiscriminatedSuperClass.name = 'instanceOfDiscriminatedSuperClass';
-            instanceOfSuperClass.name = 'instanceOfSuperClass';
-            instanceOfSubClassOfSuperClass.name = 'instanceOfSubClassOfSuperClass';
-            instanceOfSubClassOfDiscriminatorSuperClass.name = 'instanceOfSubClassOfDiscriminatorSuperClass';
-
-            before(function(done) {
-
-                AllFieldsMutexClass.save(instanceOfAllFieldsMutexClass).then(
-                    function() {
-                        DiscriminatedSuperClass.save(instanceOfDiscriminatedSuperClass).then(
-                            function() {
-                                SuperClass.save(instanceOfSuperClass).then(
-                                    function() {
-                                        SubClassOfSuperClass.save(instanceOfSubClassOfSuperClass).then(
-                                            function() {
-                                                SubClassOfDiscriminatorSuperClass.save(instanceOfSubClassOfDiscriminatorSuperClass).finally(done);
-                                            }
-                                        )
-                                    }
-                                )
-                            }
-                        )
-                    }
-                );
-
-            });
 
             it('An instance of a concrete class with no subclasses can be found by Id.', function(done) {
                 let error;
@@ -2574,11 +2574,65 @@ describe('Class Model Tests', function() {
         describe('Calling findById on a super class of the class of the instance you want to find. (Indirect)', function() {
     
             it('An instance of a sub class of a discrimintated super class can be found by Id from the super class.', function(done) {
-                done();
+                let error;
+                let instance;
+
+                DiscriminatedSuperClass.findById(instanceOfSubClassOfDiscriminatorSuperClass._id).then(
+                    function(foundInstance) {
+                        instance = foundInstance;
+                    },
+                    function(findError) {
+                        error = findError;
+                    }
+                ).finally(function() {
+                    if (error)
+                        done(error);
+                    else {
+                        if (instance == null) {
+                            done(new Error('findById() did not return an instance.'));
+                        }
+                        else {
+                            let compareResult = SubClassOfDiscriminatorSuperClass.compare(instance, instanceOfSubClassOfDiscriminatorSuperClass);
+                            if (!instance._id.equals(instanceOfSubClassOfDiscriminatorSuperClass._id) || compareResult.match == false) {
+                                done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                            }
+                            else {
+                                done();
+                            }
+                        }
+                    }
+                });
             });
     
             it('An instance of a concrete sub class of a non-discriminated super class can be found by Id from the super class.', function(done) {
-                done();
+                let error;
+                let instance;
+
+                SuperClass.findById(instanceOfSubClassOfSuperClass._id).then(
+                    function(foundInstance) {
+                        instance = foundInstance;
+                    },
+                    function(findError) {
+                        error = findError;
+                    }
+                ).finally(function() {
+                    if (error)
+                        done(error);
+                    else {
+                        if (instance == null) {
+                            done(new Error('findById() did not return an instance.'));
+                        }
+                        else {
+                            let compareResult = SubClassOfSuperClass.compare(instance, instanceOfSubClassOfSuperClass);
+                            if (!instance._id.equals(instanceOfSubClassOfSuperClass._id) || compareResult.match == false) {
+                                done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                            }
+                            else {
+                                done();
+                            }
+                        }
+                    }
+                });
             });
 
         });

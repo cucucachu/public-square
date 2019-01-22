@@ -355,7 +355,7 @@ class ClassModel {
                         reject(error)
                     else {
                         resolve(instance);
-                    }  
+                    } 
                 });
             }
 
@@ -371,43 +371,52 @@ class ClassModel {
                             resolve(foundInstance);
                         }
                         else {
-                            for (var subClass in subClasses) {
-                                let found = false;
-                                subClass.findById(id).then(
+                            let promises = [];
+                            for (var index in subClasses) {
+                                promises.push(
+                                    subClasses[index].findById(id)
+                                );
+                            }
+
+                            for (var index in promises) {
+                                let promisesFullfiled = 0;
+                                promises[index].then(
                                     function(foundInstance) {
-                                        if (foundInstance) {
-                                            found = true;
+                                        promisesFullfiled++;
+                                        if (foundInstance != null) {
                                             resolve(foundInstance);
+                                        }
+                                        else if (promisesFullfiled == promises.length) {
+                                            resolve(null);
                                         }
                                     },
                                     function(err) {
                                         reject(err);
                                     }
                                 );
-                                if (found) 
-                                    break;
                             }
                         }
                     });
                 }
                 else {
-                    for (var subClass in subClasses) {
-                        let found = false;
-                        subClass.findById(id).then(
+                    let found = false;
+                    for (var index in subClasses) {
+                        let promisesFullfiled = 0;
+                        promises[index].then(
                             function(foundInstance) {
-                                if (foundInstance) {
-                                    found = true;
+                                promisesFullfiled++;
+                                if (foundInstance != null) {
                                     resolve(foundInstance);
+                                }
+                                else if (promisesFullfiled == promises.length) {
+                                    resolve(null);
                                 }
                             },
                             function(err) {
                                 reject(err);
                             }
                         );
-                        if (found) 
-                            break;
-                }
-    
+                    }
                 }
             }
         });
