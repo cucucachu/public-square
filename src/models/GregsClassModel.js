@@ -6,8 +6,39 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-class ClassModel {
 
+/*
+ * Gregs Class Model
+ * Class
+ * Constructor takes a parameters object.
+ * 
+ * Gregs Class Model has fields: 
+ *  className - string
+ *  schema - object
+ *  subClasses - array of GregsClassModels
+ *  discriminatorSuperClass - GregsClassModel
+ *  abstract - boolean
+ *  discriminated - boolean
+ *  Model - Mongoose Model
+ */
+class GregsClassModel {
+
+    /* Constructor Error Messages
+     *
+     * Error Messages:
+     *   className is required.
+     *   schema is required.
+     *   If superClasses is set, it must be an Array.
+     *   If superClasses is set, it cannot be an empty Array.
+     *   If discriminatorSuperClass is set, it can only be a single class.
+     *   A ClassModel cannot have both superClasses and discriminatorSuperClass.
+     *   If a class is used as a discriminatedSuperClass, that class must have its "discriminated" field set to true.
+     *   If a class is set as a superClass, that class cannot have its "discriminated" field set to true.
+     *   Sub class schema cannot contain the same field names as a super class schema.
+     *   A discriminator sub class cannot be abstract.
+     *   A sub class of a discriminated super class cannot be discriminated.
+     *   A class cannot be a sub class of a sub class of a discriminated class.
+     */
     constructor(parameters) {
         if (!parameters.className)
             throw new Error('className is required.');
@@ -65,10 +96,10 @@ class ClassModel {
         //    SuperClasses.subClasses field to this class.
         if (parameters.superClasses) {
             let superClassSchemas = {};
-            let currentClassModel = this;
+            let currentGregsClassModel = this;
 
             parameters.superClasses.forEach(function(superClass) {
-                superClass.subClasses.push(currentClassModel);
+                superClass.subClasses.push(currentGregsClassModel);
 
                 Object.assign(superClassSchemas, superClass.schema);
             });
@@ -98,6 +129,7 @@ class ClassModel {
     }
 
     // Create
+    // Returns a new instance of this model using 'new this.Model()' and sets the (built in) _id attribute to a new mongoose.Types.ObjectId
     create() {
         if (this.abstract)
             throw new Error('You cannot create an instance of an abstract class.');
@@ -215,7 +247,10 @@ class ClassModel {
         }
 
     }
-
+    
+    /* 
+     *  Validates that at least one of the fields marked with the same required group value is set, according to the fieldIsSet method.
+     */
     requiredGroupValidation(instance) {
         let requiredGroups = [];
         let message = '';
@@ -250,6 +285,10 @@ class ClassModel {
         }
         
     }
+    
+    /*
+     *  Calls both the built in mongoose validation, and the custom validation functions above. Combines any validation errors into a single error to be thrown.
+     */
 
     validate(instance) {
         let message = '';
@@ -301,6 +340,8 @@ class ClassModel {
     }
 
     // Save
+    // Returns a promise. First calls validate on the given instance, using the this Class Model. If validation doesn't throw an error, then
+    //   we call the built in mongoose save function instance.save().
     save(instance) {
         let classModel = this;
 
@@ -338,8 +379,6 @@ class ClassModel {
             if (abstract && !isSuperClass)
                 throw new Error('Error in ' + className + '.findById(). This class is abstract and non-discriminated, but it has no sub-classes.');
 
-            console.log('Class: ' + className);
-            console.log('   Looking for id ' + id);
 
             // If this class is a not a super class and is concrete, or if the class is discriminated, then call the built in mongoose query.
             if ((concrete && !isSuperClass) || discriminated) {
@@ -431,6 +470,10 @@ class ClassModel {
     // Comparison Methods
     
     // This is a member comparison, not an instance comparison. i.e. two separate instances can be equal if their members are equal.
+    // Loop throw each key in the schema, and read its type. Then, depending on the type, verify if the field values of the two instances are
+    // equal. For each field that does not match, add to a return message what field did not match. At the end return an object with two fields,
+    // the first is a boolean called match, and should be true if each field matched. The second is a message, which, if any fields don't match
+    // list the fields that do not match.
     compare(instance1, instance2) {
         var match = true;
         var message = '';
@@ -489,6 +532,8 @@ class ClassModel {
     }
 
     // Clear the collection. Never run in production! Only run in a test environment.
+    // This returns a promise. It calls the build in method deleteMany(), which takes an object defining query criteria. Pass that method an empty
+    // object so that it deletes all instances in the collection.
     clear() {
         var model = this.Model;
 
@@ -501,4 +546,4 @@ class ClassModel {
     }
 }
 
-module.exports = ClassModel;
+module.exports = GregsClassModel;

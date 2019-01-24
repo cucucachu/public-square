@@ -261,6 +261,21 @@ describe('Class Model Tests', function() {
             superClasses: [SuperClass]
         });
 
+        var SubClassOfAbstractSuperClassSchema = {
+            subBoolean: {
+                type: Boolean
+            },
+            subNumber: {
+                type: Number
+            }
+        };        
+
+        var SubClassOfAbstractSuperClass = new ClassModel({
+            className: 'SubClassOfAbstractSuperClass',
+            schema: SubClassOfAbstractSuperClassSchema,
+            superClasses: [AbstractSuperClass]
+        });
+
         var SubClassOfSubCLassOfSuperClassSchema = {
             subSubBoolean: {
                 type: Boolean,
@@ -2413,12 +2428,14 @@ describe('Class Model Tests', function() {
         var instanceOfDiscriminatedSuperClass = DiscriminatedSuperClass.create();
         var instanceOfSuperClass = SuperClass.create();
         var instanceOfSubClassOfSuperClass = SubClassOfSuperClass.create();
+        var instanceOfSubClassOfAbstractSuperClass = SubClassOfAbstractSuperClass.create();
         var instanceOfSubClassOfDiscriminatorSuperClass = SubClassOfDiscriminatorSuperClass.create();
 
         instanceOfAllFieldsMutexClass.string = 'instanceOfAllFieldsMutexClass';
         instanceOfDiscriminatedSuperClass.name = 'instanceOfDiscriminatedSuperClass';
         instanceOfSuperClass.name = 'instanceOfSuperClass';
         instanceOfSubClassOfSuperClass.name = 'instanceOfSubClassOfSuperClass';
+        instanceOfSubClassOfAbstractSuperClass.name = 'instanceOfSubClassOfAbstractSuperClass';
         instanceOfSubClassOfDiscriminatorSuperClass.name = 'instanceOfSubClassOfDiscriminatorSuperClass';
 
         before(function(done) {
@@ -2431,7 +2448,11 @@ describe('Class Model Tests', function() {
                                 function() {
                                     SubClassOfSuperClass.save(instanceOfSubClassOfSuperClass).then(
                                         function() {
-                                            SubClassOfDiscriminatorSuperClass.save(instanceOfSubClassOfDiscriminatorSuperClass).finally(done);
+                                            SubClassOfDiscriminatorSuperClass.save(instanceOfSubClassOfDiscriminatorSuperClass).then(
+                                                function() {
+                                                    SubClassOfAbstractSuperClass.save(instanceOfSubClassOfAbstractSuperClass).finally(done);
+                                                }
+                                            );
                                         }
                                     )
                                 }
@@ -2634,6 +2655,37 @@ describe('Class Model Tests', function() {
                     }
                 });
             });
+            
+            it('An instance of a concrete sub class of a non-discriminated abstract super class can be found by Id from the super class.', function(done) {
+                let error;
+                let instance;
+
+                AbstractSuperClass.findById(instanceOfSubClassOfAbstractSuperClass._id).then(
+                    function(foundInstance) {
+                        instance = foundInstance;
+                    },
+                    function(findError) {
+                        error = findError;
+                    }
+                ).finally(function() {
+                    if (error)
+                        done(error);
+                    else {
+                        if (instance == null) {
+                            done(new Error('findById() did not return an instance.'));
+                        }
+                        else {
+                            let compareResult = SubClassOfAbstractSuperClass.compare(instance, instanceOfSubClassOfAbstractSuperClass);
+                            if (!instance._id.equals(instanceOfSubClassOfAbstractSuperClass._id) || compareResult.match == false) {
+                                done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                            }
+                            else {
+                                done();
+                            }
+                        }
+                    }
+                });
+            });
 
         });
 
@@ -2654,6 +2706,34 @@ describe('Class Model Tests', function() {
             it('SuperClass -> Abstract Sub Class -> Sub Sub Class', function(done) {
                 done();
             });
+
+        });
+
+        
+
+        after(function(done) {
+
+            AllFieldsMutexClass.clear(instanceOfAllFieldsMutexClass).then(
+                function() {
+                    DiscriminatedSuperClass.clear(instanceOfDiscriminatedSuperClass).then(
+                        function() {
+                            SuperClass.clear(instanceOfSuperClass).then(
+                                function() {
+                                    SubClassOfSuperClass.clear(instanceOfSubClassOfSuperClass).then(
+                                        function() {
+                                            SubClassOfDiscriminatorSuperClass.clear(instanceOfSubClassOfDiscriminatorSuperClass).then(
+                                                function() {
+                                                    SubClassOfAbstractSuperClass.clear(instanceOfSubClassOfAbstractSuperClass).finally(done);
+                                                }
+                                            );
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
+                }
+            );
 
         });
 
