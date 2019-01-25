@@ -2426,6 +2426,29 @@ describe('Class Model Tests', function() {
 
     describe('ClassModel.save()', function() {    
 
+        it('ClassModel.save() throws an error when called on an instance of a different ClassModel.', function() {
+            let expectedErrorMessage = 'AllFieldsRequiredClass.save() called on an instance of a different class.'; 
+            let instance = SuperClass.create();
+            let testFailed = true;
+
+            try { 
+                AllFieldsRequiredClass.save(instance);
+            }
+            catch(error) {
+                if (error.message != expectedErrorMessage) 
+                    throw new Error(
+                        'ClassModel.save() did not throw the expected error message.\n' + 
+                        'Expected: ' + expectedErrorMessage + '\n' + 
+                        'Actual:   ' + error.message
+                    )
+                
+                testFailed = false;
+            }
+
+            if (testFailed)
+                throw new Error('ClassModel.save() did not throw an error when it should have.');
+        });
+
         it('ClassModel.save() works properly.', function(done) {
             var instance = AllFieldsRequiredClass.create();
             var error = null;
@@ -2471,8 +2494,8 @@ describe('Class Model Tests', function() {
 
     });
 
-    describe('ClassModel.findById()', function() {
-
+    describe('ClassModel Query Methods', function() {
+    
         var instanceOfAllFieldsMutexClass = AllFieldsMutexClass.create();
         var instanceOfDiscriminatedSuperClass = DiscriminatedSuperClass.create();
         var instanceOfSuperClass = SuperClass.create();
@@ -2531,329 +2554,690 @@ describe('Class Model Tests', function() {
 
         });
 
-        describe('Calling findById on the Class of the instance you want to find. (Direct)', function() {
-
-            it('An instance of a concrete class with no subclasses can be found by Id.', function(done) {
-                let error;
-                let instance;
-
-                AllFieldsMutexClass.findById(instanceOfAllFieldsMutexClass._id).then(
-                    function(foundInstance) {
-                        instance = foundInstance;
-                    },
-                    function(findError) {
-                        error = findError;
-                    }
-                ).finally(function() {
-                    if (error)
-                        done(error);
-                    else {
-                        if (instance == null) {
-                            done(new Error('findById() did not return an instance.'));
-                        }
-                        else {
-                            let compareResult = AllFieldsMutexClass.compare(instance, instanceOfAllFieldsMutexClass);
-                            if (!instance._id.equals(instanceOfAllFieldsMutexClass._id) || compareResult.match == false) {
-                                done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
-                            }
-                            else {
-                                done();
-                            }
-                        }
-                    }
-                });
-            });
+        describe('ClassModel.findById()', function() {
     
-            it('An instance of a concrete discriminated class can be found by Id.', function(done) {
-                let error;
-                let instance;
-
-                SubClassOfDiscriminatorSuperClass.findById(instanceOfSubClassOfDiscriminatorSuperClass._id).then(
-                    function(foundInstance) {
-                        instance = foundInstance;
-                    },
-                    function(findError) {
-                        error = findError;
-                    }
-                ).finally(function() {
-                    if (error)
-                        done(error);
-                    else {
-                        if (instance == null) {
-                            done(new Error('findById() did not return an instance.'));
-                        }
-                        else {
-                            let compareResult = SubClassOfDiscriminatorSuperClass.compare(instance, instanceOfSubClassOfDiscriminatorSuperClass);
-                            if (!instance._id.equals(instanceOfSubClassOfDiscriminatorSuperClass._id) || compareResult.match == false) {
-                                done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
-                            }
-                            else {
-                                done();
-                            }
-                        }
-                    }
-                });
-            });
+            describe('Calling findById on the Class of the instance you want to find. (Direct)', function() {
     
-            it('An instance of a concrete super class can be found by Id.', function(done) {
-                let error;
-                let instance;
-
-                SuperClass.findById(instanceOfSuperClass._id).then(
-                    function(foundInstance) {
-                        instance = foundInstance;
-                    },
-                    function(findError) {
-                        error = findError;
-                    }
-                ).finally(function() {
-                    if (error)
-                        done(error);
-                    else {
-                        if (instance == null) {
-                            done(new Error('findById() did not return an instance.'));
-                        }
-                        else {
-                            let compareResult = SuperClass.compare(instance, instanceOfSuperClass);
-                            if (!instance._id.equals(instanceOfSuperClass._id) || compareResult.match == false) {
-                                done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
-                            }
-                            else {
-                                done();
-                            }
-                        }
-                    }
-                });
-            });
+                it('An instance of a concrete class with no subclasses can be found by Id.', function(done) {
+                    let error;
+                    let instance;
     
-            it('An instance of a concrete discriminated sub-class can be found by Id.', function(done) {
-                let error;
-                let instance;
-
-                DiscriminatedSuperClass.findById(instanceOfDiscriminatedSuperClass._id).then(
-                    function(foundInstance) {
-                        instance = foundInstance;
-                    },
-                    function(findError) {
-                        error = findError;
-                    }
-                ).finally(function() {
-                    if (error)
-                        done(error);
-                    else {
-                        if (instance == null) {
-                            done(new Error('findById() did not return an instance.'));
+                    AllFieldsMutexClass.findById(instanceOfAllFieldsMutexClass._id).then(
+                        function(foundInstance) {
+                            instance = foundInstance;
+                        },
+                        function(findError) {
+                            error = findError;
                         }
+                    ).finally(function() {
+                        if (error)
+                            done(error);
                         else {
-                            let compareResult = DiscriminatedSuperClass.compare(instance, instanceOfDiscriminatedSuperClass);
-                            if (!instance._id.equals(instanceOfDiscriminatedSuperClass._id) || compareResult.match == false) {
-                                done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                            if (instance == null) {
+                                done(new Error('findById() did not return an instance.'));
                             }
                             else {
-                                done();
+                                let compareResult = AllFieldsMutexClass.compare(instance, instanceOfAllFieldsMutexClass);
+                                if (!instance._id.equals(instanceOfAllFieldsMutexClass._id) || compareResult.match == false) {
+                                    done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                                }
+                                else {
+                                    done();
+                                }
                             }
                         }
-                    }
+                    });
                 });
-            });
-
-        });
-
-        describe('Calling findById on a super class of the class of the instance you want to find. (Indirect)', function() {
-    
-            it('An instance of a sub class of a discrimintated super class can be found by Id from the super class.', function(done) {
-                let error;
-                let instance;
-
-                DiscriminatedSuperClass.findById(instanceOfSubClassOfDiscriminatorSuperClass._id).then(
-                    function(foundInstance) {
-                        instance = foundInstance;
-                    },
-                    function(findError) {
-                        error = findError;
-                    }
-                ).finally(function() {
-                    if (error)
-                        done(error);
-                    else {
-                        if (instance == null) {
-                            done(new Error('findById() did not return an instance.'));
-                        }
-                        else {
-                            let compareResult = SubClassOfDiscriminatorSuperClass.compare(instance, instanceOfSubClassOfDiscriminatorSuperClass);
-                            if (!instance._id.equals(instanceOfSubClassOfDiscriminatorSuperClass._id) || compareResult.match == false) {
-                                done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
-                            }
-                            else {
-                                done();
-                            }
-                        }
-                    }
-                });
-            });
-    
-            it('An instance of a concrete sub class of a non-discriminated super class can be found by Id from the super class.', function(done) {
-                let error;
-                let instance;
-
-                SuperClass.findById(instanceOfSubClassOfSuperClass._id).then(
-                    function(foundInstance) {
-                        instance = foundInstance;
-                    },
-                    function(findError) {
-                        error = findError;
-                    }
-                ).finally(function() {
-                    if (error)
-                        done(error);
-                    else {
-                        if (instance == null) {
-                            done(new Error('findById() did not return an instance.'));
-                        }
-                        else {
-                            let compareResult = SubClassOfSuperClass.compare(instance, instanceOfSubClassOfSuperClass);
-                            if (!instance._id.equals(instanceOfSubClassOfSuperClass._id) || compareResult.match == false) {
-                                done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
-                            }
-                            else {
-                                done();
-                            }
-                        }
-                    }
-                });
-            });
-            
-            it('An instance of a concrete sub class of a non-discriminated abstract super class can be found by Id from the super class.', function(done) {
-                let error;
-                let instance;
-
-                AbstractSuperClass.findById(instanceOfSubClassOfAbstractSuperClass._id).then(
-                    function(foundInstance) {
-                        instance = foundInstance;
-                    },
-                    function(findError) {
-                        error = findError;
-                    }
-                ).finally(function() {
-                    if (error)
-                        done(error);
-                    else {
-                        if (instance == null) {
-                            done(new Error('findById() did not return an instance.'));
-                        }
-                        else {
-                            let compareResult = SubClassOfAbstractSuperClass.compare(instance, instanceOfSubClassOfAbstractSuperClass);
-                            if (!instance._id.equals(instanceOfSubClassOfAbstractSuperClass._id) || compareResult.match == false) {
-                                done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
-                            }
-                            else {
-                                done();
-                            }
-                        }
-                    }
-                });
-            });
-
-        });
-
-        describe('Calling findById on a super class of the super class of the instance you want to find. (Recursive)', function() {
-    
-            it('SuperClass -> Discriminated Sub Class -> Sub Sub Class', function(done) {
-                let error;
-                let instance;
-
-                SuperClass.findById(instanceOfSubClassOfDiscriminatedSubClassOfSuperClass._id).then(
-                    function(foundInstance) {
-                        instance = foundInstance;
-                    },
-                    function(findError) {
-                        error = findError;
-                    }
-                ).finally(function() {
-                    if (error)
-                        done(error);
-                    else {
-                        if (instance == null) {
-                            done(new Error('findById() did not return an instance.'));
-                        }
-                        else {
-                            let compareResult = SubClassOfDiscriminatedSubClassOfSuperClass.compare(instance, instanceOfSubClassOfDiscriminatedSubClassOfSuperClass);
-                            if (!instance._id.equals(instanceOfSubClassOfDiscriminatedSubClassOfSuperClass._id) || compareResult.match == false) {
-                                done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
-                            }
-                            else {
-                                done();
-                            }
-                        }
-                    }
-                });
-            });
-    
-            it('SuperClass -> Sub Class -> Sub Sub Class', function(done) {
-                let error;
-                let instance;
-
-                SuperClass.findById(instanceOfSubClassOfSubClassOfSuperClass._id).then(
-                    function(foundInstance) {
-                        instance = foundInstance;
-                    },
-                    function(findError) {
-                        error = findError;
-                    }
-                ).finally(function() {
-                    if (error)
-                        done(error);
-                    else {
-                        if (instance == null) {
-                            done(new Error('findById() did not return an instance.'));
-                        }
-                        else {
-                            let compareResult = SubClassOfSubClassOfSuperClass.compare(instance, instanceOfSubClassOfSubClassOfSuperClass);
-                            if (!instance._id.equals(instanceOfSubClassOfSubClassOfSuperClass._id) || compareResult.match == false) {
-                                done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
-                            }
-                            else {
-                                done();
-                            }
-                        }
-                    }
-                });
-            });
-    
-            it('SuperClass -> Abstract Sub Class -> Sub Sub Class', function(done) {
-                let error;
-                let instance;
-
-                SuperClass.findById(instanceOfSubClassOfAbstractSubClassOfSuperClass._id).then(
-                    function(foundInstance) {
-                        instance = foundInstance;
-                    },
-                    function(findError) {
-                        error = findError;
-                    }
-                ).finally(function() {
-                    if (error)
-                        done(error);
-                    else {
-                        if (instance == null) {
-                            done(new Error('findById() did not return an instance.'));
-                        }
-                        else {
-                            let compareResult = SubClassOfAbstractSubClassOfSuperClass.compare(instance, instanceOfSubClassOfAbstractSubClassOfSuperClass);
-                            if (!instance._id.equals(instanceOfSubClassOfAbstractSubClassOfSuperClass._id) || compareResult.match == false) {
-                                done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
-                            }
-                            else {
-                                done();
-                            }
-                        }
-                    }
-                });
-            });
-
-        });
-
         
+                it('An instance of a concrete discriminated class can be found by Id.', function(done) {
+                    let error;
+                    let instance;
+    
+                    SubClassOfDiscriminatorSuperClass.findById(instanceOfSubClassOfDiscriminatorSuperClass._id).then(
+                        function(foundInstance) {
+                            instance = foundInstance;
+                        },
+                        function(findError) {
+                            error = findError;
+                        }
+                    ).finally(function() {
+                        if (error)
+                            done(error);
+                        else {
+                            if (instance == null) {
+                                done(new Error('findById() did not return an instance.'));
+                            }
+                            else {
+                                let compareResult = SubClassOfDiscriminatorSuperClass.compare(instance, instanceOfSubClassOfDiscriminatorSuperClass);
+                                if (!instance._id.equals(instanceOfSubClassOfDiscriminatorSuperClass._id) || compareResult.match == false) {
+                                    done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                                }
+                                else {
+                                    done();
+                                }
+                            }
+                        }
+                    });
+                });
+        
+                it('An instance of a concrete super class can be found by Id.', function(done) {
+                    let error;
+                    let instance;
+    
+                    SuperClass.findById(instanceOfSuperClass._id).then(
+                        function(foundInstance) {
+                            instance = foundInstance;
+                        },
+                        function(findError) {
+                            error = findError;
+                        }
+                    ).finally(function() {
+                        if (error)
+                            done(error);
+                        else {
+                            if (instance == null) {
+                                done(new Error('findById() did not return an instance.'));
+                            }
+                            else {
+                                let compareResult = SuperClass.compare(instance, instanceOfSuperClass);
+                                if (!instance._id.equals(instanceOfSuperClass._id) || compareResult.match == false) {
+                                    done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                                }
+                                else {
+                                    done();
+                                }
+                            }
+                        }
+                    });
+                });
+        
+                it('An instance of a concrete discriminated sub-class can be found by Id.', function(done) {
+                    let error;
+                    let instance;
+    
+                    DiscriminatedSuperClass.findById(instanceOfDiscriminatedSuperClass._id).then(
+                        function(foundInstance) {
+                            instance = foundInstance;
+                        },
+                        function(findError) {
+                            error = findError;
+                        }
+                    ).finally(function() {
+                        if (error)
+                            done(error);
+                        else {
+                            if (instance == null) {
+                                done(new Error('findById() did not return an instance.'));
+                            }
+                            else {
+                                let compareResult = DiscriminatedSuperClass.compare(instance, instanceOfDiscriminatedSuperClass);
+                                if (!instance._id.equals(instanceOfDiscriminatedSuperClass._id) || compareResult.match == false) {
+                                    done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                                }
+                                else {
+                                    done();
+                                }
+                            }
+                        }
+                    });
+                });
+    
+            });
+    
+            describe('Calling findById on a super class of the class of the instance you want to find. (Indirect)', function() {
+        
+                it('An instance of a sub class of a discrimintated super class can be found by Id from the super class.', function(done) {
+                    let error;
+                    let instance;
+    
+                    DiscriminatedSuperClass.findById(instanceOfSubClassOfDiscriminatorSuperClass._id).then(
+                        function(foundInstance) {
+                            instance = foundInstance;
+                        },
+                        function(findError) {
+                            error = findError;
+                        }
+                    ).finally(function() {
+                        if (error)
+                            done(error);
+                        else {
+                            if (instance == null) {
+                                done(new Error('findById() did not return an instance.'));
+                            }
+                            else {
+                                let compareResult = SubClassOfDiscriminatorSuperClass.compare(instance, instanceOfSubClassOfDiscriminatorSuperClass);
+                                if (!instance._id.equals(instanceOfSubClassOfDiscriminatorSuperClass._id) || compareResult.match == false) {
+                                    done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                                }
+                                else {
+                                    done();
+                                }
+                            }
+                        }
+                    });
+                });
+        
+                it('An instance of a concrete sub class of a non-discriminated super class can be found by Id from the super class.', function(done) {
+                    let error;
+                    let instance;
+    
+                    SuperClass.findById(instanceOfSubClassOfSuperClass._id).then(
+                        function(foundInstance) {
+                            instance = foundInstance;
+                        },
+                        function(findError) {
+                            error = findError;
+                        }
+                    ).finally(function() {
+                        if (error)
+                            done(error);
+                        else {
+                            if (instance == null) {
+                                done(new Error('findById() did not return an instance.'));
+                            }
+                            else {
+                                let compareResult = SubClassOfSuperClass.compare(instance, instanceOfSubClassOfSuperClass);
+                                if (!instance._id.equals(instanceOfSubClassOfSuperClass._id) || compareResult.match == false) {
+                                    done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                                }
+                                else {
+                                    done();
+                                }
+                            }
+                        }
+                    });
+                });
+                
+                it('An instance of a concrete sub class of a non-discriminated abstract super class can be found by Id from the super class.', function(done) {
+                    let error;
+                    let instance;
+    
+                    AbstractSuperClass.findById(instanceOfSubClassOfAbstractSuperClass._id).then(
+                        function(foundInstance) {
+                            instance = foundInstance;
+                        },
+                        function(findError) {
+                            error = findError;
+                        }
+                    ).finally(function() {
+                        if (error)
+                            done(error);
+                        else {
+                            if (instance == null) {
+                                done(new Error('findById() did not return an instance.'));
+                            }
+                            else {
+                                let compareResult = SubClassOfAbstractSuperClass.compare(instance, instanceOfSubClassOfAbstractSuperClass);
+                                if (!instance._id.equals(instanceOfSubClassOfAbstractSuperClass._id) || compareResult.match == false) {
+                                    done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                                }
+                                else {
+                                    done();
+                                }
+                            }
+                        }
+                    });
+                });
+    
+            });
+    
+            describe('Calling findById on a super class of the super class of the instance you want to find. (Recursive)', function() {
+        
+                it('SuperClass -> Discriminated Sub Class -> Sub Sub Class', function(done) {
+                    let error;
+                    let instance;
+    
+                    SuperClass.findById(instanceOfSubClassOfDiscriminatedSubClassOfSuperClass._id).then(
+                        function(foundInstance) {
+                            instance = foundInstance;
+                        },
+                        function(findError) {
+                            error = findError;
+                        }
+                    ).finally(function() {
+                        if (error)
+                            done(error);
+                        else {
+                            if (instance == null) {
+                                done(new Error('findById() did not return an instance.'));
+                            }
+                            else {
+                                let compareResult = SubClassOfDiscriminatedSubClassOfSuperClass.compare(instance, instanceOfSubClassOfDiscriminatedSubClassOfSuperClass);
+                                if (!instance._id.equals(instanceOfSubClassOfDiscriminatedSubClassOfSuperClass._id) || compareResult.match == false) {
+                                    done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                                }
+                                else {
+                                    done();
+                                }
+                            }
+                        }
+                    });
+                });
+        
+                it('SuperClass -> Sub Class -> Sub Sub Class', function(done) {
+                    let error;
+                    let instance;
+    
+                    SuperClass.findById(instanceOfSubClassOfSubClassOfSuperClass._id).then(
+                        function(foundInstance) {
+                            instance = foundInstance;
+                        },
+                        function(findError) {
+                            error = findError;
+                        }
+                    ).finally(function() {
+                        if (error)
+                            done(error);
+                        else {
+                            if (instance == null) {
+                                done(new Error('findById() did not return an instance.'));
+                            }
+                            else {
+                                let compareResult = SubClassOfSubClassOfSuperClass.compare(instance, instanceOfSubClassOfSubClassOfSuperClass);
+                                if (!instance._id.equals(instanceOfSubClassOfSubClassOfSuperClass._id) || compareResult.match == false) {
+                                    done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                                }
+                                else {
+                                    done();
+                                }
+                            }
+                        }
+                    });
+                });
+        
+                it('SuperClass -> Abstract Sub Class -> Sub Sub Class', function(done) {
+                    let error;
+                    let instance;
+    
+                    SuperClass.findById(instanceOfSubClassOfAbstractSubClassOfSuperClass._id).then(
+                        function(foundInstance) {
+                            instance = foundInstance;
+                        },
+                        function(findError) {
+                            error = findError;
+                        }
+                    ).finally(function() {
+                        if (error)
+                            done(error);
+                        else {
+                            if (instance == null) {
+                                done(new Error('findById() did not return an instance.'));
+                            }
+                            else {
+                                let compareResult = SubClassOfAbstractSubClassOfSuperClass.compare(instance, instanceOfSubClassOfAbstractSubClassOfSuperClass);
+                                if (!instance._id.equals(instanceOfSubClassOfAbstractSubClassOfSuperClass._id) || compareResult.match == false) {
+                                    done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                                }
+                                else {
+                                    done();
+                                }
+                            }
+                        }
+                    });
+                });
+    
+            });
+    
+            
+    
+    
+        });
+
+        describe('ClassModel.findOne()', function() {
+    
+            describe('Calling findOne on the Class of the instance you want to find. (Direct)', function() {
+    
+                it('An instance of a concrete class with no subclasses can be found.', function(done) {
+                    let error;
+                    let instance;
+                    let filter = {
+                        string: 'instanceOfAllFieldsMutexClass'
+                    }
+    
+                    AllFieldsMutexClass.findOne(filter).then(
+                        function(foundInstance) {
+                            instance = foundInstance;
+                        },
+                        function(findError) {
+                            error = findError;
+                        }
+                    ).finally(function() {
+                        if (error)
+                            done(error);
+                        else {
+                            if (instance == null) {
+                                done(new Error('findOne() did not return an instance.'));
+                            }
+                            else {
+                                let compareResult = AllFieldsMutexClass.compare(instance, instanceOfAllFieldsMutexClass);
+                                if (!instance._id.equals(instanceOfAllFieldsMutexClass._id) || compareResult.match == false) {
+                                    done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                                }
+                                else {
+                                    done();
+                                }
+                            }
+                        }
+                    });
+                });
+        
+                it('An instance of a concrete discriminated class can be found.', function(done) {
+                    let error;
+                    let instance;
+                    let filter = {
+                        name: 'instanceOfSubClassOfDiscriminatorSuperClass'
+                    }
+    
+                    SubClassOfDiscriminatorSuperClass.findOne(filter).then(
+                        function(foundInstance) {
+                            instance = foundInstance;
+                        },
+                        function(findError) {
+                            error = findError;
+                        }
+                    ).finally(function() {
+                        if (error)
+                            done(error);
+                        else {
+                            if (instance == null) {
+                                done(new Error('findOne() did not return an instance.'));
+                            }
+                            else {
+                                let compareResult = SubClassOfDiscriminatorSuperClass.compare(instance, instanceOfSubClassOfDiscriminatorSuperClass);
+                                if (!instance._id.equals(instanceOfSubClassOfDiscriminatorSuperClass._id) || compareResult.match == false) {
+                                    done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                                }
+                                else {
+                                    done();
+                                }
+                            }
+                        }
+                    });
+                });
+        
+                it('An instance of a concrete super class can be found by Id.', function(done) {
+                    let error;
+                    let instance;
+                    let filter = {
+                        name: 'instanceOfSuperClass'
+                    }
+    
+                    SuperClass.findOne(filter).then(
+                        function(foundInstance) {
+                            instance = foundInstance;
+                        },
+                        function(findError) {
+                            error = findError;
+                        }
+                    ).finally(function() {
+                        if (error)
+                            done(error);
+                        else {
+                            if (instance == null) {
+                                done(new Error('findOne() did not return an instance.'));
+                            }
+                            else {
+                                let compareResult = SuperClass.compare(instance, instanceOfSuperClass);
+                                if (!instance._id.equals(instanceOfSuperClass._id) || compareResult.match == false) {
+                                    done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                                }
+                                else {
+                                    done();
+                                }
+                            }
+                        }
+                    });
+                });
+        
+                it('An instance of a concrete discriminated sub-class can be found by Id.', function(done) {
+                    let error;
+                    let instance;
+                    let filter = {
+                        name: 'instanceOfDiscriminatedSuperClass'
+                    }
+    
+                    DiscriminatedSuperClass.findOne(filter).then(
+                        function(foundInstance) {
+                            instance = foundInstance;
+                        },
+                        function(findError) {
+                            error = findError;
+                        }
+                    ).finally(function() {
+                        if (error)
+                            done(error);
+                        else {
+                            if (instance == null) {
+                                done(new Error('findOne() did not return an instance.'));
+                            }
+                            else {
+                                let compareResult = DiscriminatedSuperClass.compare(instance, instanceOfDiscriminatedSuperClass);
+                                if (!instance._id.equals(instanceOfDiscriminatedSuperClass._id) || compareResult.match == false) {
+                                    done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                                }
+                                else {
+                                    done();
+                                }
+                            }
+                        }
+                    });
+                });
+    
+            });
+    
+            describe('Calling findOne on a super class of the class of the instance you want to find. (Indirect)', function() {
+        
+                it('An instance of a sub class of a discrimintated super class can be found by Id from the super class.', function(done) {
+                    let error;
+                    let instance;
+                    let filter = {
+                        name: 'instanceOfSubClassOfDiscriminatorSuperClass'
+                    }
+    
+                    DiscriminatedSuperClass.findOne(filter).then(
+                        function(foundInstance) {
+                            instance = foundInstance;
+                        },
+                        function(findError) {
+                            error = findError;
+                        }
+                    ).finally(function() {
+                        if (error)
+                            done(error);
+                        else {
+                            if (instance == null) {
+                                done(new Error('findOne() did not return an instance.'));
+                            }
+                            else {
+                                let compareResult = SubClassOfDiscriminatorSuperClass.compare(instance, instanceOfSubClassOfDiscriminatorSuperClass);
+                                if (!instance._id.equals(instanceOfSubClassOfDiscriminatorSuperClass._id) || compareResult.match == false) {
+                                    done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                                }
+                                else {
+                                    done();
+                                }
+                            }
+                        }
+                    });
+                });
+        
+                it('An instance of a concrete sub class of a non-discriminated super class can be found by Id from the super class.', function(done) {
+                    let error;
+                    let instance;
+                    let filter = {
+                        name: 'instanceOfSubClassOfSuperClass'
+                    }
+    
+                    SuperClass.findOne(filter).then(
+                        function(foundInstance) {
+                            instance = foundInstance;
+                        },
+                        function(findError) {
+                            error = findError;
+                        }
+                    ).finally(function() {
+                        if (error)
+                            done(error);
+                        else {
+                            if (instance == null) {
+                                done(new Error('findOne() did not return an instance.'));
+                            }
+                            else {
+                                let compareResult = SubClassOfSuperClass.compare(instance, instanceOfSubClassOfSuperClass);
+                                if (!instance._id.equals(instanceOfSubClassOfSuperClass._id) || compareResult.match == false) {
+                                    done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                                }
+                                else {
+                                    done();
+                                }
+                            }
+                        }
+                    });
+                });
+                
+                it('An instance of a concrete sub class of a non-discriminated abstract super class can be found by Id from the super class.', function(done) {
+                    let error;
+                    let instance;
+                    let filter = {
+                        name: 'instanceOfSubClassOfAbstractSuperClass'
+                    }
+    
+                    AbstractSuperClass.findOne(filter).then(
+                        function(foundInstance) {
+                            instance = foundInstance;
+                        },
+                        function(findError) {
+                            error = findError;
+                        }
+                    ).finally(function() {
+                        if (error)
+                            done(error);
+                        else {
+                            if (instance == null) {
+                                done(new Error('findOne() did not return an instance.'));
+                            }
+                            else {
+                                let compareResult = SubClassOfAbstractSuperClass.compare(instance, instanceOfSubClassOfAbstractSuperClass);
+                                if (!instance._id.equals(instanceOfSubClassOfAbstractSuperClass._id) || compareResult.match == false) {
+                                    done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                                }
+                                else {
+                                    done();
+                                }
+                            }
+                        }
+                    });
+                });
+    
+            });
+    
+            describe('Calling findOne on a super class of the super class of the instance you want to find. (Recursive)', function() {
+        
+                it('SuperClass -> Discriminated Sub Class -> Sub Sub Class', function(done) {
+                    let error;
+                    let instance;
+                    let filter = {
+                        name: 'instanceOfSubClassOfDiscriminatedSubClassOfSuperClass'
+                    }
+    
+                    SuperClass.findOne(filter).then(
+                        function(foundInstance) {
+                            instance = foundInstance;
+                        },
+                        function(findError) {
+                            error = findError;
+                        }
+                    ).finally(function() {
+                        if (error)
+                            done(error);
+                        else {
+                            if (instance == null) {
+                                done(new Error('findOne() did not return an instance.'));
+                            }
+                            else {
+                                let compareResult = SubClassOfDiscriminatedSubClassOfSuperClass.compare(instance, instanceOfSubClassOfDiscriminatedSubClassOfSuperClass);
+                                if (!instance._id.equals(instanceOfSubClassOfDiscriminatedSubClassOfSuperClass._id) || compareResult.match == false) {
+                                    done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                                }
+                                else {
+                                    done();
+                                }
+                            }
+                        }
+                    });
+                });
+        
+                it('SuperClass -> Sub Class -> Sub Sub Class', function(done) {
+                    let error;
+                    let instance;
+                    let filter = {
+                        name: 'instanceOfSubClassOfSubClassOfSuperClass'
+                    }
+    
+                    SuperClass.findOne(filter).then(
+                        function(foundInstance) {
+                            instance = foundInstance;
+                        },
+                        function(findError) {
+                            error = findError;
+                        }
+                    ).finally(function() {
+                        if (error)
+                            done(error);
+                        else {
+                            if (instance == null) {
+                                done(new Error('findOne() did not return an instance.'));
+                            }
+                            else {
+                                let compareResult = SubClassOfSubClassOfSuperClass.compare(instance, instanceOfSubClassOfSubClassOfSuperClass);
+                                if (!instance._id.equals(instanceOfSubClassOfSubClassOfSuperClass._id) || compareResult.match == false) {
+                                    done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                                }
+                                else {
+                                    done();
+                                }
+                            }
+                        }
+                    });
+                });
+        
+                it('SuperClass -> Abstract Sub Class -> Sub Sub Class', function(done) {
+                    let error;
+                    let instance;
+                    let filter = {
+                        name: 'instanceOfSubClassOfAbstractSubClassOfSuperClass'
+                    }
+    
+                    SuperClass.findOne(filter).then(
+                        function(foundInstance) {
+                            instance = foundInstance;
+                        },
+                        function(findError) {
+                            error = findError;
+                        }
+                    ).finally(function() {
+                        if (error)
+                            done(error);
+                        else {
+                            if (instance == null) {
+                                done(new Error('findOne() did not return an instance.'));
+                            }
+                            else {
+                                let compareResult = SubClassOfAbstractSubClassOfSuperClass.compare(instance, instanceOfSubClassOfAbstractSubClassOfSuperClass);
+                                if (!instance._id.equals(instanceOfSubClassOfAbstractSubClassOfSuperClass._id) || compareResult.match == false) {
+                                    done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                                }
+                                else {
+                                    done();
+                                }
+                            }
+                        }
+                    });
+                });
+    
+            });
+    
+        });
 
         after(function(done) {
 

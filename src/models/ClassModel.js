@@ -304,6 +304,11 @@ class ClassModel {
     save(instance) {
         let classModel = this;
 
+        if (!(instance instanceof this.Model)) {
+            
+            throw new Error(this.className + '.save() called on an instance of a different class.');
+        }
+
         return new Promise(function(resolve, reject) {
             classModel.validate(instance);
 
@@ -324,7 +329,7 @@ class ClassModel {
     }
 
     /*
-     * Helper function for findById
+     * Helper function for findById and findOne
      * Loops through promises one at a time and returns the first non null resolution. Will break the loop on the first non-null resolution.
      *   If none of the promises return a non-null value, null is returned.
      */
@@ -352,7 +357,7 @@ class ClassModel {
         let className = this.className;
         let Model = this.Model;
 
-        console.log(className + '.findById(' + id + '):');
+        //console.log(className + '.findById(' + id + '):');
 
         return new Promise(function(resolve, reject) {
             // If this class is a non-discriminated abstract class and it doesn't have any sub classes, throw an error
@@ -364,7 +369,7 @@ class ClassModel {
                 let instance;
                 let error;
 
-                console.log('   Looking directly in my Model.');
+                //console.log('   Looking directly in my Model.');
 
                 Model.findById(id).exec().then(
                     function(foundInstance) {
@@ -378,8 +383,8 @@ class ClassModel {
                         reject(error)
                     else {
                         resolve(instance);
-                        if (instance != null)
-                            console.log('Found the instance in class ' + className + '.');
+                        // if (instance != null)
+                        //     console.log('Found the instance in class ' + className + '.');
                     } 
                 });
             }
@@ -388,7 +393,7 @@ class ClassModel {
             //    until we find an instance. If this class is abstract, we do not query for this class directly.
             else if (isSuperClass && !discriminated) {
                 if (!abstract) {
-                    console.log('   Checking myself first.');
+                    //console.log('   Checking myself first.');
 
                     Model.findById(id, function(err, foundInstance) {
                         if (err) {
@@ -398,7 +403,7 @@ class ClassModel {
                             resolve(foundInstance);
                         }
                         else {
-                            console.log('   Now looking in my subClasses. (' + className + ')');
+                            //console.log('   Now looking in my subClasses. (' + className + ')');
 
                             let promises = [];
                             for (var index in subClasses) {
@@ -419,7 +424,7 @@ class ClassModel {
                     });
                 }
                 else {
-                    console.log('   Now looking in my subClasses. (' + className + ')');
+                    //console.log('   Looking in my subClasses. (' + className + ')');
 
                     let promises = [];
                     for (var index in subClasses) {
@@ -441,7 +446,106 @@ class ClassModel {
         });
     }
 
+    findOne() {
+        let concrete = !this.abstract;
+        let abstract = this.abstract;
+        let discriminated = this.discriminated;
+        let isSuperClass = (this.subClasses.length > 0 || this.discriminated);
+        let subClasses = this.subClasses;
+        let className = this.className;
+        let Model = this.Model;
+        let queryFilter = arguments[0];
 
+
+
+        //console.log(className + '.findOne(' + JSON.stringify(queryFilter) + '):');
+
+        return new Promise(function(resolve, reject) {
+            // If this class is a non-discriminated abstract class and it doesn't have any sub classes, throw an error
+            if (abstract && !isSuperClass)
+                throw new Error('Error in ' + className + '.findOne(). This class is abstract and non-discriminated, but it has no sub-classes.');
+
+            // If this class is a not a super class and is concrete, or if the class is discriminated, then call the built in mongoose query.
+            if ((concrete && !isSuperClass) || discriminated) {
+                let instance;
+                let error;
+
+                //console.log('   Looking directly in my Model.');
+
+                Model.findOne(queryFilter).exec().then(
+                    function(foundInstance) {
+                        instance = foundInstance;
+                    },
+                    function(findError) {
+                        error = findError;
+                    }
+                ).finally(function() {
+                    if (error)
+                        reject(error)
+                    else {
+                        resolve(instance);
+                        // if (instance != null)
+                        //     console.log('Found the instance in class ' + className + '.');
+                    } 
+                });
+            }
+
+            // If class is a non-discriminated super class, we need to combine the query on this class with the queries for each sub class, 
+            //    until we find an instance. If this class is abstract, we do not query for this class directly.
+            else if (isSuperClass && !discriminated) {
+                if (!abstract) {
+                    //console.log('   Checking myself first.');
+
+                    Model.findOne(queryFilter, function(err, foundInstance) {
+                        if (err) {
+                            reject(err);
+                        }
+                        else if (foundInstance) {
+                            resolve(foundInstance);
+                        }
+                        else {
+                            //console.log('   Now looking in my subClasses. (' + className + ')');
+
+                            let promises = [];
+                            for (var index in subClasses) {
+                                promises.push(
+                                    subClasses[index].findOne(queryFilter)
+                                );
+                            }
+
+                            ClassModel.firstNonNullPromiseResolution(promises).then(
+                                function(foundInstance) {
+                                    resolve(foundInstance);
+                                },
+                                function(error) {
+                                    reject(error);
+                                }
+                            );
+                        }
+                    });
+                }
+                else {
+                    //console.log('   Now looking in my subClasses. (' + className + ')');
+
+                    let promises = [];
+                    for (var index in subClasses) {
+                        promises.push(
+                            subClasses[index].findOne(queryFilter)
+                        );
+                    }
+
+                    ClassModel.firstNonNullPromiseResolution(promises).then(
+                        function(foundInstance) {
+                            resolve(foundInstance);
+                        },
+                        function(error) {
+                            reject(error);
+                        }
+                    );
+                }
+            }
+        });
+    }
     // Comparison Methods
     
     // This is a member comparison, not an instance comparison. i.e. two separate instances can be equal if their members are equal.
