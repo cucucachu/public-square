@@ -1,4 +1,4 @@
-
+require("@babel/polyfill");
 async function asyncFunction(value) {
     return new Promise((resolve, reject) => {
         console.log('waiting');

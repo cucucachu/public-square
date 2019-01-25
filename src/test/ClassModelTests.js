@@ -1,6 +1,5 @@
-var assert = require('assert');
-var expect = require('expect');
 var promiseFinally = require('promise.prototype.finally');
+require("@babel/polyfill");
 
 var ClassModel = require('../dist/models/ClassModel');
 var mongoose = require('mongoose');

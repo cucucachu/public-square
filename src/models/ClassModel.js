@@ -323,6 +323,25 @@ class ClassModel {
         });
     }
 
+    /*
+     * Helper function for findById
+     * Loops through promises one at a time and returns the first non null resolution. Will break the loop on the first non-null resolution.
+     *   If none of the promises return a non-null value, null is returned.
+     */
+    static async firstNonNullPromiseResolution(promises) {
+        for (var index in promises) {
+            let foundInstance = await promises[index];
+
+            if (foundInstance != null) {
+                return foundInstance;
+                break;
+            }
+            else if (index == promises.length - 1) {
+                return null;
+            }
+        }
+    }
+
     // Query Methods
     findById(id) {
         let concrete = !this.abstract;
@@ -337,9 +356,6 @@ class ClassModel {
             // If this class is a non-discriminated abstract class and it doesn't have any sub classes, throw an error
             if (abstract && !isSuperClass)
                 throw new Error('Error in ' + className + '.findById(). This class is abstract and non-discriminated, but it has no sub-classes.');
-
-            console.log('Class: ' + className);
-            console.log('   Looking for id ' + id);
 
             // If this class is a not a super class and is concrete, or if the class is discriminated, then call the built in mongoose query.
             if ((concrete && !isSuperClass) || discriminated) {
@@ -381,21 +397,14 @@ class ClassModel {
                                 );
                             }
 
-                            for (var index in promises) {
-                                promises[index].then(
-                                    function(foundInstance) {
-                                        if (foundInstance != null) {
-                                            resolve(foundInstance);
-                                        }
-                                        else if (index == promises.length - 1) {
-                                            resolve(null);
-                                        }
-                                    },
-                                    function(err) {
-                                        reject(err);
-                                    }
-                                );
-                            }
+                            ClassModel.firstNonNullPromiseResolution(promises).then(
+                                function(foundInstance) {
+                                    resolve(foundInstance);
+                                },
+                                function(error) {
+                                    reject(error);
+                                }
+                            );
                         }
                     });
                 }
@@ -407,21 +416,14 @@ class ClassModel {
                         );
                     }
 
-                    for (var index in promises) {
-                        promises[index].then(
-                            function(foundInstance) {
-                                if (foundInstance != null) {
-                                    resolve(foundInstance);
-                                }
-                                else if (index == promises.length - 1) {
-                                    resolve(null);
-                                }
-                            },
-                            function(err) {
-                                reject(err);
-                            }
-                        );
-                    }
+                    ClassModel.firstNonNullPromiseResolution(promises).then(
+                        function(foundInstance) {
+                            resolve(foundInstance);
+                        },
+                        function(error) {
+                            reject(error);
+                        }
+                    );
                 }
             }
         });
