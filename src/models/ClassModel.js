@@ -347,6 +347,21 @@ class ClassModel {
         }
     }
 
+
+    /*
+     * Helper function for find
+     * Loops through promises one at a time and pushes the results to the results array.
+     */
+    static async allPromiseResultions(promises) {
+        let results = [];
+
+        for (var index in promises) {
+            results = results.concat(await promises[index]);
+        }
+
+        return results;
+    }
+
     // Query Methods
     findById(id) {
         let concrete = !this.abstract;
@@ -544,6 +559,78 @@ class ClassModel {
                     );
                 }
             }
+        });
+    }
+
+    find() {
+        let concrete = !this.abstract;
+        let abstract = this.abstract;
+        let discriminated = this.discriminated;
+        let isSuperClass = (this.subClasses.length > 0 || this.discriminated);
+        let subClasses = this.subClasses;
+        let className = this.className;
+        let Model = this.Model;
+        let queryFilter = arguments[0];
+        let instances = [];
+
+
+
+        console.log(className + '.find(' + JSON.stringify(queryFilter) + '):');
+
+        return new Promise(function(resolve, reject) {
+            // If this class is a non-discriminated abstract class and it doesn't have any sub classes, throw an error
+            if (abstract && !isSuperClass)
+                throw new Error('Error in ' + className + '.find(). This class is abstract and non-discriminated, but it has no sub-classes.');
+
+            // If this class is a not a super class and is concrete, or if the class is discriminated, then call the built in mongoose query.
+            if ((concrete && !isSuperClass) || discriminated) {
+                let instances;
+                let error;
+
+                console.log('   Looking directly in my Model.');
+
+                Model.find(queryFilter).exec().then(
+                    function(foundInstances) {
+                        instances = foundInstances;
+                    },
+                    function(findError) {
+                        error = findError;
+                    }
+                ).finally(function() {
+                    if (error)
+                        reject(error)
+                    else {
+                        resolve(instances);
+                        if (instances.length)
+                            console.log('Found the instances in class ' + className + '.');
+                    }
+                });
+            }
+
+            // If class is a non-discriminated super class, we need to combine the query on this class with the queries for each sub class, 
+            //    until we find an instance. If this class is abstract, we do not query for this class directly.
+            // else if (isSuperClass && !discriminated) {
+            //     let promises = [];
+
+            //     if (!abstract) {
+            //         promises.push(this.Model.find(queryFilter));
+            //     }
+
+            //     for (var index in subClasses) {
+            //         promises.push(
+            //             subClasses[index].find(queryFilter)
+            //         );
+            //     }
+
+            //     ClassModel.allPromiseResultions(promises).then(
+            //         function(foundInstances) {
+            //             resolve(foundInstances);
+            //         },
+            //         function(error) {
+            //             reject(error);
+            //         }
+            //     );
+            // }
         });
     }
     // Comparison Methods
