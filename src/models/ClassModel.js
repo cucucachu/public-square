@@ -352,6 +352,8 @@ class ClassModel {
         let className = this.className;
         let Model = this.Model;
 
+        console.log(className + '.findById(' + id + '):');
+
         return new Promise(function(resolve, reject) {
             // If this class is a non-discriminated abstract class and it doesn't have any sub classes, throw an error
             if (abstract && !isSuperClass)
@@ -361,6 +363,8 @@ class ClassModel {
             if ((concrete && !isSuperClass) || discriminated) {
                 let instance;
                 let error;
+
+                console.log('   Looking directly in my Model.');
 
                 Model.findById(id).exec().then(
                     function(foundInstance) {
@@ -374,6 +378,8 @@ class ClassModel {
                         reject(error)
                     else {
                         resolve(instance);
+                        if (instance != null)
+                            console.log('Found the instance in class ' + className + '.');
                     } 
                 });
             }
@@ -382,6 +388,8 @@ class ClassModel {
             //    until we find an instance. If this class is abstract, we do not query for this class directly.
             else if (isSuperClass && !discriminated) {
                 if (!abstract) {
+                    console.log('   Checking myself first.');
+
                     Model.findById(id, function(err, foundInstance) {
                         if (err) {
                             reject(err);
@@ -390,6 +398,8 @@ class ClassModel {
                             resolve(foundInstance);
                         }
                         else {
+                            console.log('   Now looking in my subClasses. (' + className + ')');
+
                             let promises = [];
                             for (var index in subClasses) {
                                 promises.push(
@@ -409,6 +419,8 @@ class ClassModel {
                     });
                 }
                 else {
+                    console.log('   Now looking in my subClasses. (' + className + ')');
+
                     let promises = [];
                     for (var index in subClasses) {
                         promises.push(
