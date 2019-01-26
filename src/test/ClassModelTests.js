@@ -3264,7 +3264,7 @@ describe('Class Model Tests', function() {
                                 done(error);
                             else {
                                 if (instances == null || instances.length == 0) {
-                                    done(new Error('find() did not return an instance.'));
+                                    done(new Error('find() did not return any instances.'));
                                 }
                                 else if (instances.length > 1) {
                                     done(new Error('find() returned more than one instance.'));
@@ -3282,321 +3282,351 @@ describe('Class Model Tests', function() {
                         });
                     });
             
-        //             it('An instance of a concrete discriminated class can be found.', function(done) {
-        //                 let error;
-        //                 let instance;
-        //                 let filter = {
-        //                     name: 'instanceOfSubClassOfDiscriminatorSuperClass'
-        //                 }
+                    it('An instance of a concrete discriminated class can be found.', function(done) {
+                        let error;
+                        let instances;
+                        let filter = {
+                            name: 'instanceOfSubClassOfDiscriminatorSuperClass'
+                        }
         
-        //                 SubClassOfDiscriminatorSuperClass.find(filter).then(
-        //                     function(foundInstance) {
-        //                         instance = foundInstance;
-        //                     },
-        //                     function(findError) {
-        //                         error = findError;
-        //                     }
-        //                 ).finally(function() {
-        //                     if (error)
-        //                         done(error);
-        //                     else {
-        //                         if (instance == null) {
-        //                             done(new Error('find() did not return an instance.'));
-        //                         }
-        //                         else {
-        //                             let compareResult = SubClassOfDiscriminatorSuperClass.compare(instance, instanceOfSubClassOfDiscriminatorSuperClass);
-        //                             if (!instance._id.equals(instanceOfSubClassOfDiscriminatorSuperClass._id) || compareResult.match == false) {
-        //                                 done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
-        //                             }
-        //                             else {
-        //                                 done();
-        //                             }
-        //                         }
-        //                     }
-        //                 });
-        //             });
+                        SubClassOfDiscriminatorSuperClass.find(filter).then(
+                            function(foundInstances) {
+                                instances = foundInstances;
+                            },
+                            function(findError) {
+                                error = findError;
+                            }
+                        ).finally(function() {
+                            if (error)
+                                done(error);
+                            else {
+                                if (instances == null || instances.length == 0) {
+                                    done(new Error('find() did not return any instances.'));
+                                }
+                                else if (instances.length > 1) {
+                                    done(new Error('find() returned more than one instance.'));
+                                }
+                                else {
+                                    instances.forEach(function(instance) {
+                                        let compareResult = SubClassOfDiscriminatorSuperClass.compare(instance, instanceOfSubClassOfDiscriminatorSuperClass);
+                                        if (!instance._id.equals(instanceOfSubClassOfDiscriminatorSuperClass._id) || compareResult.match == false) {
+                                            done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                                        }
+                                    });
+                                    done();
+                                }
+                            }
+                        });
+                    });
             
-        //             it('An instance of a concrete super class can be found by Id.', function(done) {
-        //                 let error;
-        //                 let instance;
-        //                 let filter = {
-        //                     name: 'instanceOfSuperClass'
-        //                 }
+                    it('An instance of a concrete super class can be found by Id.', function(done) {
+                        let error;
+                        let instances;
+                        let filter = {
+                            name: 'instanceOfSuperClass'
+                        }
         
-        //                 SuperClass.find(filter).then(
-        //                     function(foundInstance) {
-        //                         instance = foundInstance;
-        //                     },
-        //                     function(findError) {
-        //                         error = findError;
-        //                     }
-        //                 ).finally(function() {
-        //                     if (error)
-        //                         done(error);
-        //                     else {
-        //                         if (instance == null) {
-        //                             done(new Error('find() did not return an instance.'));
-        //                         }
-        //                         else {
-        //                             let compareResult = SuperClass.compare(instance, instanceOfSuperClass);
-        //                             if (!instance._id.equals(instanceOfSuperClass._id) || compareResult.match == false) {
-        //                                 done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
-        //                             }
-        //                             else {
-        //                                 done();
-        //                             }
-        //                         }
-        //                     }
-        //                 });
-        //             });
+                        SuperClass.find(filter).then(
+                            function(foundInstances) {
+                                instances = foundInstances;
+                            },
+                            function(findError) {
+                                error = findError;
+                            }
+                        ).finally(function() {
+                            if (error)
+                                done(error);
+                            else {
+                                if (instances == null || instances.length == 0) {
+                                    done(new Error('find() did not return any instances.'));
+                                }
+                                else if (instances.length > 1) {
+                                    done(new Error('find() returned more than one instance.'));
+                                }
+                                else {
+                                    instances.forEach(function(instance) {
+                                        let compareResult = SuperClass.compare(instance, instanceOfSuperClass);
+                                        if (!instance._id.equals(instanceOfSuperClass._id) || compareResult.match == false) {
+                                            done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                                        }
+
+                                    });
+                                    done();
+                                }
+                            }
+                        });
+                    });
             
-        //             it('An instance of a concrete discriminated sub-class can be found by Id.', function(done) {
-        //                 let error;
-        //                 let instance;
-        //                 let filter = {
-        //                     name: 'instanceOfDiscriminatedSuperClass'
-        //                 }
+                    it('An instance of a concrete discriminated sub-class can be found by Id.', function(done) {
+                        let error;
+                        let instances;
+                        let filter = {
+                            name: 'instanceOfDiscriminatedSuperClass'
+                        }
         
-        //                 DiscriminatedSuperClass.find(filter).then(
-        //                     function(foundInstance) {
-        //                         instance = foundInstance;
-        //                     },
-        //                     function(findError) {
-        //                         error = findError;
-        //                     }
-        //                 ).finally(function() {
-        //                     if (error)
-        //                         done(error);
-        //                     else {
-        //                         if (instance == null) {
-        //                             done(new Error('find() did not return an instance.'));
-        //                         }
-        //                         else {
-        //                             let compareResult = DiscriminatedSuperClass.compare(instance, instanceOfDiscriminatedSuperClass);
-        //                             if (!instance._id.equals(instanceOfDiscriminatedSuperClass._id) || compareResult.match == false) {
-        //                                 done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
-        //                             }
-        //                             else {
-        //                                 done();
-        //                             }
-        //                         }
-        //                     }
-        //                 });
-        //             });
+                        DiscriminatedSuperClass.find(filter).then(
+                            function(foundInstances) {
+                                instances = foundInstances;
+                            },
+                            function(findError) {
+                                error = findError;
+                            }
+                        ).finally(function() {
+                            if (error)
+                                done(error);
+                            else {
+                                if (instances == null || instances.length == 0) {
+                                    done(new Error('find() did not return any instances.'));
+                                }
+                                else if (instances.length > 1) {
+                                    done(new Error('find() returned more than one instance.'));
+                                }
+                                else {
+                                    instances.forEach(function(instance) {
+                                        let compareResult = DiscriminatedSuperClass.compare(instance, instanceOfDiscriminatedSuperClass);
+                                        if (!instance._id.equals(instanceOfDiscriminatedSuperClass._id) || compareResult.match == false) {
+                                            done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                                        }
+                                    })
+                                    done();
+                                }
+                            }
+                        });
+                    });
         
                 });
         
-        //         describe('Calling find on a super class of the class of the instance you want to find. (Indirect)', function() {
+                describe('Calling find on a super class of the class of the instance you want to find. (Indirect)', function() {
             
-        //             it('An instance of a sub class of a discrimintated super class can be found by Id from the super class.', function(done) {
-        //                 let error;
-        //                 let instance;
-        //                 let filter = {
-        //                     name: 'instanceOfSubClassOfDiscriminatorSuperClass'
-        //                 }
+                    it('An instance of a sub class of a discrimintated super class can be found by Id from the super class.', function(done) {
+                        let error;
+                        let instances;
+                        let filter = {
+                            name: 'instanceOfSubClassOfDiscriminatorSuperClass'
+                        }
         
-        //                 DiscriminatedSuperClass.find(filter).then(
-        //                     function(foundInstance) {
-        //                         instance = foundInstance;
-        //                     },
-        //                     function(findError) {
-        //                         error = findError;
-        //                     }
-        //                 ).finally(function() {
-        //                     if (error)
-        //                         done(error);
-        //                     else {
-        //                         if (instance == null) {
-        //                             done(new Error('find() did not return an instance.'));
-        //                         }
-        //                         else {
-        //                             let compareResult = SubClassOfDiscriminatorSuperClass.compare(instance, instanceOfSubClassOfDiscriminatorSuperClass);
-        //                             if (!instance._id.equals(instanceOfSubClassOfDiscriminatorSuperClass._id) || compareResult.match == false) {
-        //                                 done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
-        //                             }
-        //                             else {
-        //                                 done();
-        //                             }
-        //                         }
-        //                     }
-        //                 });
-        //             });
+                        DiscriminatedSuperClass.find(filter).then(
+                            function(foundInstances) {
+                                instances = foundInstances;
+                            },
+                            function(findError) {
+                                error = findError;
+                            }
+                        ).finally(function() {
+                            if (error)
+                                done(error);
+                            else {
+                                if (instances == null || instances.length == 0) {
+                                    done(new Error('find() did not return any instances.'));
+                                }
+                                else if (instances.length > 1) {
+                                    done(new Error('find() returned more than one instance.'));
+                                }
+                                else {
+                                    instances.forEach(function(instance) {
+                                        let compareResult = SubClassOfDiscriminatorSuperClass.compare(instance, instanceOfSubClassOfDiscriminatorSuperClass);
+                                        if (!instance._id.equals(instanceOfSubClassOfDiscriminatorSuperClass._id) || compareResult.match == false) {
+                                            done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                                        }
+
+                                    });
+                                    done();
+                                }
+                            }
+                        });
+                    });
             
-        //             it('An instance of a concrete sub class of a non-discriminated super class can be found by Id from the super class.', function(done) {
-        //                 let error;
-        //                 let instance;
-        //                 let filter = {
-        //                     name: 'instanceOfSubClassOfSuperClass'
-        //                 }
+                    it('An instance of a concrete sub class of a non-discriminated super class can be found by Id from the super class.', function(done) {
+                        let error;
+                        let instances;
+                        let filter = {
+                            name: 'instanceOfSubClassOfSuperClass'
+                        }
         
-        //                 SuperClass.find(filter).then(
-        //                     function(foundInstance) {
-        //                         instance = foundInstance;
-        //                     },
-        //                     function(findError) {
-        //                         error = findError;
-        //                     }
-        //                 ).finally(function() {
-        //                     if (error)
-        //                         done(error);
-        //                     else {
-        //                         if (instance == null) {
-        //                             done(new Error('find() did not return an instance.'));
-        //                         }
-        //                         else {
-        //                             let compareResult = SubClassOfSuperClass.compare(instance, instanceOfSubClassOfSuperClass);
-        //                             if (!instance._id.equals(instanceOfSubClassOfSuperClass._id) || compareResult.match == false) {
-        //                                 done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
-        //                             }
-        //                             else {
-        //                                 done();
-        //                             }
-        //                         }
-        //                     }
-        //                 });
-        //             });
+                        SuperClass.find(filter).then(
+                            function(foundInstances) {
+                                instances = foundInstances;
+                            },
+                            function(findError) {
+                                error = findError;
+                            }
+                        ).finally(function() {
+                            if (error)
+                                done(error);
+                            else {
+                                if (instances == null || instances.length == 0) {
+                                    done(new Error('find() did not return any instances.'));
+                                }
+                                else if (instances.length > 1) {
+                                    done(new Error('find() returned more than one instance.'));
+                                }
+                                else {
+                                    instances.forEach(function(instance) {
+                                        let compareResult = SubClassOfSuperClass.compare(instance, instanceOfSubClassOfSuperClass);
+                                        if (!instance._id.equals(instanceOfSubClassOfSuperClass._id) || compareResult.match == false) {
+                                            done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                                        }
+                                    });
+                                    done();
+                                }
+                            }
+                        });
+                    });
                     
-        //             it('An instance of a concrete sub class of a non-discriminated abstract super class can be found by Id from the super class.', function(done) {
-        //                 let error;
-        //                 let instance;
-        //                 let filter = {
-        //                     name: 'instanceOfSubClassOfAbstractSuperClass'
-        //                 }
+                    it('An instance of a concrete sub class of a non-discriminated abstract super class can be found by Id from the super class.', function(done) {
+                        let error;
+                        let instances;
+                        let filter = {
+                            name: 'instanceOfSubClassOfAbstractSuperClass'
+                        }
         
-        //                 AbstractSuperClass.find(filter).then(
-        //                     function(foundInstance) {
-        //                         instance = foundInstance;
-        //                     },
-        //                     function(findError) {
-        //                         error = findError;
-        //                     }
-        //                 ).finally(function() {
-        //                     if (error)
-        //                         done(error);
-        //                     else {
-        //                         if (instance == null) {
-        //                             done(new Error('find() did not return an instance.'));
-        //                         }
-        //                         else {
-        //                             let compareResult = SubClassOfAbstractSuperClass.compare(instance, instanceOfSubClassOfAbstractSuperClass);
-        //                             if (!instance._id.equals(instanceOfSubClassOfAbstractSuperClass._id) || compareResult.match == false) {
-        //                                 done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
-        //                             }
-        //                             else {
-        //                                 done();
-        //                             }
-        //                         }
-        //                     }
-        //                 });
-        //             });
+                        AbstractSuperClass.find(filter).then(
+                            function(foundInstances) {
+                                instances = foundInstances;
+                            },
+                            function(findError) {
+                                error = findError;
+                            }
+                        ).finally(function() {
+                            if (error)
+                                done(error);
+                            else {
+                                if (instances == null || instances.length == 0) {
+                                    done(new Error('find() did not return any instances.'));
+                                }
+                                else if (instances.length > 1) {
+                                    done(new Error('find() returned more than one instance.'));
+                                }
+                                else {
+                                    instances.forEach(function(instance) {
+                                        let compareResult = SubClassOfAbstractSuperClass.compare(instance, instanceOfSubClassOfAbstractSuperClass);
+                                        if (!instance._id.equals(instanceOfSubClassOfAbstractSuperClass._id) || compareResult.match == false) {
+                                            done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                                        }
+                                    });
+                                    done();
+                                }
+                            }
+                        });
+                    });
         
-        //         });
+                });
         
-        //         describe('Calling find on a super class of the super class of the instance you want to find. (Recursive)', function() {
+                describe('Calling find() on a super class of the super class of the instance you want to find. (Recursive)', function() {
             
-        //             it('SuperClass -> Discriminated Sub Class -> Sub Sub Class', function(done) {
-        //                 let error;
-        //                 let instance;
-        //                 let filter = {
-        //                     name: 'instanceOfSubClassOfDiscriminatedSubClassOfSuperClass'
-        //                 }
+                    it('SuperClass -> Discriminated Sub Class -> Sub Sub Class', function(done) {
+                        let error;
+                        let instances;
+                        let filter = {
+                            name: 'instanceOfSubClassOfDiscriminatedSubClassOfSuperClass'
+                        }
         
-        //                 SuperClass.find(filter).then(
-        //                     function(foundInstance) {
-        //                         instance = foundInstance;
-        //                     },
-        //                     function(findError) {
-        //                         error = findError;
-        //                     }
-        //                 ).finally(function() {
-        //                     if (error)
-        //                         done(error);
-        //                     else {
-        //                         if (instance == null) {
-        //                             done(new Error('find() did not return an instance.'));
-        //                         }
-        //                         else {
-        //                             let compareResult = SubClassOfDiscriminatedSubClassOfSuperClass.compare(instance, instanceOfSubClassOfDiscriminatedSubClassOfSuperClass);
-        //                             if (!instance._id.equals(instanceOfSubClassOfDiscriminatedSubClassOfSuperClass._id) || compareResult.match == false) {
-        //                                 done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
-        //                             }
-        //                             else {
-        //                                 done();
-        //                             }
-        //                         }
-        //                     }
-        //                 });
-        //             });
+                        SuperClass.find(filter).then(
+                            function(foundInstances) {
+                                instances = foundInstances;
+                            },
+                            function(findError) {
+                                error = findError;
+                            }
+                        ).finally(function() {
+                            if (error)
+                                done(error);
+                            else {
+                                if (instances == null || instances.length == 0) {
+                                    done(new Error('find() did not return any instances.'));
+                                }
+                                else if (instances.length > 1) {
+                                    done(new Error('find() returned more than one instance.'));
+                                }
+                                else {
+                                    instances.forEach(function(instance) {
+                                        let compareResult = SubClassOfDiscriminatedSubClassOfSuperClass.compare(instance, instanceOfSubClassOfDiscriminatedSubClassOfSuperClass);
+                                        if (!instance._id.equals(instanceOfSubClassOfDiscriminatedSubClassOfSuperClass._id) || compareResult.match == false) {
+                                            done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                                        }
+                                    });
+                                    done();
+                                }
+                            }
+                        });
+                    });
             
-        //             it('SuperClass -> Sub Class -> Sub Sub Class', function(done) {
-        //                 let error;
-        //                 let instance;
-        //                 let filter = {
-        //                     name: 'instanceOfSubClassOfSubClassOfSuperClass'
-        //                 }
+                    it('SuperClass -> Sub Class -> Sub Sub Class', function(done) {
+                        let error;
+                        let instances;
+                        let filter = {
+                            name: 'instanceOfSubClassOfSubClassOfSuperClass'
+                        }
         
-        //                 SuperClass.find(filter).then(
-        //                     function(foundInstance) {
-        //                         instance = foundInstance;
-        //                     },
-        //                     function(findError) {
-        //                         error = findError;
-        //                     }
-        //                 ).finally(function() {
-        //                     if (error)
-        //                         done(error);
-        //                     else {
-        //                         if (instance == null) {
-        //                             done(new Error('find() did not return an instance.'));
-        //                         }
-        //                         else {
-        //                             let compareResult = SubClassOfSubClassOfSuperClass.compare(instance, instanceOfSubClassOfSubClassOfSuperClass);
-        //                             if (!instance._id.equals(instanceOfSubClassOfSubClassOfSuperClass._id) || compareResult.match == false) {
-        //                                 done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
-        //                             }
-        //                             else {
-        //                                 done();
-        //                             }
-        //                         }
-        //                     }
-        //                 });
-        //             });
+                        SuperClass.find(filter).then(
+                            function(foundInstances) {
+                                instances = foundInstances;
+                            },
+                            function(findError) {
+                                error = findError;
+                            }
+                        ).finally(function() {
+                            if (error)
+                                done(error);
+                            else {
+                                if (instances == null || instances.length == 0) {
+                                    done(new Error('find() did not return any instances.'));
+                                }
+                                else if (instances.length > 1) {
+                                    done(new Error('find() returned more than one instance.'));
+                                }
+                                else {
+                                    instances.forEach(function(instance) {
+                                        let compareResult = SubClassOfSubClassOfSuperClass.compare(instance, instanceOfSubClassOfSubClassOfSuperClass);
+                                        if (!instance._id.equals(instanceOfSubClassOfSubClassOfSuperClass._id) || compareResult.match == false) {
+                                            done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                                        }
+                                    });
+                                    done();
+                                }
+                            }
+                        });
+                    });
             
-        //             it('SuperClass -> Abstract Sub Class -> Sub Sub Class', function(done) {
-        //                 let error;
-        //                 let instance;
-        //                 let filter = {
-        //                     name: 'instanceOfSubClassOfAbstractSubClassOfSuperClass'
-        //                 }
+                    it('SuperClass -> Abstract Sub Class -> Sub Sub Class', function(done) {
+                        let error;
+                        let instances;
+                        let filter = {
+                            name: 'instanceOfSubClassOfAbstractSubClassOfSuperClass'
+                        }
         
-        //                 SuperClass.find(filter).then(
-        //                     function(foundInstance) {
-        //                         instance = foundInstance;
-        //                     },
-        //                     function(findError) {
-        //                         error = findError;
-        //                     }
-        //                 ).finally(function() {
-        //                     if (error)
-        //                         done(error);
-        //                     else {
-        //                         if (instance == null) {
-        //                             done(new Error('find() did not return an instance.'));
-        //                         }
-        //                         else {
-        //                             let compareResult = SubClassOfAbstractSubClassOfSuperClass.compare(instance, instanceOfSubClassOfAbstractSubClassOfSuperClass);
-        //                             if (!instance._id.equals(instanceOfSubClassOfAbstractSubClassOfSuperClass._id) || compareResult.match == false) {
-        //                                 done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
-        //                             }
-        //                             else {
-        //                                 done();
-        //                             }
-        //                         }
-        //                     }
-        //                 });
-        //             });
+                        SuperClass.find(filter).then(
+                            function(foundInstances) {
+                                instances = foundInstances;
+                            },
+                            function(findError) {
+                                error = findError;
+                            }
+                        ).finally(function() {
+                            if (error)
+                                done(error);
+                            else {
+                                if (instances == null || instances.length == 0) {
+                                    done(new Error('find() did not return any instances.'));
+                                }
+                                else if (instances.length > 1) {
+                                    done(new Error('find() returned more than one instance.'));
+                                }
+                                else {
+                                    instances.forEach(function(instance) {
+                                        let compareResult = SubClassOfAbstractSubClassOfSuperClass.compare(instance, instanceOfSubClassOfAbstractSubClassOfSuperClass);
+                                        if (!instance._id.equals(instanceOfSubClassOfAbstractSubClassOfSuperClass._id) || compareResult.match == false) {
+                                            done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
+                                        }
+
+                                    });
+                                    done();
+                                }
+                            }
+                        });
+                    });
         
-        //         });
+                });
         
             });
 

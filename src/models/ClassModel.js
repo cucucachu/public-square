@@ -609,28 +609,28 @@ class ClassModel {
 
             // If class is a non-discriminated super class, we need to combine the query on this class with the queries for each sub class, 
             //    until we find an instance. If this class is abstract, we do not query for this class directly.
-            // else if (isSuperClass && !discriminated) {
-            //     let promises = [];
+            else if (isSuperClass && !discriminated) {
+                let promises = [];
 
-            //     if (!abstract) {
-            //         promises.push(this.Model.find(queryFilter));
-            //     }
+                if (!abstract) {
+                    promises.push(Model.find(queryFilter));
+                }
 
-            //     for (var index in subClasses) {
-            //         promises.push(
-            //             subClasses[index].find(queryFilter)
-            //         );
-            //     }
+                for (var index in subClasses) {
+                    promises.push(
+                        subClasses[index].find(queryFilter)
+                    );
+                }
 
-            //     ClassModel.allPromiseResultions(promises).then(
-            //         function(foundInstances) {
-            //             resolve(foundInstances);
-            //         },
-            //         function(error) {
-            //             reject(error);
-            //         }
-            //     );
-            // }
+                ClassModel.allPromiseResultions(promises).then(
+                    function(foundInstances) {
+                        resolve(foundInstances);
+                    },
+                    function(error) {
+                        reject(error);
+                    }
+                );
+            }
         });
     }
     // Comparison Methods
