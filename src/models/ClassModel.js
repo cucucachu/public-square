@@ -575,7 +575,7 @@ class ClassModel {
 
 
 
-        console.log(className + '.find(' + JSON.stringify(queryFilter) + '):');
+        //console.log(className + '.find(' + JSON.stringify(queryFilter) + '):');
 
         return new Promise(function(resolve, reject) {
             // If this class is a non-discriminated abstract class and it doesn't have any sub classes, throw an error
@@ -587,7 +587,7 @@ class ClassModel {
                 let instances;
                 let error;
 
-                console.log('   Looking directly in my Model.');
+                //console.log('   Looking directly in my Model.');
 
                 Model.find(queryFilter).exec().then(
                     function(foundInstances) {
@@ -601,8 +601,8 @@ class ClassModel {
                         reject(error)
                     else {
                         resolve(instances);
-                        if (instances.length)
-                            console.log('Found the instances in class ' + className + '.');
+                        // if (instances.length)
+                        //     console.log('Found the instances in class ' + className + '.');
                     }
                 });
             }

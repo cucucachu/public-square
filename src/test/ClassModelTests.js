@@ -3630,6 +3630,126 @@ describe('Class Model Tests', function() {
         
             });
 
+            describe('Finding Multiple Instances.', function() {
+
+                it('Find two instances of a super class. One is an instance of the super class itself, one is 2 levels deep.', function(done) {
+                    let error;
+                    let instances;
+                    let desiredInstances = [instanceOfSuperClass, instanceOfSubClassOfDiscriminatedSubClassOfSuperClass];
+                    let filter = {
+                        name: {$in: ['instanceOfSuperClass', 'instanceOfSubClassOfDiscriminatedSubClassOfSuperClass']}
+                    };
+    
+                    SuperClass.find(filter).then(
+                        function(foundInstances) {
+                            instances = foundInstances;
+                        },
+                        function(findError) {
+                            error = findError;
+                        }
+                    ).finally(function() {
+                        if (error)
+                            done(error);
+                        else {
+                            if (instances == null || instances.length == 0) {
+                                done(new Error('find() did not return any instances.'));
+                            }
+                            else if (instances.length < desiredInstances.length) {
+                                done(new Error('find() did not return all the instances.'));
+                            }
+                            else if (instances.length > desiredInstances.length) {
+                                done(new Error('find() returned too many instances'));
+                            }
+                            else {
+                                desiredInstances.forEach(function(desiredInstance) {
+                                    let compareResult;
+                                    let desiredInstanceFound = false;
+                                    instances.forEach(function(instance) {
+                                        if (instance._id.equals(desiredInstance._id)) {
+                                            desiredInstanceFound = true;
+                                            compareResult = SubClassOfDiscriminatedSubClassOfSuperClass.compare(instance, desiredInstance);
+                                        }
+                                    });
+                                    if (desiredInstanceFound && compareResult.match == false) {
+                                        done(new Error('Desired instance was returned, but it doesn\'t match.' + compareResult.message));
+                                    }
+                                    if (desiredInstanceFound == false) {
+                                        done(new Error('Wrong instance returned. Desired instance missing from returned instances:' + desiredInstance));
+                                    }
+                                });
+                                done();
+                            }
+                        }
+                    });
+                });
+
+                it('Find all the instances of a super class. One is an instance of the super class itself, and the others are the instances of the various sub classes.', function(done) {
+                    let error;
+                    let instances;
+                    let desiredInstances = [
+                        instanceOfSuperClass, 
+                        instanceOfSubClassOfSuperClass,
+                        instanceOfSubClassOfDiscriminatedSubClassOfSuperClass,
+                        instanceOfSubClassOfSubClassOfSuperClass,
+                        instanceOfSubClassOfAbstractSubClassOfSuperClass
+                    ];
+                    let filter = {
+                        name: {$in: [
+                            'instanceOfSuperClass', 
+                            'instanceOfSubClassOfSuperClass',
+                            'instanceOfSubClassOfDiscriminatedSubClassOfSuperClass',
+                            'instanceOfSubClassOfSubClassOfSuperClass',
+                            'instanceOfSubClassOfAbstractSubClassOfSuperClass'
+                        ]}
+                    };
+    
+                    SuperClass.find(filter).then(
+                        function(foundInstances) {
+                            instances = foundInstances;
+                        },
+                        function(findError) {
+                            error = findError;
+                        }
+                    ).finally(function() {
+                        if (error)
+                            done(error);
+                        else {
+                            if (instances == null || instances.length == 0) {
+                                done(new Error('find() did not return any instances.'));
+                            }
+                            else if (instances.length < desiredInstances.length) {
+                                done(new Error('find() did not return all the instances.'));
+                            }
+                            else if (instances.length > desiredInstances.length) {
+                                done(new Error('find() returned too many instances'));
+                            }
+                            else {
+                                desiredInstances.forEach(function(desiredInstance) {
+                                    let compareResult;
+                                    let desiredInstanceFound = false;
+                                    instances.forEach(function(instance) {
+                                        if (instance._id.equals(desiredInstance._id)) {
+                                            desiredInstanceFound = true;
+                                            compareResult = SubClassOfDiscriminatedSubClassOfSuperClass.compare(instance, desiredInstance);
+                                        }
+                                    });
+                                    if (desiredInstanceFound && compareResult.match == false) {
+                                        done(new Error('Desired instance was returned, but it doesn\'t match.' + compareResult.message));
+                                    }
+                                    if (desiredInstanceFound == false) {
+                                        done(new Error('Wrong instance returned. Desired instance missing from returned instances:' + desiredInstance));
+                                    }
+                                });
+                                done();
+                            }
+                        }
+                    });
+                });
+
+
+
+            });
+
         });
 
         after(function(done) {
