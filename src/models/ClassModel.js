@@ -6,6 +6,8 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
+const AllClassModels = [];
+
 class ClassModel {
 
     constructor(parameters) {
@@ -95,6 +97,8 @@ class ClassModel {
             if (!this.abstract || (this.abstract && this.discriminated))
                 this.Model = mongoose.model(this.className, schemaObject);
         }
+
+        AllClassModels.push(this);
     }
 
     // Create
@@ -105,6 +109,18 @@ class ClassModel {
         return new this.Model({
             _id: new mongoose.Types.ObjectId
         });
+    }
+
+    // Helper Methods
+    isInstanceOfClassOrSubClass(instance) {
+        if (instance instanceof this.Model)
+            return true;
+                
+        for (let index in this.subClasses)
+            if (this.subClasses[index].isInstanceOfClassOrSubClass(instance)) 
+                return true;
+
+        return false;
     }
 
     // Validation Methods
@@ -305,7 +321,6 @@ class ClassModel {
         let classModel = this;
 
         if (!(instance instanceof this.Model)) {
-            
             throw new Error(this.className + '.save() called on an instance of a different class.');
         }
 
@@ -327,6 +342,47 @@ class ClassModel {
             });
         });
     }
+
+    static async saveAllHelper(promises) {
+        let savedInstances = [];
+
+        for (let index in promises) {
+            savedInstances.push(await promises[index]);
+        }
+
+        return savedInstances;
+    }
+
+    saveAll(instances) {
+        let classModel = this;
+
+        return new Promise(function(resolve, reject) {
+            if (instances == null) {
+                reject(new Error(classModel.className + '.saveAll(instances): instances cannot be null.'));
+            }
+            else if (!Array.isArray(instances)) {
+                reject(new Error(classModel.className + '.saveAll(instances): instances must be an Array.'));
+            }
+            else {
+                let promises = [];
+
+                instances.forEach(function(instance) {
+                    promises.push(classModel.save(instance));
+                });
+        
+                ClassModel.saveAllHelper(promises).then(
+                    function(savedInstances) {
+                        resolve(savedInstances);
+                    },
+                    function (error) {
+                        reject(error);
+                    }
+                );
+            }
+        });
+    }
+
+    // Query Methods
 
     /*
      * Helper function for findById and findOne
@@ -362,7 +418,6 @@ class ClassModel {
         return results;
     }
 
-    // Query Methods
     findById(id) {
         let concrete = !this.abstract;
         let abstract = this.abstract;
@@ -633,6 +688,46 @@ class ClassModel {
             }
         });
     }
+
+    // Relationship Methods
+    
+    /* 
+     * Walks a relationship from a given instance of this Class Model, returning the related instance or instances. 
+     * @param required Object instance: An instance of this class model
+     * @param required String relationship: the key for the desired relationship
+     * @param optional Object filter: a filter Object used in the query to filter the returned instances.
+     * @return Promise which when resolved returns the related instance if relationship is singular, or an Array of the related 
+     *           instances if the relationship is non-singular.
+     */ 
+    walk() {
+        let schema = this.schema;
+        let className = this.className;
+
+        return new Promise((resolve, reject) => {
+            let error; 
+            
+            if (arguments.length < 2) {
+                reject(new Error(className + '.walk() called with insufficient arguments. Should be walk(instance, relationship, <optional>filter).'));
+            }
+            else if (!this.isInstanceOfClassOrSubClass(arguments[0])) {
+                reject(new Error(className + '.walk(): First argument needs to be an instance of ' + className + '\'s classModel or one of its sub classes.'));
+            }
+            else if (typeof(arguments[1]) != 'string') {
+                reject(new Error(className + '.walk(): Second argument needs to be a String.'));
+            }
+            else if (!(arguments[1] in schema)) {
+                reject(new Error(className + '.walk(): Second argument needs to be a field in ' + className + '\'s schema.'));
+            }
+            else if (schema[arguments[1]].type != Schema.Types.ObjectId || schema[arguments[1]].type != [Schema.Types.ObjectId]) {
+                reject(new Error(className + '.walk(): field "' + arguments[1] + '" is not a relationship.'));
+            }
+            else {
+                resolve(true);
+            }
+
+        });
+    }
+
     // Comparison Methods
     
     // This is a member comparison, not an instance comparison. i.e. two separate instances can be equal if their members are equal.

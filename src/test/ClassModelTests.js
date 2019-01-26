@@ -18,361 +18,416 @@ describe('Class Model Tests', function() {
 
     // Create Class Models that will be used across tests.
     {
-        var CompareClass1Schema = {
-            name: {
-                type: String,
-                required: true
-            },
-            numbers: {
-                type: [Number]
-            },
-            class2: {
-                type: Schema.Types.ObjectId,
-                ref: 'CompareClass2',
-                required: true,
-                singular: true
-            }
-        };
-    
-        var CompareClass1 = new ClassModel({
-            className: 'CompareClass1',
-            schema: CompareClass1Schema
-        });
-    
-        var CompareClass2Schema = {
-            name: {
-                type: String,
-                required: true
-            },
-            class1s: {
-                type: [Schema.Types.ObjectId],
-                ref: 'CompareClass1'
-            }
-        }
-    
-        var CompareClass2 = new ClassModel({
-            className: 'CompareClass2',
-            schema: CompareClass2Schema
-        });           
-        
-        var allFieldsRequiredClassSchema = {
-            string: {
-                type:String,
-                required: true
-            },
-            strings: {
-                type:[String],
-                required: true
-            },
-            date: {
-                type: Date,
-                required: true
-            },
-            boolean: {
-                type: Boolean,
-                required: true
-            },
-            booleans: {
-                type: [Boolean],
-                required: true
-            },
-            number: {
-                type: Number,
-                required: true
-            },
-            numbers: {
-                type: [Number],
-                required: true
-            },
-            class1: {
-                type: Schema.Types.ObjectId,
-                ref: 'CompareClass1',
-                required: true
-            },
-            class2s: {
-                type: [Schema.Types.ObjectId],
-                ref: 'CompareClass2',
-                required: true
-            }
-        };
-    
-        var AllFieldsRequiredClass = new ClassModel({
-            className: 'AllFieldsRequiredClass', 
-            schema: allFieldsRequiredClassSchema
-        });           
-        
-        var allFieldsMutexClassSchema = {
-            string: {
-                type:String,
-                mutex: 'a'
-            },
-            strings: {
-                type:[String],
-                mutex: 'a'
-            },
-            date: {
-                type: Date,
-                mutex: 'a'
-            },
-            boolean: {
-                type: Boolean,
-                mutex: 'a'
-            },
-            booleans: {
-                type: [Boolean],
-                mutex: 'a'
-            },
-            number: {
-                type: Number,
-                mutex: 'a'
-            },
-            numbers: {
-                type: [Number],
-                mutex: 'a'
-            },
-            class1: {
-                type: Schema.Types.ObjectId,
-                ref: 'CompareClass1',
-                mutex: 'a'
-            },
-            class2s: {
-                type: [Schema.Types.ObjectId],
-                ref: 'CompareClass2',
-                mutex: 'a'
-            }
-        };
-    
-        var AllFieldsMutexClass = new ClassModel({
-            className: 'AllFieldsMutexClass', 
-            schema: allFieldsMutexClassSchema
-        });
-        
-        var allFieldsInRequiredGroupClassSchema = {
-            string: {
-                type:String,
-                requiredGroup: 'a'
-            },
-            strings: {
-                type:[String],
-                requiredGroup: 'a'
-            },
-            date: {
-                type: Date,
-                requiredGroup: 'a'
-            },
-            boolean: {
-                type: Boolean,
-                requiredGroup: 'a'
-            },
-            booleans: {
-                type: [Boolean],
-                requiredGroup: 'a'
-            },
-            number: {
-                type: Number,
-                requiredGroup: 'a'
-            },
-            numbers: {
-                type: [Number],
-                requiredGroup: 'a'
-            },
-            class1: {
-                type: Schema.Types.ObjectId,
-                ref: 'CompareClass1',
-                requiredGroup: 'a'
-            },
-            class2s: {
-                type: [Schema.Types.ObjectId],
-                ref: 'CompareClass2',
-                requiredGroup: 'a'
-            }
-        };
-    
-        var AllFieldsInRequiredGroupClass = new ClassModel({
-            className: 'AllFieldsInRequiredGroupClass',
-            schema: allFieldsInRequiredGroupClassSchema
-        });
 
-        var SuperClass = new ClassModel({
-            className: "SuperClass",
-            schema: {
+        // Compare Classes
+        {
+            var CompareClass1Schema = {
                 name: {
-                    type: String
+                    type: String,
+                    required: true
+                },
+                numbers: {
+                    type: [Number]
+                },
+                class2: {
+                    type: Schema.Types.ObjectId,
+                    ref: 'CompareClass2',
+                    required: true,
+                    singular: true
+                }
+            };
+        
+            var CompareClass1 = new ClassModel({
+                className: 'CompareClass1',
+                schema: CompareClass1Schema
+            });
+        
+            var CompareClass2Schema = {
+                name: {
+                    type: String,
+                    required: true
+                },
+                class1s: {
+                    type: [Schema.Types.ObjectId],
+                    ref: 'CompareClass1'
+                }
+            }
+        
+            var CompareClass2 = new ClassModel({
+                className: 'CompareClass2',
+                schema: CompareClass2Schema
+            }); 
+        }          
+        
+        // Validation Classes
+        {
+            var allFieldsRequiredClassSchema = {
+                string: {
+                    type:String,
+                    required: true
+                },
+                strings: {
+                    type:[String],
+                    required: true
+                },
+                date: {
+                    type: Date,
+                    required: true
                 },
                 boolean: {
                     type: Boolean,
+                    required: true
+                },
+                booleans: {
+                    type: [Boolean],
+                    required: true
                 },
                 number: {
-                    type: Number
+                    type: Number,
+                    required: true
+                },
+                numbers: {
+                    type: [Number],
+                    required: true
+                },
+                class1: {
+                    type: Schema.Types.ObjectId,
+                    ref: 'CompareClass1',
+                    required: true
+                },
+                class2s: {
+                    type: [Schema.Types.ObjectId],
+                    ref: 'CompareClass2',
+                    required: true
                 }
-            }
-        });
-
-        var AbstractSuperClass = new ClassModel({
-            className: "AbstractSuperClass",
-            abstract: true,
-            schema: {
-                name: {
-                    type: String
+            };
+        
+            var AllFieldsRequiredClass = new ClassModel({
+                className: 'AllFieldsRequiredClass', 
+                schema: allFieldsRequiredClassSchema
+            });           
+            
+            var allFieldsMutexClassSchema = {
+                string: {
+                    type:String,
+                    mutex: 'a'
                 },
-                abstractBoolean: Boolean,
-                abstractNumber: Number
-            }
-        });
-
-        var DiscriminatedSuperClass = new ClassModel({
-            className: "DiscriminatedSuperClass",
-            discriminated: true,
-            schema: {
-                name: {
-                    type: String
+                strings: {
+                    type:[String],
+                    mutex: 'a'
                 },
-                boolean: Boolean,
-                number: Number
-            }
-        });
-
-        var AbstractDiscriminatedSuperClass = new ClassModel({
-            className: "AbstractDiscriminatedSuperClass",
-            discriminated: true,
-            abstract: true,
-            schema: {
-                name: {
-                    type: String
+                date: {
+                    type: Date,
+                    mutex: 'a'
                 },
-                boolean: Boolean,
-                number: Number
-            }
-        });
+                boolean: {
+                    type: Boolean,
+                    mutex: 'a'
+                },
+                booleans: {
+                    type: [Boolean],
+                    mutex: 'a'
+                },
+                number: {
+                    type: Number,
+                    mutex: 'a'
+                },
+                numbers: {
+                    type: [Number],
+                    mutex: 'a'
+                },
+                class1: {
+                    type: Schema.Types.ObjectId,
+                    ref: 'CompareClass1',
+                    mutex: 'a'
+                },
+                class2s: {
+                    type: [Schema.Types.ObjectId],
+                    ref: 'CompareClass2',
+                    mutex: 'a'
+                }
+            };
+        
+            var AllFieldsMutexClass = new ClassModel({
+                className: 'AllFieldsMutexClass', 
+                schema: allFieldsMutexClassSchema
+            });
+            
+            var allFieldsInRequiredGroupClassSchema = {
+                string: {
+                    type:String,
+                    requiredGroup: 'a'
+                },
+                strings: {
+                    type:[String],
+                    requiredGroup: 'a'
+                },
+                date: {
+                    type: Date,
+                    requiredGroup: 'a'
+                },
+                boolean: {
+                    type: Boolean,
+                    requiredGroup: 'a'
+                },
+                booleans: {
+                    type: [Boolean],
+                    requiredGroup: 'a'
+                },
+                number: {
+                    type: Number,
+                    requiredGroup: 'a'
+                },
+                numbers: {
+                    type: [Number],
+                    requiredGroup: 'a'
+                },
+                class1: {
+                    type: Schema.Types.ObjectId,
+                    ref: 'CompareClass1',
+                    requiredGroup: 'a'
+                },
+                class2s: {
+                    type: [Schema.Types.ObjectId],
+                    ref: 'CompareClass2',
+                    requiredGroup: 'a'
+                }
+            };
+        
+            var AllFieldsInRequiredGroupClass = new ClassModel({
+                className: 'AllFieldsInRequiredGroupClass',
+                schema: allFieldsInRequiredGroupClassSchema
+            });
 
-        var SubClassOfSuperClassSchema = {
-            subBoolean: {
-                type: Boolean
-            },
-            subNumber: {
-                type: Number
-            }
-        };        
+        }
 
-        var SubClassOfSuperClass = new ClassModel({
-            className: 'SubClassOfSuperClass',
-            schema: SubClassOfSuperClassSchema,
-            superClasses: [SuperClass]
-        });
-
-        var SubClassOfAbstractSuperClassSchema = {
-            subBoolean: {
-                type: Boolean
-            },
-            subNumber: {
-                type: Number
-            }
-        };        
-
-        var SubClassOfAbstractSuperClass = new ClassModel({
-            className: 'SubClassOfAbstractSuperClass',
-            schema: SubClassOfAbstractSuperClassSchema,
-            superClasses: [AbstractSuperClass]
-        });
-
-        var AbstractSubClassOfSuperClass = new ClassModel({
-            className: 'AbstractSubClassOfSuperClass',
-            superClasses: [SuperClass],
-            abstract: true,
-            schema: {
-                abstractSubBoolean: {
+        // Inheritance Classes
+        {
+            var SuperClass = new ClassModel({
+                className: "SuperClass",
+                schema: {
+                    name: {
+                        type: String
+                    },
+                    boolean: {
+                        type: Boolean,
+                    },
+                    number: {
+                        type: Number
+                    }
+                }
+            });
+    
+            var AbstractSuperClass = new ClassModel({
+                className: "AbstractSuperClass",
+                abstract: true,
+                schema: {
+                    name: {
+                        type: String
+                    },
+                    abstractBoolean: Boolean,
+                    abstractNumber: Number
+                }
+            });
+    
+            var DiscriminatedSuperClass = new ClassModel({
+                className: "DiscriminatedSuperClass",
+                discriminated: true,
+                schema: {
+                    name: {
+                        type: String
+                    },
+                    boolean: Boolean,
+                    number: Number
+                }
+            });
+    
+            var AbstractDiscriminatedSuperClass = new ClassModel({
+                className: "AbstractDiscriminatedSuperClass",
+                discriminated: true,
+                abstract: true,
+                schema: {
+                    name: {
+                        type: String
+                    },
+                    boolean: Boolean,
+                    number: Number
+                }
+            });
+    
+            var SubClassOfSuperClassSchema = {
+                subBoolean: {
                     type: Boolean
                 },
-                abstractSubNumber: {
+                subNumber: {
                     type: Number
                 }
-            }
-        });
-
-        var SubClassOfMultipleSuperClassesSchema = {
-            subBoolean: {
-                type: Boolean,
-                required: true
-            },
-            subNumber: {
-                type: Number,
-                required: true
-            }
-        };        
-
-        var SubClassOfMultipleSuperClasses = new ClassModel({
-            className: 'SubClassOfMultipleSuperClasses',
-            schema: SubClassOfMultipleSuperClassesSchema,
-            superClasses: [SuperClass, AbstractSuperClass]
-        });
-
-        var SubClassOfDiscriminatorSuperClassSchema = {
-            discriminatedBoolean: {
-                type: Boolean
-            },
-            discriminatedNumber: {
-                type: Number
-            }
-        };        
-
-        var SubClassOfDiscriminatorSuperClass = new ClassModel({
-            className: 'SubClassOfDiscriminatorSuperClass',
-            schema: SubClassOfDiscriminatorSuperClassSchema,
-            discriminatorSuperClass: DiscriminatedSuperClass
-        });
-
-        var DiscriminatedSubClassOfSuperClass = new ClassModel({
-            className: 'DiscriminatedSubClassOfSuperClass',
-            discriminated: true,
-            superClasses: [SuperClass],
-            schema: {
+            };        
+    
+            var SubClassOfSuperClass = new ClassModel({
+                className: 'SubClassOfSuperClass',
+                schema: SubClassOfSuperClassSchema,
+                superClasses: [SuperClass]
+            });
+    
+            var SubClassOfAbstractSuperClassSchema = {
+                subBoolean: {
+                    type: Boolean
+                },
+                subNumber: {
+                    type: Number
+                }
+            };        
+    
+            var SubClassOfAbstractSuperClass = new ClassModel({
+                className: 'SubClassOfAbstractSuperClass',
+                schema: SubClassOfAbstractSuperClassSchema,
+                superClasses: [AbstractSuperClass]
+            });
+    
+            var AbstractSubClassOfSuperClass = new ClassModel({
+                className: 'AbstractSubClassOfSuperClass',
+                superClasses: [SuperClass],
+                abstract: true,
+                schema: {
+                    abstractSubBoolean: {
+                        type: Boolean
+                    },
+                    abstractSubNumber: {
+                        type: Number
+                    }
+                }
+            });
+    
+            var SubClassOfMultipleSuperClassesSchema = {
+                subBoolean: {
+                    type: Boolean,
+                    required: true
+                },
+                subNumber: {
+                    type: Number,
+                    required: true
+                }
+            };        
+    
+            var SubClassOfMultipleSuperClasses = new ClassModel({
+                className: 'SubClassOfMultipleSuperClasses',
+                schema: SubClassOfMultipleSuperClassesSchema,
+                superClasses: [SuperClass, AbstractSuperClass]
+            });
+    
+            var SubClassOfDiscriminatorSuperClassSchema = {
                 discriminatedBoolean: {
                     type: Boolean
                 },
                 discriminatedNumber: {
-                    type:Boolean
-                }
-            }
-        });
-
-        var SubClassOfDiscriminatedSubClassOfSuperClass = new ClassModel({
-            className: 'SubClassOfDiscriminatedSubClassOfSuperClass',
-            discriminatorSuperClass: DiscriminatedSubClassOfSuperClass,
-            schema: {
-                subDiscriminatedBoolean: {
-                    type: Boolean
-                },
-                subDiscriminatedNumber: {
                     type: Number
                 }
-            }
-        });     
-
-        var SubClassOfSubClassOfSuperClass = new ClassModel({
-            className: 'SubClassOfSubClassOfSuperClass',
-            schema: {
-                subSubBoolean: {
-                    type: Boolean
-                },
-                subSubNumber: {
-                    type: Number
+            };        
+    
+            var SubClassOfDiscriminatorSuperClass = new ClassModel({
+                className: 'SubClassOfDiscriminatorSuperClass',
+                schema: SubClassOfDiscriminatorSuperClassSchema,
+                discriminatorSuperClass: DiscriminatedSuperClass
+            });
+    
+            var DiscriminatedSubClassOfSuperClass = new ClassModel({
+                className: 'DiscriminatedSubClassOfSuperClass',
+                discriminated: true,
+                superClasses: [SuperClass],
+                schema: {
+                    discriminatedBoolean: {
+                        type: Boolean
+                    },
+                    discriminatedNumber: {
+                        type:Boolean
+                    }
                 }
-            },
-            superClasses: [SubClassOfSuperClass]
-        });
-
-        var SubClassOfAbstractSubClassOfSuperClass = new ClassModel({
-            className: 'SubClassOfAbstractSubClassOfSuperClass',
-            superClasses: [AbstractSubClassOfSuperClass],
-            schema: {
-                subAbstractSubBoolean: {
-                    type: Boolean
-                },
-                subAbstractSubNumber: {
-                    type: Number
+            });
+    
+            var SubClassOfDiscriminatedSubClassOfSuperClass = new ClassModel({
+                className: 'SubClassOfDiscriminatedSubClassOfSuperClass',
+                discriminatorSuperClass: DiscriminatedSubClassOfSuperClass,
+                schema: {
+                    subDiscriminatedBoolean: {
+                        type: Boolean
+                    },
+                    subDiscriminatedNumber: {
+                        type: Number
+                    }
                 }
-            }
-        });
+            });     
+    
+            var SubClassOfSubClassOfSuperClass = new ClassModel({
+                className: 'SubClassOfSubClassOfSuperClass',
+                schema: {
+                    subSubBoolean: {
+                        type: Boolean
+                    },
+                    subSubNumber: {
+                        type: Number
+                    }
+                },
+                superClasses: [SubClassOfSuperClass]
+            });
+    
+            var SubClassOfAbstractSubClassOfSuperClass = new ClassModel({
+                className: 'SubClassOfAbstractSubClassOfSuperClass',
+                superClasses: [AbstractSubClassOfSuperClass],
+                schema: {
+                    subAbstractSubBoolean: {
+                        type: Boolean
+                    },
+                    subAbstractSubNumber: {
+                        type: Number
+                    }
+                }
+            });
+
+        }
+
+        // Relationship Classes
+        {
+            var SingularRelationshipClass = new ClassModel({
+                className: 'SingularRelationshipClass',
+                schema: {
+                    singularRelationship: {
+                        type: Schema.Types.ObjectId,
+                        ref: 'NonSingularRelationshipClass'
+                    },
+                    boolean: {
+                        type: Boolean
+                    }
+                }
+            });
+    
+            var NonSingularRelationshipClass = new ClassModel({
+                className: 'NonSingularRelationshipClass',
+                schema: {
+                    singularRelationship: {
+                        type: [Schema.Types.ObjectId],
+                        ref: 'SingularRelationshipClass'
+                    },
+                    boolean: {
+                        type: Boolean
+                    }
+                } 
+            });
+    
+            var SubClassOfSingularRelationshipClass = new ClassModel({
+                className: 'SubClassOfSingularRelationshipClass',
+                schema: {},
+                superClasses: [SingularRelationshipClass] 
+            });
+    
+            var SubClassOfNonSingularRelationshipClass = new ClassModel({
+                className: 'SubClassOfNonSingularRelationshipClass',
+                schema: {},
+                superClasses: [NonSingularRelationshipClass] 
+            });
+
+        }
+
     }
 
     describe('Class Model Constructor', function() {
@@ -2450,10 +2505,10 @@ describe('Class Model Tests', function() {
         });
 
         it('ClassModel.save() works properly.', function(done) {
-            var instance = AllFieldsRequiredClass.create();
-            var error = null;
-            var compareResult;
-            var testFailed;
+            let instance = AllFieldsRequiredClass.create();
+            let error = null;
+            let compareResult;
+            let testFailed;
 
 
             instance.string = 'String';
@@ -2494,27 +2549,191 @@ describe('Class Model Tests', function() {
 
     });
 
-    describe('ClassModel Query Methods', function() {
-    
-        var instanceOfAllFieldsMutexClass = AllFieldsMutexClass.create();
-        var instanceOfDiscriminatedSuperClass = DiscriminatedSuperClass.create();
-        var instanceOfSuperClass = SuperClass.create();
-        var instanceOfSubClassOfSuperClass = SubClassOfSuperClass.create();
-        var instanceOfSubClassOfAbstractSuperClass = SubClassOfAbstractSuperClass.create();
-        var instanceOfSubClassOfDiscriminatorSuperClass = SubClassOfDiscriminatorSuperClass.create();
-        var instanceOfSubClassOfDiscriminatedSubClassOfSuperClass = SubClassOfDiscriminatedSubClassOfSuperClass.create();
-        var instanceOfSubClassOfSubClassOfSuperClass = SubClassOfSubClassOfSuperClass.create();
-        var instanceOfSubClassOfAbstractSubClassOfSuperClass = SubClassOfAbstractSubClassOfSuperClass.create();
+    describe('ClassModel.saveAll()', function() {
 
-        instanceOfAllFieldsMutexClass.string = 'instanceOfAllFieldsMutexClass';
-        instanceOfDiscriminatedSuperClass.name = 'instanceOfDiscriminatedSuperClass';
-        instanceOfSuperClass.name = 'instanceOfSuperClass';
-        instanceOfSubClassOfSuperClass.name = 'instanceOfSubClassOfSuperClass';
-        instanceOfSubClassOfAbstractSuperClass.name = 'instanceOfSubClassOfAbstractSuperClass';
-        instanceOfSubClassOfDiscriminatorSuperClass.name = 'instanceOfSubClassOfDiscriminatorSuperClass';
-        instanceOfSubClassOfDiscriminatedSubClassOfSuperClass.name = 'instanceOfSubClassOfDiscriminatedSubClassOfSuperClass';
-        instanceOfSubClassOfSubClassOfSuperClass.name = 'instanceOfSubClassOfSubClassOfSuperClass';
-        instanceOfSubClassOfAbstractSubClassOfSuperClass.name = 'instanceOfSubClassOfAbstractSubClassOfSuperClass';
+        it('Throws an error if no arguments passed.', function(done) {
+            let expectedErrorMessage = 'AllFieldsRequiredClass.saveAll(instances): instances cannot be null.';
+            let error;
+
+            
+            AllFieldsRequiredClass.saveAll().then(
+                function() {
+                },
+                function(saveError) {
+                    error = saveError;
+                }
+            ).finally(function() {
+                if (!error) {
+                    done(new Error('ClassModel.saveAll() did not throw an error when it should have.'));
+                }
+                else {
+                    if (error.message != expectedErrorMessage) {
+                        done(new Error(
+                            'ClassModel.save() did not throw the expected error message.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' + 
+                            'Actual:   ' + error.message
+                        ));
+                    }
+                    else {
+                        done();
+                    }
+                }
+            });
+        });
+
+        it('Throws an error if argument is not an array.', function(done) {
+            let instance = AllFieldsRequiredClass.create();
+            let expectedErrorMessage = 'AllFieldsRequiredClass.saveAll(instances): instances must be an Array.';
+            let error;
+
+            
+            AllFieldsRequiredClass.saveAll(instance).then(
+                function() {
+                },
+                function(saveError) {
+                    error = saveError;
+                }
+            ).finally(function() {
+                if (!error) {
+                    done(new Error('ClassModel.saveAll() did not throw an error when it should have.'));
+                }
+                else {
+                    if (error.message != expectedErrorMessage) {
+                        done(new Error(
+                            'ClassModel.save() did not throw the expected error message.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' + 
+                            'Actual:   ' + error.message
+                        ));
+                    }
+                    else {
+                        done();
+                    }
+                }
+            });
+        });
+
+        it('Throws an error if argument an instance of the wrong classModel.', function(done) {
+            let instance = AllFieldsRequiredClass.create();
+            let expectedErrorMessage = 'SuperClass.save() called on an instance of a different class.';
+            let error;
+            
+            SuperClass.saveAll([instance]).then(
+                function() {
+                },
+                function(saveError) {
+                    error = saveError;
+                }
+            ).finally(function() {
+                if (!error) {
+                    done(new Error('ClassModel.saveAll() did not throw an error when it should have.'));
+                }
+                else {
+                    if (error.message != expectedErrorMessage) {
+                        done(new Error(
+                            'ClassModel.save() did not throw the expected error message.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' + 
+                            'Actual:   ' + error.message
+                        ));
+                    }
+                    else {
+                        done();
+                    }
+                }
+            });
+        });
+
+        it('Saves multiple instances.', function(done) {
+            let instanceA = AllFieldsRequiredClass.create();
+            let instanceB = AllFieldsRequiredClass.create();
+            let instances = [instanceA, instanceB];
+            let error = null;
+
+            instanceA.string = 'instanceA';
+            instanceA.strings = ['instanceA'];
+            instanceA.date = new Date();
+            instanceA.boolean = true;
+            instanceA.booleans = [true];
+            instanceA.number = 1;
+            instanceA.numbers = [1];
+            instanceA.class1 = CompareClass1.create()._id;
+            instanceA.class2s = [CompareClass2.create()._id];
+
+            instanceB.string = 'instanceB';
+            instanceB.strings = ['instanceB'];
+            instanceB.date = new Date();
+            instanceB.boolean = true;
+            instanceB.booleans = [true];
+            instanceB.number = 2;
+            instanceB.numbers = [2];
+            instanceB.class1 = CompareClass1.create()._id;
+            instanceB.class2s = [CompareClass2.create()._id];
+
+            AllFieldsRequiredClass.saveAll(instances).then(    
+                function() {
+                    AllFieldsRequiredClass.find({_id: {$in: [instanceA._id, instanceB._id]}}).then(
+                        function(foundInstances) {
+                            instances.forEach(function(desiredInstance) {
+                                let compareResults = [];
+                                let instancesFound = 0;
+                                foundInstances.forEach(function(instance) {
+                                    if (instance._id.equals(desiredInstance._id)) {
+                                        instancesFound++;
+                                        compareResults.push(AllFieldsRequiredClass.compare(instance, desiredInstance));
+                                    }
+                                });
+                                if (instancesFound == 2 && (compareResults[0].match == false || compareResults[1].match == false)) {
+                                    error = new Error('Instances were saved and retrieved, but they at least one doesn\'t match.' + compareResults[0].message + compareResults[1].message);
+                                }
+                                if (instancesFound == 1) {
+                                    error = new Error('Instances saved but only one instance found.');
+                                }
+                                if (instancesFound == 0) {
+                                    error = new Error('Instances saved but not found.');
+                                }
+                            });
+                        },
+                        function(findError) {
+                            error = findError;
+                        }
+                    );
+                },
+                function(saveErr) {
+                    error = saveErr;
+                }
+            ).finally(function() {
+                if (error)
+                    done(error);
+                else
+                    done();
+            });
+        });
+
+    })
+
+    describe('ClassModel Query Methods', function() {
+
+        // Create Instances for tests.
+        {
+            var instanceOfAllFieldsMutexClass = AllFieldsMutexClass.create();
+            var instanceOfDiscriminatedSuperClass = DiscriminatedSuperClass.create();
+            var instanceOfSuperClass = SuperClass.create();
+            var instanceOfSubClassOfSuperClass = SubClassOfSuperClass.create();
+            var instanceOfSubClassOfAbstractSuperClass = SubClassOfAbstractSuperClass.create();
+            var instanceOfSubClassOfDiscriminatorSuperClass = SubClassOfDiscriminatorSuperClass.create();
+            var instanceOfSubClassOfDiscriminatedSubClassOfSuperClass = SubClassOfDiscriminatedSubClassOfSuperClass.create();
+            var instanceOfSubClassOfSubClassOfSuperClass = SubClassOfSubClassOfSuperClass.create();
+            var instanceOfSubClassOfAbstractSubClassOfSuperClass = SubClassOfAbstractSubClassOfSuperClass.create();
+    
+            instanceOfAllFieldsMutexClass.string = 'instanceOfAllFieldsMutexClass';
+            instanceOfDiscriminatedSuperClass.name = 'instanceOfDiscriminatedSuperClass';
+            instanceOfSuperClass.name = 'instanceOfSuperClass';
+            instanceOfSubClassOfSuperClass.name = 'instanceOfSubClassOfSuperClass';
+            instanceOfSubClassOfAbstractSuperClass.name = 'instanceOfSubClassOfAbstractSuperClass';
+            instanceOfSubClassOfDiscriminatorSuperClass.name = 'instanceOfSubClassOfDiscriminatorSuperClass';
+            instanceOfSubClassOfDiscriminatedSubClassOfSuperClass.name = 'instanceOfSubClassOfDiscriminatedSubClassOfSuperClass';
+            instanceOfSubClassOfSubClassOfSuperClass.name = 'instanceOfSubClassOfSubClassOfSuperClass';
+            instanceOfSubClassOfAbstractSubClassOfSuperClass.name = 'instanceOfSubClassOfAbstractSubClassOfSuperClass';
+        }
 
         before(function(done) {
 
@@ -3792,6 +4011,206 @@ describe('Class Model Tests', function() {
                 }
             );
 
+        });
+
+    });
+
+    describe('ClassModel.walk()', function() {
+
+        // Create instances for tests.
+        {
+            var instanceOfSingularRelationshipClassA = SingularRelationshipClass.create();
+            var instanceOfSingularRelationshipClassB = SingularRelationshipClass.create();
+            var instanceOfNonSingularRelationshipClass = NonSingularRelationshipClass.create();
+            var instanceOfSubClassOfSingularRelationshipClassA = SubClassOfSingularRelationshipClass.create();
+            var instanceOfSubClassOfSingularRelationshipClassB = SubClassOfSingularRelationshipClass.create();
+            var instanceOfSubClassOfNonSingularRelationshipClass = SubClassOfNonSingularRelationshipClass.create();
+    
+            instanceOfSingularRelationshipClassA.singularRelationship = instanceOfNonSingularRelationshipClass._id;
+            instanceOfSingularRelationshipClassA.boolean = true;
+            instanceOfSingularRelationshipClassB.singularRelationship = instanceOfNonSingularRelationshipClass._id;
+            instanceOfSingularRelationshipClassB.boolean = false;
+            instanceOfNonSingularRelationshipClass.nonSingularRelationship = [instanceOfSingularRelationshipClassA, instanceOfSingularRelationshipClassB];
+    
+            instanceOfSubClassOfSingularRelationshipClassA.singularRelationship = instanceOfSubClassOfNonSingularRelationshipClass._id;
+            instanceOfSubClassOfSingularRelationshipClassA.boolean = true;
+            instanceOfSubClassOfSingularRelationshipClassB.singularRelationship = instanceOfSubClassOfNonSingularRelationshipClass._id;
+            instanceOfSubClassOfSingularRelationshipClassB.boolean = false;
+            instanceOfSubClassOfNonSingularRelationshipClass.nonSingularRelationship = [instanceOfSubClassOfSingularRelationshipClassA, instanceOfSubClassOfSingularRelationshipClassB];
+        }
+
+        before(function(done) {
+            SingularRelationshipClass.saveAll([instanceOfSingularRelationshipClassA, instanceOfSingularRelationshipClassB]).then(function() {
+                NonSingularRelationshipClass.save(instanceOfNonSingularRelationshipClass).then(function() {
+                    SubClassOfSingularRelationshipClass.saveAll([instanceOfSubClassOfSingularRelationshipClassA, instanceOfSubClassOfSingularRelationshipClassB]).then(function() {
+                        SubClassOfNonSingularRelationshipClass.save(instanceOfSubClassOfNonSingularRelationshipClass).finally(done);
+                    });
+                });
+            });
+        });
+
+        describe('Tests for invalid arguments.', function() {
+
+            it('ClassModel.walk() called with no arguments.', function(done) {
+                let expectedErrorMessage = 'SingularRelationshipClass.walk() called with insufficient arguments. Should be walk(instance, relationship, <optional>filter).';
+                let error;
+
+                SingularRelationshipClass.walk().then(
+                    () => {
+                        error = new Error('ClassModel.walk() promise resolved when it should have rejected with an error.');
+                    },
+                    (walkError) => {
+                        if (walkError.message != expectedErrorMessage) {
+                            error = new Error(
+                                'ClassModel.walk() did not throw the expected error.\n' +
+                                'Expected: ' + expectedErrorMessage + '\n' +
+                                'Actual:   ' + walkError.message
+                            );
+                        }
+                    }
+                ).finally(() => {
+                    if (error)
+                        done(error);
+                    else
+                        done();
+                });
+            });
+
+            it('ClassModel.walk() called with only one argument (instance).', function(done) {
+                let expectedErrorMessage = 'SingularRelationshipClass.walk() called with insufficient arguments. Should be walk(instance, relationship, <optional>filter).';
+                let error;
+
+                SingularRelationshipClass.walk(instanceOfSingularRelationshipClassA).then(
+                    () => {
+                        error = new Error('ClassModel.walk() promise resolved when it should have rejected with an error.');
+                    },
+                    (walkError) => {
+                        if (walkError.message != expectedErrorMessage) {
+                            error = new Error(
+                                'ClassModel.walk() did not throw the expected error.\n' +
+                                'Expected: ' + expectedErrorMessage + '\n' +
+                                'Actual:   ' + walkError.message
+                            );
+                        }
+                    }
+                ).finally(() => {
+                    if (error)
+                        done(error);
+                    else
+                        done();
+                });
+            });
+
+            it('ClassModel.walk() called with first argument that is an instance of a different class model.', function(done) {
+                let expectedErrorMessage = 'SingularRelationshipClass.walk(): First argument needs to be an instance of SingularRelationshipClass\'s classModel or one of its sub classes.';
+                let error;
+
+                SingularRelationshipClass.walk(NonSingularRelationshipClass, '').then(
+                    () => {
+                        error = new Error('ClassModel.walk() promise resolved when it should have rejected with an error.');
+                    },
+                    (walkError) => {
+                        if (walkError.message != expectedErrorMessage) {
+                            error = new Error(
+                                'ClassModel.walk() did not throw the expected error.\n' +
+                                'Expected: ' + expectedErrorMessage + '\n' +
+                                'Actual:   ' + walkError.message
+                            );
+                        }
+                    }
+                ).finally(() => {
+                    if (error)
+                        done(error);
+                    else
+                        done();
+                });
+            });
+
+            it('ClassModel.walk() called with second argument that is not a String.', function(done) {
+                let expectedErrorMessage = 'SingularRelationshipClass.walk(): Second argument needs to be a String.';
+                let error;
+
+                SingularRelationshipClass.walk(instanceOfSingularRelationshipClassA, true).then(
+                    () => {
+                        error = new Error('ClassModel.walk() promise resolved when it should have rejected with an error.');
+                    },
+                    (walkError) => {
+                        if (walkError.message != expectedErrorMessage) {
+                            error = new Error(
+                                'ClassModel.walk() did not throw the expected error.\n' +
+                                'Expected: ' + expectedErrorMessage + '\n' +
+                                'Actual:   ' + walkError.message
+                            );
+                        }
+                    }
+                ).finally(() => {
+                    if (error)
+                        done(error);
+                    else
+                        done();
+                });
+            });
+
+            it('ClassModel.walk() called with second argument that is not a field in the schema.', function(done) {
+                let expectedErrorMessage = 'SingularRelationshipClass.walk(): Second argument needs to be a field in SingularRelationshipClass\'s schema.';
+                let error;
+
+                SingularRelationshipClass.walk(instanceOfSingularRelationshipClassA, 'rabbit').then(
+                    () => {
+                        error = new Error('ClassModel.walk() promise resolved when it should have rejected with an error.');
+                    },
+                    (walkError) => {
+                        if (walkError.message != expectedErrorMessage) {
+                            error = new Error(
+                                'ClassModel.walk() did not throw the expected error.\n' +
+                                'Expected: ' + expectedErrorMessage + '\n' +
+                                'Actual:   ' + walkError.message
+                            );
+                        }
+                    }
+                ).finally(() => {
+                    if (error)
+                        done(error);
+                    else
+                        done();
+                });
+            });
+
+            it('ClassModel.walk() called with second argument that is not a relationsihp in the schema.', function(done) {
+                let expectedErrorMessage = 'SingularRelationshipClass.walk(): field "boolean" is not a relationship.';
+                let error;
+
+                SingularRelationshipClass.walk(instanceOfSingularRelationshipClassA, 'boolean').then(
+                    () => {
+                        error = new Error('ClassModel.walk() promise resolved when it should have rejected with an error.');
+                    },
+                    (walkError) => {
+                        if (walkError.message != expectedErrorMessage) {
+                            error = new Error(
+                                'ClassModel.walk() did not throw the expected error.\n' +
+                                'Expected: ' + expectedErrorMessage + '\n' +
+                                'Actual:   ' + walkError.message
+                            );
+                        }
+                    }
+                ).finally(() => {
+                    if (error)
+                        done(error);
+                    else
+                        done();
+                });
+            });
+
+        });
+
+        after(function(done) {
+            SingularRelationshipClass.clear().then(function() {
+                NonSingularRelationshipClass.clear().then(function() {
+                    SubClassOfSingularRelationshipClass.clear().then(function() {
+                        SubClassOfNonSingularRelationshipClass.clear().finally(done);
+                    });
+                });
+            });
         });
 
     });
