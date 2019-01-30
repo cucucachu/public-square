@@ -14,16 +14,13 @@ process.on('unhandledRejection', error => {
 var Poll = require('../dist/models/Modules/Poll/Poll');
 var PollResponse = require('../dist/models/Modules/Poll/PollResponse');
 var PollOption = require('../dist/models/Modules/Poll/PollOption');
+var Pollable = require('../dist/models/Modules/Poll/Pollable');
 var Civilian = require('../dist/models/Modules/Poll/Civilian');
 var Citizen = require('../dist/models/Modules/Poll/Citizen');
 
 var Government = require('../dist/models/Modules/Government/Government');
-var GovernmentInstitution = require('../dist/models/Modules/Government/GovernmentInstitution');
-var OccupiedPosition = require('../dist/models/Modules/Government/OccupiedPosition');
-var Bill = require('../dist/models/Modules/Government/Legislator/Bill');
-var Judgement = require('../dist/models/Modules/Government/Judge/Judgement');
-var JudicialOpinion = require('../dist/models/Modules/Government/Judge/JudicialOpinion');
-var ExecutiveAction = require('../dist/models/Modules/Government/Executive/ExecutiveAction');
+var GeographicArea = require('../dist/models/Modules/Geography/GeographicArea');
+
 var User = require ('../dist/models/Modules/User/User');
 
 describe('Poll Module Tests', function() {
@@ -37,18 +34,14 @@ describe('Poll Module Tests', function() {
                             function() {
                                 Civilian.clear().then(
                                     function() {
-                                        Citizen.clear().then(done, done);
-                                    },
-                                    done
+                                        Citizen.clear().finally(done);
+                                    }
                                 );
-                            },
-                            done
+                            }
                         );
-                    },
-                    done
+                    }
                 );
-            },
-            done
+            }
         );
     });
     
@@ -73,7 +66,7 @@ describe('Poll Module Tests', function() {
 				var poll = Poll.create();
 				var testFailed = 0;
 				var error;
-                var expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
+                var expectedErrorMessage = 'Poll validation failed: pollable: Path `pollable` is required.';
 
 				Poll.save(poll).then(
 					function(result) {
@@ -99,92 +92,13 @@ describe('Poll Module Tests', function() {
 					}
 				});
 			});
-
-			it('Pollable Relationships are mutually exclusive. (2 set)', function(done) {
-				var poll = Poll.create();
-				var testFailed = 0;
-				var error;
-				var expectedErrorMessage = 'Mutex violations found for instance <ObjectId>. Field judicialOpinion with mutex \'a\'. Field executiveAction with mutex \'a\'.';
-				var expectedErrorRegex = /^Mutex violations found for instance .*Field judicialOpinion with mutex 'a'. Field executiveAction with mutex 'a'.$/;
-
-                poll.judicialOpinion = JudicialOpinion.create()._id;
-                poll.executiveAction = ExecutiveAction.create()._id;
-                poll.pollResponses = [PollResponse.create()._id, PollResponse.create()._id];
-                poll.pollOptions = [PollOption.create()._id, PollOption.create()._id];
-                
-				Poll.save(poll).then(
-					function(result) {
-						testFailed = 1;
-					},
-					function(rejectionErr) {
-						error = rejectionErr;
-					}
-				)
-				.finally(function() {
-					if (testFailed) done(new Error('Poll.save() promise resolved when it should have been rejected with Validation Error'));
-					else {
-						if (error != null && expectedErrorRegex.test(error.message)) {
-							done();
-						}
-						else{
-							done(new Error(
-								'Poll.save() did not return the correct Validation Error.\n' +
-								'   Expected: ' + expectedErrorMessage + '\n' +
-								'   Actual:   ' + error.message
-							));
-						}
-					}
-				});
-			});
-
-			it('Pollable Relationships are mutually exclusive. (All set)', function(done) {
-				var poll = Poll.create();
-				var testFailed = 0;
-				var error;
-				const expectedErrorMessage = 'Mutex violations found for instance <ObjectId>. Field government with mutex \'a\'. Field governmentInstitution with mutex \'a\'. Field occupiedPosition with mutex \'a\'. Field bill with mutex \'a\'. Field judgement with mutex \'a\'. Field judicialOpinion with mutex \'a\'. Field executiveAction with mutex \'a\'';
-				const expectedErrorRegex = /^Mutex violations found for instance.*Field government with mutex 'a'. Field governmentInstitution with mutex 'a'. Field occupiedPosition with mutex 'a'. Field bill with mutex 'a'. Field judgement with mutex 'a'. Field judicialOpinion with mutex 'a'. Field executiveAction with mutex 'a'.$/;
-				
-				poll.government = Government.create()._id;
-                poll.governmentInstitution = GovernmentInstitution.create()._id;
-                poll.occupiedPosition = OccupiedPosition.create()._id;
-                poll.bill = Bill.create()._id;
-                poll.judgement = Judgement.create()._id;
-                poll.judicialOpinion = JudicialOpinion.create()._id;
-                poll.executiveAction = ExecutiveAction.create()._id;
-                poll.pollResponses = [PollResponse.create()._id, PollResponse.create()._id];
-                poll.pollOptions = [PollOption.create()._id, PollOption.create()._id];
-                
-				Poll.save(poll).then(
-					function(result) {
-						testFailed = 1;
-					},
-					function(rejectionErr) {
-						error = rejectionErr;
-					}
-				)
-				.finally(function() {
-					if (testFailed) done(new Error('Poll.save() promise resolved when it should have been rejected with Validation Error'));
-					else {
-						if (error != null && expectedErrorRegex.test(error.message)) {
-							done();
-						}
-						else{
-							done(new Error(
-								'Poll.save() did not return the correct Validation Error.\n' +
-								'   Expected: ' + expectedErrorMessage + '\n' +
-								'   Actual:   ' + error.message
-							));
-						}
-					}
-				});
-			});
     
 			it('Valid Call Saves Poll.', function(done){
 				var poll = Poll.create();
 				var error = null;
                 var compareResult;
 
-                poll.government = Government.create()._id;
+                poll.pollable = Government.create()._id;
                 poll.pollResponses = [PollResponse.create()._id, PollResponse.create()._id];
                 poll.pollOptions = [PollOption.create()._id, PollOption.create()._id];
 
@@ -205,6 +119,54 @@ describe('Poll Module Tests', function() {
 					if (error)
 						done(error);
 					else
+						done();
+				});
+			});
+
+		});
+
+		describe('Poll.walk()', () => {
+
+			var poll = Poll.create();
+			var government = Government.create();
+
+			poll.pollable = government;
+			poll.pollResponses = [PollResponse.create()._id, PollResponse.create()._id];
+			poll.pollOptions = [PollOption.create()._id, PollOption.create()._id];
+
+			government.name = 'United States of America';
+			government.foundedDate = new Date('1776-07-04');
+			government.createdDate = new Date();
+			government.geographicArea = GeographicArea.create();
+			government.poll = poll;
+
+			before((done) => {
+				Poll.save(poll).then(() => {
+					Government.save(government).finally(done);
+				});
+			});
+
+			it('Poll.walk(poll, \'pollable\') returns an instance of pollable.', (done) => {
+				let expectedInstance = government;
+				let error;
+
+				Poll.walk(poll, 'pollable').then(
+					(foundInstance) => {
+						if (foundInstance == null)
+							error = new Error('Poll.walk() did not return an instance.')
+						else {
+							if (!foundInstance._id.equals(expectedInstance._id)) {
+								error = new Error ('Poll.walk returned an instance, but it is not the right one.');
+							}
+						}
+					},
+					(walkError) => {
+						error = walkError;
+					}
+				).finally(() => {
+					if (error)
+						done(error)
+					else 
 						done();
 				});
 			});
@@ -234,7 +196,7 @@ describe('Poll Module Tests', function() {
 				var pollResponse = PollResponse.create();
 				var testFailed = 0;
 				var error;
-                var expectedErrorMessage = 'PollResponse validation failed: pollOption: Path `pollOption` is required., poll: Path `poll` is required., civilian: Path `civilian` is required.';
+                var expectedErrorMessage = 'PollResponse validation failed: pollOption: Path `pollOption` is required., poll: Path `poll` is required., civilian: Path `civilian` is required., date: Path `date` is required.';
 
 				PollResponse.save(pollResponse).then(
 					function(result) {
@@ -272,7 +234,8 @@ describe('Poll Module Tests', function() {
                 pollResponse.civilian = 'abcd1234efgh9876';
                 pollResponse.citizen = Citizen.create()._id;
                 pollResponse.poll = Poll.create()._id;
-                pollResponse.pollOption = PollOption.create()._id;
+				pollResponse.pollOption = PollOption.create()._id;
+				pollResponse.date = new Date();
 
                 PollResponse.save(pollResponse).then(
                     function(result) {
@@ -311,6 +274,7 @@ describe('Poll Module Tests', function() {
                 pollResponse.citizen = 'abcd1234efgh9876';
                 pollResponse.poll = Poll.create()._id;
                 pollResponse.pollOption = PollOption.create()._id;
+				pollResponse.date = new Date();
 
                 PollResponse.save(pollResponse).then(
                     function(result) {
@@ -349,6 +313,7 @@ describe('Poll Module Tests', function() {
                 pollResponse.citizen = Citizen.create()._id;
                 pollResponse.poll = 'abcd1234efgh9876';
                 pollResponse.pollOption = PollOption.create()._id;
+				pollResponse.date = new Date();
 
                 PollResponse.save(pollResponse).then(
                     function(result) {
@@ -387,6 +352,7 @@ describe('Poll Module Tests', function() {
                 pollResponse.citizen = Citizen.create()._id;
                 pollResponse.poll = Poll.create()._id;
                 pollResponse.pollOption = 'abcd1234efgh9876';
+				pollResponse.date = new Date();
 
                 PollResponse.save(pollResponse).then(
                     function(result) {
@@ -424,6 +390,7 @@ describe('Poll Module Tests', function() {
                 pollResponse.citizen = Citizen.create()._id;
                 pollResponse.poll = Poll.create()._id;
                 pollResponse.pollOption = PollOption.create()._id;
+				pollResponse.date = new Date();
 
 				PollResponse.save(pollResponse).then(
 					function(saved) {
@@ -554,7 +521,7 @@ describe('Poll Module Tests', function() {
 				var civilian = Civilian.create();
 				var testFailed = 0;
 				var error;
-                var expectedErrorMessage = 'Civilian validation failed: user: Path `user` is required.';
+                var expectedErrorMessage = 'Civilian validation failed: user: Path `user` is required., startDate: Path `startDate` is required.';
 
 				Civilian.save(civilian).then(
 					function(result) {
@@ -587,7 +554,8 @@ describe('Poll Module Tests', function() {
 				var error;
                 var expectedErrorMessage = 'Civilian validation failed: user: Cast to ObjectID failed for value "abcd1234efgh9876" at path "user"';
 
-                civilian.user = 'abcd1234efgh9876';
+				civilian.user = 'abcd1234efgh9876';
+				civilian.startDate = new Date();
                 civilian.pollResponses = [PollResponse.create()._id, PollResponse.create()._id];
 
 				Civilian.save(civilian).then(
@@ -622,6 +590,7 @@ describe('Poll Module Tests', function() {
                 var expectedErrorMessage = 'Civilian validation failed: pollResponses: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "pollResponses"';
                 
                 civilian.user = User.create()._id;
+				civilian.startDate = new Date();
                 civilian.pollResponses = ['abcd1234efgh9876', 'abcd1234efgh9875'];
 
 				Civilian.save(civilian).then(
@@ -655,6 +624,7 @@ describe('Poll Module Tests', function() {
                 var compareResult;
 
                 civilian.user = User.create()._id;
+				civilian.startDate = new Date();
                 civilian.pollResponses = [PollResponse.create()._id, PollResponse.create()._id];
 
 				Civilian.save(civilian).then(
@@ -703,7 +673,7 @@ describe('Poll Module Tests', function() {
 				var citizen = Citizen.create();
 				var testFailed = 0;
 				var error;
-                var expectedErrorMessage = 'Citizen validation failed: user: Path `user` is required.';
+                var expectedErrorMessage = 'Citizen validation failed: user: Path `user` is required., startDate: Path `startDate` is required.';
 
 				Citizen.save(citizen).then(
 					function(result) {
@@ -737,7 +707,8 @@ describe('Poll Module Tests', function() {
                 var expectedErrorMessage = 'Citizen validation failed: user: Cast to ObjectID failed for value "abcd1234efgh9876" at path "user"';
 
                 citizen.user = 'abcd1234efgh9876';
-                citizen.pollResponses = [PollResponse.create()._id, PollResponse.create()._id];
+				citizen.startDate = new Date();
+				citizen.pollResponses = [PollResponse.create()._id, PollResponse.create()._id];
 
 				Citizen.save(citizen).then(
 					function(result) {
@@ -771,6 +742,7 @@ describe('Poll Module Tests', function() {
                 var expectedErrorMessage = 'Citizen validation failed: pollResponses: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "pollResponses"';
                 
                 citizen.user = User.create()._id;
+				citizen.startDate = new Date();
                 citizen.pollResponses = ['abcd1234efgh9876', 'abcd1234efgh9875'];
 
 				Citizen.save(citizen).then(
@@ -804,6 +776,7 @@ describe('Poll Module Tests', function() {
                 var compareResult;
 
                 citizen.user = User.create()._id;
+				citizen.startDate = new Date();
                 citizen.pollResponses = [PollResponse.create()._id, PollResponse.create()._id];
 
 				Citizen.save(citizen).then(

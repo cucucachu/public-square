@@ -5,6 +5,7 @@
 
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
+require('@babel/polyfill');
 
 const AllClassModels = [];
 
@@ -126,6 +127,40 @@ class ClassModel {
     static fieldIsARelationship(field) {
         return field.type == Schema.Types.ObjectId || (Array.isArray(field.type) && field.type[0] == Schema.Types.ObjectId);
     } 
+
+    /*
+     * Helper function for findById and findOne
+     * Loops through promises one at a time and returns the first non null resolution. Will break the loop on the first non-null resolution.
+     *   If none of the promises return a non-null value, null is returned.
+     */
+    static async firstNonNullPromiseResolution(promises) {
+        for (var index in promises) {
+            let foundInstance = await promises[index];
+
+            if (foundInstance != null) {
+                return foundInstance;
+                break;
+            }
+            else if (index == promises.length - 1) {
+                return null;
+            }
+        }
+    }
+
+
+    /*
+     * Helper function for find
+     * Loops through promises one at a time and pushes the results to the results array.
+     */
+    static async allPromiseResultions(promises) {
+        let results = [];
+
+        for (var index in promises) {
+            results = results.concat(await promises[index]);
+        }
+
+        return results;
+    }
 
     /*
      * Defines what it means for a filed to be set. Valid values that count as 'set' are as follows:
@@ -387,40 +422,6 @@ class ClassModel {
     }
 
     // Query Methods
-
-    /*
-     * Helper function for findById and findOne
-     * Loops through promises one at a time and returns the first non null resolution. Will break the loop on the first non-null resolution.
-     *   If none of the promises return a non-null value, null is returned.
-     */
-    static async firstNonNullPromiseResolution(promises) {
-        for (var index in promises) {
-            let foundInstance = await promises[index];
-
-            if (foundInstance != null) {
-                return foundInstance;
-                break;
-            }
-            else if (index == promises.length - 1) {
-                return null;
-            }
-        }
-    }
-
-
-    /*
-     * Helper function for find
-     * Loops through promises one at a time and pushes the results to the results array.
-     */
-    static async allPromiseResultions(promises) {
-        let results = [];
-
-        for (var index in promises) {
-            results = results.concat(await promises[index]);
-        }
-
-        return results;
-    }
 
     findById(id) {
         let concrete = !this.abstract;
@@ -707,9 +708,7 @@ class ClassModel {
         let schema = this.schema;
         let className = this.className;
 
-        return new Promise((resolve, reject) => {
-            let error; 
-            
+        return new Promise((resolve, reject) => {            
             if (arguments.length < 2) {
                 reject(new Error(className + '.walk() called with insufficient arguments. Should be walk(instance, relationship, <optional>filter).'));
             }

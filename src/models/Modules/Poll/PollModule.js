@@ -7,5 +7,6 @@
 require('./Poll');
 require('./PollResponse');
 require('./PollOption');
+require('./Pollable');
 require('./Citizen');
 require('./Civilian');
