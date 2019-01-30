@@ -4,8 +4,6 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
 var assert = require('assert');
 
-var expect = require('expect');
-
 var promiseFinally = require('promise.prototype.finally');
 
 require('../dist/models/Modules/Poll/PollModule'); // Add 'finally()' to 'Promis.prototype'
@@ -85,9 +83,11 @@ describe('Poll Module Tests', function () {
         poll.pollResponses = [PollResponse.create()._id, PollResponse.create()._id];
         poll.pollOptions = [PollOption.create()._id, PollOption.create()._id];
         Poll.save(poll).then(function (saved) {
-          Poll.Model.findById(poll._id, function (findError, found) {
+          Poll.findById(poll._id).then(function (found) {
             compareResult = Poll.compare(poll, found);
             if (compareResult.match == false) error = new Error(compareResult.message);
+          }, function (findError) {
+            error = findError;
           });
         }, function (saveErr) {
           testFailed = 1;
@@ -277,9 +277,11 @@ describe('Poll Module Tests', function () {
         pollResponse.pollOption = PollOption.create()._id;
         pollResponse.date = new Date();
         PollResponse.save(pollResponse).then(function (saved) {
-          PollResponse.Model.findById(pollResponse._id, function (findError, found) {
+          PollResponse.findById(pollResponse._id).then(function (found) {
             compareResult = PollResponse.compare(pollResponse, found);
             if (compareResult.match == false) error = new Error(compareResult.message);
+          }, function (findError) {
+            error = findError;
           });
         }, function (saveErr) {
           testFailed = 1;
@@ -330,9 +332,11 @@ describe('Poll Module Tests', function () {
         pollOption.negative = false;
         pollOption.weight = 1;
         PollOption.save(pollOption).then(function (saved) {
-          PollOption.Model.findById(pollOption._id, function (findError, found) {
+          PollOption.findById(pollOption._id).then(function (found) {
             compareResult = PollOption.compare(pollOption, found);
             if (compareResult.match == false) error = new Error(compareResult.message);
+          }, function (findError) {
+            error = findError;
           });
         }, function (saveErr) {
           testFailed = 1;
@@ -426,9 +430,11 @@ describe('Poll Module Tests', function () {
         civilian.startDate = new Date();
         civilian.pollResponses = [PollResponse.create()._id, PollResponse.create()._id];
         Civilian.save(civilian).then(function (saved) {
-          Civilian.Model.findById(civilian._id, function (findError, found) {
+          Civilian.findById(civilian._id).then(function (found) {
             compareResult = Civilian.compare(civilian, found);
             if (compareResult.match == false) error = new Error(compareResult.message);
+          }, function (findError) {
+            error = findError;
           });
         }, function (saveErr) {
           testFailed = 1;
@@ -522,9 +528,11 @@ describe('Poll Module Tests', function () {
         citizen.startDate = new Date();
         citizen.pollResponses = [PollResponse.create()._id, PollResponse.create()._id];
         Citizen.save(citizen).then(function (saved) {
-          Citizen.Model.findById(citizen._id, function (findError, found) {
+          Citizen.findById(citizen._id).then(function (found) {
             compareResult = Citizen.compare(citizen, found);
             if (compareResult.match == false) error = new Error(compareResult.message);
+          }, function (findError) {
+            error = findError;
           });
         }, function (saveErr) {
           testFailed = 1;

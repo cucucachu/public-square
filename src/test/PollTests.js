@@ -1,5 +1,4 @@
 var assert = require('assert');
-var expect = require('expect');
 var promiseFinally = require('promise.prototype.finally');
 
 require('../dist/models/Modules/Poll/PollModule');
@@ -104,12 +103,17 @@ describe('Poll Module Tests', function() {
 
 				Poll.save(poll).then(
 					function(saved) {
-						Poll.Model.findById(poll._id, function(findError, found) {
-							compareResult = Poll.compare(poll, found);
+						Poll.findById(poll._id).then(
+							(found) => {
+								compareResult = Poll.compare(poll, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
 					function(saveErr) {
 						testFailed = 1;
@@ -393,19 +397,24 @@ describe('Poll Module Tests', function() {
 				pollResponse.date = new Date();
 
 				PollResponse.save(pollResponse).then(
-					function(saved) {
-						PollResponse.Model.findById(pollResponse._id, function(findError, found) {
-							compareResult = PollResponse.compare(pollResponse, found);
+					(saved) => {
+						PollResponse.findById(pollResponse._id).then(
+							(found) => {
+								compareResult = PollResponse.compare(pollResponse, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
+					(saveErr) => {
 						testFailed = 1;
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -476,19 +485,24 @@ describe('Poll Module Tests', function() {
                 pollOption.weight = 1;
 
 				PollOption.save(pollOption).then(
-					function(saved) {
-						PollOption.Model.findById(pollOption._id, function(findError, found) {
-							compareResult = PollOption.compare(pollOption, found);
+					(saved) => {
+						PollOption.findById(pollOption._id).then(
+							(found) => {
+								compareResult = PollOption.compare(pollOption, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
+					(saveErr) => {
 						testFailed = 1;
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -628,19 +642,24 @@ describe('Poll Module Tests', function() {
                 civilian.pollResponses = [PollResponse.create()._id, PollResponse.create()._id];
 
 				Civilian.save(civilian).then(
-					function(saved) {
-						Civilian.Model.findById(civilian._id, function(findError, found) {
-							compareResult = Civilian.compare(civilian, found);
+					(saved) => {
+						Civilian.findById(civilian._id).then(
+							(found) => {
+								compareResult = Civilian.compare(civilian, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
+					(saveErr) => {
 						testFailed = 1;
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -780,19 +799,24 @@ describe('Poll Module Tests', function() {
                 citizen.pollResponses = [PollResponse.create()._id, PollResponse.create()._id];
 
 				Citizen.save(citizen).then(
-					function(saved) {
-						Citizen.Model.findById(citizen._id, function(findError, found) {
-							compareResult = Citizen.compare(citizen, found);
+					(saved) => {
+						Citizen.findById(citizen._id).then(
+							(found) => {
+								compareResult = Citizen.compare(citizen, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
+					(saveErr) => {
 						testFailed = 1;
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
