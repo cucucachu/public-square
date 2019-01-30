@@ -4,8 +4,6 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
 var assert = require('assert');
 
-var expect = require('expect');
-
 var promiseFinally = require('promise.prototype.finally');
 
 require('../dist/models/Modules/Geography/GeographyModule'); // Add 'finally()' to 'Promis.prototype'
@@ -191,9 +189,11 @@ describe('Geography Module Tests', function () {
         geographicArea.addresses = [Address.create()._id, Address.create()._id];
         geographicArea.electionResults = [ElectionResult.create()._id, ElectionResult.create()._id];
         GeographicArea.save(geographicArea).then(function (saved) {
-          GeographicArea.Model.findById(geographicArea._id, function (findError, found) {
+          GeographicArea.findById(geographicArea._id).then(function (found) {
             compareResult = GeographicArea.compare(geographicArea, found);
             if (compareResult.match == false) error = new Error(compareResult.message);
+          }, function (findError) {
+            error = findError;
           });
         }, function (saveErr) {
           testFailed = 1;
@@ -220,7 +220,7 @@ describe('Geography Module Tests', function () {
         var geographicMap = GeographicMap.create();
         var testFailed = 0;
         var error;
-        var expectedErrorMessage = 'GeographicMap validation failed: mapType: Path `mapType` is required., ofGeographicArea: Path `ofGeographicArea` is required., name: Path `name` is required.';
+        var expectedErrorMessage = 'GeographicMap validation failed: containsGeographicAreas: Path `containsGeographicAreas` is required. GeographicMap validation failed: mapType: Path `mapType` is required., ofGeographicArea: Path `ofGeographicArea` is required., name: Path `name` is required.';
         GeographicMap.save(geographicMap).then(function (result) {
           testFailed = 1;
         }, function (rejectionErr) {
@@ -289,7 +289,7 @@ describe('Geography Module Tests', function () {
         var geographicMap = GeographicMap.create();
         var testFailed = 0;
         var error = null;
-        var expectedErrorMessage = 'GeographicMap validation failed: containsGeographicAreas: Cast to Array failed for value "[ \'abcd1234efgh9876\' ]" at path "containsGeographicAreas"';
+        var expectedErrorMessage = 'GeographicMap validation failed: containsGeographicAreas: Path `containsGeographicAreas` is required. GeographicMap validation failed: containsGeographicAreas: Cast to Array failed for value "[ \'abcd1234efgh9876\' ]" at path "containsGeographicAreas"';
         geographicMap.name = 'States of the United States';
         geographicMap.mapType = MapType.create()._id;
         geographicMap.ofGeographicArea = GeographicArea.create()._id;
@@ -319,9 +319,11 @@ describe('Geography Module Tests', function () {
         geographicMap.ofGeographicArea = GeographicMap.create();
         geographicMap.containsGeographicAreas = [GeographicArea.create()._id, GeographicArea.create()._id];
         GeographicMap.save(geographicMap).then(function (saved) {
-          GeographicMap.Model.findById(geographicMap._id, function (findError, found) {
+          GeographicMap.findById(geographicMap._id).then(function (found) {
             compareResult = GeographicMap.compare(geographicMap, found);
             if (compareResult.match == false) error = new Error(compareResult.message);
+          }, function (findError) {
+            error = findError;
           });
         }, function (saveErr) {
           testFailed = 1;
@@ -348,7 +350,7 @@ describe('Geography Module Tests', function () {
         var mapType = MapType.create();
         var testFailed = 0;
         var error;
-        var expectedErrorMessage = 'MapType validation failed: name: Path `name` is required.';
+        var expectedErrorMessage = 'MapType validation failed: geographicMaps: Path `geographicMaps` is required. MapType validation failed: name: Path `name` is required.';
         MapType.save(mapType).then(function (result) {
           testFailed = 1;
         }, function (rejectionErr) {
@@ -367,7 +369,7 @@ describe('Geography Module Tests', function () {
         var mapType = MapType.create();
         var testFailed = 0;
         var error = null;
-        var expectedErrorMessage = 'MapType validation failed: geographicMaps: Cast to Array failed for value "[ \'abcd1234efgh9876\' ]" at path "geographicMaps"';
+        var expectedErrorMessage = 'MapType validation failed: geographicMaps: Path `geographicMaps` is required. MapType validation failed: geographicMaps: Cast to Array failed for value "[ \'abcd1234efgh9876\' ]" at path "geographicMaps"';
         mapType.name = "States";
         mapType.geographicMaps = ['abcd1234efgh9876'];
         MapType.save(mapType).then(function (saved) {
@@ -393,9 +395,11 @@ describe('Geography Module Tests', function () {
         mapType.name = "States";
         mapType.geographicMaps = [GeographicMap.create()._id, GeographicMap.create()._id];
         MapType.save(mapType).then(function (saved) {
-          MapType.Model.findById(mapType._id, function (findError, found) {
+          MapType.findById(mapType._id).then(function (found) {
             compareResult = MapType.compare(mapType, found);
             if (compareResult.match == false) error = new Error(compareResult.message);
+          }, function (findError) {
+            error = findError;
           });
         }, function (saveErr) {
           testFailed = 1;
@@ -422,7 +426,7 @@ describe('Geography Module Tests', function () {
         var address = Address.create();
         var testFailed = 0;
         var error;
-        var expectedErrorMessage = 'Address validation failed: streetNumber: Path `streetNumber` is required.';
+        var expectedErrorMessage = 'Address validation failed: state: Path `state` is required., city: Path `city` is required.';
         Address.save(address).then(function (result) {
           testFailed = 1;
         }, function (rejectionErr) {
@@ -437,14 +441,15 @@ describe('Geography Module Tests', function () {
           }
         });
       });
-      it('Address.geographicAreas must be a valid Array of IDs.', function (done) {
+      it('Address.city must be a valid ID.', function (done) {
         var address = Address.create();
         var testFailed = 0;
         var error = null;
-        var expectedErrorMessage = 'Address validation failed: geographicAreas: Cast to Array failed for value "[ \'abcd1234efgh9876\' ]" at path "geographicAreas"';
+        var expectedErrorMessage = 'Address validation failed: city: Cast to ObjectID failed for value "abcd1234efgh9876" at path "city"';
         address.streetNumber = 10;
         address.unit = '4b';
-        address.geographicAreas = ['abcd1234efgh9876'];
+        address.city = 'abcd1234efgh9876';
+        address.state = GeographicArea.create()._id;
         address.users = [User.create()._id, User.create()._id];
         Address.save(address).then(function (saved) {
           testFailed = 1;
@@ -469,7 +474,9 @@ describe('Geography Module Tests', function () {
         var expectedErrorMessage = 'Address validation failed: users: Cast to Array failed for value "[ \'abcd1234efgh9876\' ]" at path "users"';
         address.streetNumber = 10;
         address.unit = '4b';
-        address.geographicAreas = [GeographicArea.create()._id, GeographicArea.create()._id];
+        address.city = GeographicArea.create()._id;
+        address.street = GeographicArea.create()._id;
+        address.state = GeographicArea.create()._id;
         address.users = ['abcd1234efgh9876'];
         Address.save(address).then(function (saved) {
           testFailed = 1;
@@ -493,12 +500,17 @@ describe('Geography Module Tests', function () {
         var compareResult;
         address.streetNumber = 10;
         address.unit = '4b';
-        address.geographicAreas = [GeographicArea.create()._id, GeographicArea.create()._id];
+        address.city = GeographicArea.create()._id;
+        address.street = GeographicArea.create()._id;
+        address.county = GeographicArea.create()._id;
+        address.state = GeographicArea.create()._id;
         address.users = [User.create()._id, User.create()._id];
         Address.save(address).then(function (saved) {
-          Address.Model.findById(address._id, function (findError, found) {
+          Address.findById(address._id).then(function (found) {
             compareResult = Address.compare(address, found);
             if (compareResult.match == false) error = new Error(compareResult.message);
+          }, function (findError) {
+            error = findError;
           });
         }, function (saveErr) {
           testFailed = 1;
