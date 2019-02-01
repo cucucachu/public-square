@@ -8,7 +8,7 @@
 // MongoDB and Mongoose Setup
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var ClassModel = requrie('../../../ClassModel');
+var ClassModel = require('../../../ClassModel');
 
 var ElectionResult = new ClassModel({
     className: 'ElectionResult',

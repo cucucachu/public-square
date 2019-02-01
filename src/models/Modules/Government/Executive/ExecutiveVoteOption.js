@@ -15,7 +15,7 @@ var ClassModel = require('../../../ClassModel');
 var VoteOption = require('../VoteOption');
 
 var ExecutiveVoteOption = new ClassModel({
-	className: 'ExecutiveVote',
+	className: 'ExecutiveVoteOption',
 	discriminatorSuperClass: VoteOption,
 	schema: {}
 });

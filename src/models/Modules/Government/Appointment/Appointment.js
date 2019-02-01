@@ -13,7 +13,7 @@ var ClassModel = require('../../../ClassModel');
 var PositionAcquisitionProcess = require('../PositionAcquisitionProcess');
 
 var Appointment = new ClassModel({
-    className = 'Appointment',
+    className: 'Appointment',
     superClasses: [PositionAcquisitionProcess],
     schema: {
         appointmentDate: {
