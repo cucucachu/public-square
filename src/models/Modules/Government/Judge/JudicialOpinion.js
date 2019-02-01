@@ -1,6 +1,7 @@
 /* 
  Class Model
  Model: Judicial Opinion
+ Super Class(es): Pollable
  Description: Represents an oppinion written by a judge or judges about a particular case. Other judges can also be signers of the opinion.
 */
 
@@ -9,8 +10,11 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var ClassModel = require('../../../ClassModel');
 
+var Pollable = require('../../Poll/Pollable');
+
 var JudicialOpinion = new ClassModel({
 	className: 'JudicialOpinion',
+	superClasses: [Pollable],
 	schema: {
 		text: {
 			type: String,

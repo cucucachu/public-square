@@ -1,6 +1,7 @@
 /* 
  Class Model
  Model: Occupied Position
+ Super Class(es): Pollable
  Description: Definies who is in a particular Government Position at a particular time. Also relates to different Government Roles, which enable
     different functionallity, depending on the Government Powers defined for the Government Position.
 */
@@ -10,8 +11,11 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var ClassModel = require('../../ClassModel');
 
+var Pollable = require('../Poll/Pollable');
+
 var OccupiedPosition = new ClassModel({
 	className: 'OccupiedPosition',
+	superClasses: [Pollable],
 	schema: {
 		startDate: {
 			type: Date,

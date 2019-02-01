@@ -9,8 +9,11 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var ClassModel = require('../../../ClassModel');
 
+var Pollable = require('../../Poll/Pollable');
+
 var Judgement = new ClassModel({
 	className: 'Judgement',
+	superClasses: [Pollable],
 	schema: {
 		date: {
 			type: Date,

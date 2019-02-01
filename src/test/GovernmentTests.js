@@ -301,7 +301,7 @@ describe('Government Module Tests', function() {
 				var governmentInstitution = GovernmentInstitution.create();
 				var testFailed = 0;
 				var error;
-                var expectedErrorMessage = 'Required Group violations found for requirement group(s):  a GovernmentInstitution validation failed: name: Path `name` is required.';
+                var expectedErrorMessage = 'Required Group violations found for requirement group(s):  a GovernmentInstitution validation failed: name: Path `name` is required., poll: Path `poll` is required.';
                 				
 				GovernmentInstitution.save(governmentInstitution).then(
 					function(result) {
@@ -337,7 +337,47 @@ describe('Government Module Tests', function() {
 
                 governmentInstitution.name = 'California State Legislature';
                 governmentInstitution.description = 'The body which writes and passes laws.';
-                governmentInstitution.government = 'abcd1234efgh9876';
+				governmentInstitution.government = 'abcd1234efgh9876';
+				governmentInstitution.poll = Poll.create()._id;
+                governmentInstitution.governmentPostions = [GovernmentPosition.create()._id, GovernmentPosition.create()._id];
+
+				GovernmentInstitution.save(governmentInstitution).then(
+					function(saved) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						error = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('GovernmentInstitution.save() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'GovernmentInstitution.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('GovermentInstitution.poll must be a valid ID.', function(done){
+				var governmentInstitution = GovernmentInstitution.create();
+				var testFailed = 0;
+				var error = null;
+
+				var expectedErrorMessage = 'GovernmentInstitution validation failed: poll: Cast to ObjectID failed for value "abcd1234efgh9876" at path "poll"';
+
+                governmentInstitution.name = 'California State Legislature';
+                governmentInstitution.description = 'The body which writes and passes laws.';
+				governmentInstitution.government = Government.create()._id;
+				governmentInstitution.poll = 'abcd1234efgh9876';
                 governmentInstitution.governmentPostions = [GovernmentPosition.create()._id, GovernmentPosition.create()._id];
 
 				GovernmentInstitution.save(governmentInstitution).then(
@@ -376,6 +416,7 @@ describe('Government Module Tests', function() {
                 governmentInstitution.name = 'California State Assembly';
                 governmentInstitution.description = 'The house of representatives for the California State Legislature.';
                 governmentInstitution.parentGovernmentInstitution = 'abcd1234efgh9876';
+				governmentInstitution.poll = Poll.create()._id;
                 governmentInstitution.governmentPostions = [GovernmentPosition.create()._id, GovernmentPosition.create()._id];
 
 				GovernmentInstitution.save(governmentInstitution).then(
@@ -414,6 +455,7 @@ describe('Government Module Tests', function() {
                 governmentInstitution.name = 'California State Legislature';
                 governmentInstitution.description = 'The body which writes and passes laws.';
                 governmentInstitution.government = Government.create()._id;
+				governmentInstitution.poll = Poll.create()._id;
                 governmentInstitution.governmentPositions = ['abcd1234efgh9876', 'abcd1234efgh9876'];
 
 				GovernmentInstitution.save(governmentInstitution).then(
@@ -452,6 +494,7 @@ describe('Government Module Tests', function() {
                 governmentInstitution.name = 'California State Legislature';
                 governmentInstitution.description = 'The body which writes and passes laws.';
                 governmentInstitution.government = Government.create()._id;
+				governmentInstitution.poll = Poll.create()._id;
                 governmentInstitution.governmentPostions = [GovernmentPosition.create()._id, GovernmentPosition.create()._id];
                 governmentInstitution.childGovernmentInstitutions = ['abcd1234efgh9876', 'abcd1234efgh9876'];
 
@@ -491,6 +534,7 @@ describe('Government Module Tests', function() {
 				
 				governmentInstitution.name = 'California State Legislature';
                 governmentInstitution.description = 'The body which writes and passes laws.';
+				governmentInstitution.poll = Poll.create()._id;
                 governmentInstitution.governmentPostions = [GovernmentPosition.create()._id, GovernmentPosition.create()._id];
                 governmentInstitution.government = Government.create()._id;
                 governmentInstitution.parentGovernmentInstitution = GovernmentInstitution.create()._id;
@@ -530,6 +574,7 @@ describe('Government Module Tests', function() {
 
                 governmentInstitution.name = 'California State Legislature';
                 governmentInstitution.description = 'The body which writes and passes laws.';
+				governmentInstitution.poll = Poll.create()._id;
                 governmentInstitution.governmentPostions = [GovernmentPosition.create()._id, GovernmentPosition.create()._id];
                 governmentInstitution.parentGovernmentInstitution = GovernmentInstitution.create()._id;
 
@@ -1594,7 +1639,7 @@ describe('Government Module Tests', function() {
 				var occupiedPosition = OccupiedPosition.create();
 				var testFailed = 0;
 				var error;
-				var expectedErrorMessage = 'OccupiedPosition validation failed: governmentOfficial: Path `governmentOfficial` is required., governmentPosition: Path `governmentPosition` is required., startDate: Path `startDate` is required.';
+				var expectedErrorMessage = 'OccupiedPosition validation failed: governmentOfficial: Path `governmentOfficial` is required., governmentPosition: Path `governmentPosition` is required., startDate: Path `startDate` is required., poll: Path `poll` is required.';
 
 				OccupiedPosition.save(occupiedPosition).then(
 					function(result) {
@@ -1630,6 +1675,7 @@ describe('Government Module Tests', function() {
 				occupiedPosition.startDate = new Date('2010-01-01');
 				occupiedPosition.endDate = new Date('2011-01-01');
 				occupiedPosition.governmentOfficial = 'abcd1234efgh9876';
+				occupiedPosition.poll = Poll.create()._id;
 				occupiedPosition.governmentPosition = GovernmentPosition.create()._id;
 				occupiedPosition.governmentRoles = [Nominator.create()._id, Executive.create()._id];
 
@@ -1667,7 +1713,46 @@ describe('Government Module Tests', function() {
 				occupiedPosition.startDate = new Date('2010-01-01');
 				occupiedPosition.endDate = new Date('2011-01-01');
 				occupiedPosition.governmentOfficial = GovernmentOfficial.create()._id;
+				occupiedPosition.poll = Poll.create()._id;
 				occupiedPosition.governmentPosition = 'abcd1234efgh9876';
+				occupiedPosition.governmentRoles = [Nominator.create()._id, Executive.create()._id];
+
+				OccupiedPosition.save(occupiedPosition).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('OccupiedPosition.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'OccupiedPosition.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('OccupiedPosition.poll must be a valid ID', function(done) {
+				var occupiedPosition = OccupiedPosition.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'OccupiedPosition validation failed: poll: Cast to ObjectID failed for value "abcd1234efgh9876" at path "poll"';
+
+				occupiedPosition.startDate = new Date('2010-01-01');
+				occupiedPosition.endDate = new Date('2011-01-01');
+				occupiedPosition.governmentOfficial = GovernmentOfficial.create()._id;
+				occupiedPosition.poll = 'abcd1234efgh9876';
+				occupiedPosition.governmentPosition = GovernmentPosition.create()._id;
 				occupiedPosition.governmentRoles = [Nominator.create()._id, Executive.create()._id];
 
 				OccupiedPosition.save(occupiedPosition).then(
@@ -1704,6 +1789,7 @@ describe('Government Module Tests', function() {
 				occupiedPosition.startDate = new Date('2010-01-01');
 				occupiedPosition.endDate = new Date('2011-01-01');
 				occupiedPosition.governmentOfficial = GovernmentOfficial.create()._id;
+				occupiedPosition.poll = Poll.create()._id;
 				occupiedPosition.governmentPosition = GovernmentPosition.create()._id;
 				occupiedPosition.governmentRoles = ['abcd1234efgh9876', 'abcd1234efgh9875'];
 
@@ -1740,6 +1826,7 @@ describe('Government Module Tests', function() {
 				occupiedPosition.startDate = new Date('2010-01-01');
 				occupiedPosition.endDate = new Date('2011-01-01');
 				occupiedPosition.governmentOfficial = GovernmentOfficial.create()._id;
+				occupiedPosition.poll = Poll.create()._id;
 				occupiedPosition.governmentPosition = GovernmentPosition.create()._id;
 				occupiedPosition.governmentRoles = [Nominator.create()._id, Executive.create()._id];
 

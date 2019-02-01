@@ -2,6 +2,7 @@
  ClassModel
  Model: Executive Action
  Abstract 
+ Super Class(es): Pollable
  Discriminated Sub Classes: Individual Executive Action, Group Executive Action
  Description: An official action taken by a Government Official with executive powers. This could be a presidential executive action (individual),
     or an action by an agency of a government (like the FCC killing net neutrality rules) (group).
@@ -12,10 +13,13 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var ClassModel = require('../../../ClassModel');
 
+var Pollable = require('../../Poll/Pollable');
+
 var ExecutiveAction = new ClassModel({
     className: 'ExecutiveAction',
     abstract: true,
     discriminated: true,
+    superClasses: [Pollable],
     schema: {
         name: {
             type: String,

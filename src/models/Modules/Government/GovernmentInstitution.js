@@ -1,6 +1,7 @@
 /* 
  Class Model
  Model: Government Institution
+ Super Class(es): Pollable
  Description: Defines individual institutions or departments that make up a Government. For example, a single city government might have Government
     Instituations for the Police Department, the School Board, the City Council, etc. A Government Institution may also have multiple Government
     Positions. For a Government Institution for a City Council, there may be positions for Board Chair, Board Member, Treasurer, etc.
@@ -14,8 +15,11 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var ClassModel = require('../../ClassModel');
 
+var Pollable = require('../Poll/Pollable');
+
 var GovernmentInstitution = new ClassModel({
     className: 'GovernmentInstitution',
+    superClasses: [Pollable],
     schema: {
         name: {
             type: String,
