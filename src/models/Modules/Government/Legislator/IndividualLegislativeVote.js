@@ -1,5 +1,5 @@
 /* 
- Mongoose Schema and Model Functions
+ Class Model
  Model: Individual Legislative Vote
  Description: Represents a Legislator's vote for a particular Bill. Has a relationship to the Legislator who casted the vote, the Legislate Vote
     (the class that groups the votes), and the Legislative Vote Option. The Legislative Vote Option can be thought of as the actual 'Yay'
@@ -9,105 +9,28 @@
 
 // MongoDB and Mongoose Setup
 var mongoose = require('mongoose');
-var database = require('../../../database');
 var Schema = mongoose.Schema;
+var ClassModel = require('../../../ClassModel');
 
-// Schema and Model Setup
-var IndividualLegislativeVoteSchema = new Schema({
-    legislator: {
-        type: Schema.Types.ObjectId,
-        ref: 'Legislator',
-        required: true
-    },
-    legislativeVote: {
-        type: Schema.Types.ObjectId,
-        ref: 'LegislativeVote',
-        required: true
-    },
-    legislativeVoteOption: {
-        type: Schema.Types.ObjectId,
-        ref: 'LegislativeVoteOption',
-        required: true
+var IndividualLegislativeVote = new ClassModel({
+    className: 'IndividualLegislativeVote',
+    schema: {
+        legislator: {
+            type: Schema.Types.ObjectId,
+            ref: 'Legislator',
+            required: true
+        },
+        legislativeVote: {
+            type: Schema.Types.ObjectId,
+            ref: 'LegislativeVote',
+            required: true
+        },
+        legislativeVoteOption: {
+            type: Schema.Types.ObjectId,
+            ref: 'LegislativeVoteOption',
+            required: true
+        }
     }
 });
 
-var IndividualLegislativeVote = mongoose.model('IndividualLegislativeVote', IndividualLegislativeVoteSchema);
-
-//Methods 
-
-// Create Method
-var create = function() {
-	return new IndividualLegislativeVote({
-        _id: new mongoose.Types.ObjectId()
-	});
-}
-
-// Save
-var save = function(individualLegislativeVote, errorMessage, successMessasge) {
-	return new Promise(function(resolve, reject) {
-		individualLegislativeVote.save(function(err, saved) {
-			if (err) {
-				// if (errorMessage != null)
-				// 	console.log(errorMessage);
-				reject(err);
-			}
-			else {
-				// if (successMessasge != null)
-				// 	console.log(successMessasge);
-
-				resolve(saved);
-			}
-		});
-	});
-}
-
-
-// Comparison Methods
-
-// This is a member comparison, not an instance comparison. i.e. two separate instances can be equal if their members are equal.
-var compare = function(individualLegislativeVote1, individualLegislativeVote2) {
-    var match = true;
-    var message = '';
-
-    if (individualLegislativeVote1.legislator != individualLegislativeVote2.legislator) {
-        match = false;
-        message += 'Legislators do not match. ' + individualLegislativeVote1.legislator +' != ' + individualLegislativeVote2.legislator + '\n';
-    }
-
-    if (individualLegislativeVote1.legislativeVote != individualLegislativeVote2.legislativeVote) {
-        match = false;
-        message += 'Legislative Votes do not match. ' + individualLegislativeVote1.legislativeVote +' != ' + individualLegislativeVote2.legislativeVote + '\n';
-    }
-
-    if (individualLegislativeVote1.legislativeVoteOption != individualLegislativeVote2.legislativeVoteOption) {
-        match = false;
-        message += 'Legislative Vote Definitons do not match. ' + individualLegislativeVote1.legislativeVoteOption +' != ' + individualLegislativeVote2.legislativeVoteOption + '\n';
-    }
-
-	if (match)
-		message = 'Individual Legislative Votes Match';
-
-	return {
-		match: match, 
-		message: message
-	};
-}
-
-// Clear the collection. Never run in production! Only run in a test environment.
-var clear = function() {
-	return new Promise(function(resolve, reject) {	
-		IndividualLegislativeVote.deleteMany({}, function(err) {
-			if (err) reject(err);
-			else resolve();
-		});
-	});
-}
-
-// Exports
-
-exports.Model = IndividualLegislativeVote;
-exports.create = create;
-exports.save = save;
-exports.compare = compare;
-exports.clear = clear;
-
+module.exports = IndividualLegislativeVote;
