@@ -5,6 +5,7 @@
 
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
+require('./database');
 require('@babel/polyfill');
 
 const AllClassModels = [];
@@ -836,10 +837,14 @@ class ClassModel {
 
     // Clear the collection. Never run in production! Only run in a test environment.
     clear() {
-        var model = this.Model;
+        var classModel = this;
+
+        if (this.abstract && !this.discriminated)
+            console.log('clearing abstract class' + this.className);
 
         return new Promise(function(resolve, reject) {	
-		    model.deleteMany({}, function(err) {
+
+		    classModel.Model.deleteMany({}, function(err) {
                 if (err) reject(err);
                 else resolve();
             });
