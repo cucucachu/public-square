@@ -39,7 +39,6 @@ var Bill = new ClassModel({
 		laws: {
 			type: [Schema.Types.ObjectId],
 			ref: 'Law',
-			required: true
 		}
 	}
 });

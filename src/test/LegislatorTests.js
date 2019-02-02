@@ -22,52 +22,27 @@ var Bill = require('../dist/models/Modules/Government/Legislator/Bill');
 var BillVersion = require('../dist/models/Modules/Government/Legislator/BillVersion');
 var Law = require('../dist/models/Modules/Government/Law');
 var VoteOption = require('../dist/models/Modules/Government/VoteOption');
+var Poll = require('../dist/models/Modules/Poll/Poll');
 
 
 describe('Legislator Module Tests', function() {
 
     before(function(done) {
-		Legislator.clear().then(
-			function() {
-				IndividualLegislativeVote.clear().then(
-					function() {
-						LegislativeVoteOption.clear().then(
-							function() {
-								LegislativeVote.clear().then(
-									function() {
-										BillSponsorship.clear().then(
-											function() {
-												Bill.clear().then(
-													function() {
-														BillVersion.clear().then(
-															function() {
-																Law.clear().then(
-																	function() { 
-																		VoteOption.clear().then(done, done);
-																	},
-																	done
-																);
-															}, 
-															done
-														);
-													},
-													done
-												);
-											}, 
-											done
-										);
-									},
-									done
-								);
-							}, 
-							done
-						);
-					}, 
-					done
-				);
-			}, 
-			done
-		);
+		Legislator.clear().then(() => {
+			IndividualLegislativeVote.clear().then(() => {
+				LegislativeVoteOption.clear().then(() => {
+					LegislativeVote.clear().then(() => {
+						BillSponsorship.clear().then(() => {
+							Bill.clear().then(() => {
+								BillVersion.clear().then(() => {
+									Law.clear().finally(done);
+								});
+							});
+						});
+					});
+				});
+			});
+		});
     });
     
     
@@ -274,19 +249,23 @@ describe('Legislator Module Tests', function() {
                 legislator.individualLegislativeVotes = [IndividualLegislativeVote.create()._id, IndividualLegislativeVote.create()._id];
 
 				Legislator.save(legislator).then(
-					function(saved) {
-						Legislator.Model.findById(legislator._id, function(findError, found) {
-							compareResult = Legislator.compare(legislator, found);
+					(saved) => {
+						Legislator.findById(legislator._id).then(
+							(found) => {
+								compareResult = Legislator.compare(legislator, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -461,19 +440,23 @@ describe('Legislator Module Tests', function() {
                 individualLegislativeVote.legislativeVoteOption = LegislativeVoteOption.create()._id;
 
 				IndividualLegislativeVote.save(individualLegislativeVote).then(
-					function(saved) {
-						IndividualLegislativeVote.Model.findById(individualLegislativeVote._id, function(findError, found) {
-							compareResult = IndividualLegislativeVote.compare(individualLegislativeVote, found);
+					(saved) => {
+						IndividualLegislativeVote.findById(individualLegislativeVote._id).then(
+							(found) => {
+								compareResult = IndividualLegislativeVote.compare(individualLegislativeVote, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -613,19 +596,23 @@ describe('Legislator Module Tests', function() {
                 legislativeVote.individualLegislativeVotes = [IndividualLegislativeVote.create()._id, IndividualLegislativeVote.create()._id];
 
 				LegislativeVote.save(legislativeVote).then(
-					function(saved) {
-						LegislativeVote.Model.findById(legislativeVote._id, function(findError, found) {
-							compareResult = LegislativeVote.compare(legislativeVote, found);
+					(saved) => {
+						LegislativeVote.findById(legislativeVote._id).then(
+							(found) => {
+								compareResult = LegislativeVote.compare(legislativeVote, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -741,7 +728,7 @@ describe('Legislator Module Tests', function() {
 				var bill = Bill.create();
 				var testFailed = 0;
 				var error;
-                var expectedErrorMessage = 'Bill validation failed: name: Path `name` is required.';
+                var expectedErrorMessage = 'Bill validation failed: billVersions: Path `billVersions` is required.Bill validation failed: billSponsorships: Path `billSponsorships` is required. Bill validation failed: name: Path `name` is required., poll: Path `poll` is required.';
 
 				Bill.save(bill).then(
 					function(result) {
@@ -772,14 +759,15 @@ describe('Legislator Module Tests', function() {
 				var bill = Bill.create();
 				var testFailed = 0;
 				var error;
-                var expectedErrorMessage = 'Bill validation failed: billVersions: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "billVersions"';
+                var expectedErrorMessage = 'Bill validation failed: billVersions: Path `billVersions` is required. Bill validation failed: billVersions: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "billVersions"';
 
                 bill.name = 'Get Everyone Using Public Square Act 2019';
                 bill.passageDate = new Date();
-                bill.signedDate = new Date();
+				bill.signedDate = new Date();
+				bill.poll = Poll.create()._id;
                 bill.billVersions = ['abcd1234efgh9876', 'abcd1234efgh9875'];
                 bill.laws = [Law.create()._id, Law.create()._id];
-                bill.sponsorShips = [BillSponsorship.create()._id, BillSponsorship.create().id];
+                bill.billSponsorships = [BillSponsorship.create()._id, BillSponsorship.create().id];
 
 				Bill.save(bill).then(
 					function(result) {
@@ -815,9 +803,10 @@ describe('Legislator Module Tests', function() {
                 bill.name = 'Get Everyone Using Public Square Act 2019';
                 bill.passageDate = new Date();
                 bill.signedDate = new Date();
+				bill.poll = Poll.create()._id;
                 bill.billVersions = [BillVersion.create()._id, BillVersion.create()._id];
                 bill.laws = ['abcd1234efgh9876', 'abcd1234efgh9875'];
-                bill.sponsorShips = [BillSponsorship.create()._id, BillSponsorship.create().id];
+                bill.billSponsorships = [BillSponsorship.create()._id, BillSponsorship.create().id];
 
 				Bill.save(bill).then(
 					function(result) {
@@ -848,11 +837,12 @@ describe('Legislator Module Tests', function() {
 				var bill = Bill.create();
 				var testFailed = 0;
 				var error;
-                var expectedErrorMessage = 'Bill validation failed: billSponsorships: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "billSponsorships"';
+                var expectedErrorMessage = 'Bill validation failed: billSponsorships: Path `billSponsorships` is required. Bill validation failed: billSponsorships: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "billSponsorships"';
 
                 bill.name = 'Get Everyone Using Public Square Act 2019';
                 bill.passageDate = new Date();
                 bill.signedDate = new Date();
+				bill.poll = Poll.create()._id;
                 bill.billVersions = [BillVersion.create()._id, BillVersion.create()._id];
                 bill.laws = [Law.create()._id, Law.create()._id];
                 bill.billSponsorships = ['abcd1234efgh9876', 'abcd1234efgh9875'];
@@ -890,24 +880,29 @@ describe('Legislator Module Tests', function() {
                 bill.name = 'Get Everyone Using Public Square Act 2019';
                 bill.passageDate = new Date();
                 bill.signedDate = new Date();
+				bill.poll = Poll.create()._id;
                 bill.billVersions = [BillVersion.create()._id, BillVersion.create()._id];
                 bill.laws = [Law.create()._id, Law.create()._id];
-                bill.sponsorShips = [BillSponsorship.create()._id, BillSponsorship.create().id];
+                bill.billSponsorships = [BillSponsorship.create()._id, BillSponsorship.create().id];
 
 				Bill.save(bill).then(
-					function(saved) {
-						Bill.Model.findById(bill._id, function(findError, found) {
-							compareResult = Bill.compare(bill, found);
+					(saved) => {
+						Bill.findById(bill._id).then(
+							(found) => {
+								compareResult = Bill.compare(bill, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -1094,19 +1089,23 @@ describe('Legislator Module Tests', function() {
                 billVersion.legislativeVotes = [LegislativeVote.create()._id, LegislativeVote.create()._id];
 
 				BillVersion.save(billVersion).then(
-					function(saved) {
-						BillVersion.Model.findById(billVersion._id, function(findError, found) {
-							compareResult = BillVersion.compare(billVersion, found);
+					(saved) => {
+						BillVersion.findById(billVersion._id).then(
+							(found) => {
+								compareResult = BillVersion.compare(billVersion, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -1289,19 +1288,23 @@ describe('Legislator Module Tests', function() {
                 billSponsorship.bill = Bill.create()._id;
 
 				BillSponsorship.save(billSponsorship).then(
-					function(saved) {
-						BillSponsorship.Model.findById(billSponsorship._id, function(findError, found) {
-							compareResult = BillSponsorship.compare(billSponsorship, found);
+					(saved) => {
+						BillSponsorship.findById(billSponsorship._id).then(
+							(found) => {
+								compareResult = BillSponsorship.compare(billSponsorship, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
