@@ -27,38 +27,20 @@ var Confirmer = require('../dist/models/Modules/Government/Nomination/Confirmer'
 
 describe('Nomination Module Tests', function() {
 
-    before(function(done) {
-        Nomination.clear().then(
-            function() {
-                Nominator.clear().then(
-                    function() {
-                        Nominee.clear().then(
-                            function() {
-                                ConfirmationVote.clear().then(
-                                    function() {
-                                        IndividualConfirmationVote.clear().then(
-                                            function() {
-                                                ConfirmationVoteOption.clear().then(
-                                                    function() {
-                                                        Confirmer.clear().then(done, done);
-                                                    },
-                                                    done
-                                                );
-                                            },
-                                            done
-                                        );
-                                    },
-                                    done
-                                );
-                            },
-                            done
-                        );
-                    },
-                    done
-                );
-            },
-            done
-        );
+    before((done) => {
+        Nomination.clear().then(() => {
+			Nominator.clear().then(() => {
+				Nominee.clear().then(() => {
+					ConfirmationVote.clear().then(() => {
+						IndividualConfirmationVote.clear().then(() => {
+							ConfirmationVoteOption.clear().then(() => {
+								Confirmer.clear().finally(done);
+							});
+						});
+					});
+				});
+			});
+		});
     });
     
 	describe('Nomination Model Tests', function() {
@@ -83,7 +65,7 @@ describe('Nomination Module Tests', function() {
 				var testFailed = 0;
                 var error;
                 
-                var expectedErrorMessage = 'Nomination validation failed: governmentPosition: Path `governmentPosition` is required., nominee: Path `nominee` is required., nominator: Path `nominator` is required.';
+                var expectedErrorMessage = 'Nomination validation failed: nominee: Path `nominee` is required., nominator: Path `nominator` is required., governmentPosition: Path `governmentPosition` is required.';
 
 				Nomination.save(nomination).then(
 					function(result) {
@@ -318,19 +300,23 @@ describe('Nomination Module Tests', function() {
                 nomination.confirmationVotes = [ConfirmationVote.create()._id, ConfirmationVote.create()._id];
 
 				Nomination.save(nomination).then(
-					function(saved) {
-						Nomination.Model.findById(nomination._id, function(findError, found) {
-							compareResult = Nomination.compare(nomination, found);
+					(saved) => {
+						Nomination.findById(nomination._id).then(
+							(found) => {
+								compareResult = Nomination.compare(nomination, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -467,19 +453,23 @@ describe('Nomination Module Tests', function() {
                 nominator.nominations = [Nomination.create()._id, Nomination.create()._id];
 
 				Nominator.save(nominator).then(
-					function(saved) {
-						Nominator.Model.findById(nominator._id, function(findError, found) {
-							compareResult = Nominator.compare(nominator, found);
+					(saved) => {
+						Nominator.findById(nominator._id).then(
+							(found) => {
+								compareResult = Nominator.compare(nominator, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -512,7 +502,7 @@ describe('Nomination Module Tests', function() {
 				var nominee = Nominee.create();
 				var testFailed = 0;
 				var error;
-                var expectedErrorMessage = 'Nominee validation failed: user: Path `user` is required.';
+                var expectedErrorMessage = 'Nominee validation failed: nominations: Path `nominations` is required. Nominee validation failed: user: Path `user` is required., startDate: Path `startDate` is required.';
 
 				Nominee.save(nominee).then(
 					function(result) {
@@ -545,8 +535,9 @@ describe('Nomination Module Tests', function() {
 				var error;
                 var expectedErrorMessage = 'Nominee validation failed: user: Cast to ObjectID failed for value "abcd1234efgh9876" at path "user"';
 
+				nominee.startDate = new Date();
                 nominee.user = 'abcd1234efgh9876';
-                nominee.nominations = [Nomination.create()._id, Nomination.create()._id];
+				nominee.nominations = [Nomination.create()._id, Nomination.create()._id];
 
 				Nominee.save(nominee).then(
 					function(result) {
@@ -577,8 +568,9 @@ describe('Nomination Module Tests', function() {
 				var nominee = Nominee.create();
 				var testFailed = 0;
 				var error;
-                var expectedErrorMessage = 'Nominee validation failed: nominations: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "nominations"';
+                var expectedErrorMessage = 'Nominee validation failed: nominations: Path `nominations` is required. Nominee validation failed: nominations: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "nominations"';
                 
+				nominee.startDate = new Date();
                 nominee.user = User.create()._id;
                 nominee.nominations = ['abcd1234efgh9876', 'abcd1234efgh9875'];
 
@@ -612,23 +604,28 @@ describe('Nomination Module Tests', function() {
 				var error = null;
                 var compareResult;
 
+				nominee.startDate = new Date();
                 nominee.user = User.create()._id;
                 nominee.nominations = [Nomination.create()._id, Nomination.create()._id];
 
 				Nominee.save(nominee).then(
-					function(saved) {
-						Nominee.Model.findById(nominee._id, function(findError, found) {
-							compareResult = Nominee.compare(nominee, found);
+					(saved) => {
+						Nominee.findById(nominee._id).then(
+							(found) => {
+								compareResult = Nominee.compare(nominee, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -768,19 +765,23 @@ describe('Nomination Module Tests', function() {
                 confirmationVote.individualConfirmationVotes = [IndividualConfirmationVote.create()._id, IndividualConfirmationVote.create()._id];
 
 				ConfirmationVote.save(confirmationVote).then(
-					function(saved) {
-						ConfirmationVote.Model.findById(confirmationVote._id, function(findError, found) {
-							compareResult = ConfirmationVote.compare(confirmationVote, found);
+					(saved) => {
+						ConfirmationVote.findById(confirmationVote._id).then(
+							(found) => {
+								compareResult = ConfirmationVote.compare(confirmationVote, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -955,19 +956,23 @@ describe('Nomination Module Tests', function() {
                 individualConfirmationVote.confirmationVoteOption = ConfirmationVoteOption.create()._id;
 
 				IndividualConfirmationVote.save(individualConfirmationVote).then(
-					function(saved) {
-						IndividualConfirmationVote.Model.findById(individualConfirmationVote._id, function(findError, found) {
-							compareResult = IndividualConfirmationVote.compare(individualConfirmationVote, found);
+					(saved) => {
+						IndividualConfirmationVote.findById(individualConfirmationVote._id).then(
+							(found) => {
+								compareResult = IndividualConfirmationVote.compare(individualConfirmationVote, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -1038,19 +1043,23 @@ describe('Nomination Module Tests', function() {
                 confirmationVoteOption.countsTowardsTotal = true;
 
 				ConfirmationVoteOption.save(confirmationVoteOption).then(
-					function(saved) {
-						ConfirmationVoteOption.Model.findById(confirmationVoteOption._id, function(findError, found) {
-							compareResult = ConfirmationVoteOption.compare(confirmationVoteOption, found);
+					(saved) => {
+						ConfirmationVoteOption.findById(confirmationVoteOption._id).then(
+							(found) => {
+								compareResult = ConfirmationVoteOption.compare(confirmationVoteOption, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -1187,19 +1196,23 @@ describe('Nomination Module Tests', function() {
                 confirmer.individualConfirmationVotes = [IndividualConfirmationVote.create()._id, IndividualConfirmationVote.create()._id];
 
 				Confirmer.save(confirmer).then(
-					function(saved) {
-						Confirmer.Model.findById(confirmer._id, function(findError, found) {
-							compareResult = Confirmer.compare(confirmer, found);
+					(saved) => {
+						Confirmer.findById(confirmer._id).then(
+							(found) => {
+								compareResult = Confirmer.compare(confirmer, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
