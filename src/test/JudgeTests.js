@@ -19,36 +19,22 @@ var JudicialCase = require('../dist/models/Modules/Government/Judge/JudicialCase
 var JudicialOpinion = require('../dist/models/Modules/Government/Judge/JudicialOpinion');
 var OccupiedPosition = require('../dist/models/Modules/Government/OccupiedPosition');
 var Law = require('../dist/models/Modules/Government/Law');
+var Poll = require('../dist/models/Modules/Poll/Poll');
 
 describe('Judge Module Tests', function() {
 
     before(function(done) {
-        Judge.clear().then(
-            function() {
-                IndividualJudgement.clear().then(
-                    function() {
-                        JudgementOption.clear().then(
-                            function() {
-                                Judgement.clear().then(
-                                    function() {
-                                        JudicialCase.clear().then(
-                                            function() {
-                                                JudicialOpinion.clear().then(done, done);
-                                            },
-                                            done
-                                        );
-                                    },
-                                    done
-                                );
-                            },
-                            done
-                        );
-                    },
-                    done
-                );
-            },
-            done
-        );
+		Judge.clear().then(() => {
+			IndividualJudgement.clear().then(() => {
+				JudgementOption.clear().then(() => {
+					Judgement.clear().then(() => {
+						JudicialCase.clear().then(() => {
+							JudicialOpinion.clear().finally(done);
+						});
+					});
+				});
+			});
+		});
     });
 
     
@@ -255,19 +241,23 @@ describe('Judge Module Tests', function() {
                 judge.signsJudicialOpinions = [JudicialOpinion.create()._id, JudicialOpinion.create()._id];
 
 				Judge.save(judge).then(
-					function(saved) {
-						Judge.Model.findById(judge._id, function(findError, found) {
-							compareResult = Judge.compare(judge, found);
+					(saved) => {
+						Judge.findById(judge._id).then(
+							(found) => {
+								compareResult = Judge.compare(judge, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -442,19 +432,23 @@ describe('Judge Module Tests', function() {
                 individualJudgement.judgementOption = JudgementOption.create()._id;
 
 				IndividualJudgement.save(individualJudgement).then(
-					function(saved) {
-						IndividualJudgement.Model.findById(individualJudgement._id, function(findError, found) {
-							compareResult = IndividualJudgement.compare(individualJudgement, found);
+					(saved) => {
+						IndividualJudgement.findById(individualJudgement._id).then(
+							(found) => {
+								compareResult = IndividualJudgement.compare(individualJudgement, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -525,19 +519,23 @@ describe('Judge Module Tests', function() {
                 judgementOption.countsTowardsTotal = true;
 
 				JudgementOption.save(judgementOption).then(
-					function(saved) {
-						JudgementOption.Model.findById(judgementOption._id, function(findError, found) {
-							compareResult = JudgementOption.compare(judgementOption, found);
+					(saved) => {
+						JudgementOption.findById(judgementOption._id).then(
+							(found) => {
+								compareResult = JudgementOption.compare(judgementOption, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -570,7 +568,7 @@ describe('Judge Module Tests', function() {
 				var judgement = Judgement.create();
 				var testFailed = 0;
 				var error;
-                var expectedErrorMessage = 'Judgement validation failed: judicialCase: Path `judicialCase` is required., date: Path `date` is required.';
+                var expectedErrorMessage = 'Judgement validation failed: judicialCase: Path `judicialCase` is required., date: Path `date` is required., poll: Path `poll` is required.';
 
 				Judgement.save(judgement).then(
 					function(result) {
@@ -604,7 +602,44 @@ describe('Judge Module Tests', function() {
                 var expectedErrorMessage = 'Judgement validation failed: judicialCase: Cast to ObjectID failed for value "abcd1234efgh9876" at path "judicialCase"';
 
                 judgement.date = new Date();
-                judgement.judicialCase = 'abcd1234efgh9876';
+				judgement.judicialCase = 'abcd1234efgh9876';
+				judgement.poll = Poll.create()._id;
+                judgement.individualJudgements = [IndividualJudgement.create()._id, IndividualJudgement.create()._id];
+                
+				Judgement.save(judgement).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('Judgement.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'Judgement.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('Judgement.poll must be a valid ID.', function(done) {
+				var judgement = Judgement.create();
+				var testFailed = 0;
+				var error;
+                var expectedErrorMessage = 'Judgement validation failed: poll: Cast to ObjectID failed for value "abcd1234efgh9876" at path "poll"';
+
+                judgement.date = new Date();
+				judgement.judicialCase = JudicialCase.create()._id;
+				judgement.poll ='abcd1234efgh9876';
                 judgement.individualJudgements = [IndividualJudgement.create()._id, IndividualJudgement.create()._id];
                 
 				Judgement.save(judgement).then(
@@ -640,6 +675,7 @@ describe('Judge Module Tests', function() {
 
                 judgement.date = new Date();
                 judgement.judicialCase = JudicialCase.create()._id;
+				judgement.poll = Poll.create()._id;
                 judgement.individualJudgements = ['abcd1234efgh9876', 'abcd1234efgh9875'];
                 
 				Judgement.save(judgement).then(
@@ -674,22 +710,27 @@ describe('Judge Module Tests', function() {
 
                 judgement.date = new Date();
                 judgement.judicialCase = JudicialCase.create()._id;
+				judgement.poll = Poll.create()._id;
                 judgement.individualJudgements = [IndividualJudgement.create()._id, IndividualJudgement.create()._id];
 
 				Judgement.save(judgement).then(
-					function(saved) {
-						Judgement.Model.findById(judgement._id, function(findError, found) {
-							compareResult = Judgement.compare(judgement, found);
+					(saved) => {
+						Judgement.findById(judgement._id).then(
+							(found) => {
+								compareResult = Judgement.compare(judgement, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -836,19 +877,23 @@ describe('Judge Module Tests', function() {
                 judicialCase.judicialOpinions = [JudicialOpinion.create()._id, JudicialOpinion.create()._id];
 
 				JudicialCase.save(judicialCase).then(
-					function(saved) {
-						JudicialCase.Model.findById(judicialCase._id, function(findError, found) {
-							compareResult = JudicialCase.compare(judicialCase, found);
+					(saved) => {
+						JudicialCase.findById(judicialCase._id).then(
+							(found) => {
+								compareResult = JudicialCase.compare(judicialCase, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -882,7 +927,7 @@ describe('Judge Module Tests', function() {
 				var testFailed = 0;
                 var error;
                 
-                var expectedErrorMessage = 'JudicialOpinion validation failed: judicialCase: Path `judicialCase` is required., text: Path `text` is required.';
+                var expectedErrorMessage = 'JudicialOpinion validation failed: judicialCase: Path `judicialCase` is required., text: Path `text` is required., poll: Path `poll` is required.';
 
 				JudicialOpinion.save(judicialOpinion).then(
 					function(result) {
@@ -917,7 +962,47 @@ describe('Judge Module Tests', function() {
                 var expectedErrorMessage = 'JudicialOpinion validation failed: judicialCase: Cast to ObjectID failed for value "abcd1234efgh9876" at path "judicialCase"';
 
                 judicialOpinion.text = 'I think hamburgers are alright.';
-                judicialOpinion.judicialCase = 'abcd1234efgh9876';
+				judicialOpinion.judicialCase = 'abcd1234efgh9876';
+				judicialOpinion.poll = Poll.create()._id;
+                judicialOpinion.writtenByJudges = [Judge.create()._id, Judge.create()._id];
+                judicialOpinion.signedByJudges = [Judge.create()._id, Judge.create()._id];
+                judicialOpinion.laws = [Law.create()._id, Law.create()._id];
+
+				JudicialOpinion.save(judicialOpinion).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('JudicialOpinion.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'JudicialOpinion.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});
+
+			it('JudicialOpinion.poll must be a valid of ID.', function(done) {
+				var judicialOpinion = JudicialOpinion.create();
+				var testFailed = 0;
+                var error;
+                
+                var expectedErrorMessage = 'JudicialOpinion validation failed: poll: Cast to ObjectID failed for value "abcd1234efgh9876" at path "poll"';
+
+                judicialOpinion.text = 'I think hamburgers are alright.';
+				judicialOpinion.judicialCase = JudicialCase.create()._id;
+				judicialOpinion.poll = 'abcd1234efgh9876';
                 judicialOpinion.writtenByJudges = [Judge.create()._id, Judge.create()._id];
                 judicialOpinion.signedByJudges = [Judge.create()._id, Judge.create()._id];
                 judicialOpinion.laws = [Law.create()._id, Law.create()._id];
@@ -956,6 +1041,7 @@ describe('Judge Module Tests', function() {
 
                 judicialOpinion.text = 'I think hamburgers are alright.';
                 judicialOpinion.judicialCase = JudicialCase.create()._id;
+				judicialOpinion.poll = Poll.create()._id;
                 judicialOpinion.writtenByJudges = ['abcd1234efgh9876', 'abcd1234efgh9876'];
                 judicialOpinion.signedByJudges = [Judge.create()._id, Judge.create()._id];
                 judicialOpinion.laws = [Law.create()._id, Law.create()._id];
@@ -994,6 +1080,7 @@ describe('Judge Module Tests', function() {
 
                 judicialOpinion.text = 'I think hamburgers are alright.';
                 judicialOpinion.judicialCase = JudicialCase.create()._id;
+				judicialOpinion.poll = Poll.create()._id;
                 judicialOpinion.writtenByJudges = [Judge.create()._id, Judge.create()._id];
                 judicialOpinion.signedByJudges = ['abcd1234efgh9876', 'abcd1234efgh9876'];
                 judicialOpinion.laws = [Law.create()._id, Law.create()._id];
@@ -1032,6 +1119,7 @@ describe('Judge Module Tests', function() {
 
                 judicialOpinion.text = 'I think hamburgers are alright.';
                 judicialOpinion.judicialCase = JudicialCase.create()._id;
+				judicialOpinion.poll = Poll.create()._id;
                 judicialOpinion.writtenByJudges = [Judge.create()._id, Judge.create()._id];
                 judicialOpinion.signedByJudges = [Judge.create()._id, Judge.create()._id];
                 judicialOpinion.laws = ['abcd1234efgh9876', 'abcd1234efgh9876'];
@@ -1068,30 +1156,29 @@ describe('Judge Module Tests', function() {
 
                 judicialOpinion.text = 'I think hamburgers are alright.';
                 judicialOpinion.judicialCase = JudicialCase.create()._id;
+				judicialOpinion.poll = Poll.create()._id;
                 judicialOpinion.writtenByJudges = [Judge.create()._id, Judge.create()._id];
                 judicialOpinion.signedByJudges = [Judge.create()._id, Judge.create()._id];
                 judicialOpinion.laws = [Law.create()._id, Law.create()._id];
 
 				JudicialOpinion.save(judicialOpinion).then(
-					function(saved) {
-						JudicialOpinion.Model.findById(judicialOpinion._id, function(findError, found) {
-							if (findError) {
-								error = findError;
-							}
-							else {
+					(saved) => {
+						JudicialOpinion.findById(judicialOpinion._id).then(
+							(found) => {
 								compareResult = JudicialOpinion.compare(judicialOpinion, found);
 	
 								if (compareResult.match == false)
 									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
 							}
-
-						});
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
