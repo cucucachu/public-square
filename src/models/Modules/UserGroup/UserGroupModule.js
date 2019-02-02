@@ -10,3 +10,5 @@ require('./UserGroup');
 require('./GroupManager');
 require('./GroupMember');
 require('./GroupEvent');
+require('./Organization');
+require('./OrganizationMember');
