@@ -116,7 +116,6 @@ describe('Poll Module Tests', function() {
 						);
 					},
 					function(saveErr) {
-						testFailed = 1;
 						error = saveErr;
 					}
 				).finally(function() {
@@ -411,7 +410,6 @@ describe('Poll Module Tests', function() {
 						);
 					},
 					(saveErr) => {
-						testFailed = 1;
 						error = saveErr;
 					}
 				).finally(() => {
@@ -499,7 +497,6 @@ describe('Poll Module Tests', function() {
 						);
 					},
 					(saveErr) => {
-						testFailed = 1;
 						error = saveErr;
 					}
 				).finally(() => {
@@ -656,7 +653,6 @@ describe('Poll Module Tests', function() {
 						);
 					},
 					(saveErr) => {
-						testFailed = 1;
 						error = saveErr;
 					}
 				).finally(() => {
@@ -813,7 +809,6 @@ describe('Poll Module Tests', function() {
 						);
 					},
 					(saveErr) => {
-						testFailed = 1;
 						error = saveErr;
 					}
 				).finally(() => {

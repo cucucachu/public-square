@@ -18,31 +18,20 @@ var ExecutiveVote = require('../dist/models/Modules/Government/Executive/Executi
 var IndividualExecutiveVote = require('../dist/models/Modules/Government/Executive/IndividualExecutiveVote');
 var ExecutiveVoteOption = require('../dist/models/Modules/Government/Executive/ExecutiveVoteOption');
 var OccupiedPosition = require('../dist/models/Modules/Government/OccupiedPosition');
+var Poll = require('../dist/models/Modules/Poll/Poll');
 
 describe('Executive Module Tests', function() {
 
-    before(function(done) {
-        Executive.clear().then(
-            function() {
-                ExecutiveAction.clear().then(
-                    function() {
-                        ExecutiveVote.clear().then(
-                            function() {
-                                IndividualExecutiveVote.clear().then(
-                                    function() {
-                                        ExecutiveVoteOption.clear().then(done, done);
-                                    },
-                                    done
-                                );
-                            },
-                            done
-                        );
-                    },
-                    done
-                );
-            },
-            done
-        );
+    before((done) => {
+        Executive.clear().then(() => {
+			ExecutiveAction.clear().then(() => {
+				ExecutiveVote.clear().then(() => {
+					IndividualExecutiveVote.clear().then(() =>{
+						ExecutiveVoteOption.clear().then(done, done);
+					});
+				});
+			});
+		});
     });
     
 	describe('Executive Model Tests', function() {
@@ -100,7 +89,7 @@ describe('Executive Module Tests', function() {
                 var expectedErrorMessage = 'Executive validation failed: occupiedPosition: Cast to ObjectID failed for value "abcd1234efgh9876" at path "occupiedPosition"';
 
                 executive.occupiedPosition = 'abcd1234efgh9876';
-                executive.executiveActions = [ExecutiveAction.create()._id, ExecutiveAction.create()._id];
+                executive.executiveActions = [IndividualExecutiveAction.create()._id, GroupExecutiveAction.create()._id];
                 executive.individualExecutiveVotes = [IndividualExecutiveVote.create()._id, IndividualExecutiveVote.create()._id];
 
                 Executive.save(executive).then(
@@ -170,7 +159,7 @@ describe('Executive Module Tests', function() {
                 var expectedErrorMessage = 'Executive validation failed: individualExecutiveVotes: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "individualExecutiveVotes"';
 
                 executive.occupiedPosition = OccupiedPosition.create()._id;
-                executive.executiveActions = [ExecutiveAction.create()._id, ExecutiveAction.create()._id];
+                executive.executiveActions = [IndividualExecutiveAction.create()._id, GroupExecutiveAction.create()._id];
                 executive.individualExecutiveVotes = ['abcd1234efgh9876', 'abcd1234efgh9875'];
 
                 Executive.save(executive).then(
@@ -204,23 +193,27 @@ describe('Executive Module Tests', function() {
 				var compareResult;
 
                 executive.occupiedPosition = OccupiedPosition.create()._id;
-                executive.executiveActions = [ExecutiveAction.create()._id, ExecutiveAction.create()._id];
+                executive.executiveActions = [IndividualExecutiveAction.create()._id, GroupExecutiveAction.create()._id];
                 executive.individualExecutiveVotes = [IndividualExecutiveVote.create()._id, IndividualExecutiveVote.create()._id];
 
 				Executive.save(executive).then(
-					function(saved) {
-						Executive.Model.findById(executive._id, function(findError, found) {
-							compareResult = Executive.compare(executive, found);
+					(saved) => {
+						Executive.findById(executive._id).then(
+							(found) => {
+								compareResult = Executive.compare(executive, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -235,157 +228,27 @@ describe('Executive Module Tests', function() {
 	describe('ExecutiveAction Model Tests', function() {
 
 		describe('ExecutiveAction.create()', function() {
-		
-			it('ExecutiveAction.create() creates a ExecutiveAction instance.', function() {
-				var executiveAction = ExecutiveAction.create();
-				assert(typeof(executiveAction) === "object");
-			});
 
-			it('ExecutiveAction.create() creates a ExecutiveAction instance with _id field populated', function(){
-				var executiveAction = ExecutiveAction.create();
-				assert(typeof(executiveAction._id) === "object" && /^[a-f\d]{24}$/i.test(executiveAction._id));
-			});
-		});
-
-		describe('ExecutiveAction.save()', function() {
-
-			it('ExecutiveAction.save() throws an error if required fields are missing.', function(done) {
-				var executiveAction = ExecutiveAction.create();
-				var testFailed = 0;
-				var error;
-                var expectedErrorMessage = 'ExecutiveAction validation failed: text: Path `text` is required., name: Path `name` is required.';
-
-				ExecutiveAction.save(executiveAction).then(
-					function(result) {
-						testFailed = 1;
-					},
-					function(rejectionErr) {
-						error = rejectionErr;
+			it('You cannot created an instance of an abstract class.', function() {
+				let expectedErrorMessage = 'You cannot create an instance of an abstract class.';
+	
+				try {
+					ExecutiveAction.create();
+				}
+				catch(error) {
+					if (error.message != expectedErrorMessage) {
+						throw new Error('ExecutiveAction.create() did not throw the expected error.\n' +
+							'Expected: ' + expectedErrorMessage + '\n' + 
+							'Actual:   ' + error.message
+						);
 					}
-				)
-				.finally(function() {
-					if (testFailed) done(new Error('ExecutiveAction.save() promise resolved when it should have been rejected with Validation Error'));
 					else {
-						if (error != null && error.message == expectedErrorMessage) {
-							done();
-						}
-						else{
-							done(new Error(
-								'ExecutiveAction.save() did not return the correct Validation Error.\n' +
-								'   Expected: ' + expectedErrorMessage + '\n' +
-								'   Actual:   ' + error.message
-							));
-						}
+						return true;
 					}
-				});
+				}
+	
+				throw new Error('ExecutiveAction.create() should have thrown the error: ' + expectedErrorMessage);
 			});
-
-			it('ExecutiveAction.effectiveDate must be greater than or equal to ExecutiveAction.passedDate.', function(done) {
-				var executiveAction = ExecutiveAction.create();
-				var testFailed = 0;
-				var error;
-                var expectedErrorMessage = 'ExecutiveAction validation failed: effectiveDate: Effective Date must be greater than or equal to Passed Date.';
-
-                executiveAction.name = 'Give Candy to the Babies Act';
-                executiveAction.text = 'Every baby gets a candy.';
-                executiveAction.passedDate = new Date('2020-01-01');
-                executiveAction.effectiveDate = new Date('2010-01-01');
-                executiveAction.executives = [Executive.create()._id, Executive.create()._id];
-
-				ExecutiveAction.save(executiveAction).then(
-					function(result) {
-						testFailed = 1;
-					},
-					function(rejectionErr) {
-						error = rejectionErr;
-					}
-				)
-				.finally(function() {
-					if (testFailed) done(new Error('ExecutiveAction.save() promise resolved when it should have been rejected with Validation Error'));
-					else {
-						if (error != null && error.message == expectedErrorMessage) {
-							done();
-						}
-						else{
-							done(new Error(
-								'ExecutiveAction.save() did not return the correct Validation Error.\n' +
-								'   Expected: ' + expectedErrorMessage + '\n' +
-								'   Actual:   ' + error.message
-							));
-						}
-					}
-				});
-			});
-
-			it('ExecutiveAction.executives is a valid Array of IDs.', function(done) {
-				var executiveAction = ExecutiveAction.create();
-				var testFailed = 0;
-				var error;
-                var expectedErrorMessage = 'ExecutiveAction validation failed: executives: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "executives"';
-
-                executiveAction.name = 'Give Candy to the Babies Act';
-                executiveAction.text = 'Every baby gets a candy.';
-                executiveAction.passedDate = new Date('2020-01-01');
-                executiveAction.effectiveDate = new Date('2020-01-01');
-                executiveAction.executives = ['abcd1234efgh9876', 'abcd1234efgh9875'];
-
-				ExecutiveAction.save(executiveAction).then(
-					function(result) {
-						testFailed = 1;
-					},
-					function(rejectionErr) {
-						error = rejectionErr;
-					}
-				)
-				.finally(function() {
-					if (testFailed) done(new Error('ExecutiveAction.save() promise resolved when it should have been rejected with Validation Error'));
-					else {
-						if (error != null && error.message == expectedErrorMessage) {
-							done();
-						}
-						else{
-							done(new Error(
-								'ExecutiveAction.save() did not return the correct Validation Error.\n' +
-								'   Expected: ' + expectedErrorMessage + '\n' +
-								'   Actual:   ' + error.message
-							));
-						}
-					}
-				});
-			});
-    
-			it('Valid Call Saves ExecutiveAction.', function(done){
-				var executiveAction = ExecutiveAction.create();
-				var error = null;
-                var compareResult;
-
-                executiveAction.name = 'Give Candy to the Babies Act';
-                executiveAction.text = 'Every baby gets a candy.';
-                executiveAction.passedDate = new Date('2020-01-01');
-                executiveAction.effectiveDate = new Date('2020-01-01');
-                executiveAction.executives = [Executive.create()._id, Executive.create()._id];
-
-				ExecutiveAction.save(executiveAction).then(
-					function(saved) {
-						ExecutiveAction.Model.findById(executiveAction._id, function(findError, found) {
-							compareResult = ExecutiveAction.compare(executiveAction, found);
-
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
-					},
-					function(saveErr) {
-						testFailed = 1;
-						error = saveErr;
-					}
-				).finally(function() {
-					if (error)
-						done(error);
-					else
-						done();
-				});
-			});
-
 		});
 
 	});
@@ -411,7 +274,7 @@ describe('Executive Module Tests', function() {
 				var individualExecutiveAction = IndividualExecutiveAction.create();
 				var testFailed = 0;
 				var error;
-                var expectedErrorMessage = 'IndividualExecutiveAction validation failed: text: Path `text` is required., name: Path `name` is required.';
+                var expectedErrorMessage = 'IndividualExecutiveAction validation failed: text: Path `text` is required., name: Path `name` is required., poll: Path `poll` is required.';
 
 				IndividualExecutiveAction.save(individualExecutiveAction).then(
 					function(result) {
@@ -447,7 +310,8 @@ describe('Executive Module Tests', function() {
                 individualExecutiveAction.name = 'Give Candy to the Babies Act';
                 individualExecutiveAction.text = 'Every baby gets a candy.';
                 individualExecutiveAction.passedDate = new Date('2020-01-01');
-                individualExecutiveAction.effectiveDate = new Date('2010-01-01');
+				individualExecutiveAction.effectiveDate = new Date('2010-01-01');
+				individualExecutiveAction.poll = Poll.create()._id;
                 individualExecutiveAction.executives = [Executive.create()._id, Executive.create()._id];
 
 				IndividualExecutiveAction.save(individualExecutiveAction).then(
@@ -485,6 +349,7 @@ describe('Executive Module Tests', function() {
                 individualExecutiveAction.text = 'Every baby gets a candy.';
                 individualExecutiveAction.passedDate = new Date('2020-01-01');
                 individualExecutiveAction.effectiveDate = new Date('2020-01-01');
+				individualExecutiveAction.poll = Poll.create()._id;
                 individualExecutiveAction.executives = ['abcd1234efgh9876', 'abcd1234efgh9875'];
 
 				IndividualExecutiveAction.save(individualExecutiveAction).then(
@@ -521,22 +386,27 @@ describe('Executive Module Tests', function() {
                 individualExecutiveAction.text = 'Every baby gets a candy.';
                 individualExecutiveAction.passedDate = new Date('2020-01-01');
                 individualExecutiveAction.effectiveDate = new Date('2020-01-01');
+				individualExecutiveAction.poll = Poll.create()._id;
                 individualExecutiveAction.executives = [Executive.create()._id, Executive.create()._id];
 
 				IndividualExecutiveAction.save(individualExecutiveAction).then(
-					function(saved) {
-						IndividualExecutiveAction.Model.findById(individualExecutiveAction._id, function(findError, found) {
-							compareResult = IndividualExecutiveAction.compare(individualExecutiveAction, found);
+					(saved) => {
+						IndividualExecutiveAction.findById(individualExecutiveAction._id).then(
+							(found) => {
+								compareResult = IndividualExecutiveAction.compare(individualExecutiveAction, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -569,7 +439,7 @@ describe('Executive Module Tests', function() {
 				var groupExecutiveAction = GroupExecutiveAction.create();
 				var testFailed = 0;
 				var error;
-                var expectedErrorMessage = 'GroupExecutiveAction validation failed: text: Path `text` is required., name: Path `name` is required.';
+                var expectedErrorMessage = 'GroupExecutiveAction validation failed: text: Path `text` is required., name: Path `name` is required., poll: Path `poll` is required.';
 
 				GroupExecutiveAction.save(groupExecutiveAction).then(
 					function(result) {
@@ -605,7 +475,8 @@ describe('Executive Module Tests', function() {
                 groupExecutiveAction.name = 'Give Candy to the Babies Act';
                 groupExecutiveAction.text = 'Every baby gets a candy.';
                 groupExecutiveAction.passedDate = new Date('2020-01-01');
-                groupExecutiveAction.effectiveDate = new Date('2010-01-01');
+				groupExecutiveAction.effectiveDate = new Date('2010-01-01');
+				groupExecutiveAction.poll = Poll.create()._id;
                 groupExecutiveAction.executives = [Executive.create()._id, Executive.create()._id];
                 groupExecutiveAction.executiveVotes = [ExecutiveVote.create()._id, ExecutiveVote.create()._id];
 
@@ -644,6 +515,7 @@ describe('Executive Module Tests', function() {
                 groupExecutiveAction.text = 'Every baby gets a candy.';
                 groupExecutiveAction.passedDate = new Date('2020-01-01');
                 groupExecutiveAction.effectiveDate = new Date('2020-01-01');
+				groupExecutiveAction.poll = Poll.create()._id;
                 groupExecutiveAction.executives = ['abcd1234efgh9876', 'abcd1234efgh9875'];
                 groupExecutiveAction.executiveVotes = [ExecutiveVote.create()._id, ExecutiveVote.create()._id];
 
@@ -682,6 +554,7 @@ describe('Executive Module Tests', function() {
                 groupExecutiveAction.text = 'Every baby gets a candy.';
                 groupExecutiveAction.passedDate = new Date('2020-01-01');
                 groupExecutiveAction.effectiveDate = new Date('2020-01-01');
+				groupExecutiveAction.poll = Poll.create()._id;
                 groupExecutiveAction.executives = [Executive.create()._id, Executive.create()._id];
                 groupExecutiveAction.executiveVotes = ['abcd1234efgh9876', 'abcd1234efgh9875'];
 
@@ -719,23 +592,28 @@ describe('Executive Module Tests', function() {
                 groupExecutiveAction.text = 'Every baby gets a candy.';
                 groupExecutiveAction.passedDate = new Date('2020-01-01');
                 groupExecutiveAction.effectiveDate = new Date('2020-01-01');
+				groupExecutiveAction.poll = Poll.create()._id;
                 groupExecutiveAction.executives = [Executive.create()._id, Executive.create()._id];
                 groupExecutiveAction.executiveVotes = [ExecutiveVote.create()._id, ExecutiveVote.create()._id];
 
 				GroupExecutiveAction.save(groupExecutiveAction).then(
-					function(saved) {
-						GroupExecutiveAction.Model.findById(groupExecutiveAction._id, function(findError, found) {
-							compareResult = GroupExecutiveAction.compare(groupExecutiveAction, found);
+					(saved) => {
+						GroupExecutiveAction.findById(groupExecutiveAction._id).then(
+							(found) => {
+								compareResult = GroupExecutiveAction.compare(groupExecutiveAction, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -875,19 +753,23 @@ describe('Executive Module Tests', function() {
                 executiveVote.individualExecutiveVotes = [IndividualExecutiveVote.create()._id, IndividualExecutiveVote.create()._id];
 
 				ExecutiveVote.save(executiveVote).then(
-					function(saved) {
-						ExecutiveVote.Model.findById(executiveVote._id, function(findError, found) {
-							compareResult = ExecutiveVote.compare(executiveVote, found);
+					(saved) => {
+						ExecutiveVote.findById(executiveVote._id).then(
+							function(found) {
+								compareResult = ExecutiveVote.compare(executiveVote, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							}
+						);
+						(findError) => {
+							error = findError;
+						}
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -1062,19 +944,23 @@ describe('Executive Module Tests', function() {
                 individualExecutiveVote.executiveVoteOption = ExecutiveVoteOption.create()._id;
 
 				IndividualExecutiveVote.save(individualExecutiveVote).then(
-					function(saved) {
-						IndividualExecutiveVote.Model.findById(individualExecutiveVote._id, function(findError, found) {
-							compareResult = IndividualExecutiveVote.compare(individualExecutiveVote, found);
+					(saved) => {
+						IndividualExecutiveVote.findById(individualExecutiveVote._id).then(
+							(found) => {
+								compareResult = IndividualExecutiveVote.compare(individualExecutiveVote, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -1145,19 +1031,23 @@ describe('Executive Module Tests', function() {
                 executiveVoteOption.countsTowardsTotal = true;
 
 				ExecutiveVoteOption.save(executiveVoteOption).then(
-					function(saved) {
-						ExecutiveVoteOption.Model.findById(executiveVoteOption._id, function(findError, found) {
-							compareResult = ExecutiveVoteOption.compare(executiveVoteOption, found);
+					(saved) => {
+						ExecutiveVoteOption.findById(executiveVoteOption._id).then(
+							(found) => {
+								compareResult = ExecutiveVoteOption.compare(executiveVoteOption, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
