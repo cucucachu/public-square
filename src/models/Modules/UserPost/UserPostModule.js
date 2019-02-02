@@ -15,3 +15,6 @@ require('./Stamp');
 require('./Stamper');
 require('./ObjectionStampType');
 require('./ApprovalStampType');
+require('./ArticleLink');
+require('./ImageLink');
+require('./VideoLink');

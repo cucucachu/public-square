@@ -22,44 +22,29 @@ var StampType = require('../dist/models/Modules/UserPost/StampType');
 var ApprovalStampType = require('../dist/models/Modules/UserPost/ApprovalStampType');
 var ObjectionStampType = require('../dist/models/Modules/UserPost/ObjectionStampType');
 var PostStream = require('../dist/models/Modules/UserPost/PostStream');
-var ExternalLink = require('../dist/models/Modules/UserPost/ExternalLink')
+var ExternalLink = require('../dist/models/Modules/UserPost/ExternalLink');
+var ArticleLink = require('../dist/models/Modules/UserPost/ArticleLink');
+var ImageLink = require('../dist/models/Modules/UserPost/ImageLink');
+var VideoLink = require('../dist/models/Modules/UserPost/VideoLink');
 
 
 
 describe('UserPost Module Tests', function() {
 	
-	before(function(done) {
-		UserPost.clear().then(
-			function() {
-				Poster.clear().then(
-					function() {
-						Stamp.clear().then(
-							function() {
-								Stamper.clear().then(
-									function() {
-										StampType.clear().then(
-											function() {
-												PostStream.clear().then(
-													function() {
-														ExternalLink.clear().then(done, done);
-													}, 
-													done
-												);
-											}, 
-											done
-										);
-									},
-									done								
-								);
-							}, 
-							done
-						);
-					}, 
-					done
-				);
-			}, 
-			done
-		);
+	before((done) => {
+		UserPost.clear().then(() => {
+			Poster.clear().then(() => {
+				Stamp.clear().then(() => {
+					Stamper.clear().then(() => {
+						StampType.clear().then(() => {
+							PostStream.clear().then(() => {
+								ExternalLink.clear().then(done, done);
+							});
+						});
+					});
+				});
+			});
+		});
 	});
 
 	describe('UserPost Model', function() {
@@ -86,7 +71,7 @@ describe('UserPost Module Tests', function() {
 				var userPost = UserPost.create();
 				var testFailed = 0;
 				var error;
-				var expectedErrorMessage = 'UserPost validation failed: poster: Path `poster` is required., textContent: Path `textContent` is required.';
+				var expectedErrorMessage = 'UserPost validation failed: postStream: Path `postStream` is required., poster: Path `poster` is required., postDate: Path `postDate` is required., textContent: Path `textContent` is required.';
 
 				UserPost.save(userPost).then(
 					function(result) {
@@ -118,10 +103,226 @@ describe('UserPost Module Tests', function() {
 				var testFailed = 0;
 				var err = null;
 
-				var expectedErrorMessage ='UserPost validation failed: poster: Cast to ObjectID failed for value "abcd1234efgh9876" at path "poster"';
+				var expectedErrorMessage = 'UserPost validation failed: poster: Cast to ObjectID failed for value "abcd1234efgh9876" at path "poster"';
 
+				userPost.textContent = 'Here is some content.';
+				userPost.postDate = new Date();
 				userPost.poster = 'abcd1234efgh9876';
-				userPost.textContent = 'Here is some content';
+				userPost.parentUserPost = UserPost.create()._id;
+				userPost.postStream = PostStream.create()._id;
+				userPost.childUserPosts = [UserPost.create()._id, UserPost.create()._id];
+				userPost.externalLinks = [VideoLink.create()._id, ExternalLink.create()._id];
+				userPost.stamps = [Stamp.create()._id, Stamp.create()._id];
+
+				UserPost.save(userPost).then(
+					function(saved) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						err = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('UserPost.save() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (err != null && err.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'UserPost.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + err.message
+							));
+						}
+					}
+				});
+			});		
+
+			it('UserPost.parentUserPost must be a valid ID', function(done){
+				var userPost = UserPost.create();
+				var testFailed = 0;
+				var err = null;
+
+				var expectedErrorMessage ='UserPost validation failed: parentUserPost: Cast to ObjectID failed for value "abcd1234efgh9876" at path "parentUserPost"';
+
+				userPost.textContent = 'Here is some content.';
+				userPost.postDate = new Date();
+				userPost.poster = Poster.create()._id;
+				userPost.parentUserPost = 'abcd1234efgh9876';
+				userPost.postStream = PostStream.create()._id;
+				userPost.childUserPosts = [UserPost.create()._id, UserPost.create()._id];
+				userPost.externalLinks = [VideoLink.create()._id, ExternalLink.create()._id];
+				userPost.stamps = [Stamp.create()._id, Stamp.create()._id];
+
+				UserPost.save(userPost).then(
+					function(saved) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						err = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('UserPost.save() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (err != null && err.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'UserPost.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + err.message
+							));
+						}
+					}
+				});
+			});		
+
+			it('UserPost.postStream must be a valid ID', function(done){
+				var userPost = UserPost.create();
+				var testFailed = 0;
+				var err = null;
+
+				var expectedErrorMessage ='UserPost validation failed: postStream: Cast to ObjectID failed for value "abcd1234efgh9876" at path "postStream"';
+
+				userPost.textContent = 'Here is some content.';
+				userPost.postDate = new Date();
+				userPost.poster = Poster.create()._id;
+				userPost.parentUserPost = UserPost.create()._id;
+				userPost.postStream = 'abcd1234efgh9876';
+				userPost.childUserPosts = [UserPost.create()._id, UserPost.create()._id];
+				userPost.externalLinks = [VideoLink.create()._id, ExternalLink.create()._id];
+				userPost.stamps = [Stamp.create()._id, Stamp.create()._id];
+
+				UserPost.save(userPost).then(
+					function(saved) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						err = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('UserPost.save() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (err != null && err.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'UserPost.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + err.message
+							));
+						}
+					}
+				});
+			});		
+
+			it('UserPost.childUserPosts must be a valid Array of IDs', function(done){
+				var userPost = UserPost.create();
+				var testFailed = 0;
+				var err = null;
+
+				var expectedErrorMessage ='UserPost validation failed: childUserPosts: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "childUserPosts"';
+
+				userPost.textContent = 'Here is some content.';
+				userPost.postDate = new Date();
+				userPost.poster = Poster.create()._id;
+				userPost.parentUserPost = UserPost.create()._id;
+				userPost.postStream = PostStream.create()._id;
+				userPost.childUserPosts = ['abcd1234efgh9876', 'abcd1234efgh9875']
+				userPost.externalLinks = [VideoLink.create()._id, ExternalLink.create()._id];
+				userPost.stamps = [Stamp.create()._id, Stamp.create()._id];
+
+				UserPost.save(userPost).then(
+					function(saved) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						err = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('UserPost.save() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (err != null && err.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'UserPost.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + err.message
+							));
+						}
+					}
+				});
+			});		
+
+			it('UserPost.externalLinks must be a valid Array of IDs', function(done){
+				var userPost = UserPost.create();
+				var testFailed = 0;
+				var err = null;
+
+				var expectedErrorMessage ='UserPost validation failed: externalLinks: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "externalLinks"';
+
+				userPost.textContent = 'Here is some content.';
+				userPost.postDate = new Date();
+				userPost.poster = Poster.create()._id;
+				userPost.parentUserPost = UserPost.create()._id;
+				userPost.postStream = PostStream.create()._id;
+				userPost.childUserPosts = [UserPost.create()._id, UserPost.create()._id];
+				userPost.externalLinks = ['abcd1234efgh9876', 'abcd1234efgh9875']
+				userPost.stamps = [Stamp.create()._id, Stamp.create()._id];
+
+				UserPost.save(userPost).then(
+					function(saved) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						err = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('UserPost.save() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (err != null && err.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'UserPost.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + err.message
+							));
+						}
+					}
+				});
+			});		
+
+			it('UserPost.stamps must be a valid Array of IDs', function(done){
+				var userPost = UserPost.create();
+				var testFailed = 0;
+				var err = null;
+
+				var expectedErrorMessage ='UserPost validation failed: stamps: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "stamps"';
+
+				userPost.textContent = 'Here is some content.';
+				userPost.postDate = new Date();
+				userPost.poster = Poster.create()._id;
+				userPost.parentUserPost = UserPost.create()._id;
+				userPost.postStream = PostStream.create()._id;
+				userPost.childUserPosts = [UserPost.create()._id, UserPost.create()._id];
+				userPost.externalLinks = [VideoLink.create()._id, ExternalLink.create()._id];
+				userPost.stamps = ['abcd1234efgh9876', 'abcd1234efgh9875'];
 
 				UserPost.save(userPost).then(
 					function(saved) {
@@ -154,28 +355,33 @@ describe('UserPost Module Tests', function() {
 				var error = null;
 				var compareResult;
 
-				userPost.poster = Poster.create()._id;
 				userPost.textContent = 'Here is some content.';
+				userPost.postDate = new Date();
+				userPost.poster = Poster.create()._id;
 				userPost.parentUserPost = UserPost.create()._id;
-				userPost.childUserPosts = [
-					UserPost.create()._id,
-					UserPost.create()._id
-				];
+				userPost.postStream = PostStream.create()._id;
+				userPost.childUserPosts = [UserPost.create()._id, UserPost.create()._id];
+				userPost.externalLinks = [VideoLink.create()._id, ExternalLink.create()._id];
+				userPost.stamps = [Stamp.create()._id, Stamp.create()._id];
 
 				UserPost.save(userPost).then(
-					function(saved) {
-						UserPost.Model.findById(userPost._id, function(findError, found) {
-							compareResult = UserPost.compare(userPost, found);
+					(saved) => {
+						UserPost.findById(userPost._id).then(
+							(found) => {
+								compareResult = UserPost.compare(userPost, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -210,7 +416,7 @@ describe('UserPost Module Tests', function() {
 				var poster = Poster.create();
 				var testFailed = 0;
 				var error;
-				var expectedErrorMessage = 'Poster validation failed: user: Path `user` is required.';
+				var expectedErrorMessage = 'Poster validation failed: userPosts: Path `userPosts` is required. Poster validation failed: user: Path `user` is required., startDate: Path `startDate` is required.';
 
 				Poster.save(poster).then(
 					function(result) {
@@ -245,7 +451,47 @@ describe('UserPost Module Tests', function() {
 
 				var expectedErrorMessage ='Poster validation failed: user: Cast to ObjectID failed for value "abcd1234efgh9876" at path "user"';
 
+				poster.startDate = new Date();
 				poster.user = 'abcd1234efgh9876';
+				poster.userPosts = [UserPost.create()._id, UserPost.create()._id];
+
+				Poster.save(poster).then(
+					function(saved) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						error = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('Poster.save() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'Poster.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});	
+			
+
+			it('Poster.userPosts must be a valid Array of IDs', function(done){
+				var poster = Poster.create();
+				var testFailed = 0;
+				var error = null;
+
+				var expectedErrorMessage ='Poster validation failed: userPosts: Path `userPosts` is required. Poster validation failed: userPosts: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "userPosts"';
+
+				poster.startDate = new Date();
+				poster.user = Poster.create()._id;
+				poster.userPosts = ['abcd1234efgh9876', 'abcd1234efgh9875'];
 
 				Poster.save(poster).then(
 					function(saved) {
@@ -278,22 +524,28 @@ describe('UserPost Module Tests', function() {
 				var error = null;
 				var compareResult;
 
+				poster.startDate = new Date();
 				poster.user = Poster.create()._id;
+				poster.userPosts = [UserPost.create()._id, UserPost.create()._id];
 
 				Poster.save(poster).then(
-					function(saved) {
-						Poster.Model.findById(poster._id, function(findError, found) {
-							compareResult = Poster.compare(poster, found);
+					(saved) => {
+						Poster.findById(poster._id).then(
+							(found) => {
+								compareResult = Poster.compare(poster, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -330,7 +582,7 @@ describe('UserPost Module Tests', function() {
 				var stamp = Stamp.create();
 				var testFailed = 0;
 				var error;
-				var expectedErrorMessage = 'Stamp validation failed: stampType: Path `stampType` is required., userPost: Path `userPost` is required., stamper: Path `stamper` is required., comment: Path `comment` is required.';
+				var expectedErrorMessage = 'Stamp validation failed: stampType: Path `stampType` is required., userPost: Path `userPost` is required., stamper: Path `stamper` is required., stampDate: Path `stampDate` is required.';
 
 				Stamp.save(stamp).then(
 					function(result) {
@@ -365,10 +617,11 @@ describe('UserPost Module Tests', function() {
 
 				var expectedErrorMessage ='Stamp validation failed: stamper: Cast to ObjectID failed for value "abcd1234efgh9876" at path "stamper"';
 
+				stamp.comment = 'I approve of this post.';
+				stamp.stampDate = new Date();
 				stamp.stamper = 'abcd1234efgh9876';
 				stamp.userPost = UserPost.create()._id;
 				stamp.stampType = ApprovalStampType.create()._id;
-				stamp.comment = 'I approve of this post.';
 
 				Stamp.save(stamp).then(
 					function(saved) {
@@ -404,10 +657,11 @@ describe('UserPost Module Tests', function() {
 
 				var expectedErrorMessage ='Stamp validation failed: userPost: Cast to ObjectID failed for value "abcd1234efgh9876" at path "userPost"';
 
+				stamp.comment = 'I approve of this post.';
+				stamp.stampDate = new Date();
 				stamp.stamper = Stamper.create()._id;
 				stamp.userPost = 'abcd1234efgh9876';
 				stamp.stampType = ApprovalStampType.create()._id;
-				stamp.comment = 'I approve of this post.';
 
 				Stamp.save(stamp).then(
 					function(saved) {
@@ -443,10 +697,11 @@ describe('UserPost Module Tests', function() {
 
 				var expectedErrorMessage ='Stamp validation failed: stampType: Cast to ObjectID failed for value "abcd1234efgh9876" at path "stampType"';
 
+				stamp.comment = 'I approve of this post.';
+				stamp.stampDate = new Date();
 				stamp.stamper = Stamper.create()._id;
 				stamp.userPost = UserPost.create()._id;
 				stamp.stampType = 'abcd1234efgh9876';
-				stamp.comment = 'I approve of this post.';
 
 				Stamp.save(stamp).then(
 					function(saved) {
@@ -479,26 +734,30 @@ describe('UserPost Module Tests', function() {
 				var error = null;
 				var compareResult;
 
+				stamp.comment = 'I approve of this post.';
+				stamp.stampDate = new Date();
 				stamp.stamper = Stamper.create()._id;
 				stamp.userPost = UserPost.create()._id;
 				stamp.stampType = ApprovalStampType.create()._id;
-				stamp.comment = 'I approve of this post.';
-
 
 				Stamp.save(stamp).then(
-					function(saved) {
-						Stamp.Model.findById(stamp._id, function(findError, found) {
-							compareResult = Stamp.compare(stamp, found);
+					(saved) => {
+						Stamp.findById(stamp._id).then(
+							(found) => {
+								compareResult = Stamp.compare(stamp, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -535,7 +794,7 @@ describe('UserPost Module Tests', function() {
 				var stamper = Stamper.create();
 				var testFailed = 0;
 				var error;
-				var expectedErrorMessage = 'Stamper validation failed: user: Path `user` is required.';
+				var expectedErrorMessage = 'Stamper validation failed: stamps: Path `stamps` is required. Stamper validation failed: user: Path `user` is required., startDate: Path `startDate` is required.';
 
 				Stamper.save(stamper).then(
 					function(result) {
@@ -563,14 +822,15 @@ describe('UserPost Module Tests', function() {
 			});
 			
 
-			it('Stamper.stamps must be a valid ID', function(done){
+			it('Stamper.stamps must be a valid Array of IDs', function(done){
 				var stamper = Stamper.create();
 				var testFailed = 0;
 				var error = null;
 
-				var expectedErrorMessage ='Stamper validation failed: stamps: Cast to Array failed for value "[ \'abcd1234efgh9876\' ]" at path "stamps"';
+				var expectedErrorMessage ='Stamper validation failed: stamps: Path `stamps` is required. Stamper validation failed: stamps: Cast to Array failed for value "[ \'abcd1234efgh9876\' ]" at path "stamps"';
 
 				stamper.user = User.create()._id;
+				stamper.startDate = new Date();
 				stamper.stamps = ['abcd1234efgh9876'];
 
 				Stamper.save(stamper).then(
@@ -607,6 +867,7 @@ describe('UserPost Module Tests', function() {
 
 				var expectedErrorMessage ='Stamper validation failed: user: Cast to ObjectID failed for value "abcd1234efgh9876" at path "user"';
 
+				stamper.startDate = new Date();
 				stamper.user = 'abcd1234efgh9876';
 				stamper.stamps = [Stamp.create()._id];
 
@@ -641,23 +902,28 @@ describe('UserPost Module Tests', function() {
 				var error = null;
 				var compareResult;
 
+				stamper.startDate = new Date();
 				stamper.user = User.create()._id;
 				stamper.stamps = [Stamp.create()._id];
 
 				Stamper.save(stamper).then(
-					function(saved) {
-						Stamper.Model.findById(stamper._id, function(findError, found) {
-							compareResult = Stamper.compare(stamper, found);
+					(saved) => {
+						Stamper.findById(stamper._id).then(
+							(found) => {
+								compareResult = Stamper.compare(stamper, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -768,19 +1034,23 @@ describe('UserPost Module Tests', function() {
 				approvalStampType.weight = 10;
 
 				ApprovalStampType.save(approvalStampType).then(
-					function(saved) {
-						ApprovalStampType.Model.findById(approvalStampType._id, function(findError, found) {
-							compareResult = ApprovalStampType.compare(approvalStampType, found);
+					(saved) => {
+						ApprovalStampType.findById(approvalStampType._id).then(
+							(found) => {
+								compareResult = ApprovalStampType.compare(approvalStampType, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -849,8 +1119,8 @@ describe('UserPost Module Tests', function() {
 
 				var expectedErrorMessage ='ObjectionStampType validation failed: weight: Cast to Number failed for value "infinity billion" at path "weight"';
 
-				objectionStampType.name = 'Object Mightily';
-				objectionStampType.description = 'Use if you really really object to a post.';
+				objectionStampType.name = 'Approve Mightily';
+				objectionStampType.description = 'Use if you really really approve of a post.';
 				objectionStampType.weight = 'infinity billion';
 
 				ObjectionStampType.save(objectionStampType).then(
@@ -884,24 +1154,28 @@ describe('UserPost Module Tests', function() {
 				var error = null;
 				var compareResult;
 
-				objectionStampType.name = 'Object Mightily';
-				objectionStampType.description = 'Use if you really really object to a post.';
+				objectionStampType.name = 'Approve Mightily';
+				objectionStampType.description = 'Use if you really really approve of a post.';
 				objectionStampType.weight = 10;
 
 				ObjectionStampType.save(objectionStampType).then(
-					function(saved) {
-						ObjectionStampType.Model.findById(objectionStampType._id, function(findError, found) {
-							compareResult = ObjectionStampType.compare(objectionStampType, found);
+					(saved) => {
+						ObjectionStampType.findById(objectionStampType._id).then(
+							(found) => {
+								compareResult = ObjectionStampType.compare(objectionStampType, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -935,7 +1209,7 @@ describe('UserPost Module Tests', function() {
 				var postStream = PostStream.create();
 				var testFailed = 0;
 				var error;
-				var expectedErrorMessage = 'PostStream validation failed: userGroup: Path `userGroup` is required.';
+				var expectedErrorMessage = 'PostStream validation failed: userPosts: Path `userPosts` is required. PostStream validation failed: userGroup: Path `userGroup` is required.';
 				
 				PostStream.save(postStream).then(
 					function(result) {
@@ -1005,7 +1279,7 @@ describe('UserPost Module Tests', function() {
 				var testFailed = 0;
 				var error = null;
 
-				var expectedErrorMessage ='PostStream validation failed: userPosts: Cast to Array failed for value "[ \'abcd1234efgh9876\' ]" at path "userPosts"';
+				var expectedErrorMessage ='PostStream validation failed: userPosts: Path `userPosts` is required. PostStream validation failed: userPosts: Cast to Array failed for value "[ \'abcd1234efgh9876\' ]" at path "userPosts"';
 
 				postStream.userGroup = UserGroup.create()._id;
 				postStream.userPosts = ['abcd1234efgh9876'];
@@ -1045,19 +1319,23 @@ describe('UserPost Module Tests', function() {
 				postStream.userPosts = [UserPost.create()._id];
 
 				PostStream.save(postStream).then(
-					function(saved) {
-						PostStream.Model.findById(postStream._id, function(findError, found) {
-							compareResult = PostStream.compare(postStream, found);
+					(saved) => {
+						PostStream.findById(postStream._id).then(
+							(found) => {
+								compareResult = PostStream.compare(postStream, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -1091,7 +1369,7 @@ describe('UserPost Module Tests', function() {
 				var externalLink = ExternalLink.create();
 				var testFailed = 0;
 				var error;
-				var expectedErrorMessage = 'ExternalLink validation failed: url: Path `url` is required.';
+				var expectedErrorMessage = 'ExternalLink validation failed: text: Path `text` is required., url: Path `url` is required., createdAt: Path `createdAt` is required.';
 				
 				ExternalLink.save(externalLink).then(
 					function(result) {
@@ -1118,15 +1396,18 @@ describe('UserPost Module Tests', function() {
 				});
 			});			
 
-			it('ExternalLink.userPosts must be a valid Array of ObjectIds.', function(done) {
+			it('ExternalLink.userPosts must be a valid Array of IDs.', function(done) {
 				var externalLink = ExternalLink.create();
 				var testFailed = 0;
 				var error = null;
 
-				var expectedErrorMessage ='ExternalLink validation failed: userPosts: Cast to Array failed for value "[ \'abcd1234efgh9876\' ]" at path "userPosts"';
+				var expectedErrorMessage ='ExternalLink validation failed: userPosts: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "userPosts"';
 
 				externalLink.url = 'http://www.google.com';
-				externalLink.userPosts = ['abcd1234efgh9876'];
+				externalLink.text = 'Google';
+				externalLink.createdAt = new Date();
+				externalLink.userPosts = ['abcd1234efgh9876', 'abcd1234efgh9875'];
+
 
 				ExternalLink.save(externalLink).then(
 					function(saved) {
@@ -1160,22 +1441,28 @@ describe('UserPost Module Tests', function() {
 				var compareResult;
 
 				externalLink.url = 'http://www.google.com';
+				externalLink.text = 'Google';
+				externalLink.createdAt = new Date();
 				externalLink.userPosts = [UserPost.create()._id];
 
 				ExternalLink.save(externalLink).then(
-					function(saved) {
-						ExternalLink.Model.findById(externalLink._id, function(findError, found) {
-							compareResult = ExternalLink.compare(externalLink, found);
+					(saved) => {
+						ExternalLink.findById(externalLink._id).then(
+							(found) => {
+								compareResult = ExternalLink.compare(externalLink, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -1184,34 +1471,82 @@ describe('UserPost Module Tests', function() {
 			});
 
 		});
+
 	});
 
-	describe('UserPost Module Interactions', function() {
+	describe('ArticleLink Model', function() {
 
-		describe('UserPost.saveUserPostAndPoster()', function() {
-		
-			it('UserPost.saveUserPostAndPoster() throws an error when UserPost.poster is set to a different Poster.', function(done) {
-				var error = null;
+		describe('ArticleLink.create()', function() {
+
+			it('create() creates a ArticleLink instance.', function() {
+				var articleLink = ArticleLink.create();
+				assert(typeof(articleLink) === "object");
+			});
+
+			it('create() creates a ArticleLink instance with _id field populated', function() {
+				var articleLink = ArticleLink.create();
+				assert(typeof(articleLink._id) === "object" && /^[a-f\d]{24}$/i.test(articleLink._id));
+			});
+
+		});
+
+
+		describe('ArticleLink.save()', function() {
+
+			it('ArticleLink.save() throws an error if required fields are missing.', function(done) {
+				var articleLink = ArticleLink.create();
 				var testFailed = 0;
-				var expectedErrorMessage = 'UserPost.saveUserPostAndPoster(userPost, Poster), Error: Illegal attempt to update UserPost to a new Poster.';
-
-				var userPost = UserPost.create();
-				var poster = Poster.create();
-
-				userPost.textContent = 'Here is some content.';
-				poster.user = User.create()._id;
-				userPost.poster = Poster.create()._id;
-
-				UserPost.saveUserPostAndPoster(userPost, poster).then(
-					function() {
+				var error;
+				var expectedErrorMessage = 'ArticleLink validation failed: text: Path `text` is required., url: Path `url` is required., createdAt: Path `createdAt` is required.';
+				
+				ArticleLink.save(articleLink).then(
+					function(result) {
 						testFailed = 1;
 					},
-					function(saveError) {
-						error = saveError;
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('ArticleLink.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'ArticleLink.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});			
+
+			it('ArticleLink.userPosts must be a valid Array of IDs.', function(done) {
+				var articleLink = ArticleLink.create();
+				var testFailed = 0;
+				var error = null;
+
+				var expectedErrorMessage ='ArticleLink validation failed: userPosts: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "userPosts"';
+
+				articleLink.url = 'http://www.google.com';
+				articleLink.text = 'Google';
+				articleLink.createdAt = new Date();
+				articleLink.userPosts = ['abcd1234efgh9876', 'abcd1234efgh9875'];
+
+
+				ArticleLink.save(articleLink).then(
+					function(saved) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						error = saveErr;
 					}
 				).finally(function() {
-					if (testFailed) {
-						done(new Error('UserPost.saveUserPostAndPoster() promise resolved when it should have been rejected with Validation Error'));
+					if(testFailed) {
+						done(new Error(''));
 					}
 					else {
 						if (error != null && error.message == expectedErrorMessage) {
@@ -1219,94 +1554,303 @@ describe('UserPost Module Tests', function() {
 						}
 						else {
 							done(new Error(
-								'UserPost.saveUserPostAndPoster() did not return the correct Validation Error.\n' +
+								'ArticleLink.save() did not return the correct Validation Error.\n' +
 								'   Expected: ' + expectedErrorMessage + '\n' +
 								'   Actual:   ' + error.message
 							));
 						}
 					}
 				});
-			});
-		
-			it('UserPost.saveUserPostAndPoster() throws an error userPost and poster are invalid.', function(done) {
+			});				
+			
+			it('Valid Call Saves ArticleLink.', function(done) {
+				var articleLink = ArticleLink.create();
 				var error = null;
-				var testFailed = 0;
-				var expectedErrorMessage = 'UserPost validation failed: textContent: Path `textContent` is required.Poster validation failed: user: Path `user` is required.';
+				var compareResult;
 
-				var userPost = UserPost.create();
-				var poster = Poster.create();
+				articleLink.url = 'http://www.google.com';
+				articleLink.text = 'Google';
+				articleLink.createdAt = new Date();
+				articleLink.userPosts = [UserPost.create()._id];
 
-				UserPost.saveUserPostAndPoster(userPost, poster).then(
-					function() {
-						testFailed = 1;
-					},
-					function(saveError) {
-						error = saveError;
-					}
-				).finally(function() {
-					if (testFailed) {
-						done(new Error('UserPost.saveUserPostAndPoster() promise resolved when it should have been rejected with Validation Error'));
-					}
-					else {
-						if (error != null && error.message == expectedErrorMessage) {
-							done();
-						}
-						else {
-							done(new Error(
-								'UserPost.saveUserPostAndPoster() did not return the correct Validation Error.\n' +
-								'   Expected: ' + expectedErrorMessage + '\n' +
-								'   Actual:   ' + error.message
-							));
-						}
-					}
-				});
-			});
-		
-			it('UserPost.saveUserPostAndPoster() saves UserPost and Poster Correctly', function(done) {
-				var error = null;
+				ArticleLink.save(articleLink).then(
+					(saved) => {
+						ArticleLink.findById(articleLink._id).then(
+							(found) => {
+								compareResult = ArticleLink.compare(articleLink, found);
 
-				var userPost = UserPost.create();
-				var poster = Poster.create();
-
-				userPost.textContent = 'Here is some content.';
-				poster.user = User.create()._id;
-
-				UserPost.saveUserPostAndPoster(userPost, poster).then(
-					function() {
-
-						UserPost.Model.findById(userPost._id, function(findError, found) {
-							if (findError) 
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
 								error = findError;
-							else if (found.poster != poster._id) {
-								error = new Error('UserPost.saveUserPostAndPoster() promise returned, but saved UserPost.poster to the wrong poster.');
 							}
-							else {
-								Poster.Model.findById(poster._id, function(findError, found) {
-									console.log(
-										'poster: ' + found._id + '\n' +
-										'poster.userPosts: ' + found.userPosts + '\n' | 
-										'userPost: ' + userPost._id
-									);
-
-									if (findError)
-										error = findError;
-									else if (! (userPost._id in found.userPosts)) {
-										error = new Error('UserPost.saveUserPostAndPoster() promise returned, but saved poster.userPosts to the wrong UserPost.');
-									}
-								});
-							}
-						});
+						);
 					},
-					function(saveError) {
-						error = saveError;
+					(saveErr) => {
+						error = saveErr;
+					}
+				).finally(() => {
+					if (error)
+						done(error);
+					else
+						done();
+				});
+			});
+
+		});
+
+	});
+
+	describe('ImageLink Model', function() {
+
+		describe('ImageLink.create()', function() {
+
+			it('create() creates a ImageLink instance.', function() {
+				var imageLink = ImageLink.create();
+				assert(typeof(imageLink) === "object");
+			});
+
+			it('create() creates a ImageLink instance with _id field populated', function() {
+				var imageLink = ImageLink.create();
+				assert(typeof(imageLink._id) === "object" && /^[a-f\d]{24}$/i.test(imageLink._id));
+			});
+
+		});
+
+
+		describe('ImageLink.save()', function() {
+
+			it('ImageLink.save() throws an error if required fields are missing.', function(done) {
+				var imageLink = ImageLink.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'ImageLink validation failed: text: Path `text` is required., url: Path `url` is required., createdAt: Path `createdAt` is required.';
+				
+				ImageLink.save(imageLink).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('ImageLink.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'ImageLink.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});			
+
+			it('ImageLink.userPosts must be a valid Array of IDs.', function(done) {
+				var imageLink = ImageLink.create();
+				var testFailed = 0;
+				var error = null;
+
+				var expectedErrorMessage ='ImageLink validation failed: userPosts: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "userPosts"';
+
+				imageLink.url = 'http://www.google.com';
+				imageLink.text = 'Google';
+				imageLink.createdAt = new Date();
+				imageLink.userPosts = ['abcd1234efgh9876', 'abcd1234efgh9875'];
+
+
+				ImageLink.save(imageLink).then(
+					function(saved) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						error = saveErr;
 					}
 				).finally(function() {
-					if (error != null) {
-						done(error);
+					if(testFailed) {
+						done(new Error(''));
 					}
 					else {
-						done();
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'ImageLink.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
 					}
+				});
+			});				
+			
+			it('Valid Call Saves ImageLink.', function(done) {
+				var imageLink = ImageLink.create();
+				var error = null;
+				var compareResult;
+
+				imageLink.url = 'http://www.google.com';
+				imageLink.text = 'Google';
+				imageLink.createdAt = new Date();
+				imageLink.userPosts = [UserPost.create()._id];
+
+				ImageLink.save(imageLink).then(
+					(saved) => {
+						ImageLink.findById(imageLink._id).then(
+							(found) => {
+								compareResult = ImageLink.compare(imageLink, found);
+
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
+					},
+					(saveErr) => {
+						error = saveErr;
+					}
+				).finally(() => {
+					if (error)
+						done(error);
+					else
+						done();
+				});
+			});
+
+		});
+
+	});
+
+	describe('VideoLink Model', function() {
+
+		describe('VideoLink.create()', function() {
+
+			it('create() creates a VideoLink instance.', function() {
+				var videoLink = VideoLink.create();
+				assert(typeof(videoLink) === "object");
+			});
+
+			it('create() creates a VideoLink instance with _id field populated', function() {
+				var videoLink = VideoLink.create();
+				assert(typeof(videoLink._id) === "object" && /^[a-f\d]{24}$/i.test(videoLink._id));
+			});
+
+		});
+
+
+		describe('VideoLink.save()', function() {
+
+			it('VideoLink.save() throws an error if required fields are missing.', function(done) {
+				var videoLink = VideoLink.create();
+				var testFailed = 0;
+				var error;
+				var expectedErrorMessage = 'VideoLink validation failed: text: Path `text` is required., url: Path `url` is required., createdAt: Path `createdAt` is required.';
+				
+				VideoLink.save(videoLink).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						error = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('VideoLink.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'VideoLink.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});			
+
+			it('VideoLink.userPosts must be a valid Array of IDs.', function(done) {
+				var videoLink = VideoLink.create();
+				var testFailed = 0;
+				var error = null;
+
+				var expectedErrorMessage ='VideoLink validation failed: userPosts: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "userPosts"';
+
+				videoLink.url = 'http://www.google.com';
+				videoLink.text = 'Google';
+				videoLink.createdAt = new Date();
+				videoLink.userPosts = ['abcd1234efgh9876', 'abcd1234efgh9875'];
+
+
+				VideoLink.save(videoLink).then(
+					function(saved) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						error = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error(''));
+					}
+					else {
+						if (error != null && error.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'VideoLink.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + error.message
+							));
+						}
+					}
+				});
+			});				
+			
+			it('Valid Call Saves VideoLink.', function(done) {
+				var videoLink = VideoLink.create();
+				var error = null;
+				var compareResult;
+
+				videoLink.url = 'http://www.google.com';
+				videoLink.text = 'Google';
+				videoLink.createdAt = new Date();
+				videoLink.userPosts = [UserPost.create()._id];
+
+				VideoLink.save(videoLink).then(
+					(saved) => {
+						VideoLink.findById(videoLink._id).then(
+							(found) => {
+								compareResult = VideoLink.compare(videoLink, found);
+
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
+					},
+					(saveErr) => {
+						error = saveErr;
+					}
+				).finally(() => {
+					if (error)
+						done(error);
+					else
+						done();
 				});
 			});
 
