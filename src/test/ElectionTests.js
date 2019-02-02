@@ -25,22 +25,15 @@ var GeographicArea = require('../dist/models/Modules/Geography/GeographicArea');
 describe('Election Module Tests', function() {
 
     before(function(done) {
-        PositionAcquisitionProcess.clear().then(
-            function() {
-                Campaign.clear().then(
-                    function() {
-                        UserRole.clear().then(
-                            function() {
-                                ElectionResult.clear().then(done, done);
-                            },
-                            done
-                        );
-                    },
-                    done
-                );
-            },
-            done
-        );
+        Election.clear().then(() => {
+			Campaign.clear().then(() => {
+				Candidate.clear().then(() => {
+					ElectionResult.clear().then(() => {
+						PrimaryElectionResult.clear().finally(done);
+					});
+				});
+			});
+		});
     });
     
 	describe('Election Model Tests', function() {
@@ -65,7 +58,7 @@ describe('Election Module Tests', function() {
 				var testFailed = 0;
                 var error;
                 
-                var expectedErrorMessage = 'Election validation failed: governmentPosition: Path `governmentPosition` is required.';
+                var expectedErrorMessage = 'Election validation failed: campaigns: Path `campaigns` is required. Election validation failed: governmentPosition: Path `governmentPosition` is required.';
 
 				Election.save(election).then(
 					function(result) {
@@ -134,7 +127,7 @@ describe('Election Module Tests', function() {
 				var testFailed = 0;
                 var error;
                 
-                var expectedErrorMessage = 'Election validation failed: campaigns: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "campaigns"';
+                var expectedErrorMessage = 'Election validation failed: campaigns: Path `campaigns` is required. Election validation failed: campaigns: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "campaigns"';
 
                 election.electionDate = new Date('2016-11-07');
                 election.termStartDate = new Date('2017-01-06')
@@ -214,19 +207,23 @@ describe('Election Module Tests', function() {
                 election.campaigns = [Campaign.create()._id, Campaign.create()._id];
 
 				Election.save(election).then(
-					function(saved) {
-						Election.Model.findById(election._id, function(findError, found) {
-							compareResult = Election.compare(election, found);
+					(saved) => {
+						Election.findById(election._id).then(
+							(found) => {
+								compareResult = Election.compare(election, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -401,19 +398,23 @@ describe('Election Module Tests', function() {
                 campaign.electionResults = [ElectionResult.create()._id, ElectionResult.create()._id]
 
 				Campaign.save(campaign).then(
-					function(saved) {
-						Campaign.Model.findById(campaign._id, function(findError, found) {
-							compareResult = Campaign.compare(campaign, found);
+					(saved) => {
+						Campaign.Model.findById(campaign._id).then(
+							(found) => {
+								compareResult = Campaign.compare(campaign, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -446,7 +447,7 @@ describe('Election Module Tests', function() {
 				var candidate = Candidate.create();
 				var testFailed = 0;
 				var error;
-                var expectedErrorMessage = 'Candidate validation failed: user: Path `user` is required., startDate: Path `startDate` is required.';
+                var expectedErrorMessage = 'Candidate validation failed: campaigns: Path `campaigns` is required. Candidate validation failed: user: Path `user` is required., startDate: Path `startDate` is required.';
 
 				Candidate.save(candidate).then(
 					function(result) {
@@ -512,7 +513,7 @@ describe('Election Module Tests', function() {
 				var candidate = Candidate.create();
 				var testFailed = 0;
 				var error;
-                var expectedErrorMessage = 'Candidate validation failed: campaigns: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "campaigns"';
+                var expectedErrorMessage = 'Candidate validation failed: campaigns: Path `campaigns` is required. Candidate validation failed: campaigns: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "campaigns"';
 
                 candidate.startDate = new Date();
                 candidate.user = User.create()._id;
@@ -553,19 +554,23 @@ describe('Election Module Tests', function() {
                 candidate.campaigns = [Campaign.create()._id, Campaign.create()._id];
 
 				Candidate.save(candidate).then(
-					function(saved) {
-						Candidate.Model.findById(candidate._id, function(findError, found) {
-							compareResult = Candidate.compare(candidate, found);
+					(saved) => {
+						Candidate.findById(candidate._id).then(
+							(found) => {
+								compareResult = Candidate.compare(candidate, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -708,19 +713,23 @@ describe('Election Module Tests', function() {
                 electionResult.campaign = Campaign.create()._id;
 
 				ElectionResult.save(electionResult).then(
-					function(saved) {
-						ElectionResult.Model.findById(electionResult._id, function(findError, found) {
-							compareResult = ElectionResult.compare(electionResult, found);
+					(saved) => {
+						ElectionResult.findById(electionResult._id).then(
+							(found) => {
+								compareResult = ElectionResult.compare(electionResult, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
@@ -863,19 +872,23 @@ describe('Election Module Tests', function() {
                 primaryElectionResult.campaign = Campaign.create()._id;
 
 				PrimaryElectionResult.save(primaryElectionResult).then(
-					function(saved) {
-						PrimaryElectionResult.Model.findById(primaryElectionResult._id, function(findError, found) {
-							compareResult = PrimaryElectionResult.compare(primaryElectionResult, found);
+					(saved) => {
+						PrimaryElectionResult.findById(primaryElectionResult._id).then(
+							(found) => {
+								compareResult = PrimaryElectionResult.compare(primaryElectionResult, found);
 
-							if (compareResult.match == false)
-								error = new Error(compareResult.message);
-						});
+								if (compareResult.match == false)
+									error = new Error(compareResult.message);
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
 					},
-					function(saveErr) {
-						testFailed = 1;
+					(saveErr) => {
 						error = saveErr;
 					}
-				).finally(function() {
+				).finally(() => {
 					if (error)
 						done(error);
 					else
