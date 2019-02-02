@@ -839,10 +839,10 @@ class ClassModel {
     clear() {
         var classModel = this;
 
-        if (this.abstract && !this.discriminated)
-            console.log('clearing abstract class' + this.className);
-
         return new Promise(function(resolve, reject) {	
+
+            if (classModel.abstract && !classModel.discriminated)
+                reject(new Error('Cannot call clear() on an abstract, non-discriminated class. Class: ' + classModel.className));
 
 		    classModel.Model.deleteMany({}, function(err) {
                 if (err) reject(err);

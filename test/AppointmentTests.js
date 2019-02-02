@@ -20,13 +20,7 @@ var GovernmentPosition = require('../dist/models/Modules/Government/GovernmentPo
 
 var OccupiedPosition = require('../dist/models/Modules/Government/OccupiedPosition');
 
-var GovernmentRole = require('../dist/models/Modules/Government/GovernmentRole');
-
-var PositionAcquisitionProcess = require('../dist/models/Modules/Government/PositionAcquisitionProcess');
-
 var User = require('../dist/models/Modules/User/User');
-
-var UserRole = require('../dist/models/Modules/User/UserRole');
 
 var Appointment = require('../dist/models/Modules/Government/Appointment/Appointment');
 
@@ -36,9 +30,9 @@ var Appointee = require('../dist/models/Modules/Government/Appointment/Appointee
 
 describe('Appointment Module Tests', function () {
   before(function (done) {
-    PositionAcquisitionProcess.clear().then(function () {
-      GovernmentRole.clear().then(function () {
-        UserRole.clear().then(done, done);
+    Appointment.clear().then(function () {
+      Appointer.clear().then(function () {
+        Appointee.clear().then(done, done);
       }, done);
     }, done);
   });
@@ -58,7 +52,7 @@ describe('Appointment Module Tests', function () {
         var appointment = Appointment.create();
         var testFailed = 0;
         var error;
-        var expectedErrorMessage = 'Appointment validation failed: governmentPosition: Path `governmentPosition` is required., appointee: Path `appointee` is required., appointer: Path `appointer` is required.';
+        var expectedErrorMessage = 'Appointment validation failed: appointee: Path `appointee` is required., appointer: Path `appointer` is required., governmentPosition: Path `governmentPosition` is required.';
         Appointment.save(appointment).then(function (result) {
           testFailed = 1;
         }, function (rejectionErr) {
@@ -179,12 +173,13 @@ describe('Appointment Module Tests', function () {
         appointment.appointer = Appointer.create()._id;
         appointment.appointee = Appointee.create()._id;
         Appointment.save(appointment).then(function (saved) {
-          Appointment.Model.findById(appointment._id, function (findError, found) {
+          Appointment.findById(appointment._id).then(function (found) {
             compareResult = Appointment.compare(appointment, found);
             if (compareResult.match == false) error = new Error(compareResult.message);
+          }, function (findError) {
+            error = findError;
           });
         }, function (saveErr) {
-          testFailed = 1;
           error = saveErr;
         }).finally(function () {
           if (error) done(error);else done();
@@ -272,12 +267,13 @@ describe('Appointment Module Tests', function () {
         appointer.occupiedPosition = OccupiedPosition.create()._id;
         appointer.appointments = [Appointment.create()._id, Appointment.create()._id];
         Appointer.save(appointer).then(function (saved) {
-          Appointer.Model.findById(appointer._id, function (findError, found) {
+          Appointer.findById(appointer._id).then(function (found) {
             compareResult = Appointer.compare(appointer, found);
             if (compareResult.match == false) error = new Error(compareResult.message);
+          }, function (findError) {
+            error = findError;
           });
         }, function (saveErr) {
-          testFailed = 1;
           error = saveErr;
         }).finally(function () {
           if (error) done(error);else done();
@@ -301,7 +297,7 @@ describe('Appointment Module Tests', function () {
         var appointee = Appointee.create();
         var testFailed = 0;
         var error;
-        var expectedErrorMessage = 'Appointee validation failed: user: Path `user` is required.';
+        var expectedErrorMessage = 'Appointee validation failed: appointments: Path `appointments` is required. Appointee validation failed: user: Path `user` is required., startDate: Path `startDate` is required.';
         Appointee.save(appointee).then(function (result) {
           testFailed = 1;
         }, function (rejectionErr) {
@@ -323,6 +319,7 @@ describe('Appointment Module Tests', function () {
         var expectedErrorMessage = 'Appointee validation failed: user: Cast to ObjectID failed for value "abcd1234efgh9876" at path "user"';
         appointee.user = 'abcd1234efgh9876';
         appointee.appointments = [Appointment.create()._id, Appointment.create()._id];
+        appointee.startDate = new Date();
         Appointee.save(appointee).then(function (result) {
           testFailed = 1;
         }, function (rejectionErr) {
@@ -341,9 +338,10 @@ describe('Appointment Module Tests', function () {
         var appointee = Appointee.create();
         var testFailed = 0;
         var error;
-        var expectedErrorMessage = 'Appointee validation failed: appointments: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "appointments"';
+        var expectedErrorMessage = 'Appointee validation failed: appointments: Path `appointments` is required. Appointee validation failed: appointments: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "appointments"';
         appointee.user = User.create()._id;
         appointee.appointments = ['abcd1234efgh9876', 'abcd1234efgh9875'];
+        appointee.startDate = new Date();
         Appointee.save(appointee).then(function (result) {
           testFailed = 1;
         }, function (rejectionErr) {
@@ -364,13 +362,15 @@ describe('Appointment Module Tests', function () {
         var compareResult;
         appointee.user = User.create()._id;
         appointee.appointments = [Appointment.create()._id, Appointment.create()._id];
+        appointee.startDate = new Date();
         Appointee.save(appointee).then(function (saved) {
-          Appointee.Model.findById(appointee._id, function (findError, found) {
+          Appointee.findById(appointee._id).then(function (found) {
             compareResult = Appointee.compare(appointee, found);
             if (compareResult.match == false) error = new Error(compareResult.message);
+          }, function (findError) {
+            error = findError;
           });
         }, function (saveErr) {
-          testFailed = 1;
           error = saveErr;
         }).finally(function () {
           if (error) done(error);else done();
