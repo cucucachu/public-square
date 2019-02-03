@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon --exec babel-node src/bin/www",
+    "start": "babel src --out-dir dist && rm -rf dist/views && cp -r src/views dist/views && node dist/bin/www",
     "test": "babel src/test --out-dir test && babel src --out-dir dist && mocha",
     "test-quick": "babel src/test --out-dir test && mocha",
     "build": "babel src --out-dir dist",
@@ -15,9 +15,13 @@
     "cookie-parser": "~1.4.3",
     "debug": "~2.2.0",
     "express": "^4.16.4",
+    "jsonwebtoken": "^8.4.0",
     "mongodb": "~3.1.8",
     "mongoose": "~5.3.9",
     "morgan": "^1.9.1",
+    "passport": "^0.4.0",
+    "passport-jwt": "^4.0.0",
+    "passport-local": "^1.0.0",
     "pug": "~2.0.0-beta6",
     "serve-favicon": "^2.5.0"
   },
