@@ -15,6 +15,7 @@ process.on('unhandledRejection', error => {
 var User = require('../dist/models/Modules/User/User');
 var UserAccount = require('../dist/models/Modules/User/UserAccount');
 var UserRole = require('../dist/models/Modules/User/UserRole');
+var AuthToken = require('../dist/models/Modules/User/AuthToken');
 
 describe('User Module Tests', function() {
 	
@@ -31,10 +32,6 @@ describe('User Module Tests', function() {
 			done
 		);
 	});
-
-
-	// User Class - models/user.js
-
 
 	describe('User Model', function(){	
 		
@@ -167,10 +164,6 @@ describe('User Module Tests', function() {
 
 	});
 
-
-	// User Class - models/user.js
-
-
 	describe('User Account Model', function() {
 
 		describe('UserAccount.create()', function() {
@@ -229,8 +222,46 @@ describe('User Module Tests', function() {
 
 				userAccount.email = 'email@domain.com';
 				userAccount.passwordHash = 'aasdf;lkjwoiethoinwaf;f;vno32890y4r8qhpajr98etj8tntaijffijfa';
-
 				userAccount.user = 'asdf1234zyxw9876';
+				userAccount.authToken = AuthToken.create();
+
+				UserAccount.save(userAccount).then(
+					function(savedUserAccount) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						err = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('UserAccount.save() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (err != null && err.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'UserAccount.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + err.message
+							));
+						}
+					}
+				});
+			});
+
+			it('UserAccount.authToken must be a valid ID', function(done){
+				var userAccount = UserAccount.create();
+				var testFailed = 0;
+				var err = null;
+
+				var expectedErrorMessage ='UserAccount validation failed: authToken: Cast to ObjectID failed for value "asdf1234zyxw9876" at path "authToken"';
+
+				userAccount.email = 'email@domain.com';
+				userAccount.passwordHash = 'aasdf;lkjwoiethoinwaf;f;vno32890y4r8qhpajr98etj8tntaijffijfa';
+				userAccount.user = User.create();
+				userAccount.authToken = 'asdf1234zyxw9876';
 
 				UserAccount.save(userAccount).then(
 					function(savedUserAccount) {
@@ -267,8 +298,8 @@ describe('User Module Tests', function() {
 
 				userAccount.email = 'email.domain.com';
 				userAccount.passwordHash = 'aasdf;lkjwoiethoinwaf;f;vno32890y4r8qhpajr98etj8tntaijffijfa';
-
 				userAccount.user = User.create()._id;
+				userAccount.authToken = AuthToken.create();
 
 				UserAccount.save(userAccount).then(
 					function(savedUserAccount) {
@@ -303,6 +334,7 @@ describe('User Module Tests', function() {
 				userAccount.email = 'email@domain.com';
 				userAccount.passwordHash = 'aasdf;lkjwoiethoinwaf;f;vno32890y4r8qhpajr98etj8tntaijffijfa';
 				userAccount.user = User.create()._id;
+				userAccount.authToken = AuthToken.create();
 
 				UserAccount.save(userAccount).then(
 					function(savedUserAccount) {
@@ -336,10 +368,6 @@ describe('User Module Tests', function() {
 
 	});
 
-
-	// User Role Class - models/userRole.js
-
-
 	describe('User Role Model', function() {
 
 		describe('UserRole.create()', function() {
@@ -363,6 +391,132 @@ describe('User Module Tests', function() {
 				if(testFailed)
 					throw new Error('create() ran succesfully when it should have thrown an error.');
 			});
+		});
+
+	});
+
+	describe('AuthToken Model', function(){	
+		
+		describe('AuthToken.create()', function() {
+		
+			it('create() creates a user instance.', function() {
+				var authToken = AuthToken.create();
+				assert(typeof(authToken) === "object");
+			});
+
+			it('create() creates a authToken instance with _id field populated', function(){
+				var authToken = AuthToken.create();
+				assert(typeof(authToken._id) === "object" && /^[a-f\d]{24}$/i.test(authToken._id));
+			});
+		});
+
+		describe('AuthToken.save()', function() {
+
+			it('Required fields validation', function(done) {
+				var authToken = AuthToken.create();
+				var testFailed = 0;
+				var err;
+				var expectedErrorMessage = 'AuthToken validation failed: userAccount: Path `userAccount` is required., expiresAt: Path `expiresAt` is required., createdAt: Path `createdAt` is required.';
+
+				AuthToken.save(authToken).then(
+					function(result) {
+						testFailed = 1;
+					},
+					function(rejectionErr) {
+						err = rejectionErr;
+					}
+				)
+				.finally(function() {
+					if (testFailed) done(new Error('AuthToken.save() promise resolved when it should have been rejected with Validation Error'));
+					else {
+						if (err != null && err.message == expectedErrorMessage) {
+							done();
+						}
+						else{
+							done(new Error(
+								'AuthToken.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + err.message
+							));
+						}
+					}
+				});
+			});
+
+
+			it('AuthToken.UserAccount must be a valid ID', function(done){
+				var authToken = AuthToken.create();
+				var testFailed = 0;
+				var err = null;
+
+				var expectedErrorMessage ='AuthToken validation failed: userAccount: Cast to ObjectID failed for value "abcd1234efgh9876" at path "userAccount"';
+
+
+				authToken.createdAt = new Date();
+				authToken.expiresAt = new Date() + 1;
+				authToken.userAccount = 'abcd1234efgh9876';
+
+				AuthToken.save(authToken).then(
+					function(savedAuthToken) {
+						testFailed = 1;
+					},
+					function(saveErr) {
+						err = saveErr;
+					}
+				).finally(function() {
+					if(testFailed) {
+						done(new Error('AuthToken.save() promise resolved when it should have been rejected with Validation Error'));
+					}
+					else {
+						if (err != null && err.message == expectedErrorMessage) {
+							done();
+						}
+						else {
+							done(new Error(
+								'AuthToken.save() did not return the correct Validation Error.\n' +
+								'   Expected: ' + expectedErrorMessage + '\n' +
+								'   Actual:   ' + err.message
+							));
+						}
+					}
+				});
+			});
+
+			it('Valid call saves authToken', function(done){
+				var authToken = AuthToken.create();
+				var err = null;
+
+				authToken.createdAt = new Date();
+				authToken.expiresAt = new Date() + 1;
+				authToken.userAccount = UserAccount.create()._id;
+
+				AuthToken.save(authToken).then(
+					(savedAuthToken) => {
+						AuthToken.findOne({_id: savedAuthToken._id}).then( 
+							(foundAuthToken) => {
+								var compareResult = AuthToken.compare(authToken, foundAuthToken);						
+								if (compareResult.match == false) {
+									err = new Error(compareResult.message);
+								}
+							},
+							(findError) => {
+								error = findError;
+							}
+						);
+					},
+					(saveErr) => {
+						err = saveErr;
+					}
+				).finally(() => {
+					if (err) {
+						done(err);
+					}
+					else {
+						done();
+					}
+				});
+			});
+
 		});
 
 	});

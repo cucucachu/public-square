@@ -36,6 +36,10 @@ var UserAccount = new ClassModel({
 			type: Schema.Types.ObjectId,
 			ref: 'User',
 			required: true
+		},
+		authToken: {
+			type: Schema.Types.ObjectId,
+			ref: 'AuthToken'
 		}
 	}
 });
