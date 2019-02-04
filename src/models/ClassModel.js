@@ -383,6 +383,24 @@ class ClassModel {
         });
     }
 
+    deleteInstance(instance) {
+        let classModel = this;
+
+        return new Promise((resolve, reject) => {
+
+            if (!(instance instanceof classModel.Model)) {
+                throw new Error(classModel.className + '.save() called on an instance of a different class.');
+            }
+
+            classModel.Model.deleteOne({_id: instance._id}, (error) => {
+                if (error)
+                    reject(error);
+                else 
+                    resolve();
+            });
+        });
+    }
+
     static async saveAllHelper(promises) {
         let savedInstances = [];
 
@@ -737,7 +755,7 @@ class ClassModel {
 
                 // If relationship is to a singular instance, use findOne()
                 if (singular) {
-                    if (instance[relationship == null]) {
+                    if (instance[relationship] == null) {
                         resolve(null);
                     }
                     else {

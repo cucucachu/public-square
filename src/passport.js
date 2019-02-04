@@ -4,6 +4,7 @@ const passportJWT = require('passport-jwt');
 const JWTStrategy   = passportJWT.Strategy;
 const ExtractJWT = passportJWT.ExtractJwt;
 const UserAccount = require('./models/Modules/User/UserAccount');
+const LoginController = require('./controllers/LoginController');
 
 const jwtSecret = '7YBRAKBUICHNZL487562OYUIHOTNQCIUUCNHZHUFBWCER943765';
 
@@ -12,7 +13,6 @@ passport.use(new LocalStrategy({
         passwordField: 'password'
     }, 
     function (email, password, callback) {
-		// this one is typically a DB call. Assume that the returned user object is pre-formatted and ready for storing in JWT
         UserAccount.findOne({
 				email: email, 
 				passwordHash: password
@@ -20,7 +20,7 @@ passport.use(new LocalStrategy({
                if (!userAccount) {
                     callback(null, false, {message: 'Incorrect email or password.'});
 			   }
-               callback(null, userAccount._id.toString(), {message: 'Logged In Successfully'});
+               callback(null, userAccount, {message: 'Logged In Successfully'});
           })
           .catch(err => {
 			  callback(err);
@@ -30,18 +30,17 @@ passport.use(new LocalStrategy({
 ));
 
 passport.use(new JWTStrategy({
-	jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
-	secretOrKey   : jwtSecret
-},
-function (jwtPayload, callback) {
-	console.log('jwt payload: ' + jwtPayload);
-
-	return UserAccount.findById(jwtPayload)
-		.then(userAccount => {
-			return callback(null, userAccount);
-		})
-		.catch(err => {
-			return callback(err);
-		});
-}
+		jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+		secretOrKey   : jwtSecret
+	},
+	function (jwtPayload, callback) {
+		LoginController.verifyAuthToken(jwtPayload.authToken).then(
+			(authToken) => {
+				callback(null, jwtPayload);
+			},
+			(error) => {
+				callback(error);
+			}
+		)
+	}
 ));

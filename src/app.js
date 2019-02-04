@@ -7,7 +7,7 @@ var bodyParser = require('body-parser');
 
 require('./passport');
 var passport = require('passport');
-var authorization = require('./routes/authorization');
+var login = require('./routes/login');
 var api = require('./routes/api');
 
 var app = express();
@@ -25,7 +25,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(passport.initialize());
 
-app.use('/authorization', authorization);
+app.use('/login', login);
 app.use('/api', passport.authenticate('jwt', {session: false}), api);
 
 // catch 404 and forward to error handler
