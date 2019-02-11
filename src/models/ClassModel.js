@@ -360,26 +360,27 @@ class ClassModel {
     save(instance) {
         let classModel = this;
 
-        if (!(instance instanceof this.Model)) {
-            throw new Error(this.className + '.save() called on an instance of a different class.');
-        }
-
         return new Promise(function(resolve, reject) {
-            classModel.validate(instance);
 
-            instance.save(function(err, saved) {
-                if (err) {
-                    // if (errorMessage != null)
-                    // 	console.log(errorMessage);
-                    reject(err);
-                }
-                else {
-                    // if (successMessasge != null)
-                    // 	console.log(successMessasge);
+            if (!(instance instanceof classModel.Model)) {
+                reject(new Error(classModel.className + '.save() called on an instance of a different class.'));
+            }
+            else {classModel.validate(instance);
 
-                    resolve(saved);
-                }
-            });
+                instance.save(function(err, saved) {
+                    if (err) {
+                        // if (errorMessage != null)
+                        // 	console.log(errorMessage);
+                        reject(err);
+                    }
+                    else {
+                        // if (successMessasge != null)
+                        // 	console.log(successMessasge);
+    
+                        resolve(saved);
+                    }
+                });
+            }
         });
     }
 

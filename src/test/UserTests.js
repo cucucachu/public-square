@@ -54,7 +54,7 @@ describe('User Module Tests', function() {
 				var user = User.create();
 				var testFailed = 0;
 				var err;
-				var expectedErrorMessage = 'User validation failed: userAccount: Path `userAccount` is required., lastName: Path `lastName` is required., middleName: Path `middleName` is required., firstName: Path `firstName` is required.';
+				var expectedErrorMessage = 'User validation failed: userAccount: Path `userAccount` is required., lastName: Path `lastName` is required., firstName: Path `firstName` is required.';
 
 				User.save(user).then(
 					function(result) {

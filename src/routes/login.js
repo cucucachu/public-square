@@ -32,4 +32,21 @@ router.post('/', function (req, res, next) {
     })(req, res);
 });
 
+router.post('/createAccount', function(request, response) {
+    LoginController.createUserAccount(request.body).then(
+        (userAndAccount) => {
+            response.json(
+                {
+                    message: 'User and Account Created',
+                    user: userAndAccount.user,
+                    userAccount: userAndAccount.userAccount
+                }
+            );
+        },
+        (error) => {
+            response.json({error: error.message});
+        }
+    );
+});
+
 module.exports = router;

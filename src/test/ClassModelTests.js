@@ -2489,22 +2489,26 @@ describe('Class Model Tests', function() {
             let instance = SuperClass.create();
             let testFailed = true;
 
-            try { 
-                AllFieldsRequiredClass.save(instance);
-            }
-            catch(error) {
-                if (error.message != expectedErrorMessage) 
-                    throw new Error(
-                        'ClassModel.save() did not throw the expected error message.\n' + 
-                        'Expected: ' + expectedErrorMessage + '\n' + 
-                        'Actual:   ' + error.message
-                    )
-                
-                testFailed = false;
-            }
+            AllFieldsRequiredClass.save(instance).then(
+                () => {
 
-            if (testFailed)
-                throw new Error('ClassModel.save() did not throw an error when it should have.');
+                },
+                (saveError) => {
+                    if (saveError.message != expectedErrorMessage) 
+                        throw new Error(
+                            'ClassModel.save() did not throw the expected error message.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' + 
+                            'Actual:   ' + saveError.message
+                        )
+                    
+                    testFailed = false;
+
+                }
+            ).finally(() => {
+                if (testFailed)
+                    throw new Error('ClassModel.save() did not throw an error when it should have.');
+            })
+
         });
 
         it('ClassModel.save() works properly.', function(done) {

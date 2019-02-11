@@ -2,6 +2,54 @@ const UserAccount = require('../models/Modules/User/UserAccount');
 const User = require('../models/Modules/User/User');
 const AuthToken = require('../models/Modules/User/AuthToken');
 
+const createUserAccount = async function(parameters) {
+    let emailRegex = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
+    let minPasswordLength = 8;
+
+    if (parameters.email === null || !emailRegex.test(parameters.email))
+        throw new Error('createUserAccount(): invalid email. ' + parameters.email);
+    
+    if (parameters.password == null || typeof(parameters.password) != 'string' || parameters.password.length < minPasswordLength) 
+        throw new Error('createUserAccount(): invalid password. ' + parameters.password);
+
+    if (parameters.city == null || parameters.state == null || parameters.country == null)
+        throw new Error('createUserAccount(): city, state, and country are required.');
+
+    if (!parameters.firstName || !parameters.lastName)
+        throw new Error('createUserAccount(): first and last name are required.');
+    
+    let existingAccountForEmail = await UserAccount.findOne({email: parameters.email});
+
+    if (existingAccountForEmail) 
+        throw new Error('createUserAccount(): An account already exists with the given email. ' + existingAccountForEmail._id + ', ' + parameters.email);
+
+    let userAccount = UserAccount.create();
+    let user = User.create();
+
+    userAccount.email = parameters.email;
+    userAccount.passwordHash = parameters.password;
+    userAccount.user = user._id;
+
+    user.firstName = parameters.firstName;
+    user.lastName = parameters.lastName;
+    user.middleName = parameters.middleName;
+    user.userAccount = userAccount._id;
+
+    let userAccountPromise = UserAccount.save(userAccount);
+    let userPromise = User.save(user);
+
+    await userAccountPromise;
+    await userPromise;
+
+    userAccount.passwordHash = null;
+
+    return {
+        user: user,
+        userAccount: userAccount
+    };
+    
+}
+
 const createAuthToken = async function(userAccount) {
     if (userAccount == null)
         throw new Error('LoginController.refreshToken() called with null parameter.');
@@ -42,3 +90,4 @@ const verifyAuthToken = async function(authTokenId) {
 
 module.exports.createAuthToken = createAuthToken;
 module.exports.verifyAuthToken = verifyAuthToken;
+module.exports.createUserAccount = createUserAccount;
