@@ -384,21 +384,22 @@ class ClassModel {
         });
     }
 
-    deleteInstance(instance) {
+    delete(instance) {
         let classModel = this;
 
         return new Promise((resolve, reject) => {
 
             if (!(instance instanceof classModel.Model)) {
-                throw new Error(classModel.className + '.save() called on an instance of a different class.');
+                reject(new Error(classModel.className + '.delete() called on an instance of a different class.'));
             }
-
-            classModel.Model.deleteOne({_id: instance._id}, (error) => {
-                if (error)
-                    reject(error);
-                else 
-                    resolve();
-            });
+            else {
+                classModel.Model.deleteOne({_id: instance._id}, (error) => {
+                    if (error)
+                        reject(error);
+                    else 
+                        resolve();
+                });
+            }
         });
     }
 

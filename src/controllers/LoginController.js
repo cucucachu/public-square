@@ -50,6 +50,34 @@ const createUserAccount = async function(parameters) {
     
 }
 
+/*
+ *  Deletes a user and the related user account.
+ *  @parm email - the email of the user account to delete.
+ */
+const deleteUserAccount = async function(email) {
+    if (email == null)
+        throw new Error('invalid call, LoginController.deleteUserAndAccount(email)')
+
+    let userAccount = await UserAccount.findOne({email: email});
+
+    if (userAccount == null)
+        throw new Error('No user account for email ' + email);
+
+    console.log('user: ' + JSON.stringify(user));
+    console.log('userAccount: ' + JSON.stringify(userAccount));
+    
+    let user = await UserAccount.walk(userAccount, 'user');
+
+    let deleteUserPromise = User.delete(user);
+    let deleteUserAccountPromise = UserAccount.delete(userAccount);
+
+
+    await deleteUserPromise;
+    await deleteUserAccountPromise;
+
+    return 'User and User Account deleted for User Account with email ' + email;
+}
+
 const createAuthToken = async function(userAccount) {
     if (userAccount == null)
         throw new Error('LoginController.refreshToken() called with null parameter.');
@@ -91,3 +119,4 @@ const verifyAuthToken = async function(authTokenId) {
 module.exports.createAuthToken = createAuthToken;
 module.exports.verifyAuthToken = verifyAuthToken;
 module.exports.createUserAccount = createUserAccount;
+module.exports.deleteUserAccount = deleteUserAccount;

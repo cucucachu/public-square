@@ -49,4 +49,19 @@ router.post('/createAccount', function(request, response) {
     );
 });
 
+router.post('/deleteAccount', function(request, response) {
+    LoginController.deleteUserAccount(request.body.email).then(
+        (successMessage) => {
+            response.json({
+                message: successMessage,
+            });
+        },
+        (error) => {
+            response.json({
+                error: error.message
+            });
+        }
+    );
+});
+
 module.exports = router;
