@@ -16,7 +16,7 @@ process.on('unhandledRejection', function (error) {
   console.log('unhandledRejection', error.message);
 });
 
-var User = require('../dist/models/Modules/User/User');
+var Person = require('../dist/models/Modules/User/Person');
 
 var UserAccount = require('../dist/models/Modules/User/UserAccount');
 
@@ -231,7 +231,7 @@ describe('UserGroup Module Tests', function () {
         var groupMember = GroupMember.create();
         var testFailed = 0;
         var error;
-        var expectedErrorMessage = 'GroupMember validation failed: userGroups: Path `userGroups` is required. GroupMember validation failed: user: Path `user` is required., startDate: Path `startDate` is required.';
+        var expectedErrorMessage = 'GroupMember validation failed: userAccount: Path `userAccount` is required., userGroup: Path `userGroup` is required., startDate: Path `startDate` is required.';
         GroupMember.save(groupMember).then(function (result) {
           testFailed = 1;
         }, function (rejectionErr) {
@@ -246,14 +246,14 @@ describe('UserGroup Module Tests', function () {
           }
         });
       });
-      it('GroupMember.user must contain a valid ID.', function (done) {
+      it('GroupMember.userAccount must contain a valid ID.', function (done) {
         var groupMember = GroupMember.create();
         var testFailed = 0;
         var error = null;
-        var expectedErrorMessage = 'GroupMember validation failed: user: Cast to ObjectID failed for value "abcd1234efgh9876" at path "user"';
+        var expectedErrorMessage = 'GroupMember validation failed: userAccount: Cast to ObjectID failed for value "abcd1234efgh9876" at path "userAccount"';
         groupMember.startDate = new Date();
-        groupMember.user = 'abcd1234efgh9876';
-        groupMember.userGroups = [UserGroup.create()._id, Organization.create()._id];
+        groupMember.userAccount = 'abcd1234efgh9876';
+        groupMember.userGroup = UserGroup.create()._id;
         GroupMember.save(groupMember).then(function (savedGroupMember) {
           testFailed = 1;
         }, function (saveErr) {
@@ -270,14 +270,14 @@ describe('UserGroup Module Tests', function () {
           }
         });
       });
-      it('GroupMember.userGroups must be a valid Array of IDs.', function (done) {
+      it('GroupMember.userGroup must be a valid ID.', function (done) {
         var groupMember = GroupMember.create();
         var testFailed = 0;
         var error = null;
-        var expectedErrorMessage = 'GroupMember validation failed: userGroups: Path `userGroups` is required. GroupMember validation failed: userGroups: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "userGroups"';
+        var expectedErrorMessage = 'GroupMember validation failed: userGroup: Cast to ObjectID failed for value "abcd1234efgh9876" at path "userGroup"';
         groupMember.startDate = new Date();
-        groupMember.user = User.create()._id;
-        groupMember.userGroups = ['abcd1234efgh9876', 'abcd1234efgh9875'];
+        groupMember.userAccount = UserAccount.create()._id;
+        groupMember.userGroup = 'abcd1234efgh9876';
         GroupMember.save(groupMember).then(function (savedGroupMember) {
           testFailed = 1;
         }, function (saveErr) {
@@ -299,8 +299,8 @@ describe('UserGroup Module Tests', function () {
         var error = null;
         var compareResult;
         groupMember.startDate = new Date();
-        groupMember.user = User.create()._id;
-        groupMember.userGroups = [UserGroup.create()._id, Organization.create()._id];
+        groupMember.userAccount = UserAccount.create()._id;
+        groupMember.userGroup = UserGroup.create()._id;
         GroupMember.save(groupMember).then(function (savedGroupMember) {
           GroupMember.findById(groupMember._id).then(function (found) {
             compareResult = GroupMember.compare(groupMember, found);
@@ -332,7 +332,7 @@ describe('UserGroup Module Tests', function () {
         var groupManager = GroupManager.create();
         var testFailed = 0;
         var error;
-        var expectedErrorMessage = 'GroupManager validation failed: userGroups: Path `userGroups` is required. GroupManager validation failed: user: Path `user` is required., startDate: Path `startDate` is required.';
+        var expectedErrorMessage = 'GroupManager validation failed: userAccount: Path `userAccount` is required., userGroup: Path `userGroup` is required., startDate: Path `startDate` is required.';
         GroupManager.save(groupManager).then(function (result) {
           testFailed = 1;
         }, function (rejectionErr) {
@@ -347,14 +347,14 @@ describe('UserGroup Module Tests', function () {
           }
         });
       });
-      it('GroupManager.user must be a valid ID', function (done) {
+      it('GroupManager.userAccount must be a valid ID', function (done) {
         var groupManager = GroupManager.create();
         var testFailed = 0;
         var error = null;
-        var expectedErrorMessage = 'GroupManager validation failed: user: Cast to ObjectID failed for value "abcd1234efgh9876" at path "user"';
+        var expectedErrorMessage = 'GroupManager validation failed: userAccount: Cast to ObjectID failed for value "abcd1234efgh9876" at path "userAccount"';
         groupManager.startDate = new Date();
-        groupManager.user = 'abcd1234efgh9876';
-        groupManager.userGroups = [UserGroup.create()._id, Organization.create()._id];
+        groupManager.userAccount = 'abcd1234efgh9876';
+        groupManager.userGroup = UserGroup.create()._id;
         GroupManager.save(groupManager).then(function (savedGroupManager) {
           testFailed = 1;
         }, function (saveErr) {
@@ -371,14 +371,14 @@ describe('UserGroup Module Tests', function () {
           }
         });
       });
-      it('GroupManager.userGroups must be a valid Array of IDs', function (done) {
+      it('GroupManager.userGroup must be a valid ID', function (done) {
         var groupManager = GroupManager.create();
         var testFailed = 0;
         var error = null;
-        var expectedErrorMessage = 'GroupManager validation failed: userGroups: Path `userGroups` is required. GroupManager validation failed: userGroups: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "userGroups"';
+        var expectedErrorMessage = 'GroupManager validation failed: userGroup: Cast to ObjectID failed for value "abcd1234efgh9876" at path "userGroup"';
         groupManager.startDate = new Date();
-        groupManager.user = User.create()._id;
-        groupManager.userGroups = ['abcd1234efgh9876', 'abcd1234efgh9875'];
+        groupManager.userAccount = UserAccount.create()._id;
+        groupManager.userGroup = 'abcd1234efgh9876';
         GroupManager.save(groupManager).then(function (savedGroupManager) {
           testFailed = 1;
         }, function (saveErr) {
@@ -400,11 +400,112 @@ describe('UserGroup Module Tests', function () {
         var error = null;
         var compareResult;
         groupManager.startDate = new Date();
-        groupManager.user = User.create()._id;
-        groupManager.userGroups = [UserGroup.create()._id, Organization.create()._id];
+        groupManager.userAccount = UserAccount.create()._id;
+        groupManager.userGroup = UserGroup.create()._id;
         GroupManager.save(groupManager).then(function (savedGroupManager) {
           GroupManager.findById(groupManager._id).then(function (found) {
             compareResult = GroupManager.compare(groupManager, found);
+            if (compareResult.match == false) error = new Error(compareResult.message);
+          }, function (findError) {
+            error = findError;
+          });
+        }, function (saveErr) {
+          error = saveErr;
+        }).finally(function () {
+          if (error) done(error);else done();
+        });
+      });
+    });
+  });
+  describe('OrganizationMember Model', function () {
+    describe('OrganizationMember.create()', function () {
+      it('create() creates a OrganizationMember instance.', function () {
+        var groupManager = OrganizationMember.create();
+        assert(_typeof(groupManager) === "object");
+      });
+      it('create() creates a OrganizationMember instance with _id field populated', function () {
+        var groupManager = OrganizationMember.create();
+        assert(_typeof(groupManager._id) === "object" && /^[a-f\d]{24}$/i.test(groupManager._id));
+      });
+    });
+    describe('OrganizationMember.save()', function () {
+      it('OrganizationMember.save() throws an error if required fields are missing.', function (done) {
+        var organziationMember = OrganizationMember.create();
+        var testFailed = 0;
+        var error;
+        var expectedErrorMessage = 'OrganizationMember validation failed: userAccount: Path `userAccount` is required., organization: Path `organization` is required., startDate: Path `startDate` is required.';
+        OrganizationMember.save(organziationMember).then(function (result) {
+          testFailed = 1;
+        }, function (rejectionErr) {
+          error = rejectionErr;
+        }).finally(function () {
+          if (testFailed) done(new Error('OrganizationMember.save() promise resolved when it should have been rejected with Validation Error'));else {
+            if (error != null && error.message == expectedErrorMessage) {
+              done();
+            } else {
+              done(new Error('OrganizationMember.save() did not return the correct Validation Error.\n' + '   Expected: ' + expectedErrorMessage + '\n' + '   Actual:   ' + error.message));
+            }
+          }
+        });
+      });
+      it('OrganizationMember.userAccount must be a valid ID', function (done) {
+        var organziationMember = OrganizationMember.create();
+        var testFailed = 0;
+        var error = null;
+        var expectedErrorMessage = 'OrganizationMember validation failed: userAccount: Cast to ObjectID failed for value "abcd1234efgh9876" at path "userAccount"';
+        organziationMember.startDate = new Date();
+        organziationMember.userAccount = 'abcd1234efgh9876';
+        organziationMember.organization = Organization.create()._id;
+        OrganizationMember.save(organziationMember).then(function (savedOrganizationMember) {
+          testFailed = 1;
+        }, function (saveErr) {
+          error = saveErr;
+        }).finally(function () {
+          if (testFailed) {
+            done(new Error('OrganizationMember.save() promise resolved when it should have been rejected with Validation Error'));
+          } else {
+            if (error != null && error.message == expectedErrorMessage) {
+              done();
+            } else {
+              done(new Error('OrganizationMember.save() did not return the correct Validation Error.\n' + '   Expected: ' + expectedErrorMessage + '\n' + '   Actual:   ' + error.message));
+            }
+          }
+        });
+      });
+      it('OrganizationMember.organization must be a valid ID', function (done) {
+        var organziationMember = OrganizationMember.create();
+        var testFailed = 0;
+        var error = null;
+        var expectedErrorMessage = 'OrganizationMember validation failed: organization: Cast to ObjectID failed for value "abcd1234efgh9876" at path "organization"';
+        organziationMember.startDate = new Date();
+        organziationMember.userAccount = UserAccount.create()._id;
+        organziationMember.organization = 'abcd1234efgh9876';
+        OrganizationMember.save(organziationMember).then(function (savedOrganizationMember) {
+          testFailed = 1;
+        }, function (saveErr) {
+          error = saveErr;
+        }).finally(function () {
+          if (testFailed) {
+            done(new Error('OrganizationMember.save() promise resolved when it should have been rejected with Validation Error'));
+          } else {
+            if (error != null && error.message == expectedErrorMessage) {
+              done();
+            } else {
+              done(new Error('OrganizationMember.save() did not return the correct Validation Error.\n' + '   Expected: ' + expectedErrorMessage + '\n' + '   Actual:   ' + error.message));
+            }
+          }
+        });
+      });
+      it('Valid Call Saves OrganizationMember.', function (done) {
+        var organziationMember = OrganizationMember.create();
+        var error = null;
+        var compareResult;
+        organziationMember.startDate = new Date();
+        organziationMember.userAccount = UserAccount.create()._id;
+        organziationMember.organization = Organization.create()._id;
+        OrganizationMember.save(organziationMember).then(function (savedOrganizationMember) {
+          OrganizationMember.findById(organziationMember._id).then(function (found) {
+            compareResult = OrganizationMember.compare(organziationMember, found);
             if (compareResult.match == false) error = new Error(compareResult.message);
           }, function (findError) {
             error = findError;

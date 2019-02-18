@@ -30,7 +30,7 @@ var Government = require('../dist/models/Modules/Government/Government');
 
 var GeographicArea = require('../dist/models/Modules/Geography/GeographicArea');
 
-var User = require('../dist/models/Modules/User/User');
+var UserAccount = require('../dist/models/Modules/User/UserAccount');
 
 describe('Poll Module Tests', function () {
   before(function (done) {
@@ -360,7 +360,7 @@ describe('Poll Module Tests', function () {
         var civilian = Civilian.create();
         var testFailed = 0;
         var error;
-        var expectedErrorMessage = 'Civilian validation failed: user: Path `user` is required., startDate: Path `startDate` is required.';
+        var expectedErrorMessage = 'Civilian validation failed: userAccount: Path `userAccount` is required.';
         Civilian.save(civilian).then(function (result) {
           testFailed = 1;
         }, function (rejectionErr) {
@@ -375,12 +375,12 @@ describe('Poll Module Tests', function () {
           }
         });
       });
-      it('Civilian.user must be a valid ID.', function (done) {
+      it('Civilian.userAccount must be a valid ID.', function (done) {
         var civilian = Civilian.create();
         var testFailed = 0;
         var error;
-        var expectedErrorMessage = 'Civilian validation failed: user: Cast to ObjectID failed for value "abcd1234efgh9876" at path "user"';
-        civilian.user = 'abcd1234efgh9876';
+        var expectedErrorMessage = 'Civilian validation failed: userAccount: Cast to ObjectID failed for value "abcd1234efgh9876" at path "userAccount"';
+        civilian.userAccount = 'abcd1234efgh9876';
         civilian.startDate = new Date();
         civilian.pollResponses = [PollResponse.create()._id, PollResponse.create()._id];
         Civilian.save(civilian).then(function (result) {
@@ -402,7 +402,7 @@ describe('Poll Module Tests', function () {
         var testFailed = 0;
         var error;
         var expectedErrorMessage = 'Civilian validation failed: pollResponses: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "pollResponses"';
-        civilian.user = User.create()._id;
+        civilian.userAccount = UserAccount.create()._id;
         civilian.startDate = new Date();
         civilian.pollResponses = ['abcd1234efgh9876', 'abcd1234efgh9875'];
         Civilian.save(civilian).then(function (result) {
@@ -423,7 +423,7 @@ describe('Poll Module Tests', function () {
         var civilian = Civilian.create();
         var error = null;
         var compareResult;
-        civilian.user = User.create()._id;
+        civilian.userAccount = UserAccount.create()._id;
         civilian.startDate = new Date();
         civilian.pollResponses = [PollResponse.create()._id, PollResponse.create()._id];
         Civilian.save(civilian).then(function (saved) {
@@ -457,7 +457,7 @@ describe('Poll Module Tests', function () {
         var citizen = Citizen.create();
         var testFailed = 0;
         var error;
-        var expectedErrorMessage = 'Citizen validation failed: user: Path `user` is required., startDate: Path `startDate` is required.';
+        var expectedErrorMessage = 'Citizen validation failed: userAccount: Path `userAccount` is required.';
         Citizen.save(citizen).then(function (result) {
           testFailed = 1;
         }, function (rejectionErr) {
@@ -472,12 +472,12 @@ describe('Poll Module Tests', function () {
           }
         });
       });
-      it('Citizen.user must be a valid ID.', function (done) {
+      it('Citizen.userAccount must be a valid ID.', function (done) {
         var citizen = Citizen.create();
         var testFailed = 0;
         var error;
-        var expectedErrorMessage = 'Citizen validation failed: user: Cast to ObjectID failed for value "abcd1234efgh9876" at path "user"';
-        citizen.user = 'abcd1234efgh9876';
+        var expectedErrorMessage = 'Citizen validation failed: userAccount: Cast to ObjectID failed for value "abcd1234efgh9876" at path "userAccount"';
+        citizen.userAccount = 'abcd1234efgh9876';
         citizen.startDate = new Date();
         citizen.pollResponses = [PollResponse.create()._id, PollResponse.create()._id];
         Citizen.save(citizen).then(function (result) {
@@ -499,7 +499,7 @@ describe('Poll Module Tests', function () {
         var testFailed = 0;
         var error;
         var expectedErrorMessage = 'Citizen validation failed: pollResponses: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "pollResponses"';
-        citizen.user = User.create()._id;
+        citizen.userAccount = UserAccount.create()._id;
         citizen.startDate = new Date();
         citizen.pollResponses = ['abcd1234efgh9876', 'abcd1234efgh9875'];
         Citizen.save(citizen).then(function (result) {
@@ -520,7 +520,7 @@ describe('Poll Module Tests', function () {
         var citizen = Citizen.create();
         var error = null;
         var compareResult;
-        citizen.user = User.create()._id;
+        citizen.userAccount = UserAccount.create()._id;
         citizen.startDate = new Date();
         citizen.pollResponses = [PollResponse.create()._id, PollResponse.create()._id];
         Citizen.save(citizen).then(function (saved) {

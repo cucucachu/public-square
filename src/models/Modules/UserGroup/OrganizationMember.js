@@ -14,11 +14,19 @@ var UserRole = require('../User/UserRole');
 
 var OrganizationMember = new ClassModel({
     className: 'OrganizationMember',
-    discriminatedSuperClass: UserRole,
+    discriminatorSuperClass: UserRole,
     schema: {
-        organizations: {
-            type: [Schema.Types.ObjectId],
-            ref: 'Organization'
+		startDate: {
+			type: Date,
+			required: true
+		},
+		endDate: {
+			type: Date
+		},
+        organization: {
+            type: Schema.Types.ObjectId,
+            ref: 'Organization',
+            required: true
         }
     }
 });
