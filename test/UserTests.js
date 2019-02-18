@@ -16,104 +16,176 @@ process.on('unhandledRejection', function (error) {
   console.log('unhandledRejection', error.message);
 });
 
-var User = require('../dist/models/Modules/User/User');
+var Person = require('../dist/models/Modules/User/Person');
 
 var UserAccount = require('../dist/models/Modules/User/UserAccount');
 
 var UserRole = require('../dist/models/Modules/User/UserRole');
 
+var PersonRole = require('../dist/models/Modules/User/PersonRole');
+
+var GovernmentOfficial = require('../dist/models/Modules/Government/GovernmentOfficial');
+
 var AuthToken = require('../dist/models/Modules/User/AuthToken');
+
+var Address = require('../dist/models/Modules/Geography/Address');
+
+var Citizen = require('../dist/models/Modules/Poll/Citizen');
+
+var GroupMember = require('../dist/models/Modules/UserGroup/GroupMember');
 
 describe('User Module Tests', function () {
   before(function (done) {
-    User.clear().then(function () {
+    Person.clear().then(function () {
       UserAccount.clear().then(function () {
-        UserRole.clear().then(done, done);
-      }, done);
-    }, done);
-  });
-  describe('User Model', function () {
-    describe('User.create()', function () {
-      it('create() creates a user instance.', function () {
-        var user = User.create();
-        assert(_typeof(user) === "object");
-      });
-      it('create() creates a user instance with _id field populated', function () {
-        var user = User.create();
-        assert(_typeof(user._id) === "object" && /^[a-f\d]{24}$/i.test(user._id));
+        UserRole.clear().then(function () {
+          PersonRole.clear().then(function () {
+            AuthToken.clear().finally(done);
+          });
+        });
       });
     });
-    describe('User.save()', function () {
+  });
+  describe('Person Model', function () {
+    describe('Person.create()', function () {
+      it('create() creates a person instance.', function () {
+        var person = Person.create();
+        assert(_typeof(person) === "object");
+      });
+      it('create() creates a person instance with _id field populated', function () {
+        var person = Person.create();
+        assert(_typeof(person._id) === "object" && /^[a-f\d]{24}$/i.test(person._id));
+      });
+    });
+    describe('Person.save()', function () {
       it('Required fields validation', function (done) {
-        var user = User.create();
+        var person = Person.create();
         var testFailed = 0;
-        var err;
-        var expectedErrorMessage = 'User validation failed: userAccount: Path `userAccount` is required., lastName: Path `lastName` is required., firstName: Path `firstName` is required.';
-        User.save(user).then(function (result) {
+        var error;
+        var expectedErrorMessage = 'Person validation failed: lastName: Path `lastName` is required., firstName: Path `firstName` is required.';
+        Person.save(person).then(function (result) {
           testFailed = 1;
         }, function (rejectionErr) {
-          err = rejectionErr;
+          error = rejectionErr;
         }).finally(function () {
-          if (testFailed) done(new Error('User.save() promise resolved when it should have been rejected with Validation Error'));else {
-            if (err != null && err.message == expectedErrorMessage) {
+          if (testFailed) done(new Error('Person.save() promise resolved when it should have been rejected with Validation Error'));else {
+            if (error != null && error.message == expectedErrorMessage) {
               done();
             } else {
-              done(new Error('User.save() did not return the correct Validation Error.\n' + '   Expected: ' + expectedErrorMessage + '\n' + '   Actual:   ' + err.message));
+              done(new Error('Person.save() did not return the correct Validation Error.\n' + '   Expected: ' + expectedErrorMessage + '\n' + '   Actual:   ' + error.message));
             }
           }
         });
       });
-      it('User.UserAccount must be a valid ID', function (done) {
-        var user = User.create();
+      it('Person.userAccount must be a valid ID', function (done) {
+        var person = Person.create();
         var testFailed = 0;
-        var err = null;
-        var expectedErrorMessage = 'User validation failed: userAccount: Cast to ObjectID failed for value "asdf1234zyxw9876" at path "userAccount"';
-        user.firstName = 'firstName';
-        user.middleName = 'middleName';
-        user.lastName = 'lastName';
-        user.userAccount = 'asdf1234zyxw9876';
-        User.save(user).then(function (savedUser) {
+        var error = null;
+        var expectedErrorMessage = 'Person validation failed: userAccount: Cast to ObjectID failed for value "abcd1234efgh9876" at path "userAccount"';
+        person.firstName = 'firstName';
+        person.middleName = 'middleName';
+        person.lastName = 'lastName';
+        person.userAccount = 'abcd1234efgh9876';
+        person.address = Address.create();
+        person.personRoles = [GovernmentOfficial.create(), GovernmentOfficial.create()];
+        Person.save(person).then(function (savedPerson) {
           testFailed = 1;
         }, function (saveErr) {
-          err = saveErr;
+          error = saveErr;
         }).finally(function () {
           if (testFailed) {
-            done(new Error('User.save() promise resolved when it should have been rejected with Validation Error'));
+            done(new Error('Person.save() promise resolved when it should have been rejected with Validation Error'));
           } else {
-            if (err != null && err.message == expectedErrorMessage) {
+            if (error != null && error.message == expectedErrorMessage) {
               done();
             } else {
-              done(new Error('User.save() did not return the correct Validation Error.\n' + '   Expected: ' + expectedErrorMessage + '\n' + '   Actual:   ' + err.message));
+              done(new Error('Person.save() did not return the correct Validation Error.\n' + '   Expected: ' + expectedErrorMessage + '\n' + '   Actual:   ' + error.message));
             }
           }
         });
       });
-      it('Valid call saves user', function (done) {
-        var user = User.create();
-        var err = null;
-        user.firstName = 'firstName';
-        user.middleName = 'middleName';
-        user.lastName = 'lastName';
-        user.userAccount = UserAccount.create()._id;
-        User.save(user).then(function (savedUser) {
-          User.findOne({
-            _id: savedUser._id
-          }).then(function (findErr, foundUser) {
-            if (findErr) {
-              err = findErr;
+      it('Person.address must be a valid ID', function (done) {
+        var person = Person.create();
+        var testFailed = 0;
+        var error = null;
+        var expectedErrorMessage = 'Person validation failed: address: Cast to ObjectID failed for value "abcd1234efgh9876" at path "address"';
+        person.firstName = 'firstName';
+        person.middleName = 'middleName';
+        person.lastName = 'lastName';
+        person.userAccount = UserAccount.create();
+        person.address = 'abcd1234efgh9876';
+        person.personRoles = [GovernmentOfficial.create(), GovernmentOfficial.create()];
+        Person.save(person).then(function (savedPerson) {
+          testFailed = 1;
+        }, function (saveErr) {
+          error = saveErr;
+        }).finally(function () {
+          if (testFailed) {
+            done(new Error('Person.save() promise resolved when it should have been rejected with Validation Error'));
+          } else {
+            if (error != null && error.message == expectedErrorMessage) {
+              done();
             } else {
-              var compareResult = User.compare(user, foundUser);
+              done(new Error('Person.save() did not return the correct Validation Error.\n' + '   Expected: ' + expectedErrorMessage + '\n' + '   Actual:   ' + error.message));
+            }
+          }
+        });
+      });
+      it('Person.personRoles must be a valid ID', function (done) {
+        var person = Person.create();
+        var testFailed = 0;
+        var error = null;
+        var expectedErrorMessage = 'Person validation failed: personRoles: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "personRoles"';
+        person.firstName = 'firstName';
+        person.middleName = 'middleName';
+        person.lastName = 'lastName';
+        person.address = Address.create();
+        person.userAccount = UserAccount.create();
+        person.personRoles = ['abcd1234efgh9876', 'abcd1234efgh9875'];
+        Person.save(person).then(function (savedPerson) {
+          testFailed = 1;
+        }, function (saveErr) {
+          error = saveErr;
+        }).finally(function () {
+          if (testFailed) {
+            done(new Error('Person.save() promise resolved when it should have been rejected with Validation Error'));
+          } else {
+            if (error != null && error.message == expectedErrorMessage) {
+              done();
+            } else {
+              done(new Error('Person.save() did not return the correct Validation Error.\n' + '   Expected: ' + expectedErrorMessage + '\n' + '   Actual:   ' + error.message));
+            }
+          }
+        });
+      });
+      it('Valid call saves person', function (done) {
+        var person = Person.create();
+        var error = null;
+        person.firstName = 'firstName';
+        person.middleName = 'middleName';
+        person.lastName = 'lastName';
+        person.userAccount = UserAccount.create();
+        person.address = Address.create();
+        person.personRoles = [GovernmentOfficial.create(), GovernmentOfficial.create()];
+        Person.save(person).then(function (savedPerson) {
+          Person.findOne({
+            _id: savedPerson._id
+          }).then(function (findErr, foundPerson) {
+            if (findErr) {
+              error = findErr;
+            } else {
+              var compareResult = Person.compare(person, foundPerson);
 
               if (compareResult.match == false) {
-                err = new Error(compareResult.message);
+                error = new Error(compareResult.message);
               }
             }
           });
         }, function (saveErr) {
-          err = saveErr;
+          error = saveErr;
         }).finally(function () {
-          if (err) {
-            done(err);
+          if (error) {
+            done(error);
           } else {
             done();
           }
@@ -137,7 +209,7 @@ describe('User Module Tests', function () {
         var userAccount = UserAccount.create();
         var testFailed = 0;
         var err;
-        var expectedErrorMessage = 'UserAccount validation failed: user: Path `user` is required., passwordHash: Path `passwordHash` is required., email: Path `email` is required.';
+        var expectedErrorMessage = 'UserAccount validation failed: person: Path `person` is required., passwordHash: Path `passwordHash` is required., email: Path `email` is required.';
         UserAccount.save(userAccount).then(function (result) {
           testFailed = 1;
         }, function (rejectionErr) {
@@ -152,15 +224,16 @@ describe('User Module Tests', function () {
           }
         });
       });
-      it('UserAccount.User must be a valid ID', function (done) {
+      it('UserAccount.person must be a valid ID', function (done) {
         var userAccount = UserAccount.create();
         var testFailed = 0;
         var err = null;
-        var expectedErrorMessage = 'UserAccount validation failed: user: Cast to ObjectID failed for value "asdf1234zyxw9876" at path "user"';
+        var expectedErrorMessage = 'UserAccount validation failed: person: Cast to ObjectID failed for value "asdf1234zyxw9876" at path "person"';
         userAccount.email = 'email@domain.com';
         userAccount.passwordHash = 'aasdf;lkjwoiethoinwaf;f;vno32890y4r8qhpajr98etj8tntaijffijfa';
-        userAccount.user = 'asdf1234zyxw9876';
+        userAccount.person = 'asdf1234zyxw9876';
         userAccount.authToken = AuthToken.create();
+        userAccount.userRoles = [Citizen.create(), GroupMember.create()];
         UserAccount.save(userAccount).then(function (savedUserAccount) {
           testFailed = 1;
         }, function (saveErr) {
@@ -184,8 +257,35 @@ describe('User Module Tests', function () {
         var expectedErrorMessage = 'UserAccount validation failed: authToken: Cast to ObjectID failed for value "asdf1234zyxw9876" at path "authToken"';
         userAccount.email = 'email@domain.com';
         userAccount.passwordHash = 'aasdf;lkjwoiethoinwaf;f;vno32890y4r8qhpajr98etj8tntaijffijfa';
-        userAccount.user = User.create();
+        userAccount.person = Person.create();
         userAccount.authToken = 'asdf1234zyxw9876';
+        userAccount.userRoles = [Citizen.create(), GroupMember.create()];
+        UserAccount.save(userAccount).then(function (savedUserAccount) {
+          testFailed = 1;
+        }, function (saveErr) {
+          err = saveErr;
+        }).finally(function () {
+          if (testFailed) {
+            done(new Error('UserAccount.save() promise resolved when it should have been rejected with Validation Error'));
+          } else {
+            if (err != null && err.message == expectedErrorMessage) {
+              done();
+            } else {
+              done(new Error('UserAccount.save() did not return the correct Validation Error.\n' + '   Expected: ' + expectedErrorMessage + '\n' + '   Actual:   ' + err.message));
+            }
+          }
+        });
+      });
+      it('UserAccount.userRoles must be a valid array of IDs', function (done) {
+        var userAccount = UserAccount.create();
+        var testFailed = 0;
+        var err = null;
+        var expectedErrorMessage = 'UserAccount validation failed: userRoles: Cast to Array failed for value "[ \'asdf1234zyxw9876\', \'asdf1234zyxw9875\' ]" at path "userRoles"';
+        userAccount.email = 'email@domain.com';
+        userAccount.passwordHash = 'aasdf;lkjwoiethoinwaf;f;vno32890y4r8qhpajr98etj8tntaijffijfa';
+        userAccount.person = Person.create();
+        userAccount.authToken = AuthToken.create();
+        userAccount.userRoles = ['asdf1234zyxw9876', 'asdf1234zyxw9875'];
         UserAccount.save(userAccount).then(function (savedUserAccount) {
           testFailed = 1;
         }, function (saveErr) {
@@ -209,8 +309,9 @@ describe('User Module Tests', function () {
         var expectedErrorMessage = 'UserAccount validation failed: email: Invalid Email';
         userAccount.email = 'email.domain.com';
         userAccount.passwordHash = 'aasdf;lkjwoiethoinwaf;f;vno32890y4r8qhpajr98etj8tntaijffijfa';
-        userAccount.user = User.create()._id;
+        userAccount.person = Person.create();
         userAccount.authToken = AuthToken.create();
+        userAccount.userRoles = [Citizen.create(), GroupMember.create()];
         UserAccount.save(userAccount).then(function (savedUserAccount) {
           testFailed = 1;
         }, function (saveErr) {
@@ -232,8 +333,9 @@ describe('User Module Tests', function () {
         var err = null;
         userAccount.email = 'email@domain.com';
         userAccount.passwordHash = 'aasdf;lkjwoiethoinwaf;f;vno32890y4r8qhpajr98etj8tntaijffijfa';
-        userAccount.user = User.create()._id;
+        userAccount.person = Person.create();
         userAccount.authToken = AuthToken.create();
+        userAccount.userRoles = [Citizen.create(), GroupMember.create()];
         UserAccount.save(userAccount).then(function (savedUserAccount) {
           UserAccount.findOne({
             _id: savedUserAccount._id

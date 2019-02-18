@@ -12,7 +12,9 @@ const AllClassModels = [];
 
 class ClassModel {
 
-    constructor(parameters) {
+    constructor() {
+        let parameters = arguments[0];
+        
         if (!parameters.className)
             throw new Error('className is required.');
             
@@ -359,7 +361,6 @@ class ClassModel {
     // Save
     save(instance) {
         let classModel = this;
-
         return new Promise(function(resolve, reject) {
 
             if (!(instance instanceof classModel.Model)) {
@@ -367,16 +368,11 @@ class ClassModel {
             }
             else {classModel.validate(instance);
 
-                instance.save(function(err, saved) {
-                    if (err) {
-                        // if (errorMessage != null)
-                        // 	console.log(errorMessage);
-                        reject(err);
+                instance.save(function(error, saved) {
+                    if (error) {
+                        reject(error);
                     }
                     else {
-                        // if (successMessasge != null)
-                        // 	console.log(successMessasge);
-    
                         resolve(saved);
                     }
                 });
@@ -388,7 +384,6 @@ class ClassModel {
         let classModel = this;
 
         return new Promise((resolve, reject) => {
-
             if (!(instance instanceof classModel.Model)) {
                 reject(new Error(classModel.className + '.delete() called on an instance of a different class.'));
             }

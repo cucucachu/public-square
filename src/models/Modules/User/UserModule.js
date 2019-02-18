@@ -5,7 +5,9 @@
 
 // Super Classes
 require('./UserRole');
+require('./PersonRole');
 
 // Classes
-require('./User');
+require('./Person');
 require('./UserAccount');
+require('./AuthToken');

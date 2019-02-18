@@ -1,8 +1,8 @@
 /* 
  Class Model
- Model: User Role
+ Model: Person Role
  Abstract
- Discriminated Sub Classes: Citizen, Civilian, Group Manager, Group Member
+ Discriminated Sub Classes: Candidate, Government Official, Appointer, Nominee
  Description: A Super class giving access to functionallity tied to a Person.
 */
 
@@ -11,17 +11,17 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var ClassModel = require('../../ClassModel');
 
-var UserRole = new ClassModel({
-	className: 'UserRole',
+var PersonRole = new ClassModel({
+	className: 'PersonRole',
 	discriminated: true,
 	abstract: true,
 	schema: {
-		userAccount: {
+		person: {
 			type: Schema.Types.ObjectId,
-			ref: 'UserAccount',
+			ref: 'Person',
 			required: true
 		}
 	}
 });
 
-module.exports = UserRole;
+module.exports = PersonRole;

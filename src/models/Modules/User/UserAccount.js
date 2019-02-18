@@ -6,17 +6,12 @@
 
 // MongoDB and Mongoose Setup
 var mongoose = require('mongoose');
-var database = require('../../database');
 var Schema = mongoose.Schema;
 var ClassModel = require('../../ClassModel');
-
-// Related Models
-var User = require('./User');
 
 var UserAccount = new ClassModel({
 	className: 'UserAccount',
 	schema: {
-		_id: Schema.Types.ObjectId,
 		email: {
 			type: String,
 			validate: {
@@ -32,14 +27,18 @@ var UserAccount = new ClassModel({
 			type: String,
 			required: true
 		},
-		user: {
+		person: {
 			type: Schema.Types.ObjectId,
-			ref: 'User',
+			ref: 'Person',
 			required: true
 		},
 		authToken: {
 			type: Schema.Types.ObjectId,
 			ref: 'AuthToken'
+		},
+		userRoles: {
+			type: [Schema.Types.ObjectId],
+			ref: 'UserRole'
 		}
 	}
 });
