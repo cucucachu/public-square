@@ -44,9 +44,7 @@ var GovernmentRole = require('../dist/models/Modules/Government/GovernmentRole')
 
 var GovernmentOfficial = require('../dist/models/Modules/Government/GovernmentOfficial');
 
-var User = require('../dist/models/Modules/User/User');
-
-var UserRole = require('../dist/models/Modules/User/UserRole');
+var Person = require('../dist/models/Modules/User/Person');
 
 var Law = require('../dist/models/Modules/Government/Law');
 
@@ -77,7 +75,7 @@ describe('Government Module Tests', function () {
                     AcquisitionProcessDefinition.clear().then(function () {
                       OccupiedPosition.clear().then(function () {
                         GovernmentOfficial.clear().then(function () {
-                          User.clear().then(function () {
+                          Person.clear().then(function () {
                             Law.clear().then(function () {
                               VoteOption.clear().then(function () {
                                 Bill.clear().then(function () {
@@ -1258,7 +1256,7 @@ describe('Government Module Tests', function () {
         var governmentOfficial = GovernmentOfficial.create();
         var testFailed = 0;
         var error;
-        var expectedErrorMessage = 'GovernmentOfficial validation failed: user: Path `user` is required., startDate: Path `startDate` is required.';
+        var expectedErrorMessage = 'GovernmentOfficial validation failed: person: Path `person` is required.';
         GovernmentOfficial.save(governmentOfficial).then(function (result) {
           testFailed = 1;
         }, function (rejectionErr) {
@@ -1273,13 +1271,13 @@ describe('Government Module Tests', function () {
           }
         });
       });
-      it('GovernmentOfficial.user must be a valid ID.', function (done) {
+      it('GovernmentOfficial.person must be a valid ID.', function (done) {
         var governmentOfficial = GovernmentOfficial.create();
         var testFailed = 0;
         var error;
-        var expectedErrorMessage = 'GovernmentOfficial validation failed: user: Cast to ObjectID failed for value "abcd1234efgh9876" at path "user"';
+        var expectedErrorMessage = 'GovernmentOfficial validation failed: person: Cast to ObjectID failed for value "abcd1234efgh9876" at path "person"';
         governmentOfficial.startDate = new Date();
-        governmentOfficial.user = 'abcd1234efgh9876';
+        governmentOfficial.person = 'abcd1234efgh9876';
         governmentOfficial.occupiedPositions = [OccupiedPosition.create()._id, OccupiedPosition.create()._id];
         GovernmentOfficial.save(governmentOfficial).then(function (result) {
           testFailed = 1;
@@ -1301,7 +1299,7 @@ describe('Government Module Tests', function () {
         var error;
         var expectedErrorMessage = 'GovernmentOfficial validation failed: occupiedPositions: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "occupiedPositions"';
         governmentOfficial.startDate = new Date();
-        governmentOfficial.user = User.create()._id;
+        governmentOfficial.person = Person.create()._id;
         governmentOfficial.occupiedPositions = ['abcd1234efgh9876', 'abcd1234efgh9875'];
         GovernmentOfficial.save(governmentOfficial).then(function (result) {
           testFailed = 1;
@@ -1322,7 +1320,7 @@ describe('Government Module Tests', function () {
         var error = null;
         var compareResult;
         governmentOfficial.startDate = new Date();
-        governmentOfficial.user = User.create()._id;
+        governmentOfficial.person = Person.create()._id;
         governmentOfficial.occupiedPositions = [OccupiedPosition.create()._id, OccupiedPosition.create()._id];
         GovernmentOfficial.save(governmentOfficial).then(function (saved) {
           GovernmentOfficial.findById(governmentOfficial._id).then(function (found) {

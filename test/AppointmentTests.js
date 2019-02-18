@@ -20,7 +20,7 @@ var GovernmentPosition = require('../dist/models/Modules/Government/GovernmentPo
 
 var OccupiedPosition = require('../dist/models/Modules/Government/OccupiedPosition');
 
-var User = require('../dist/models/Modules/User/User');
+var Person = require('../dist/models/Modules/User/Person');
 
 var Appointment = require('../dist/models/Modules/Government/Appointment/Appointment');
 
@@ -297,7 +297,7 @@ describe('Appointment Module Tests', function () {
         var appointee = Appointee.create();
         var testFailed = 0;
         var error;
-        var expectedErrorMessage = 'Appointee validation failed: appointments: Path `appointments` is required. Appointee validation failed: user: Path `user` is required., startDate: Path `startDate` is required.';
+        var expectedErrorMessage = 'Appointee validation failed: appointments: Path `appointments` is required. Appointee validation failed: person: Path `person` is required.';
         Appointee.save(appointee).then(function (result) {
           testFailed = 1;
         }, function (rejectionErr) {
@@ -312,12 +312,12 @@ describe('Appointment Module Tests', function () {
           }
         });
       });
-      it('Appointee.user must be a valid ID.', function (done) {
+      it('Appointee.person must be a valid ID.', function (done) {
         var appointee = Appointee.create();
         var testFailed = 0;
         var error;
-        var expectedErrorMessage = 'Appointee validation failed: user: Cast to ObjectID failed for value "abcd1234efgh9876" at path "user"';
-        appointee.user = 'abcd1234efgh9876';
+        var expectedErrorMessage = 'Appointee validation failed: person: Cast to ObjectID failed for value "abcd1234efgh9876" at path "person"';
+        appointee.person = 'abcd1234efgh9876';
         appointee.appointments = [Appointment.create()._id, Appointment.create()._id];
         appointee.startDate = new Date();
         Appointee.save(appointee).then(function (result) {
@@ -339,7 +339,7 @@ describe('Appointment Module Tests', function () {
         var testFailed = 0;
         var error;
         var expectedErrorMessage = 'Appointee validation failed: appointments: Path `appointments` is required. Appointee validation failed: appointments: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "appointments"';
-        appointee.user = User.create()._id;
+        appointee.person = Person.create()._id;
         appointee.appointments = ['abcd1234efgh9876', 'abcd1234efgh9875'];
         appointee.startDate = new Date();
         Appointee.save(appointee).then(function (result) {
@@ -360,7 +360,7 @@ describe('Appointment Module Tests', function () {
         var appointee = Appointee.create();
         var error = null;
         var compareResult;
-        appointee.user = User.create()._id;
+        appointee.person = Person.create()._id;
         appointee.appointments = [Appointment.create()._id, Appointment.create()._id];
         appointee.startDate = new Date();
         Appointee.save(appointee).then(function (saved) {

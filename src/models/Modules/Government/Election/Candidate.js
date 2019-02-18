@@ -1,8 +1,8 @@
 /* 
  Class Model
  Model: Candidate
- Super Class: User Role
- Description: A User Role which connects a Person to Campaigns.
+ Super Class: Person Role
+ Description: A Person Role which connects a Person to Campaigns.
 */
 
 // MongoDB and Mongoose Setup
@@ -10,11 +10,11 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var ClassModel = require('../../../ClassModel');
 
-var UserRole = require('../../User/UserRole');
+var PersonRole = require('../../User/PersonRole');
 
 var Candidate = new ClassModel({
 	className: 'Candidate',
-	discriminatorSuperClass: UserRole,
+	discriminatorSuperClass: PersonRole,
 	schema: {
 		campaigns: {
 			type: [Schema.Types.ObjectId],
