@@ -1,6 +1,7 @@
 const UserAccount = require('../models/Modules/User/UserAccount');
 const User = require('../models/Modules/User/User');
 const AuthToken = require('../models/Modules/User/AuthToken');
+const hasher = require('password-hash');
 
 const createUserAccount = async function(parameters) {
     let emailRegex = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
@@ -27,7 +28,7 @@ const createUserAccount = async function(parameters) {
     let user = User.create();
 
     userAccount.email = parameters.email;
-    userAccount.passwordHash = parameters.password;
+    userAccount.passwordHash = hasher.generate(parameters.password);
     userAccount.user = user._id;
 
     user.firstName = parameters.firstName;
@@ -79,13 +80,14 @@ const deleteUserAccount = async function(email) {
 }
 
 const createAuthToken = async function(userAccount) {
+
     if (userAccount == null)
         throw new Error('LoginController.refreshToken() called with null parameter.');
-
+    
     let currentAuthToken = await UserAccount.walk(userAccount, 'authToken');
 
     if (currentAuthToken) {
-        await AuthToken.deleteInstance(currentAuthToken);
+        await AuthToken.delete(currentAuthToken);
     }
 
     let newAuthToken = AuthToken.create();

@@ -7,14 +7,18 @@ const LoginController = require('../controllers/LoginController');
 const jwtSecret = '7YBRAKBUICHNZL487562OYUIHOTNQCIUUCNHZHUFBWCER943765';
 
 /* POST login. */
-router.post('/', function (req, res, next) {
+router.post('/', function (request, response, next) {
     passport.authenticate('local', {session: false}, (error, userAccount, info) => {
-        if (error || !userAccount) {
-            res.status(401).json({
-                message: 'Invalid Email and/or Password'
+        if (error) {
+            response.status(401).json({
+                message: error.message
             });
         }
-
+        else if (!userAccount) {
+            response.status(401).json({
+                message: info.message
+            });
+        }
         else {
             LoginController.createAuthToken(userAccount).then(
                 (newAuthToken) => {
@@ -25,11 +29,16 @@ router.post('/', function (req, res, next) {
                     }
         
                     const token = jwt.sign(jwtPayload, jwtSecret);
-                    res.json({token});
+                    response.json({token});
+                },
+                (error) => {
+                    response.json({
+                        error: error.message
+                    })
                 }
             );
         }
-    })(req, res);
+    })(request, response);
 });
 
 router.post('/createAccount', function(request, response) {
