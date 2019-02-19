@@ -63,6 +63,42 @@ class ClassModel {
             });
         }
 
+        if (parameters.secured === undefined) {
+            throw new Error('secured is required.')
+        }
+
+        if (parameters.secured) {
+            if (!parameters.securityMethod) {
+                if (!parameters.discriminatorSuperClass) {
+                    throw new Error('If class is secured, and is not a sub class of a secured discriminated class, a security method must be provided.');
+                }
+            }
+
+            if (parameters.securityMethod && parameters.discriminatorSuperClass) {
+                throw new Error('A subclass of a secured discriminated super class should not have a security method, the discriminated super class\'es security method will be used.');
+            }
+        }
+
+        if (!parameters.secured) {
+            if (parameters.securityMethod) {
+                throw new Error('An unsecured class cannot have a security method.');
+            }
+
+            if (parameters.superClasses) {
+                parameters.superClasses.forEach(function(superClass) {
+                    if (superClass.secured) {
+                        throw new Error('An unsecured class cannot be a sub class of a secured class.');
+                    }
+                });
+            }
+
+            if (parameters.discriminatorSuperClass) {
+                if (parameters.discriminatorSuperClass.secured) {
+                    throw new Error('A subclass of a secured discriminated super class must also be secured.');
+                }
+            }
+        } 
+
         let schema;
 
         // If this class has super classes, combine all the super class schemas and combine with the given parameters.schema, and set the
@@ -83,6 +119,8 @@ class ClassModel {
         }
 
         this.className = parameters.className;
+        this.secured = parameters.secured;
+        this.securityMethod = parameters.securityMethod ? parameters.securityMethod : undefined;
         this.schema = schema;
         this.subClasses = [];
         this.discriminatorSuperClass = parameters.discriminatorSuperClass;

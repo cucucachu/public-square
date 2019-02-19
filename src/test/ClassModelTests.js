@@ -20,183 +20,178 @@ describe('Class Model Tests', function() {
     {
 
         // Compare Classes
-        {
-            var CompareClass1Schema = {
-                name: {
-                    type: String,
-                    required: true
-                },
-                numbers: {
-                    type: [Number]
-                },
-                class2: {
-                    type: Schema.Types.ObjectId,
-                    ref: 'CompareClass2',
-                    required: true,
-                    singular: true
-                }
-            };
-        
+        {        
             var CompareClass1 = new ClassModel({
+                secured: false,
                 className: 'CompareClass1',
-                schema: CompareClass1Schema
-            });
-        
-            var CompareClass2Schema = {
-                name: {
-                    type: String,
-                    required: true
-                },
-                class1s: {
-                    type: [Schema.Types.ObjectId],
-                    ref: 'CompareClass1'
+                schema: {
+                    name: {
+                        type: String,
+                        required: true
+                    },
+                    numbers: {
+                        type: [Number]
+                    },
+                    class2: {
+                        type: Schema.Types.ObjectId,
+                        ref: 'CompareClass2',
+                        required: true,
+                        singular: true
+                    }
                 }
-            }
-        
+            });
+
             var CompareClass2 = new ClassModel({
+                secured: false,
                 className: 'CompareClass2',
-                schema: CompareClass2Schema
+                schema: {
+                    name: {
+                        type: String,
+                        required: true
+                    },
+                    class1s: {
+                        type: [Schema.Types.ObjectId],
+                        ref: 'CompareClass1'
+                    }
+                }
             }); 
         }          
         
         // Validation Classes
-        {
-            var allFieldsRequiredClassSchema = {
-                string: {
-                    type:String,
-                    required: true
-                },
-                strings: {
-                    type:[String],
-                    required: true
-                },
-                date: {
-                    type: Date,
-                    required: true
-                },
-                boolean: {
-                    type: Boolean,
-                    required: true
-                },
-                booleans: {
-                    type: [Boolean],
-                    required: true
-                },
-                number: {
-                    type: Number,
-                    required: true
-                },
-                numbers: {
-                    type: [Number],
-                    required: true
-                },
-                class1: {
-                    type: Schema.Types.ObjectId,
-                    ref: 'CompareClass1',
-                    required: true
-                },
-                class2s: {
-                    type: [Schema.Types.ObjectId],
-                    ref: 'CompareClass2',
-                    required: true
-                }
-            };
-        
+        {        
             var AllFieldsRequiredClass = new ClassModel({
+                secured: false,
                 className: 'AllFieldsRequiredClass', 
-                schema: allFieldsRequiredClassSchema
-            });           
-            
-            var allFieldsMutexClassSchema = {
-                string: {
-                    type:String,
-                    mutex: 'a'
-                },
-                strings: {
-                    type:[String],
-                    mutex: 'a'
-                },
-                date: {
-                    type: Date,
-                    mutex: 'a'
-                },
-                boolean: {
-                    type: Boolean,
-                    mutex: 'a'
-                },
-                booleans: {
-                    type: [Boolean],
-                    mutex: 'a'
-                },
-                number: {
-                    type: Number,
-                    mutex: 'a'
-                },
-                numbers: {
-                    type: [Number],
-                    mutex: 'a'
-                },
-                class1: {
-                    type: Schema.Types.ObjectId,
-                    ref: 'CompareClass1',
-                    mutex: 'a'
-                },
-                class2s: {
-                    type: [Schema.Types.ObjectId],
-                    ref: 'CompareClass2',
-                    mutex: 'a'
+                schema: {
+                    string: {
+                        type:String,
+                        required: true
+                    },
+                    strings: {
+                        type:[String],
+                        required: true
+                    },
+                    date: {
+                        type: Date,
+                        required: true
+                    },
+                    boolean: {
+                        type: Boolean,
+                        required: true
+                    },
+                    booleans: {
+                        type: [Boolean],
+                        required: true
+                    },
+                    number: {
+                        type: Number,
+                        required: true
+                    },
+                    numbers: {
+                        type: [Number],
+                        required: true
+                    },
+                    class1: {
+                        type: Schema.Types.ObjectId,
+                        ref: 'CompareClass1',
+                        required: true
+                    },
+                    class2s: {
+                        type: [Schema.Types.ObjectId],
+                        ref: 'CompareClass2',
+                        required: true
+                    }
                 }
-            };
+            });
         
             var AllFieldsMutexClass = new ClassModel({
+                secured: false,
                 className: 'AllFieldsMutexClass', 
-                schema: allFieldsMutexClassSchema
-            });
-            
-            var allFieldsInRequiredGroupClassSchema = {
-                string: {
-                    type:String,
-                    requiredGroup: 'a'
-                },
-                strings: {
-                    type:[String],
-                    requiredGroup: 'a'
-                },
-                date: {
-                    type: Date,
-                    requiredGroup: 'a'
-                },
-                boolean: {
-                    type: Boolean,
-                    requiredGroup: 'a'
-                },
-                booleans: {
-                    type: [Boolean],
-                    requiredGroup: 'a'
-                },
-                number: {
-                    type: Number,
-                    requiredGroup: 'a'
-                },
-                numbers: {
-                    type: [Number],
-                    requiredGroup: 'a'
-                },
-                class1: {
-                    type: Schema.Types.ObjectId,
-                    ref: 'CompareClass1',
-                    requiredGroup: 'a'
-                },
-                class2s: {
-                    type: [Schema.Types.ObjectId],
-                    ref: 'CompareClass2',
-                    requiredGroup: 'a'
+                schema: {
+                    string: {
+                        type:String,
+                        mutex: 'a'
+                    },
+                    strings: {
+                        type:[String],
+                        mutex: 'a'
+                    },
+                    date: {
+                        type: Date,
+                        mutex: 'a'
+                    },
+                    boolean: {
+                        type: Boolean,
+                        mutex: 'a'
+                    },
+                    booleans: {
+                        type: [Boolean],
+                        mutex: 'a'
+                    },
+                    number: {
+                        type: Number,
+                        mutex: 'a'
+                    },
+                    numbers: {
+                        type: [Number],
+                        mutex: 'a'
+                    },
+                    class1: {
+                        type: Schema.Types.ObjectId,
+                        ref: 'CompareClass1',
+                        mutex: 'a'
+                    },
+                    class2s: {
+                        type: [Schema.Types.ObjectId],
+                        ref: 'CompareClass2',
+                        mutex: 'a'
+                    }
                 }
-            };
+            });
         
             var AllFieldsInRequiredGroupClass = new ClassModel({
+                secured: false,
                 className: 'AllFieldsInRequiredGroupClass',
-                schema: allFieldsInRequiredGroupClassSchema
+                schema: {
+                    string: {
+                        type:String,
+                        requiredGroup: 'a'
+                    },
+                    strings: {
+                        type:[String],
+                        requiredGroup: 'a'
+                    },
+                    date: {
+                        type: Date,
+                        requiredGroup: 'a'
+                    },
+                    boolean: {
+                        type: Boolean,
+                        requiredGroup: 'a'
+                    },
+                    booleans: {
+                        type: [Boolean],
+                        requiredGroup: 'a'
+                    },
+                    number: {
+                        type: Number,
+                        requiredGroup: 'a'
+                    },
+                    numbers: {
+                        type: [Number],
+                        requiredGroup: 'a'
+                    },
+                    class1: {
+                        type: Schema.Types.ObjectId,
+                        ref: 'CompareClass1',
+                        requiredGroup: 'a'
+                    },
+                    class2s: {
+                        type: [Schema.Types.ObjectId],
+                        ref: 'CompareClass2',
+                        requiredGroup: 'a'
+                    }
+                }
             });
 
         }
@@ -204,6 +199,7 @@ describe('Class Model Tests', function() {
         // Inheritance Classes
         {
             var SuperClass = new ClassModel({
+                secured: false,
                 className: "SuperClass",
                 schema: {
                     name: {
@@ -219,6 +215,7 @@ describe('Class Model Tests', function() {
             });
     
             var AbstractSuperClass = new ClassModel({
+                secured: false,
                 className: "AbstractSuperClass",
                 abstract: true,
                 schema: {
@@ -231,6 +228,7 @@ describe('Class Model Tests', function() {
             });
     
             var DiscriminatedSuperClass = new ClassModel({
+                secured: false,
                 className: "DiscriminatedSuperClass",
                 discriminated: true,
                 schema: {
@@ -243,6 +241,7 @@ describe('Class Model Tests', function() {
             });
     
             var AbstractDiscriminatedSuperClass = new ClassModel({
+                secured: false,
                 className: "AbstractDiscriminatedSuperClass",
                 discriminated: true,
                 abstract: true,
@@ -253,39 +252,38 @@ describe('Class Model Tests', function() {
                     boolean: Boolean,
                     number: Number
                 }
-            });
-    
-            var SubClassOfSuperClassSchema = {
-                subBoolean: {
-                    type: Boolean
-                },
-                subNumber: {
-                    type: Number
-                }
-            };        
+            });   
     
             var SubClassOfSuperClass = new ClassModel({
+                secured: false,
                 className: 'SubClassOfSuperClass',
-                schema: SubClassOfSuperClassSchema,
-                superClasses: [SuperClass]
-            });
-    
-            var SubClassOfAbstractSuperClassSchema = {
-                subBoolean: {
-                    type: Boolean
+                superClasses: [SuperClass],
+                schema: {
+                    subBoolean: {
+                        type: Boolean
+                    },
+                    subNumber: {
+                        type: Number
+                    }
                 },
-                subNumber: {
-                    type: Number
-                }
-            };        
+            });   
     
             var SubClassOfAbstractSuperClass = new ClassModel({
+                secured: false,
                 className: 'SubClassOfAbstractSuperClass',
-                schema: SubClassOfAbstractSuperClassSchema,
-                superClasses: [AbstractSuperClass]
+                superClasses: [AbstractSuperClass],
+                schema: {
+                    subBoolean: {
+                        type: Boolean
+                    },
+                    subNumber: {
+                        type: Number
+                    }
+                }
             });
     
             var AbstractSubClassOfSuperClass = new ClassModel({
+                secured: false,
                 className: 'AbstractSubClassOfSuperClass',
                 superClasses: [SuperClass],
                 abstract: true,
@@ -297,41 +295,40 @@ describe('Class Model Tests', function() {
                         type: Number
                     }
                 }
-            });
-    
-            var SubClassOfMultipleSuperClassesSchema = {
-                subBoolean: {
-                    type: Boolean,
-                    required: true
-                },
-                subNumber: {
-                    type: Number,
-                    required: true
-                }
-            };        
+            });      
     
             var SubClassOfMultipleSuperClasses = new ClassModel({
+                secured: false,
                 className: 'SubClassOfMultipleSuperClasses',
-                schema: SubClassOfMultipleSuperClassesSchema,
-                superClasses: [SuperClass, AbstractSuperClass]
-            });
-    
-            var SubClassOfDiscriminatorSuperClassSchema = {
-                discriminatedBoolean: {
-                    type: Boolean
-                },
-                discriminatedNumber: {
-                    type: Number
+                superClasses: [SuperClass, AbstractSuperClass],
+                schema: {
+                    subBoolean: {
+                        type: Boolean,
+                        required: true
+                    },
+                    subNumber: {
+                        type: Number,
+                        required: true
+                    }
                 }
-            };        
+            });   
     
             var SubClassOfDiscriminatorSuperClass = new ClassModel({
+                secured: false,
                 className: 'SubClassOfDiscriminatorSuperClass',
-                schema: SubClassOfDiscriminatorSuperClassSchema,
-                discriminatorSuperClass: DiscriminatedSuperClass
+                discriminatorSuperClass: DiscriminatedSuperClass,
+                schema: {
+                    discriminatedBoolean: {
+                        type: Boolean
+                    },
+                    discriminatedNumber: {
+                        type: Number
+                    }
+                }
             });
     
             var DiscriminatedSubClassOfSuperClass = new ClassModel({
+                secured: false,
                 className: 'DiscriminatedSubClassOfSuperClass',
                 discriminated: true,
                 superClasses: [SuperClass],
@@ -346,6 +343,7 @@ describe('Class Model Tests', function() {
             });
     
             var SubClassOfDiscriminatedSubClassOfSuperClass = new ClassModel({
+                secured: false,
                 className: 'SubClassOfDiscriminatedSubClassOfSuperClass',
                 discriminatorSuperClass: DiscriminatedSubClassOfSuperClass,
                 schema: {
@@ -359,6 +357,7 @@ describe('Class Model Tests', function() {
             });     
     
             var SubClassOfSubClassOfSuperClass = new ClassModel({
+                secured: false,
                 className: 'SubClassOfSubClassOfSuperClass',
                 schema: {
                     subSubBoolean: {
@@ -372,6 +371,7 @@ describe('Class Model Tests', function() {
             });
     
             var SubClassOfAbstractSubClassOfSuperClass = new ClassModel({
+                secured: false,
                 className: 'SubClassOfAbstractSubClassOfSuperClass',
                 superClasses: [AbstractSubClassOfSuperClass],
                 schema: {
@@ -389,6 +389,7 @@ describe('Class Model Tests', function() {
         // Relationship Classes
         {
             var SingularRelationshipClass = new ClassModel({
+                secured: false,
                 className: 'SingularRelationshipClass',
                 schema: {
                     singularRelationship: {
@@ -405,6 +406,7 @@ describe('Class Model Tests', function() {
             });
     
             var NonSingularRelationshipClass = new ClassModel({
+                secured: false,
                 className: 'NonSingularRelationshipClass',
                 schema: {
                     nonSingularRelationship: {
@@ -418,17 +420,37 @@ describe('Class Model Tests', function() {
             });
     
             var SubClassOfSingularRelationshipClass = new ClassModel({
+                secured: false,
                 className: 'SubClassOfSingularRelationshipClass',
                 schema: {},
                 superClasses: [SingularRelationshipClass] 
             });
     
             var SubClassOfNonSingularRelationshipClass = new ClassModel({
+                secured: false,
                 className: 'SubClassOfNonSingularRelationshipClass',
                 schema: {},
                 superClasses: [NonSingularRelationshipClass] 
             });
 
+        }
+
+        // Secured Classes
+        {
+            var SecuredSuperClass = new ClassModel({
+                className: 'SecuredSuperClass',
+                secured: true,
+                securityMethod: () => { return true },
+                schema: {}
+            });
+
+            var SecuredDiscriminatedSuperClass = new ClassModel({
+                className: 'SecuredDiscriminatedSuperClass',
+                secured: true,
+                discriminated: true,
+                securityMethod: () => { return true },
+                schema: {}
+            });
         }
 
     }
@@ -454,6 +476,7 @@ describe('Class Model Tests', function() {
 
             try {
                 new ClassModel({
+                    secured: false,
                     schema: schema
                 });
             }
@@ -470,6 +493,7 @@ describe('Class Model Tests', function() {
         it('Schema is required.', function() {
             try {
                 new ClassModel({
+                    secured: false,
                     className: 'Class'
                 });
             }
@@ -483,9 +507,116 @@ describe('Class Model Tests', function() {
             throw new Error('Constructor should have thrown an error: schema is required.');
         });
 
+        it('Secured is required', () => {
+            try {
+                new ClassModel({
+                    className: 'Class',
+                    schema: {}
+                });
+            }
+            catch (error) {
+                    if (error.message == 'secured is required.')
+                        return true;
+                    else 
+                        throw new Error(error.message);
+                }
+            throw new Error('Constructor should have thrown an error: secured is required.');
+        });
+
+        it('A secured class must have a security method, unless it is a sub class of a secured discriminated super class', () => {
+            try {
+                new ClassModel({
+                    className: 'Class',
+                    secured: true,
+                    schema: {}
+                });
+            }
+            catch (error) {
+                    if (error.message == 'If class is secured, and is not a sub class of a secured discriminated class, a security method must be provided.')
+                        return true;
+                    else 
+                        throw new Error(error.message);
+                }
+            throw new Error('Constructor should have thrown an error: If class is secured, and is not a sub class of a secured discriminated class, a security method must be provided.');
+        });
+
+        it('A secured subclass of a secured discriminated super class cannot have its own security method.', () => {
+            try {
+                new ClassModel({
+                    className: 'Class',
+                    secured: true,
+                    securityMethod: () => { return true },
+                    discriminatorSuperClass: SecuredDiscriminatedSuperClass,
+                    schema: {}
+                });
+            }
+            catch (error) {
+                    if (error.message == 'A subclass of a secured discriminated super class should not have a security method, the discriminated super class\'es security method will be used.')
+                        return true;
+                    else 
+                        throw new Error(error.message);
+                }
+            throw new Error('Constructor should have thrown an error: A subclass of a secured discriminated super class should not have a security method, the discriminated super class\'es security method will be used.');
+        });
+
+        it('An unsecured class cannot have a security method.', () => {
+            try {
+                new ClassModel({
+                    className: 'Class',
+                    secured: false,
+                    securityMethod: () => { return true },
+                    schema: {}
+                });
+            }
+            catch (error) {
+                    if (error.message == 'An unsecured class cannot have a security method.')
+                        return true;
+                    else 
+                        throw new Error(error.message);
+                }
+            throw new Error('Constructor should have thrown an error: An unsecured class cannot have a security method.');
+        });
+
+        it('An unsecured class cannot be a sub class of a secured class.', () => {
+            try {
+                new ClassModel({
+                    className: 'Class',
+                    secured: false,
+                    superClasses: [SecuredSuperClass],
+                    schema: {}
+                });
+            }
+            catch (error) {
+                    if (error.message == 'An unsecured class cannot be a sub class of a secured class.')
+                        return true;
+                    else 
+                        throw new Error(error.message);
+                }
+            throw new Error('Constructor should have thrown an error: An unsecured class cannot be a sub class of a secured class.');
+        });
+
+        it('A subclass of a secured discriminated super class must also be secured.', () => {
+            try {
+                new ClassModel({
+                    className: 'Class',
+                    secured: false,
+                    discriminatorSuperClass: SecuredDiscriminatedSuperClass,
+                    schema: {}
+                });
+            }
+            catch (error) {
+                    if (error.message == 'A subclass of a secured discriminated super class must also be secured.')
+                        return true;
+                    else 
+                        throw new Error(error.message);
+                }
+            throw new Error('Constructor should have thrown an error: A subclass of a secured discriminated super class must also be secured.');
+        });
+
         it('If superClasses is set, it must be an Array.', function() {
             try {
                 new ClassModel({
+                    secured: false,
                     className: 'SubClassModel',
                     schema: {
                         boolean: Boolean
@@ -506,6 +637,7 @@ describe('Class Model Tests', function() {
         it('If superClasses is set, it cannot be an empty Array.', function() {
             try {
                 new ClassModel({
+                    secured: false,
                     className: 'SubClassModel',
                     schema: {
                         boolean: Boolean
@@ -526,6 +658,7 @@ describe('Class Model Tests', function() {
         it('If discriminatorSuperClass is set, it can only be a single class.', function() {
             try {
                 new ClassModel({
+                    secured: false,
                     className: 'SubClassModel',
                     schema: {
                         boolean: Boolean
@@ -546,6 +679,7 @@ describe('Class Model Tests', function() {
         it('A ClassModel cannot have both superClasses and discriminatorSuperClass.', function() {
             try {
                 new ClassModel({
+                    secured: false,
                     className: 'SubClassModel',
                     schema: {
                         boolean: Boolean
@@ -567,6 +701,7 @@ describe('Class Model Tests', function() {
         it('A ClassModel cannot have both superClasses and discriminatorSuperClass.', function() {
             try {
                 new ClassModel({
+                    secured: false,
                     className: 'SubClassModel',
                     schema: {
                         boolean: Boolean
@@ -588,6 +723,7 @@ describe('Class Model Tests', function() {
         it('If a class is used as a discriminatedSuperClass, that class must have its "discriminated" field set to true.', function() {
             try {
                 new ClassModel({
+                    secured: false,
                     className: 'SubClassModel',
                     schema: {},
                     discriminatorSuperClass: SuperClass
@@ -606,6 +742,7 @@ describe('Class Model Tests', function() {
         it('If a class is set as a superClass, that class cannot have its "discriminated" field set to true.', function() {
             try {
                 new ClassModel({
+                    secured: false,
                     className: 'SubClassModel',
                     schema: {},
                     superClasses: [DiscriminatedSuperClass]
@@ -624,6 +761,7 @@ describe('Class Model Tests', function() {
         it('A discriminator sub class cannot be abstract.', function() {
             try {
                 new ClassModel({
+                    secured: false,
                     className: 'SubClassModel',
                     schema: {},
                     discriminatorSuperClass: DiscriminatedSuperClass,
@@ -643,6 +781,7 @@ describe('Class Model Tests', function() {
         it('A sub class of a discriminated super class cannot be discriminated.', function() {
             try {
                 new ClassModel({
+                    secured: false,
                     className: 'SubClassModel',
                     schema: {},
                     discriminatorSuperClass: DiscriminatedSuperClass,
@@ -662,6 +801,7 @@ describe('Class Model Tests', function() {
         it('Sub class schema cannot contain the same field names as a super class schema.', function() {
             try {
                 new ClassModel({
+                    secured: false,
                     className: 'SubClassModel',
                     schema: {
                         boolean: {
@@ -782,6 +922,7 @@ describe('Class Model Tests', function() {
         it('A class cannot be a sub class of a sub class of a discriminated class.', function() {
             try {
                 new ClassModel({
+                    secured: false,
                     className: 'SubClassModel',
                     schema: {},
                     superClasses: [SubClassOfDiscriminatorSuperClass]
@@ -820,6 +961,7 @@ describe('Class Model Tests', function() {
             }
 
             var SimpleClassModel = new ClassModel({
+                secured: false,
                 className: 'SimpleClassModel',
                 schema: schema
             });
@@ -1900,6 +2042,7 @@ describe('Class Model Tests', function() {
                 };
 
                 let MutexClassA = new ClassModel({
+                    secured: false,
                     className: 'MutexClassA', 
                     schema: schema
                 });
@@ -1941,6 +2084,7 @@ describe('Class Model Tests', function() {
                 };
 
                 let MutexClassAA = new ClassModel({
+                    secured: false,
                     className: 'MutexClassAA', 
                     schema: schema
                 });
@@ -1980,6 +2124,7 @@ describe('Class Model Tests', function() {
                 };
 
                 let MutexClassB = new ClassModel({
+                    secured: false,
                     className: 'MutexClassB', 
                     schema: schema
                 });
@@ -2023,6 +2168,7 @@ describe('Class Model Tests', function() {
                 };
 
                 let MutexClassBB = new ClassModel({
+                    secured: false,
                     className: 'MutexClassBB', 
                     schema: schema
                 });
@@ -2062,6 +2208,7 @@ describe('Class Model Tests', function() {
                 };
 
                 let MutexClassC = new ClassModel({
+                    secured: false,
                     className: 'MutexClassC', 
                     schema: schema
                 });
@@ -2105,6 +2252,7 @@ describe('Class Model Tests', function() {
                 };
 
                 let MutexClassCC = new ClassModel({
+                    secured: false,
                     className: 'MutexClassCC', 
                     schema: schema
                 });
