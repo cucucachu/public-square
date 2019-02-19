@@ -25,7 +25,7 @@ router.post('/', function (request, response, next) {
                     let jwtPayload = {
                         authToken: newAuthToken._id,
                         userAccount: userAccount._id,
-                        user: userAccount.user
+                        person: userAccount.person
                     }
         
                     const token = jwt.sign(jwtPayload, jwtSecret);
@@ -46,8 +46,8 @@ router.post('/createAccount', function(request, response) {
         (userAndAccount) => {
             response.json(
                 {
-                    message: 'User and Account Created',
-                    user: userAndAccount.user,
+                    message: 'Person and Account Created',
+                    person: userAndAccount.person,
                     userAccount: userAndAccount.userAccount
                 }
             );

@@ -1,5 +1,5 @@
 const UserAccount = require('../models/Modules/User/UserAccount');
-const User = require('../models/Modules/User/User');
+const Person = require('../models/Modules/User/Person');
 const AuthToken = require('../models/Modules/User/AuthToken');
 const hasher = require('password-hash');
 
@@ -25,27 +25,27 @@ const createUserAccount = async function(parameters) {
         throw new Error('createUserAccount(): An account already exists with the given email. ' + existingAccountForEmail._id + ', ' + parameters.email);
 
     let userAccount = UserAccount.create();
-    let user = User.create();
+    let person = Person.create();
 
     userAccount.email = parameters.email;
     userAccount.passwordHash = hasher.generate(parameters.password);
-    userAccount.user = user._id;
+    userAccount.person = person._id;
 
-    user.firstName = parameters.firstName;
-    user.lastName = parameters.lastName;
-    user.middleName = parameters.middleName;
-    user.userAccount = userAccount._id;
+    person.firstName = parameters.firstName;
+    person.lastName = parameters.lastName;
+    person.middleName = parameters.middleName;
+    person.userAccount = userAccount._id;
 
     let userAccountPromise = UserAccount.save(userAccount);
-    let userPromise = User.save(user);
+    let personPromise = Person.save(person);
 
     await userAccountPromise;
-    await userPromise;
+    await personPromise;
 
     userAccount.passwordHash = null;
 
     return {
-        user: user,
+        person: person,
         userAccount: userAccount
     };
     
@@ -63,20 +63,17 @@ const deleteUserAccount = async function(email) {
 
     if (userAccount == null)
         throw new Error('No user account for email ' + email);
-
-    console.log('user: ' + JSON.stringify(user));
-    console.log('userAccount: ' + JSON.stringify(userAccount));
     
-    let user = await UserAccount.walk(userAccount, 'user');
+    let person = await UserAccount.walk(userAccount, 'person');
 
-    let deleteUserPromise = User.delete(user);
+    let deletePersonPromise = Person.delete(person);
     let deleteUserAccountPromise = UserAccount.delete(userAccount);
 
 
-    await deleteUserPromise;
+    await deletePersonPromise;
     await deleteUserAccountPromise;
 
-    return 'User and User Account deleted for User Account with email ' + email;
+    return 'Person and User Account deleted for User Account with email ' + email;
 }
 
 const createAuthToken = async function(userAccount) {
