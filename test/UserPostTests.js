@@ -8,7 +8,7 @@ var expect = require('expect');
 
 var promiseFinally = require('promise.prototype.finally');
 
-require('../dist/models/Modules/UserPost/UserPostModule'); // Add 'finally()' to 'Promis.prototype'
+require('../dist/models/Modules/UserPost/UserPostModule'); // Add 'finally()' to 'Promise.prototype'
 
 
 promiseFinally.shim();
@@ -20,7 +20,7 @@ var Poster = require('../dist/models/Modules/UserPost/Poster');
 
 var UserPost = require('../dist/models/Modules/UserPost/UserPost');
 
-var User = require('../dist/models/Modules/User/User');
+var UserAccount = require('../dist/models/Modules/User/UserAccount');
 
 var UserGroup = require('../dist/models/Modules/UserGroup/UserGroup');
 
@@ -308,7 +308,7 @@ describe('UserPost Module Tests', function () {
         var poster = Poster.create();
         var testFailed = 0;
         var error;
-        var expectedErrorMessage = 'Poster validation failed: userPosts: Path `userPosts` is required. Poster validation failed: user: Path `user` is required., startDate: Path `startDate` is required.';
+        var expectedErrorMessage = 'Poster validation failed: userPosts: Path `userPosts` is required. Poster validation failed: userAccount: Path `userAccount` is required.';
         Poster.save(poster).then(function (result) {
           testFailed = 1;
         }, function (rejectionErr) {
@@ -323,13 +323,13 @@ describe('UserPost Module Tests', function () {
           }
         });
       });
-      it('Poster.user must be a valid ID', function (done) {
+      it('Poster.userAccount must be a valid ID', function (done) {
         var poster = Poster.create();
         var testFailed = 0;
         var error = null;
-        var expectedErrorMessage = 'Poster validation failed: user: Cast to ObjectID failed for value "abcd1234efgh9876" at path "user"';
+        var expectedErrorMessage = 'Poster validation failed: userAccount: Cast to ObjectID failed for value "abcd1234efgh9876" at path "userAccount"';
         poster.startDate = new Date();
-        poster.user = 'abcd1234efgh9876';
+        poster.userAccount = 'abcd1234efgh9876';
         poster.userPosts = [UserPost.create()._id, UserPost.create()._id];
         Poster.save(poster).then(function (saved) {
           testFailed = 1;
@@ -353,7 +353,7 @@ describe('UserPost Module Tests', function () {
         var error = null;
         var expectedErrorMessage = 'Poster validation failed: userPosts: Path `userPosts` is required. Poster validation failed: userPosts: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "userPosts"';
         poster.startDate = new Date();
-        poster.user = Poster.create()._id;
+        poster.userAccount = UserAccount.create()._id;
         poster.userPosts = ['abcd1234efgh9876', 'abcd1234efgh9875'];
         Poster.save(poster).then(function (saved) {
           testFailed = 1;
@@ -376,7 +376,7 @@ describe('UserPost Module Tests', function () {
         var error = null;
         var compareResult;
         poster.startDate = new Date();
-        poster.user = Poster.create()._id;
+        poster.userAccount = UserAccount.create()._id;
         poster.userPosts = [UserPost.create()._id, UserPost.create()._id];
         Poster.save(poster).then(function (saved) {
           Poster.findById(poster._id).then(function (found) {
@@ -542,7 +542,7 @@ describe('UserPost Module Tests', function () {
         var stamper = Stamper.create();
         var testFailed = 0;
         var error;
-        var expectedErrorMessage = 'Stamper validation failed: stamps: Path `stamps` is required. Stamper validation failed: user: Path `user` is required., startDate: Path `startDate` is required.';
+        var expectedErrorMessage = 'Stamper validation failed: stamps: Path `stamps` is required. Stamper validation failed: userAccount: Path `userAccount` is required.';
         Stamper.save(stamper).then(function (result) {
           testFailed = 1;
         }, function (rejectionErr) {
@@ -562,8 +562,8 @@ describe('UserPost Module Tests', function () {
         var testFailed = 0;
         var error = null;
         var expectedErrorMessage = 'Stamper validation failed: stamps: Path `stamps` is required. Stamper validation failed: stamps: Cast to Array failed for value "[ \'abcd1234efgh9876\' ]" at path "stamps"';
-        stamper.user = User.create()._id;
         stamper.startDate = new Date();
+        stamper.userAccount = UserAccount.create()._id;
         stamper.stamps = ['abcd1234efgh9876'];
         Stamper.save(stamper).then(function (saved) {
           testFailed = 1;
@@ -581,13 +581,13 @@ describe('UserPost Module Tests', function () {
           }
         });
       });
-      it('Stamper.user must be a valid ID', function (done) {
+      it('Stamper.userAccount must be a valid ID', function (done) {
         var stamper = Stamper.create();
         var testFailed = 0;
         var error = null;
-        var expectedErrorMessage = 'Stamper validation failed: user: Cast to ObjectID failed for value "abcd1234efgh9876" at path "user"';
+        var expectedErrorMessage = 'Stamper validation failed: userAccount: Cast to ObjectID failed for value "abcd1234efgh9876" at path "userAccount"';
         stamper.startDate = new Date();
-        stamper.user = 'abcd1234efgh9876';
+        stamper.userAccount = 'abcd1234efgh9876';
         stamper.stamps = [Stamp.create()._id];
         Stamper.save(stamper).then(function (saved) {
           testFailed = 1;
@@ -609,8 +609,8 @@ describe('UserPost Module Tests', function () {
         var stamper = Stamper.create();
         var error = null;
         var compareResult;
+        stamper.userAccount = UserAccount.create()._id;
         stamper.startDate = new Date();
-        stamper.user = User.create()._id;
         stamper.stamps = [Stamp.create()._id];
         Stamper.save(stamper).then(function (saved) {
           Stamper.findById(stamper._id).then(function (found) {

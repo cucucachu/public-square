@@ -14,7 +14,7 @@ process.on('unhandledRejection', function (error) {
   console.log('unhandledRejection', error.message);
 });
 
-var User = require('../dist/models/Modules/User/User');
+var Person = require('../dist/models/Modules/User/Person');
 
 var GeographicArea = require('../dist/models/Modules/Geography/GeographicArea');
 
@@ -24,25 +24,19 @@ var MapType = require('../dist/models/Modules/Geography/MapType');
 
 var Address = require('../dist/models/Modules/Geography/Address');
 
-var User = require('../dist/models/Modules/User/User');
-
 var Government = require('../dist/models/Modules/Government/Government');
 
 var ElectionResult = require('../dist/models/Modules/Government/Election/ElectionResult');
 
 describe('Geography Module Tests', function () {
   before(function (done) {
-    User.clear().then(function () {
+    Person.clear().then(function () {
       GeographicArea.clear().then(function () {
-        GeographicMap.clear().then(function () {
-          MapType.clear().then(function () {
-            Address.clear().then(function () {
-              User.clear().then(done, done);
-            }, done);
-          }, done);
-        }, done);
-      }, done);
-    }, done);
+        MapType.clear().then(function () {
+          Address.clear().finally(done);
+        });
+      });
+    });
   });
   describe('GeographicArea Model Tests', function () {
     describe('GeographicArea.create()', function () {
@@ -450,7 +444,7 @@ describe('Geography Module Tests', function () {
         address.unit = '4b';
         address.city = 'abcd1234efgh9876';
         address.state = GeographicArea.create()._id;
-        address.users = [User.create()._id, User.create()._id];
+        address.persons = [Person.create()._id, Person.create()._id];
         Address.save(address).then(function (saved) {
           testFailed = 1;
         }, function (saveErr) {
@@ -467,17 +461,17 @@ describe('Geography Module Tests', function () {
           }
         });
       });
-      it('Address.users must be a valid Array of IDs.', function (done) {
+      it('Address.persons must be a valid Array of IDs.', function (done) {
         var address = Address.create();
         var testFailed = 0;
         var error = null;
-        var expectedErrorMessage = 'Address validation failed: users: Cast to Array failed for value "[ \'abcd1234efgh9876\' ]" at path "users"';
+        var expectedErrorMessage = 'Address validation failed: persons: Cast to Array failed for value "[ \'abcd1234efgh9876\' ]" at path "persons"';
         address.streetNumber = 10;
         address.unit = '4b';
         address.city = GeographicArea.create()._id;
         address.street = GeographicArea.create()._id;
         address.state = GeographicArea.create()._id;
-        address.users = ['abcd1234efgh9876'];
+        address.persons = ['abcd1234efgh9876'];
         Address.save(address).then(function (saved) {
           testFailed = 1;
         }, function (saveErr) {
@@ -504,7 +498,7 @@ describe('Geography Module Tests', function () {
         address.street = GeographicArea.create()._id;
         address.county = GeographicArea.create()._id;
         address.state = GeographicArea.create()._id;
-        address.users = [User.create()._id, User.create()._id];
+        address.persons = [Person.create()._id, Person.create()._id];
         Address.save(address).then(function (saved) {
           Address.findById(address._id).then(function (found) {
             compareResult = Address.compare(address, found);
