@@ -448,9 +448,40 @@ describe('Class Model Tests', function() {
                 className: 'SecuredDiscriminatedSuperClass',
                 secured: true,
                 discriminated: true,
-                securityMethod: () => { return true },
+                securityMethod: (instance) => { return instance.number > 10 },
+                schema: {
+                    number: {
+                        type: Number
+                    }
+                }
+            });
+
+            var SecuredSubClassOfSecuredSuperClass = new ClassModel({
+                className: 'SecuredSubClassOfSecuredSuperClass',
+                secured: true,
+                securityMethod: () => { return false },
+                superClasses: [SecuredSuperClass],
                 schema: {}
             });
+
+            var SecuredSubClassOfSecuredSubClassOfSecuredSuperClass = new ClassModel({
+                className: 'SecuredSubClassOfSecuredSubClassOfSecuredSuperClass',
+                secured: true,
+                securityMethod: (instance) => { return instance.secure },
+                superClasses: [SecuredSubClassOfSecuredSuperClass],
+                schema: {
+                    secure: {
+                        type: Boolean
+                    }
+                }
+            });
+
+            var SecuredSubClassOfSecuredDiscriminatedSuperClass = new ClassModel({
+                className: 'SecuredSubClassOfSecuredDiscriminatedSuperClass',
+                secured: true,
+                discriminatorSuperClass: SecuredDiscriminatedSuperClass,
+                schema: {}
+            })
         }
 
     }
@@ -4533,6 +4564,79 @@ describe('Class Model Tests', function() {
                     });
                 });
             });
+        });
+
+    });
+
+    describe('ClassModel.securityFilter()', function() {
+
+        // Set up secured Instances
+        {
+            var instanceOfSecuredSuperClass = SecuredSuperClass.create();
+            var instanceOfSecuredDiscriminatedSuperClassA = SecuredDiscriminatedSuperClass.create();
+            var instanceOfSecuredDiscriminatedSuperClassB = SecuredDiscriminatedSuperClass.create();
+            var instanceOfSecuredSubClassOfSecuredSuperClass = SecuredSubClassOfSecuredSuperClass.create();
+            var instanceOfSecuredSubClassOfSecuredSubClassOfSecuredSuperClassA = SecuredSubClassOfSecuredSubClassOfSecuredSuperClass.create();
+            var instanceOfSecuredSubClassOfSecuredSubClassOfSecuredSuperClassB = SecuredSubClassOfSecuredSubClassOfSecuredSuperClass.create();
+            var instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClass = SecuredSubClassOfSecuredDiscriminatedSuperClass.create();
+
+            instanceOfSecuredDiscriminatedSuperClassA.number = 5;
+            instanceOfSecuredDiscriminatedSuperClassB.number = 11;
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClass.number = 20;
+            instanceOfSecuredSubClassOfSecuredSubClassOfSecuredSuperClassA.secure = true;
+            instanceOfSecuredSubClassOfSecuredSubClassOfSecuredSuperClassB.secure = false;
+        }
+
+        describe('Tests for invalid arguments.', function() {
+
+            it('First Argument must be an Array', () => {
+                try {
+                    SecuredSuperClass.securityFilter(instanceOfSecuredSuperClass, instanceOfSecuredSuperClass._id);
+                }
+                catch (error) {
+                    if (error.message == 'Incorrect parameters. ' + SecuredSuperClass.className + '.securityFilter(Array<instance> instances, ObjectId userAccountId)') {
+                        return true;
+                    }
+                    else {
+                        throw new Error(error.message);
+                    }
+                }
+
+                throw new Error('ClassModel.securityFilter() should have thrown an error.');
+            });
+
+            it('Second Argument is required', () => {
+                try {
+                    SecuredSuperClass.securityFilter([instanceOfSecuredSuperClass]);
+                }
+                catch (error) {
+                    if (error.message == 'Incorrect parameters. ' + SecuredSuperClass.className + '.securityFilter(Array<instance> instances, ObjectId userAccountId)') {
+                        return true;
+                    }
+                    else {
+                        throw new Error(error.message);
+                    }
+                }
+
+                throw new Error('ClassModel.securityFilter() should have thrown an error.');
+            });
+
+            it('All instances must be of the Class or a Sub Class', () => {
+                try {
+                    SecuredSuperClass.securityFilter([instanceOfSecuredSuperClass, instanceOfSecuredDiscriminatedSuperClassA], instanceOfSecuredSuperClass._id);
+                }
+                catch (error) {
+                    if (error.message == SecuredSuperClass.className + '.securityFilter() called with instances of a different class.') {
+                        return true;
+                    }
+                    else {
+                        throw new Error(error.message);
+                    }
+                }
+
+                throw new Error('ClassModel.securityFilter() should have thrown an error.');
+            });
+
         });
 
     });

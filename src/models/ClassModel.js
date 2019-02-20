@@ -833,6 +833,47 @@ class ClassModel {
         });
     }
 
+    // Security Methods
+
+    /* Takes an array of instances of the Class Model and filters out any that do not pass this Class Model's security method.
+     * @param required Array<instance> : An array of instances of this Class Model to filter.
+     * @param required ObjectId : The ObjectId of a userAccount, to be passed to the securityMethod.
+     * @return Array<Instance>: The given instances filtered for security.
+     */
+    securityFilter(instances, userAccountId) {
+        if (!Array.isArray(instances) || !userAccountId)
+            throw new Error('Incorrect parameters. ' + this.className + '.securityFilter(Array<instance> instances, ObjectId userAccountId)');
+
+        instances.forEach((instance) => {
+            if (!this.isInstanceOfClassOrSubClass(instance))
+                throw new Error(this.className + '.securityFilter() called with instances of a different class.');
+        });
+
+        if (!this.secured) {
+            return instances;
+        }
+        else if (this.subClasses.length) {
+            let filtered = [];
+
+            let instancesOfThisClass = instances.filter((instance) => { return instance instanceof this.Model });
+
+            filtered = instancesOfThisClass.filter((instance) => {
+                return this.securityMethod(instance, userAccountId);
+            });
+
+            this.subClasses.forEach((subClass) => {
+                filtered = filtered.concat(subClass.securityFilter(instances.filter(subClass.isInstanceOfClassOrSubClass)));
+            });
+
+            return filtered;
+        }
+        else {
+            return instances.filter((instance) => {
+                return this.securityMethod(instance, userAccountId);
+            });
+        }
+    }
+
     // Comparison Methods
     
     // This is a member comparison, not an instance comparison. i.e. two separate instances can be equal if their members are equal.
