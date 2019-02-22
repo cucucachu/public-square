@@ -440,15 +440,19 @@ describe('Class Model Tests', function() {
             var SecuredSuperClass = new ClassModel({
                 className: 'SecuredSuperClass',
                 secured: true,
-                securityMethod: () => { return true },
-                schema: {}
+                securityMethod: async (instance) => { return instance.string == 'secure' },
+                schema: {
+                    string: {
+                        type: String
+                    }
+                }
             });
 
             var SecuredDiscriminatedSuperClass = new ClassModel({
                 className: 'SecuredDiscriminatedSuperClass',
                 secured: true,
                 discriminated: true,
-                securityMethod: (instance) => { return instance.number > 10 },
+                securityMethod: async (instance) => { return instance.number >= 10 },
                 schema: {
                     number: {
                         type: Number
@@ -459,7 +463,7 @@ describe('Class Model Tests', function() {
             var SecuredSubClassOfSecuredSuperClass = new ClassModel({
                 className: 'SecuredSubClassOfSecuredSuperClass',
                 secured: true,
-                securityMethod: () => { return false },
+                securityMethod: async () => { return false },
                 superClasses: [SecuredSuperClass],
                 schema: {}
             });
@@ -467,10 +471,10 @@ describe('Class Model Tests', function() {
             var SecuredSubClassOfSecuredSubClassOfSecuredSuperClass = new ClassModel({
                 className: 'SecuredSubClassOfSecuredSubClassOfSecuredSuperClass',
                 secured: true,
-                securityMethod: (instance) => { return instance.secure },
+                securityMethod: async (instance) => { return instance.boolean },
                 superClasses: [SecuredSubClassOfSecuredSuperClass],
                 schema: {
-                    secure: {
+                    boolean: {
                         type: Boolean
                     }
                 }
@@ -554,7 +558,7 @@ describe('Class Model Tests', function() {
             throw new Error('Constructor should have thrown an error: secured is required.');
         });
 
-        it('A secured class must have a security method, unless it is a sub class of a secured discriminated super class', () => {
+        it('If a class is secured, it must have a security method, or it must have at least one super class with a security method.', () => {
             try {
                 new ClassModel({
                     className: 'Class',
@@ -563,31 +567,12 @@ describe('Class Model Tests', function() {
                 });
             }
             catch (error) {
-                    if (error.message == 'If class is secured, and is not a sub class of a secured discriminated class, a security method must be provided.')
+                    if (error.message == 'If a class is secured, it must have a security method, or it must have at least one super class with a security method.')
                         return true;
                     else 
                         throw new Error(error.message);
                 }
-            throw new Error('Constructor should have thrown an error: If class is secured, and is not a sub class of a secured discriminated class, a security method must be provided.');
-        });
-
-        it('A secured subclass of a secured discriminated super class cannot have its own security method.', () => {
-            try {
-                new ClassModel({
-                    className: 'Class',
-                    secured: true,
-                    securityMethod: () => { return true },
-                    discriminatorSuperClass: SecuredDiscriminatedSuperClass,
-                    schema: {}
-                });
-            }
-            catch (error) {
-                    if (error.message == 'A subclass of a secured discriminated super class should not have a security method, the discriminated super class\'es security method will be used.')
-                        return true;
-                    else 
-                        throw new Error(error.message);
-                }
-            throw new Error('Constructor should have thrown an error: A subclass of a secured discriminated super class should not have a security method, the discriminated super class\'es security method will be used.');
+            throw new Error('Constructor should have thrown an error: If a class is secured, it must have a security method, or it must have at least one super class with a security method.');
         });
 
         it('An unsecured class cannot have a security method.', () => {
@@ -4589,52 +4574,99 @@ describe('Class Model Tests', function() {
 
         describe('Tests for invalid arguments.', function() {
 
-            it('First Argument must be an Array', () => {
-                try {
-                    SecuredSuperClass.securityFilter(instanceOfSecuredSuperClass, instanceOfSecuredSuperClass._id);
-                }
-                catch (error) {
-                    if (error.message == 'Incorrect parameters. ' + SecuredSuperClass.className + '.securityFilter(Array<instance> instances, ObjectId userAccountId)') {
-                        return true;
+            it('First Argument must be an Array', (done) => {
+                let error;
+                let expectedErrorMessage = 'Incorrect parameters. ' + SecuredSuperClass.className + '.securityFilter(Array<instance> instances, ObjectId userAccountId)';
+
+                SecuredSuperClass.securityFilter(instanceOfSecuredSuperClass, instanceOfSecuredSuperClass._id).then(
+                    (filtered) => {
+                    },
+                    (securityError) => {
+                        error = securityError;
+                    }
+                ).finally(() => {
+                    if (error) {
+                        if (error.message == expectedErrorMessage) {
+                            done();
+                        }
+                        else {
+                            done(new Error(
+                                'securityFilter() threw an unexpected error.\n' + 
+                                'Expected: ' + expectedErrorMessage + '\n' + 
+                                'Actual:   ' + error.message
+                            ));
+                        }
                     }
                     else {
-                        throw new Error(error.message);
+                        done(new Error('ClassModel.securityFilter() should have thrown an error.'));
                     }
-                }
-
-                throw new Error('ClassModel.securityFilter() should have thrown an error.');
+                });
             });
 
-            it('Second Argument is required', () => {
-                try {
-                    SecuredSuperClass.securityFilter([instanceOfSecuredSuperClass]);
-                }
-                catch (error) {
-                    if (error.message == 'Incorrect parameters. ' + SecuredSuperClass.className + '.securityFilter(Array<instance> instances, ObjectId userAccountId)') {
-                        return true;
+            it('Second Argument is required', (done) => {
+                let error;
+                let expectedErrorMessage = 'Incorrect parameters. ' + SecuredSuperClass.className + '.securityFilter(Array<instance> instances, ObjectId userAccountId)';
+
+                SecuredSuperClass.securityFilter([instanceOfSecuredSuperClass]).then(
+                    (filtered) => {
+                    },
+                    (securityError) => {
+                        error = securityError;
+                    }
+                ).finally(() => {
+                    if (error) {
+                        if (error.message == expectedErrorMessage) {
+                            done();
+                        }
+                        else {
+                            done(new Error(
+                                'securityFilter() threw an unexpected error.\n' + 
+                                'Expected: ' + expectedErrorMessage + '\n' + 
+                                'Actual:   ' + error.message
+                            ));
+                        }
                     }
                     else {
-                        throw new Error(error.message);
+                        done(new Error('ClassModel.securityFilter() should have thrown an error.'));
                     }
-                }
-
-                throw new Error('ClassModel.securityFilter() should have thrown an error.');
+                });
             });
 
-            it('All instances must be of the Class or a Sub Class', () => {
-                try {
-                    SecuredSuperClass.securityFilter([instanceOfSecuredSuperClass, instanceOfSecuredDiscriminatedSuperClassA], instanceOfSecuredSuperClass._id);
-                }
-                catch (error) {
-                    if (error.message == SecuredSuperClass.className + '.securityFilter() called with instances of a different class.') {
-                        return true;
+            it('All instances must be of the Class or a Sub Class', (done) => {
+                let error;
+                let expectedErrorMessage = SecuredSuperClass.className + '.securityFilter() called with instances of a different class.';
+
+                SecuredSuperClass.securityFilter([instanceOfSecuredSuperClass, instanceOfSecuredDiscriminatedSuperClassA], instanceOfSecuredSuperClass._id).then(
+                    (filtered) => {
+                    },
+                    (securityError) => {
+                        error = securityError;
+                    }
+                ).finally(() => {
+                    if (error) {
+                        if (error.message == expectedErrorMessage) {
+                            done();
+                        }
+                        else {
+                            done(new Error(
+                                'securityFilter() threw an unexpected error.\n' + 
+                                'Expected: ' + expectedErrorMessage + '\n' + 
+                                'Actual:   ' + error.message
+                            ));
+                        }
                     }
                     else {
-                        throw new Error(error.message);
+                        done(new Error('ClassModel.securityFilter() should have thrown an error.'));
                     }
-                }
+                });
+            });
 
-                throw new Error('ClassModel.securityFilter() should have thrown an error.');
+        });
+
+        describe('Test filtering out instances that don\'t pass security check.', function() {
+
+            it('Security Filter works for basic class model.', (done) => {
+                done();
             });
 
         });

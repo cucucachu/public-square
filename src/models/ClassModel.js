@@ -63,20 +63,22 @@ class ClassModel {
             });
         }
 
+
+        this.className = parameters.className;
+        this.subClasses = [];
+        this.abstract = parameters.abstract;
+        this.discriminated = parameters.discriminated;
+        this.secured = parameters.secured;
+        this.securityMethod = parameters.securityMethod ? parameters.securityMethod : undefined;
+        this.superClasses = parameters.superClasses ? parameters.superClasses : [];
+        this.discriminatorSuperClass = parameters.discriminatorSuperClass;
+
         if (parameters.secured === undefined) {
-            throw new Error('secured is required.')
+            throw new Error('secured is required.');
         }
 
-        if (parameters.secured) {
-            if (!parameters.securityMethod) {
-                if (!parameters.discriminatorSuperClass) {
-                    throw new Error('If class is secured, and is not a sub class of a secured discriminated class, a security method must be provided.');
-                }
-            }
-
-            if (parameters.securityMethod && parameters.discriminatorSuperClass) {
-                throw new Error('A subclass of a secured discriminated super class should not have a security method, the discriminated super class\'es security method will be used.');
-            }
+        if (parameters.secured && !this.allSecurityMethodsforClassModel().length) {
+            throw new Error('If a class is secured, it must have a security method, or it must have at least one super class with a security method.');
         }
 
         if (!parameters.secured) {
@@ -118,14 +120,7 @@ class ClassModel {
             schema = parameters.schema;
         }
 
-        this.className = parameters.className;
-        this.secured = parameters.secured;
-        this.securityMethod = parameters.securityMethod ? parameters.securityMethod : undefined;
         this.schema = schema;
-        this.subClasses = [];
-        this.discriminatorSuperClass = parameters.discriminatorSuperClass;
-        this.abstract = parameters.abstract;
-        this.discriminated = parameters.discriminated;
 
         let schemaObject = new Schema(this.schema);
 
@@ -199,6 +194,26 @@ class ClassModel {
         }
 
         return results;
+    }
+
+    /* 
+     * A function which can filter an array of instances using an asynchronus function.
+     */
+    static async asyncFilter(instances, asyncFilterFunction) {
+        let filtered = [];
+        let filterPromises = [];
+
+        instances.forEach((instance) => {
+            filterPromises.push(asyncFilterFunction(instance));
+        });
+
+        let instanceIndex;
+
+        for (instanceIndex = 0; instanceIndex < instances.length; instanceIndex++)  
+            if (await filterPromises[instanceIndex])
+                filtered.push(instances[instanceIndex]);
+            
+        return filtered;
     }
 
     /*
@@ -835,12 +850,35 @@ class ClassModel {
 
     // Security Methods
 
+    /* A recursive method which retrieves all the security methods that should be run on instances of a classmodel, including the classes own
+     *    security method and all the security methods of its secured parents.
+     * @return An Array containing all the security methods that should be run for a particular class model.
+     */
+    allSecurityMethodsforClassModel() {
+        if (!this.secured)
+            return [];
+        
+        let securityMethods = [];
+
+        this.superClasses.forEach((superClass) => {
+            securityMethods.push(superClass.allSecurityMethodsforClassModel());
+        });
+
+        if (this.discriminatorSuperClass)
+            securityMethods.push(this.discriminatorSuperClass.allSecurityMethodsforClassModel());
+
+        if (this.securityMethod)
+            securityMethods.push(this.securityMethod);
+
+        return securityMethods;
+    }
+
     /* Takes an array of instances of the Class Model and filters out any that do not pass this Class Model's security method.
      * @param required Array<instance> : An array of instances of this Class Model to filter.
      * @param required ObjectId : The ObjectId of a userAccount, to be passed to the securityMethod.
-     * @return Array<Instance>: The given instances filtered for security.
+     * @return Promise(Array<Instance>): The given instances filtered for security.
      */
-    securityFilter(instances, userAccountId) {
+    async securityFilter(instances, userAccountId) {
         if (!Array.isArray(instances) || !userAccountId)
             throw new Error('Incorrect parameters. ' + this.className + '.securityFilter(Array<instance> instances, ObjectId userAccountId)');
 
@@ -849,29 +887,80 @@ class ClassModel {
                 throw new Error(this.className + '.securityFilter() called with instances of a different class.');
         });
 
+        let filtered = [];
+        let index;
+        let securityMethods = this.allSecurityMethodsforClassModel();
+
         if (!this.secured) {
             return instances;
         }
         else if (this.subClasses.length) {
-            let filtered = [];
-
             let instancesOfThisClass = instances.filter((instance) => { return instance instanceof this.Model });
 
-            filtered = instancesOfThisClass.filter((instance) => {
-                return this.securityMethod(instance, userAccountId);
+            for (index = 0; index < securityMethods.length; index++) {
+                let securityMethod = securityMethods[index];
+                instancesOfThisClass = await ClassModel.asyncFilter(instancesOfThisClass, async (instance) => {
+                    return await securityMethod(instance, userAccountId);
+                });
+            }
+
+            filtered = instancesOfThisClass;
+
+            this.subClasses.forEach(async (subClass) => {
+                let filteredSubClassInstances = await subClass.securityFilter(instances.filter(subClass.isInstanceOfClassOrSubClass), userAccountId);
+                filtered = filtered.concat(filteredSubClassInstances);
+            });
+        }
+        else if (this.discriminated) {
+            let instancesByClass = {};
+            instancesByClass[this.className] = [];
+
+            instances.forEach((instance) => {
+                if (instance._t) {
+                    if (!instancesByClass[instance._t]) {
+                        instancesByClass[instance._t] = [instance];
+                    }
+                    else {
+                        instancesByClass[instance._t].push(instance);
+                    }
+                }
+                else {
+                    instancesByClass[this.className].push(instance);
+                }
             });
 
-            this.subClasses.forEach((subClass) => {
-                filtered = filtered.concat(subClass.securityFilter(instances.filter(subClass.isInstanceOfClassOrSubClass)));
-            });
+            for (className in instancesByClass) {
+                if (className != this.className) {
+                    let subClassModel = AllClassModels[className];
+                    let filteredSubClassInstances = await subClassModel.securityFilter(instancesByClass[className], userAccountId);
+                    filtered.push(filteredSubClassInstances);
+                }
+            }
 
-            return filtered;
+            let instancesOfThisClass = isntancesByClass[this.className];
+
+
+            for (index = 0; index < securityMethods.length; index++) {
+                let securityMethod = securityMethods[index];
+                instancesOfThisClass = await ClassModel.asyncFilter(instancesOfThisClass, async (instance) => {
+                    return await securityMethod(instance, userAccountId);
+                });
+            }
+
+            filtered.push(instancesOfThisClass);
         }
         else {
-            return instances.filter((instance) => {
-                return this.securityMethod(instance, userAccountId);
-            });
+            filtered = instances;
+
+            for (index = 0; index < securityMethods.length; index++) {
+                let securityMethod = securityMethods[index];
+                filtered = await ClassModel.asyncFilter(filtered, async (instance) => {
+                    return await securityMethod(instance, userAccountId);
+                });  
+            }
         }
+
+        return filtered;
     }
 
     // Comparison Methods
