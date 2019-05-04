@@ -927,7 +927,7 @@ class ClassModel {
 
                 if (instancesOfSubClass.length) {
                     let filteredSubClassInstances = await subClass.securityFilter(instancesOfSubClass, userAccountId);
-                    filtered = filtered.concat(filteredSubClassInstances);
+                    filtered.push(...filteredSubClassInstances);
                 }
             }
 
@@ -936,29 +936,30 @@ class ClassModel {
             let instancesByClass = {};
             instancesByClass[this.className] = [];
 
-            instances.forEach((instance) => {
-                if (instance._t) {
-                    if (!instancesByClass[instance._t]) {
-                        instancesByClass[instance._t] = [instance];
+            for (let instance of instances) {
+                if (instance.__t) {
+                    if (!instancesByClass[instance.__t]) {
+                        instancesByClass[instance.__t] = [instance];
                     }
                     else {
-                        instancesByClass[instance._t].push(instance);
+                        instancesByClass[instance.__t].push(instance);
                     }
                 }
                 else {
                     instancesByClass[this.className].push(instance);
                 }
-            });
+                
+            }
 
-            for (className in instancesByClass) {
+            for (let className in instancesByClass) {
                 if (className != this.className) {
                     let subClassModel = AllClassModels[className];
                     let filteredSubClassInstances = await subClassModel.securityFilter(instancesByClass[className], userAccountId);
-                    filtered.push(filteredSubClassInstances);
+                    filtered.push(...filteredSubClassInstances);
                 }
             }
 
-            let instancesOfThisClass = isntancesByClass[this.className];
+            let instancesOfThisClass = instancesByClass[this.className];
 
 
             for (index = 0; index < securityMethods.length; index++) {
@@ -968,7 +969,7 @@ class ClassModel {
                 });
             }
 
-            filtered.push(instancesOfThisClass);
+            filtered.push(...instancesOfThisClass);
         }
         else {
             filtered = instances;

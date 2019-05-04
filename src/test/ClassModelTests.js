@@ -4718,46 +4718,434 @@ describe('Class Model Tests', function() {
 
         describe('Test filtering out instances that don\'t pass security check.', function() {
 
-            it('Security Filter called on Class with only direct instances of Class.', done => {
-                let instances = [instanceOfSecuredSuperClassPasses, instanceOfSecuredSuperClassFailsNumber];
-                SecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsNumber._id)
-                    .then(
-                        filtered => {
-                            if (filtered.length != 1 || filtered[0] != instanceOfSecuredSuperClassPasses)
-                                done(new Error("Filtering Failed. Instances returned: " + filtered));
-                            else
-                                done();
-                        },
-                        error => {
+            describe('SecuredSuperClass.securityFilter()', () => {
+
+                it('Security Filter called on Class with only direct instances of Class.', done => {
+                    let instances = [instanceOfSecuredSuperClassPasses, instanceOfSecuredSuperClassFailsNumber];
+                    SecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsNumber._id)
+                        .then(
+                            filtered => {
+                                if (filtered.length != 1 || filtered[0] != instanceOfSecuredSuperClassPasses)
+                                    done(new Error("Filtering Failed. Instances returned: " + filtered));
+                                else
+                                    done();
+                            },
+                            error => {
+                                done(error);
+                            }
+                        ).catch(error => {
                             done(error);
-                        }
-                    ).catch(error => {
-                        done(error);
-                    });
+                        });
+                });
+
+                it('Security Filter called on Class with instances of class and sub class.', done => {
+                    let instances = [
+                        instanceOfSecuredSuperClassPasses,
+                        instanceOfSecuredSuperClassFailsNumber,
+                        instanceOfSecuredSubClassOfSecuredSuperClassPasses,
+                        instanceOfSecuredSubClassOfSecuredSuperClassFailsBooleanA,
+                        instanceOfSecuredSubClassOfSecuredSuperClassFailsNumber
+                    ];
+
+                    let expectedInstances = [
+                        instanceOfSecuredSuperClassPasses,
+                        instanceOfSecuredSubClassOfSecuredSuperClassPasses
+                    ];
+
+                    SecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsNumber._id)
+                        .then(
+                            filtered => {
+                                if (filtered.length != expectedInstances.length)
+                                    done(new Error("Filtering Failed. Instances returned: " + filtered));
+                                else {
+                                    let filteredCorrectly = true;
+
+                                    for (let instance of expectedInstances) {
+                                        if (!filtered.includes(instance))
+                                            filteredCorrectly = false;
+                                    }
+
+                                    if (!filteredCorrectly) {
+                                        done(new Error("Filtering Failed. Instances returned: " + filtered));
+                                    }
+                                    else done();
+                                }
+                            },
+                            error => {
+                                done(error);
+                            }
+                        ).catch(error => {
+                            done(error);
+                        });
+                });
+
+                it('Security Filter called on Class with instances of class and 2 layers of sub classes', done => {
+                    let instances = [
+                        instanceOfSecuredSuperClassPasses,
+                        instanceOfSecuredSuperClassFailsNumber,
+                        instanceOfSecuredSubClassOfSecuredSuperClassPasses,
+                        instanceOfSecuredSubClassOfSecuredSuperClassFailsBooleanA,
+                        instanceOfSecuredSubClassOfSecuredSuperClassFailsNumber,
+                        instanceOfSecuredDiscriminatedSuperClassPasses,
+                        instanceOfSecuredDiscriminatedSuperClassFailsString,
+                        instanceOfSecuredDiscriminatedSuperClassFailsBooleanA,
+                        instanceOfSecuredDiscriminatedSuperClassFailsNumber
+                    ];
+
+                    let expectedInstances = [
+                        instanceOfSecuredSuperClassPasses,
+                        instanceOfSecuredSubClassOfSecuredSuperClassPasses,
+                        instanceOfSecuredDiscriminatedSuperClassPasses
+                    ];
+
+                    SecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsNumber._id)
+                        .then(
+                            filtered => {
+                                if (filtered.length != expectedInstances.length)
+                                    done(new Error("Filtering Failed. Wrong number of instances returned. Instances returned: " + filtered));
+                                else {
+                                    let filteredCorrectly = true;
+
+                                    for (let instance of expectedInstances) {
+                                        if (!filtered.includes(instance)) {
+                                            filteredCorrectly = false;
+                                        }
+                                    }
+
+                                    if (!filteredCorrectly) {
+                                        done(new Error("Filtering Failed. Instances returned: " + filtered));
+                                    }
+                                    else done();
+                                }
+                            },
+                            error => {
+                                done(error);
+                            }
+                        ).catch(error => {
+                            done(error);
+                        });
+                });
+
+                it('Security Filter called on Class with instances of 3 layers of sub classes', done => {
+                    let instances = [
+                        instanceOfSecuredSuperClassPasses,
+                        instanceOfSecuredSuperClassFailsNumber,
+                        instanceOfSecuredSubClassOfSecuredSuperClassPasses,
+                        instanceOfSecuredSubClassOfSecuredSuperClassFailsBooleanA,
+                        instanceOfSecuredSubClassOfSecuredSuperClassFailsNumber,
+                        instanceOfSecuredDiscriminatedSuperClassPasses,
+                        instanceOfSecuredDiscriminatedSuperClassFailsString,
+                        instanceOfSecuredDiscriminatedSuperClassFailsBooleanA,
+                        instanceOfSecuredDiscriminatedSuperClassFailsNumber,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanB,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanA,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber
+                    ];
+
+                    let expectedInstances = [
+                        instanceOfSecuredSuperClassPasses,
+                        instanceOfSecuredSubClassOfSecuredSuperClassPasses,
+                        instanceOfSecuredDiscriminatedSuperClassPasses,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses
+                    ];
+
+                    SecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsNumber._id)
+                        .then(
+                            filtered => {
+                                if (filtered.length != expectedInstances.length)
+                                    done(new Error("Filtering Failed. Wrong number of instances returned. Instances returned: " + filtered));
+                                else {
+                                    let filteredCorrectly = true;
+
+                                    for (let instance of expectedInstances) {
+                                        if (!filtered.includes(instance)) {
+                                            filteredCorrectly = false;
+                                        }
+                                    }
+
+                                    if (!filteredCorrectly) {
+                                        done(new Error("Filtering Failed. Instances returned: " + filtered));
+                                    }
+                                    else done();
+                                }
+                            },
+                            error => {
+                                done(error);
+                            }
+                        ).catch(error => {
+                            done(error);
+                        });
+                });
             });
 
-            it('Security Filter called on Class with instances of class and sub class.', done => {
-                let instances = [
-                    instanceOfSecuredSuperClassPasses,
-                    instanceOfSecuredSuperClassFailsNumber,
-                    instanceOfSecuredSubClassOfSecuredSuperClassPasses,
-                    instanceOfSecuredSubClassOfSecuredSuperClassFailsBooleanA,
-                    instanceOfSecuredSubClassOfSecuredSuperClassFailsNumber
-                ];
-                SecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsNumber._id)
-                    .then(
-                        filtered => {
-                            if (filtered.length != 2 || filtered[0] != instanceOfSecuredSuperClassPasses || filtered[1] != instanceOfSecuredSubClassOfSecuredSuperClassPasses)
-                                done(new Error("Filtering Failed. Instances returned: " + filtered));
-                            else
-                                done();
-                        },
-                        error => {
+            describe('SecuredSubClassOfSecuredSuperClass.securityFilter()', () => {
+
+                it('Security Filter called on Class with only direct instances of Class.', done => {
+                    let instances = [
+                        instanceOfSecuredSubClassOfSecuredSuperClassPasses,
+                        instanceOfSecuredSubClassOfSecuredSuperClassFailsBooleanA,
+                        instanceOfSecuredSubClassOfSecuredSuperClassFailsNumber
+                    ];
+
+                    let expectedInstances = [
+                        instanceOfSecuredSubClassOfSecuredSuperClassPasses
+                    ];
+
+                    SecuredSubClassOfSecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsNumber._id)
+                        .then(
+                            filtered => {
+                                if (filtered.length != expectedInstances.length)
+                                    done(new Error("Filtering Failed. Instances returned: " + filtered));
+                                else {
+                                    let filteredCorrectly = true;
+
+                                    for (let instance of expectedInstances) {
+                                        if (!filtered.includes(instance))
+                                            filteredCorrectly = false;
+                                    }
+
+                                    if (!filteredCorrectly) {
+                                        done(new Error("Filtering Failed. Instances returned: " + filtered));
+                                    }
+                                    else done();
+                                }
+                            },
+                            error => {
+                                done(error);
+                            }
+                        ).catch(error => {
                             done(error);
-                        }
-                    ).catch(error => {
-                        done(error);
-                    });
+                        });
+                });
+
+                it('Security Filter called on Class with instances of class and 1 layers of sub classes', done => {
+                    let instances = [
+                        instanceOfSecuredSubClassOfSecuredSuperClassPasses,
+                        instanceOfSecuredSubClassOfSecuredSuperClassFailsBooleanA,
+                        instanceOfSecuredSubClassOfSecuredSuperClassFailsNumber,
+                        instanceOfSecuredDiscriminatedSuperClassPasses,
+                        instanceOfSecuredDiscriminatedSuperClassFailsString,
+                        instanceOfSecuredDiscriminatedSuperClassFailsBooleanA,
+                        instanceOfSecuredDiscriminatedSuperClassFailsNumber
+                    ];
+
+                    let expectedInstances = [
+                        instanceOfSecuredSubClassOfSecuredSuperClassPasses,
+                        instanceOfSecuredDiscriminatedSuperClassPasses
+                    ];
+
+                    SecuredSubClassOfSecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsNumber._id)
+                        .then(
+                            filtered => {
+                                if (filtered.length != expectedInstances.length)
+                                    done(new Error("Filtering Failed. Wrong number of instances returned. Instances returned: " + filtered));
+                                else {
+                                    let filteredCorrectly = true;
+
+                                    for (let instance of expectedInstances) {
+                                        if (!filtered.includes(instance)) {
+                                            filteredCorrectly = false;
+                                        }
+                                    }
+
+                                    if (!filteredCorrectly) {
+                                        done(new Error("Filtering Failed. Instances returned: " + filtered));
+                                    }
+                                    else done();
+                                }
+                            },
+                            error => {
+                                done(error);
+                            }
+                        ).catch(error => {
+                            done(error);
+                        });
+                });
+
+                it('Security Filter called on Class with instances of 2 layers of sub classes', done => {
+                    let instances = [
+                        instanceOfSecuredSubClassOfSecuredSuperClassPasses,
+                        instanceOfSecuredSubClassOfSecuredSuperClassFailsBooleanA,
+                        instanceOfSecuredSubClassOfSecuredSuperClassFailsNumber,
+                        instanceOfSecuredDiscriminatedSuperClassPasses,
+                        instanceOfSecuredDiscriminatedSuperClassFailsString,
+                        instanceOfSecuredDiscriminatedSuperClassFailsBooleanA,
+                        instanceOfSecuredDiscriminatedSuperClassFailsNumber,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanB,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanA,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber
+                    ];
+
+                    let expectedInstances = [
+                        instanceOfSecuredSubClassOfSecuredSuperClassPasses,
+                        instanceOfSecuredDiscriminatedSuperClassPasses,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses
+                    ];
+
+                    SecuredSubClassOfSecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsNumber._id)
+                        .then(
+                            filtered => {
+                                if (filtered.length != expectedInstances.length)
+                                    done(new Error("Filtering Failed. Wrong number of instances returned. Instances returned: " + filtered));
+                                else {
+                                    let filteredCorrectly = true;
+
+                                    for (let instance of expectedInstances) {
+                                        if (!filtered.includes(instance)) {
+                                            filteredCorrectly = false;
+                                        }
+                                    }
+
+                                    if (!filteredCorrectly) {
+                                        done(new Error("Filtering Failed. Instances returned: " + filtered));
+                                    }
+                                    else done();
+                                }
+                            },
+                            error => {
+                                done(error);
+                            }
+                        ).catch(error => {
+                            done(error);
+                        });
+                });
+            });
+
+            describe('SecuredDiscriminatedSuperClass.securityFilter()', () => {
+
+                it('Security Filter called on Class with only direct instances of Class.', done => {
+                    let instances = [
+                        instanceOfSecuredDiscriminatedSuperClassPasses,
+                        instanceOfSecuredDiscriminatedSuperClassFailsString,
+                        instanceOfSecuredDiscriminatedSuperClassFailsBooleanA,
+                        instanceOfSecuredDiscriminatedSuperClassFailsNumber
+                    ];
+
+                    let expectedInstances = [
+                        instanceOfSecuredDiscriminatedSuperClassPasses
+                    ];
+
+                    SecuredDiscriminatedSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsNumber._id)
+                        .then(
+                            filtered => {
+                                if (filtered.length != expectedInstances.length)
+                                    done(new Error("Filtering Failed. Wrong number of instances returned. Instances returned: " + filtered));
+                                else {
+                                    let filteredCorrectly = true;
+
+                                    for (let instance of expectedInstances) {
+                                        if (!filtered.includes(instance)) {
+                                            filteredCorrectly = false;
+                                        }
+                                    }
+
+                                    if (!filteredCorrectly) {
+                                        done(new Error("Filtering Failed. Instances returned: " + filtered));
+                                    }
+                                    else done();
+                                }
+                            },
+                            error => {
+                                done(error);
+                            }
+                        ).catch(error => {
+                            done(error);
+                        });
+                });
+
+                it('Security Filter called on Class with instances of 1 layers of sub classes', done => {
+                    let instances = [
+                        instanceOfSecuredDiscriminatedSuperClassPasses,
+                        instanceOfSecuredDiscriminatedSuperClassFailsString,
+                        instanceOfSecuredDiscriminatedSuperClassFailsBooleanA,
+                        instanceOfSecuredDiscriminatedSuperClassFailsNumber,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanB,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanA,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber
+                    ];
+
+                    let expectedInstances = [
+                        instanceOfSecuredDiscriminatedSuperClassPasses,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses
+                    ];
+
+                    SecuredDiscriminatedSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsNumber._id)
+                        .then(
+                            filtered => {
+                                if (filtered.length != expectedInstances.length)
+                                    done(new Error("Filtering Failed. Wrong number of instances returned. Instances returned: " + filtered));
+                                else {
+                                    let filteredCorrectly = true;
+
+                                    for (let instance of expectedInstances) {
+                                        if (!filtered.includes(instance)) {
+                                            filteredCorrectly = false;
+                                        }
+                                    }
+
+                                    if (!filteredCorrectly) {
+                                        done(new Error("Filtering Failed. Instances returned: " + filtered));
+                                    }
+                                    else done();
+                                }
+                            },
+                            error => {
+                                done(error);
+                            }
+                        ).catch(error => {
+                            done(error);
+                        });
+                });
+            });
+
+            describe('SecuredSubClassOfSecuredDiscriminatedSuperClass.securityFilter()', () => {
+
+                it('Security Filter called on Class with only direct instances of Class.', done => {
+                    let instances = [
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanB,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanA,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber
+                    ];
+
+                    let expectedInstances = [
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses
+                    ];
+
+                    SecuredSubClassOfSecuredDiscriminatedSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsNumber._id)
+                        .then(
+                            filtered => {
+                                if (filtered.length != expectedInstances.length)
+                                    done(new Error("Filtering Failed. Wrong number of instances returned. Instances returned: " + filtered));
+                                else {
+                                    let filteredCorrectly = true;
+
+                                    for (let instance of expectedInstances) {
+                                        if (!filtered.includes(instance)) {
+                                            filteredCorrectly = false;
+                                        }
+                                    }
+
+                                    if (!filteredCorrectly) {
+                                        done(new Error("Filtering Failed. Instances returned: " + filtered));
+                                    }
+                                    else done();
+                                }
+                            },
+                            error => {
+                                done(error);
+                            }
+                        ).catch(error => {
+                            done(error);
+                        });
+                });
             });
 
         });
