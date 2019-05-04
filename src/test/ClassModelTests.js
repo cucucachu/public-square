@@ -440,19 +440,7 @@ describe('Class Model Tests', function() {
             var SecuredSuperClass = new ClassModel({
                 className: 'SecuredSuperClass',
                 secured: true,
-                securityMethod: async (instance) => { return instance.string == 'secure' },
-                schema: {
-                    string: {
-                        type: String
-                    }
-                }
-            });
-
-            var SecuredDiscriminatedSuperClass = new ClassModel({
-                className: 'SecuredDiscriminatedSuperClass',
-                secured: true,
-                discriminated: true,
-                securityMethod: async (instance) => { return instance.number >= 10 },
+                securityMethod: async instance => { return instance.number >= 0 },
                 schema: {
                     number: {
                         type: Number
@@ -463,29 +451,39 @@ describe('Class Model Tests', function() {
             var SecuredSubClassOfSecuredSuperClass = new ClassModel({
                 className: 'SecuredSubClassOfSecuredSuperClass',
                 secured: true,
-                securityMethod: async () => { return false },
+                securityMethod: async instance => { return instance.booleanA },
                 superClasses: [SecuredSuperClass],
-                schema: {}
+                schema: {
+                    booleanA: {
+                        type: Boolean
+                    }
+                }
             });
 
-            var SecuredSubClassOfSecuredSubClassOfSecuredSuperClass = new ClassModel({
-                className: 'SecuredSubClassOfSecuredSubClassOfSecuredSuperClass',
+            var SecuredDiscriminatedSuperClass = new ClassModel({
+                className: 'SecuredDiscriminatedSuperClass',
                 secured: true,
-                securityMethod: async (instance) => { return instance.boolean },
+                discriminated: true,
                 superClasses: [SecuredSubClassOfSecuredSuperClass],
+                securityMethod: async instance => { return instance.string == 'secured' },
                 schema: {
-                    boolean: {
-                        type: Boolean
+                    string: {
+                        type: String
                     }
                 }
             });
 
             var SecuredSubClassOfSecuredDiscriminatedSuperClass = new ClassModel({
                 className: 'SecuredSubClassOfSecuredDiscriminatedSuperClass',
-                secured: true,
+                secured: true, 
                 discriminatorSuperClass: SecuredDiscriminatedSuperClass,
-                schema: {}
-            })
+                securityMethod: async instance => { return instance.booleanB },
+                schema: {
+                    booleanB: {
+                        type: Boolean
+                    }
+                }
+            });
         }
 
     }
@@ -4556,20 +4554,75 @@ describe('Class Model Tests', function() {
     describe('ClassModel.securityFilter()', function() {
 
         // Set up secured Instances
+        // For each class, create on instance which will pass all security filters, and one each that will fail due to one of the security methods
         {
-            var instanceOfSecuredSuperClass = SecuredSuperClass.create();
-            var instanceOfSecuredDiscriminatedSuperClassA = SecuredDiscriminatedSuperClass.create();
-            var instanceOfSecuredDiscriminatedSuperClassB = SecuredDiscriminatedSuperClass.create();
-            var instanceOfSecuredSubClassOfSecuredSuperClass = SecuredSubClassOfSecuredSuperClass.create();
-            var instanceOfSecuredSubClassOfSecuredSubClassOfSecuredSuperClassA = SecuredSubClassOfSecuredSubClassOfSecuredSuperClass.create();
-            var instanceOfSecuredSubClassOfSecuredSubClassOfSecuredSuperClassB = SecuredSubClassOfSecuredSubClassOfSecuredSuperClass.create();
-            var instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClass = SecuredSubClassOfSecuredDiscriminatedSuperClass.create();
+            var instanceOfSecuredSuperClassPasses = SecuredSuperClass.create();
+            instanceOfSecuredSuperClassPasses.number = 1;
 
-            instanceOfSecuredDiscriminatedSuperClassA.number = 5;
-            instanceOfSecuredDiscriminatedSuperClassB.number = 11;
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClass.number = 20;
-            instanceOfSecuredSubClassOfSecuredSubClassOfSecuredSuperClassA.secure = true;
-            instanceOfSecuredSubClassOfSecuredSubClassOfSecuredSuperClassB.secure = false;
+            var instanceOfSecuredSuperClassFailsNumber = SecuredSuperClass.create();
+            instanceOfSecuredSuperClassFailsNumber.number = -1;
+
+            var instanceOfSecuredSubClassOfSecuredSuperClassPasses = SecuredSubClassOfSecuredSuperClass.create();
+            instanceOfSecuredSubClassOfSecuredSuperClassPasses.number = 1;
+            instanceOfSecuredSubClassOfSecuredSuperClassPasses.booleanA = true;
+
+            var instanceOfSecuredSubClassOfSecuredSuperClassFailsBooleanA = SecuredSubClassOfSecuredSuperClass.create();
+            instanceOfSecuredSubClassOfSecuredSuperClassFailsBooleanA.number = 1;
+            instanceOfSecuredSubClassOfSecuredSuperClassFailsBooleanA.booleanA = false;
+
+            var instanceOfSecuredSubClassOfSecuredSuperClassFailsNumber = SecuredSubClassOfSecuredSuperClass.create();
+            instanceOfSecuredSubClassOfSecuredSuperClassFailsNumber.number = -1;
+            instanceOfSecuredSubClassOfSecuredSuperClassFailsNumber.booleanA = true;
+
+            var instanceOfSecuredDiscriminatedSuperClassPasses = SecuredDiscriminatedSuperClass.create();
+            instanceOfSecuredDiscriminatedSuperClassPasses.number = 1;
+            instanceOfSecuredDiscriminatedSuperClassPasses.booleanA = true;
+            instanceOfSecuredDiscriminatedSuperClassPasses.string = 'secured';
+
+            var instanceOfSecuredDiscriminatedSuperClassFailsString = SecuredDiscriminatedSuperClass.create();
+            instanceOfSecuredDiscriminatedSuperClassFailsString.number = 1;
+            instanceOfSecuredDiscriminatedSuperClassFailsString.booleanA = true;
+            instanceOfSecuredDiscriminatedSuperClassFailsString.string = 'not secured';
+
+            var instanceOfSecuredDiscriminatedSuperClassFailsBooleanA = SecuredDiscriminatedSuperClass.create();
+            instanceOfSecuredDiscriminatedSuperClassFailsBooleanA.number = 1;
+            instanceOfSecuredDiscriminatedSuperClassFailsBooleanA.booleanA = false;
+            instanceOfSecuredDiscriminatedSuperClassFailsBooleanA.string = 'secured';
+
+            var instanceOfSecuredDiscriminatedSuperClassFailsNumber = SecuredDiscriminatedSuperClass.create();
+            instanceOfSecuredDiscriminatedSuperClassFailsNumber.number = -1;
+            instanceOfSecuredDiscriminatedSuperClassFailsNumber.booleanA = true;
+            instanceOfSecuredDiscriminatedSuperClassFailsNumber.string = 'secured';
+
+            var instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses = SecuredSubClassOfSecuredDiscriminatedSuperClass.create();            
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses.number = 1;
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses.booleanA = true;
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses.string = 'secured';
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses.booleanB = true;
+
+            var instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanB = SecuredSubClassOfSecuredDiscriminatedSuperClass.create();            
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanB.number = 1;
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanB.booleanA = true;
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanB.string = 'secured';
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanB.booleanB = false;
+
+            var instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString = SecuredSubClassOfSecuredDiscriminatedSuperClass.create();            
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString.number = 1;
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString.booleanA = true;
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString.string = 'not secured';
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString.booleanB = true;
+
+            var instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanA = SecuredSubClassOfSecuredDiscriminatedSuperClass.create();            
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanA.number = 1;
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanA.booleanA = false;
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanA.string = 'secured';
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanA.booleanB = true;
+
+            var instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber = SecuredSubClassOfSecuredDiscriminatedSuperClass.create();            
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber.number = -1;
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber.booleanA = true;
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber.string = 'secured';
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber.booleanB = true;
         }
 
         describe('Tests for invalid arguments.', function() {
@@ -4578,7 +4631,7 @@ describe('Class Model Tests', function() {
                 let error;
                 let expectedErrorMessage = 'Incorrect parameters. ' + SecuredSuperClass.className + '.securityFilter(Array<instance> instances, ObjectId userAccountId)';
 
-                SecuredSuperClass.securityFilter(instanceOfSecuredSuperClass, instanceOfSecuredSuperClass._id).then(
+                SecuredSuperClass.securityFilter(instanceOfSecuredSuperClassPasses, instanceOfSecuredSuperClassPasses._id).then(
                     (filtered) => {
                     },
                     (securityError) => {
@@ -4607,7 +4660,7 @@ describe('Class Model Tests', function() {
                 let error;
                 let expectedErrorMessage = 'Incorrect parameters. ' + SecuredSuperClass.className + '.securityFilter(Array<instance> instances, ObjectId userAccountId)';
 
-                SecuredSuperClass.securityFilter([instanceOfSecuredSuperClass]).then(
+                SecuredSuperClass.securityFilter([instanceOfSecuredSuperClassPasses]).then(
                     (filtered) => {
                     },
                     (securityError) => {
@@ -4634,9 +4687,9 @@ describe('Class Model Tests', function() {
 
             it('All instances must be of the Class or a Sub Class', (done) => {
                 let error;
-                let expectedErrorMessage = SecuredSuperClass.className + '.securityFilter() called with instances of a different class.';
+                let expectedErrorMessage = SecuredSubClassOfSecuredSuperClass.className + '.securityFilter() called with instances of a different class.';
 
-                SecuredSuperClass.securityFilter([instanceOfSecuredSuperClass, instanceOfSecuredDiscriminatedSuperClassA], instanceOfSecuredSuperClass._id).then(
+                SecuredSubClassOfSecuredSuperClass.securityFilter([instanceOfSecuredSuperClassPasses, instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses], instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses._id).then(
                     (filtered) => {
                     },
                     (securityError) => {
@@ -4665,8 +4718,46 @@ describe('Class Model Tests', function() {
 
         describe('Test filtering out instances that don\'t pass security check.', function() {
 
-            it('Security Filter works for basic class model.', (done) => {
-                done();
+            it('Security Filter called on Class with only direct instances of Class.', done => {
+                let instances = [instanceOfSecuredSuperClassPasses, instanceOfSecuredSuperClassFailsNumber];
+                SecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsNumber._id)
+                    .then(
+                        filtered => {
+                            if (filtered.length != 1 || filtered[0] != instanceOfSecuredSuperClassPasses)
+                                done(new Error("Filtering Failed. Instances returned: " + filtered));
+                            else
+                                done();
+                        },
+                        error => {
+                            done(error);
+                        }
+                    ).catch(error => {
+                        done(error);
+                    });
+            });
+
+            it('Security Filter called on Class with instances of class and sub class.', done => {
+                let instances = [
+                    instanceOfSecuredSuperClassPasses,
+                    instanceOfSecuredSuperClassFailsNumber,
+                    instanceOfSecuredSubClassOfSecuredSuperClassPasses,
+                    instanceOfSecuredSubClassOfSecuredSuperClassFailsBooleanA,
+                    instanceOfSecuredSubClassOfSecuredSuperClassFailsNumber
+                ];
+                SecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsNumber._id)
+                    .then(
+                        filtered => {
+                            if (filtered.length != 2 || filtered[0] != instanceOfSecuredSuperClassPasses || filtered[1] != instanceOfSecuredSubClassOfSecuredSuperClassPasses)
+                                done(new Error("Filtering Failed. Instances returned: " + filtered));
+                            else
+                                done();
+                        },
+                        error => {
+                            done(error);
+                        }
+                    ).catch(error => {
+                        done(error);
+                    });
             });
 
         });

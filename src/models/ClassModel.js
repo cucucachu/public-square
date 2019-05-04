@@ -146,6 +146,11 @@ class ClassModel {
         });
     }
 
+    // to String
+    toString() {
+        return this.className + '\n' + JSON.stringify(this.schema);
+    }
+
     // Helper Methods
     isInstanceOfClassOrSubClass(instance) {
         if (instance instanceof this.Model)
@@ -860,12 +865,12 @@ class ClassModel {
         
         let securityMethods = [];
 
-        this.superClasses.forEach((superClass) => {
-            securityMethods.push(superClass.allSecurityMethodsforClassModel());
-        });
+        for (let superClass of this.superClasses) {
+            securityMethods.push(...superClass.allSecurityMethodsforClassModel());
+        }
 
         if (this.discriminatorSuperClass)
-            securityMethods.push(this.discriminatorSuperClass.allSecurityMethodsforClassModel());
+            securityMethods.push(...this.discriminatorSuperClass.allSecurityMethodsforClassModel());
 
         if (this.securityMethod)
             securityMethods.push(this.securityMethod);
@@ -887,29 +892,45 @@ class ClassModel {
                 throw new Error(this.className + '.securityFilter() called with instances of a different class.');
         });
 
+        console.log('Filtering for class ' + this.className + '. Total Instances ' + instances.length);
+
         let filtered = [];
         let index;
+        let model = this.Model;
         let securityMethods = this.allSecurityMethodsforClassModel();
 
         if (!this.secured) {
-            return instances;
+            filtered = instances;
         }
         else if (this.subClasses.length) {
-            let instancesOfThisClass = instances.filter((instance) => { return instance instanceof this.Model });
+            let instancesOfThisClass = instances.filter(instance => { return instance instanceof model });
+
+            
+            console.log('Filtering for class ' + this.className + '. Instances of this class ' + instancesOfThisClass.length);
+
+            console.log('Number of security methods ' + securityMethods.length);
 
             for (index = 0; index < securityMethods.length; index++) {
                 let securityMethod = securityMethods[index];
-                instancesOfThisClass = await ClassModel.asyncFilter(instancesOfThisClass, async (instance) => {
-                    return await securityMethod(instance, userAccountId);
-                });
+
+                instancesOfThisClass = await ClassModel.asyncFilter(instancesOfThisClass, securityMethod);
             }
+
+            console.log('Filtering for class ' + this.className + '. Instances of this class after filtering ' + instancesOfThisClass.length);
 
             filtered = instancesOfThisClass;
 
-            this.subClasses.forEach(async (subClass) => {
-                let filteredSubClassInstances = await subClass.securityFilter(instances.filter(subClass.isInstanceOfClassOrSubClass), userAccountId);
-                filtered = filtered.concat(filteredSubClassInstances);
-            });
+            for (let subClass of this.subClasses) {
+                let instancesOfSubClass = instances.filter(instance => {
+                    return subClass.isInstanceOfClassOrSubClass(instance);
+                });
+
+                if (instancesOfSubClass.length) {
+                    let filteredSubClassInstances = await subClass.securityFilter(instancesOfSubClass, userAccountId);
+                    filtered = filtered.concat(filteredSubClassInstances);
+                }
+            }
+
         }
         else if (this.discriminated) {
             let instancesByClass = {};
@@ -959,6 +980,8 @@ class ClassModel {
                 });  
             }
         }
+
+        console.log('Filtering for class ' + this.className + '. Returning ' + filtered.length + ' instances.');
 
         return filtered;
     }
