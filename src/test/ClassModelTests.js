@@ -440,10 +440,14 @@ describe('Class Model Tests', function() {
             var SecuredSuperClass = new ClassModel({
                 className: 'SecuredSuperClass',
                 secured: true,
-                securityMethod: async instance => { return instance.number >= 0 },
+                securityMethod: async instance => { 
+                    let securedByInstance =  await SecuredSuperClass.walk(instance, 'securedBy');
+                    return securedByInstance.allowed;
+                },
                 schema: {
-                    number: {
-                        type: Number
+                    securedBy: {
+                        type: Schema.Types.ObjectId,
+                        ref: 'ClassSecuresSecuredSuperClass'
                     }
                 }
             });
@@ -451,10 +455,10 @@ describe('Class Model Tests', function() {
             var SecuredSubClassOfSecuredSuperClass = new ClassModel({
                 className: 'SecuredSubClassOfSecuredSuperClass',
                 secured: true,
-                securityMethod: async instance => { return instance.booleanA },
+                securityMethod: async instance => { return instance.boolean },
                 superClasses: [SecuredSuperClass],
                 schema: {
-                    booleanA: {
+                    boolean: {
                         type: Boolean
                     }
                 }
@@ -477,9 +481,19 @@ describe('Class Model Tests', function() {
                 className: 'SecuredSubClassOfSecuredDiscriminatedSuperClass',
                 secured: true, 
                 discriminatorSuperClass: SecuredDiscriminatedSuperClass,
-                securityMethod: async instance => { return instance.booleanB },
+                securityMethod: async instance => { return instance.number > 0 },
                 schema: {
-                    booleanB: {
+                    number: {
+                        type: Number
+                    }
+                }
+            });
+
+            var ClassSecuresSecuredSuperClass = new ClassModel({
+                className: 'ClassSecuresSecuredSuperClass',
+                secured: false,
+                schema: {
+                    allowed: {
                         type: Boolean
                     }
                 }
@@ -4556,74 +4570,120 @@ describe('Class Model Tests', function() {
         // Set up secured Instances
         // For each class, create on instance which will pass all security filters, and one each that will fail due to one of the security methods
         {
+            // ClassSecuresSecuredSuperClass Instances
+            var instanceOfClassSecuresSecuredSuperClassAllowed = ClassSecuresSecuredSuperClass.create();
+            instanceOfClassSecuresSecuredSuperClassAllowed.allowed = true;
+            
+            var instanceOfClassSecuresSecuredSuperClassNotAllowed = ClassSecuresSecuredSuperClass.create();
+            instanceOfClassSecuresSecuredSuperClassNotAllowed.allowed = false;
+
+            // SecuredSuperClass Instances
             var instanceOfSecuredSuperClassPasses = SecuredSuperClass.create();
-            instanceOfSecuredSuperClassPasses.number = 1;
+            instanceOfSecuredSuperClassPasses.securedBy = instanceOfClassSecuresSecuredSuperClassAllowed;
 
-            var instanceOfSecuredSuperClassFailsNumber = SecuredSuperClass.create();
-            instanceOfSecuredSuperClassFailsNumber.number = -1;
+            var instanceOfSecuredSuperClassFailsRelationship = SecuredSuperClass.create();
+            instanceOfSecuredSuperClassFailsRelationship.securedBy = instanceOfClassSecuresSecuredSuperClassNotAllowed;
 
+            // SecuredSubClassOfSecuredSuperClass Instances
             var instanceOfSecuredSubClassOfSecuredSuperClassPasses = SecuredSubClassOfSecuredSuperClass.create();
-            instanceOfSecuredSubClassOfSecuredSuperClassPasses.number = 1;
-            instanceOfSecuredSubClassOfSecuredSuperClassPasses.booleanA = true;
+            instanceOfSecuredSubClassOfSecuredSuperClassPasses.securedBy = instanceOfClassSecuresSecuredSuperClassAllowed;
+            instanceOfSecuredSubClassOfSecuredSuperClassPasses.boolean = true;
 
-            var instanceOfSecuredSubClassOfSecuredSuperClassFailsBooleanA = SecuredSubClassOfSecuredSuperClass.create();
-            instanceOfSecuredSubClassOfSecuredSuperClassFailsBooleanA.number = 1;
-            instanceOfSecuredSubClassOfSecuredSuperClassFailsBooleanA.booleanA = false;
+            var instanceOfSecuredSubClassOfSecuredSuperClassFailsRelationship = SecuredSubClassOfSecuredSuperClass.create();
+            instanceOfSecuredSubClassOfSecuredSuperClassFailsRelationship.securedBy = instanceOfClassSecuresSecuredSuperClassNotAllowed;
+            instanceOfSecuredSubClassOfSecuredSuperClassFailsRelationship.boolean = true;
 
-            var instanceOfSecuredSubClassOfSecuredSuperClassFailsNumber = SecuredSubClassOfSecuredSuperClass.create();
-            instanceOfSecuredSubClassOfSecuredSuperClassFailsNumber.number = -1;
-            instanceOfSecuredSubClassOfSecuredSuperClassFailsNumber.booleanA = true;
+            var instanceOfSecuredSubClassOfSecuredSuperClassFailsBoolean = SecuredSubClassOfSecuredSuperClass.create();
+            instanceOfSecuredSubClassOfSecuredSuperClassFailsBoolean.securedBy = instanceOfClassSecuresSecuredSuperClassAllowed;
+            instanceOfSecuredSubClassOfSecuredSuperClassFailsBoolean.boolean = false;
 
+            // SecuredDiscriminatedSuperClass Instances
             var instanceOfSecuredDiscriminatedSuperClassPasses = SecuredDiscriminatedSuperClass.create();
-            instanceOfSecuredDiscriminatedSuperClassPasses.number = 1;
-            instanceOfSecuredDiscriminatedSuperClassPasses.booleanA = true;
+            instanceOfSecuredDiscriminatedSuperClassPasses.securedBy = instanceOfClassSecuresSecuredSuperClassAllowed;
+            instanceOfSecuredDiscriminatedSuperClassPasses.boolean = true;
             instanceOfSecuredDiscriminatedSuperClassPasses.string = 'secured';
 
+            var instanceOfSecuredDiscriminatedSuperClassFailsRelationship = SecuredDiscriminatedSuperClass.create();
+            instanceOfSecuredDiscriminatedSuperClassFailsRelationship.securedBy = instanceOfClassSecuresSecuredSuperClassNotAllowed;
+            instanceOfSecuredDiscriminatedSuperClassFailsRelationship.boolean = true;
+            instanceOfSecuredDiscriminatedSuperClassFailsRelationship.string = 'secured';
+
             var instanceOfSecuredDiscriminatedSuperClassFailsString = SecuredDiscriminatedSuperClass.create();
-            instanceOfSecuredDiscriminatedSuperClassFailsString.number = 1;
-            instanceOfSecuredDiscriminatedSuperClassFailsString.booleanA = true;
+            instanceOfSecuredDiscriminatedSuperClassFailsString.securedBy = instanceOfClassSecuresSecuredSuperClassAllowed;
+            instanceOfSecuredDiscriminatedSuperClassFailsString.boolean = true;
             instanceOfSecuredDiscriminatedSuperClassFailsString.string = 'not secured';
 
-            var instanceOfSecuredDiscriminatedSuperClassFailsBooleanA = SecuredDiscriminatedSuperClass.create();
-            instanceOfSecuredDiscriminatedSuperClassFailsBooleanA.number = 1;
-            instanceOfSecuredDiscriminatedSuperClassFailsBooleanA.booleanA = false;
-            instanceOfSecuredDiscriminatedSuperClassFailsBooleanA.string = 'secured';
+            var instanceOfSecuredDiscriminatedSuperClassFailsBoolean = SecuredDiscriminatedSuperClass.create();
+            instanceOfSecuredDiscriminatedSuperClassFailsBoolean.securedBy = instanceOfClassSecuresSecuredSuperClassAllowed;
+            instanceOfSecuredDiscriminatedSuperClassFailsBoolean.boolean = false;
+            instanceOfSecuredDiscriminatedSuperClassFailsBoolean.string = 'secured';
 
-            var instanceOfSecuredDiscriminatedSuperClassFailsNumber = SecuredDiscriminatedSuperClass.create();
-            instanceOfSecuredDiscriminatedSuperClassFailsNumber.number = -1;
-            instanceOfSecuredDiscriminatedSuperClassFailsNumber.booleanA = true;
-            instanceOfSecuredDiscriminatedSuperClassFailsNumber.string = 'secured';
-
-            var instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses = SecuredSubClassOfSecuredDiscriminatedSuperClass.create();            
+            // SecuredSubClassOfSecuredDiscriminatedSuperClass Instances
+            var instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses = SecuredSubClassOfSecuredDiscriminatedSuperClass.create(); 
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses.securedBy = instanceOfClassSecuresSecuredSuperClassAllowed;  
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses.boolean = true;
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses.string = 'secured';         
             instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses.number = 1;
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses.booleanA = true;
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses.string = 'secured';
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses.booleanB = true;
 
-            var instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanB = SecuredSubClassOfSecuredDiscriminatedSuperClass.create();            
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanB.number = 1;
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanB.booleanA = true;
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanB.string = 'secured';
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanB.booleanB = false;
+            var instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsRelationship = SecuredSubClassOfSecuredDiscriminatedSuperClass.create();
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsRelationship.securedBy = instanceOfClassSecuresSecuredSuperClassNotAllowed;             
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsRelationship.number = 1;
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsRelationship.boolean = true;
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsRelationship.string = 'secured';
 
-            var instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString = SecuredSubClassOfSecuredDiscriminatedSuperClass.create();            
+            var instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBoolean = SecuredSubClassOfSecuredDiscriminatedSuperClass.create();
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBoolean.securedBy = instanceOfClassSecuresSecuredSuperClassAllowed;     
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBoolean.boolean = false;
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBoolean.string = 'secured';
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBoolean.number = 1;
+
+            var instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString = SecuredSubClassOfSecuredDiscriminatedSuperClass.create();
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString.securedBy = instanceOfClassSecuresSecuredSuperClassAllowed;     
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString.boolean = true;
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString.string = 'not secured';            
             instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString.number = 1;
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString.booleanA = true;
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString.string = 'not secured';
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString.booleanB = true;
 
-            var instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanA = SecuredSubClassOfSecuredDiscriminatedSuperClass.create();            
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanA.number = 1;
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanA.booleanA = false;
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanA.string = 'secured';
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanA.booleanB = true;
-
-            var instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber = SecuredSubClassOfSecuredDiscriminatedSuperClass.create();            
+            var instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber = SecuredSubClassOfSecuredDiscriminatedSuperClass.create(); 
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber.securedBy = instanceOfClassSecuresSecuredSuperClassAllowed;
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber.boolean = true;
+            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber.string = 'secured';      
             instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber.number = -1;
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber.booleanA = true;
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber.string = 'secured';
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber.booleanB = true;
+
         }
+
+        // Save all SecurityFilter Test Instances
+        before(done => {
+            ClassSecuresSecuredSuperClass.saveAll([
+                instanceOfClassSecuresSecuredSuperClassAllowed,
+                instanceOfClassSecuresSecuredSuperClassNotAllowed
+            ]).then(() => {
+                SecuredSuperClass.saveAll([
+                    instanceOfSecuredSuperClassPasses,
+                    instanceOfSecuredSuperClassFailsRelationship
+                ]).then(() => {
+                    SecuredSubClassOfSecuredSuperClass.saveAll([
+                        instanceOfSecuredSubClassOfSecuredSuperClassPasses,
+                        instanceOfSecuredSubClassOfSecuredSuperClassFailsRelationship,
+                        instanceOfSecuredSubClassOfSecuredSuperClassFailsBoolean
+                    ]).then(() => {
+                        SecuredDiscriminatedSuperClass.saveAll([
+                            instanceOfSecuredDiscriminatedSuperClassPasses,
+                            instanceOfSecuredDiscriminatedSuperClassFailsRelationship,
+                            instanceOfSecuredDiscriminatedSuperClassFailsString,
+                            instanceOfSecuredDiscriminatedSuperClassFailsBoolean
+                        ]).then(() => {
+                            SecuredSubClassOfSecuredDiscriminatedSuperClass.saveAll([
+                                instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses,
+                                instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsRelationship,
+                                instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBoolean,
+                                instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString,
+                                instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber
+                            ]).catch(done).finally(done);
+                        });
+                    });
+                });
+            });
+        });
 
         describe('Tests for invalid arguments.', function() {
 
@@ -4716,19 +4776,33 @@ describe('Class Model Tests', function() {
 
         });
 
-        describe('Test filtering out instances that don\'t pass security check.', function() {
+        describe('Test filtering out instances that don\'t pass security check.', () => {
 
             describe('SecuredSuperClass.securityFilter()', () => {
 
                 it('Security Filter called on Class with only direct instances of Class.', done => {
-                    let instances = [instanceOfSecuredSuperClassPasses, instanceOfSecuredSuperClassFailsNumber];
-                    SecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsNumber._id)
+                    let instances = [instanceOfSecuredSuperClassPasses, instanceOfSecuredSuperClassFailsRelationship];
+
+                    let expectedInstances = [instanceOfSecuredSuperClassPasses];
+                    
+                    SecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsRelationship._id)
                         .then(
                             filtered => {
-                                if (filtered.length != 1 || filtered[0] != instanceOfSecuredSuperClassPasses)
+                                if (filtered.length != expectedInstances.length)
                                     done(new Error("Filtering Failed. Instances returned: " + filtered));
-                                else
-                                    done();
+                                else {
+                                    let filteredCorrectly = true;
+
+                                    for (let instance of expectedInstances) {
+                                        if (!filtered.includes(instance))
+                                            filteredCorrectly = false;
+                                    }
+
+                                    if (!filteredCorrectly) {
+                                        done(new Error("Filtering Failed. Instances returned: " + filtered));
+                                    }
+                                    else done();
+                                }
                             },
                             error => {
                                 done(error);
@@ -4741,10 +4815,10 @@ describe('Class Model Tests', function() {
                 it('Security Filter called on Class with instances of class and sub class.', done => {
                     let instances = [
                         instanceOfSecuredSuperClassPasses,
-                        instanceOfSecuredSuperClassFailsNumber,
+                        instanceOfSecuredSuperClassFailsRelationship,
                         instanceOfSecuredSubClassOfSecuredSuperClassPasses,
-                        instanceOfSecuredSubClassOfSecuredSuperClassFailsBooleanA,
-                        instanceOfSecuredSubClassOfSecuredSuperClassFailsNumber
+                        instanceOfSecuredSubClassOfSecuredSuperClassFailsBoolean,
+                        instanceOfSecuredSubClassOfSecuredSuperClassFailsRelationship
                     ];
 
                     let expectedInstances = [
@@ -4752,7 +4826,7 @@ describe('Class Model Tests', function() {
                         instanceOfSecuredSubClassOfSecuredSuperClassPasses
                     ];
 
-                    SecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsNumber._id)
+                    SecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsRelationship._id)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -4782,14 +4856,14 @@ describe('Class Model Tests', function() {
                 it('Security Filter called on Class with instances of class and 2 layers of sub classes', done => {
                     let instances = [
                         instanceOfSecuredSuperClassPasses,
-                        instanceOfSecuredSuperClassFailsNumber,
+                        instanceOfSecuredSuperClassFailsRelationship,
                         instanceOfSecuredSubClassOfSecuredSuperClassPasses,
-                        instanceOfSecuredSubClassOfSecuredSuperClassFailsBooleanA,
-                        instanceOfSecuredSubClassOfSecuredSuperClassFailsNumber,
+                        instanceOfSecuredSubClassOfSecuredSuperClassFailsBoolean,
+                        instanceOfSecuredSubClassOfSecuredSuperClassFailsRelationship,
                         instanceOfSecuredDiscriminatedSuperClassPasses,
                         instanceOfSecuredDiscriminatedSuperClassFailsString,
-                        instanceOfSecuredDiscriminatedSuperClassFailsBooleanA,
-                        instanceOfSecuredDiscriminatedSuperClassFailsNumber
+                        instanceOfSecuredDiscriminatedSuperClassFailsBoolean,
+                        instanceOfSecuredDiscriminatedSuperClassFailsRelationship
                     ];
 
                     let expectedInstances = [
@@ -4798,7 +4872,7 @@ describe('Class Model Tests', function() {
                         instanceOfSecuredDiscriminatedSuperClassPasses
                     ];
 
-                    SecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsNumber._id)
+                    SecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsRelationship._id)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -4829,18 +4903,18 @@ describe('Class Model Tests', function() {
                 it('Security Filter called on Class with instances of 3 layers of sub classes', done => {
                     let instances = [
                         instanceOfSecuredSuperClassPasses,
-                        instanceOfSecuredSuperClassFailsNumber,
+                        instanceOfSecuredSuperClassFailsRelationship,
                         instanceOfSecuredSubClassOfSecuredSuperClassPasses,
-                        instanceOfSecuredSubClassOfSecuredSuperClassFailsBooleanA,
-                        instanceOfSecuredSubClassOfSecuredSuperClassFailsNumber,
+                        instanceOfSecuredSubClassOfSecuredSuperClassFailsBoolean,
+                        instanceOfSecuredSubClassOfSecuredSuperClassFailsRelationship,
                         instanceOfSecuredDiscriminatedSuperClassPasses,
                         instanceOfSecuredDiscriminatedSuperClassFailsString,
-                        instanceOfSecuredDiscriminatedSuperClassFailsBooleanA,
-                        instanceOfSecuredDiscriminatedSuperClassFailsNumber,
+                        instanceOfSecuredDiscriminatedSuperClassFailsBoolean,
+                        instanceOfSecuredDiscriminatedSuperClassFailsRelationship,
                         instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanB,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsRelationship,
                         instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanA,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBoolean,
                         instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber
                     ];
 
@@ -4851,7 +4925,7 @@ describe('Class Model Tests', function() {
                         instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses
                     ];
 
-                    SecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsNumber._id)
+                    SecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsRelationship._id)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -4885,15 +4959,15 @@ describe('Class Model Tests', function() {
                 it('Security Filter called on Class with only direct instances of Class.', done => {
                     let instances = [
                         instanceOfSecuredSubClassOfSecuredSuperClassPasses,
-                        instanceOfSecuredSubClassOfSecuredSuperClassFailsBooleanA,
-                        instanceOfSecuredSubClassOfSecuredSuperClassFailsNumber
+                        instanceOfSecuredSubClassOfSecuredSuperClassFailsBoolean,
+                        instanceOfSecuredSubClassOfSecuredSuperClassFailsRelationship
                     ];
 
                     let expectedInstances = [
                         instanceOfSecuredSubClassOfSecuredSuperClassPasses
                     ];
 
-                    SecuredSubClassOfSecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsNumber._id)
+                    SecuredSubClassOfSecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsRelationship._id)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -4923,12 +4997,12 @@ describe('Class Model Tests', function() {
                 it('Security Filter called on Class with instances of class and 1 layers of sub classes', done => {
                     let instances = [
                         instanceOfSecuredSubClassOfSecuredSuperClassPasses,
-                        instanceOfSecuredSubClassOfSecuredSuperClassFailsBooleanA,
-                        instanceOfSecuredSubClassOfSecuredSuperClassFailsNumber,
+                        instanceOfSecuredSubClassOfSecuredSuperClassFailsBoolean,
+                        instanceOfSecuredSubClassOfSecuredSuperClassFailsRelationship,
                         instanceOfSecuredDiscriminatedSuperClassPasses,
                         instanceOfSecuredDiscriminatedSuperClassFailsString,
-                        instanceOfSecuredDiscriminatedSuperClassFailsBooleanA,
-                        instanceOfSecuredDiscriminatedSuperClassFailsNumber
+                        instanceOfSecuredDiscriminatedSuperClassFailsBoolean,
+                        instanceOfSecuredDiscriminatedSuperClassFailsRelationship
                     ];
 
                     let expectedInstances = [
@@ -4936,7 +5010,7 @@ describe('Class Model Tests', function() {
                         instanceOfSecuredDiscriminatedSuperClassPasses
                     ];
 
-                    SecuredSubClassOfSecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsNumber._id)
+                    SecuredSubClassOfSecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsRelationship._id)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -4967,16 +5041,16 @@ describe('Class Model Tests', function() {
                 it('Security Filter called on Class with instances of 2 layers of sub classes', done => {
                     let instances = [
                         instanceOfSecuredSubClassOfSecuredSuperClassPasses,
-                        instanceOfSecuredSubClassOfSecuredSuperClassFailsBooleanA,
-                        instanceOfSecuredSubClassOfSecuredSuperClassFailsNumber,
+                        instanceOfSecuredSubClassOfSecuredSuperClassFailsBoolean,
+                        instanceOfSecuredSubClassOfSecuredSuperClassFailsRelationship,
                         instanceOfSecuredDiscriminatedSuperClassPasses,
                         instanceOfSecuredDiscriminatedSuperClassFailsString,
-                        instanceOfSecuredDiscriminatedSuperClassFailsBooleanA,
-                        instanceOfSecuredDiscriminatedSuperClassFailsNumber,
+                        instanceOfSecuredDiscriminatedSuperClassFailsBoolean,
+                        instanceOfSecuredDiscriminatedSuperClassFailsRelationship,
                         instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanB,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsRelationship,
                         instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanA,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBoolean,
                         instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber
                     ];
 
@@ -4986,7 +5060,7 @@ describe('Class Model Tests', function() {
                         instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses
                     ];
 
-                    SecuredSubClassOfSecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsNumber._id)
+                    SecuredSubClassOfSecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsRelationship._id)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -5021,15 +5095,15 @@ describe('Class Model Tests', function() {
                     let instances = [
                         instanceOfSecuredDiscriminatedSuperClassPasses,
                         instanceOfSecuredDiscriminatedSuperClassFailsString,
-                        instanceOfSecuredDiscriminatedSuperClassFailsBooleanA,
-                        instanceOfSecuredDiscriminatedSuperClassFailsNumber
+                        instanceOfSecuredDiscriminatedSuperClassFailsBoolean,
+                        instanceOfSecuredDiscriminatedSuperClassFailsRelationship
                     ];
 
                     let expectedInstances = [
                         instanceOfSecuredDiscriminatedSuperClassPasses
                     ];
 
-                    SecuredDiscriminatedSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsNumber._id)
+                    SecuredDiscriminatedSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsRelationship._id)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -5061,12 +5135,12 @@ describe('Class Model Tests', function() {
                     let instances = [
                         instanceOfSecuredDiscriminatedSuperClassPasses,
                         instanceOfSecuredDiscriminatedSuperClassFailsString,
-                        instanceOfSecuredDiscriminatedSuperClassFailsBooleanA,
-                        instanceOfSecuredDiscriminatedSuperClassFailsNumber,
+                        instanceOfSecuredDiscriminatedSuperClassFailsBoolean,
+                        instanceOfSecuredDiscriminatedSuperClassFailsRelationship,
                         instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanB,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsRelationship,
                         instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanA,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBoolean,
                         instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber
                     ];
 
@@ -5075,7 +5149,7 @@ describe('Class Model Tests', function() {
                         instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses
                     ];
 
-                    SecuredDiscriminatedSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsNumber._id)
+                    SecuredDiscriminatedSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsRelationship._id)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -5109,9 +5183,9 @@ describe('Class Model Tests', function() {
                 it('Security Filter called on Class with only direct instances of Class.', done => {
                     let instances = [
                         instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanB,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsRelationship,
                         instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBooleanA,
+                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBoolean,
                         instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber
                     ];
 
@@ -5119,7 +5193,7 @@ describe('Class Model Tests', function() {
                         instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses
                     ];
 
-                    SecuredSubClassOfSecuredDiscriminatedSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsNumber._id)
+                    SecuredSubClassOfSecuredDiscriminatedSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsRelationship._id)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
