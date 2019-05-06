@@ -498,6 +498,15 @@ describe('Class Model Tests', function() {
                     }
                 }
             });
+
+            var SecuredClassSecuredByParameters = new ClassModel({
+                className: 'SecuredClassSecuredByParameters',
+                secured: true,
+                securityMethod: async (instance, numberA, numberB, boolean) => {
+                    return (numberA + numberB > 0) && boolean;
+                },
+                schema: {}
+            });
         }
 
     }
@@ -4649,6 +4658,9 @@ describe('Class Model Tests', function() {
             instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber.string = 'secured';      
             instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber.number = -1;
 
+            // SecuredClassSecuredByParameters Instances
+            var instanceOfSecuredClassSecuredByParameters = SecuredClassSecuredByParameters.create();
+
         }
 
         // Save all SecurityFilter Test Instances
@@ -4689,38 +4701,9 @@ describe('Class Model Tests', function() {
 
             it('First Argument must be an Array', (done) => {
                 let error;
-                let expectedErrorMessage = 'Incorrect parameters. ' + SecuredSuperClass.className + '.securityFilter(Array<instance> instances, ObjectId userAccountId)';
+                let expectedErrorMessage = 'Incorrect parameters. ' + SecuredSuperClass.className + '.securityFilter(Array<instance> instances, ...securityMethodParameters)';
 
                 SecuredSuperClass.securityFilter(instanceOfSecuredSuperClassPasses, instanceOfSecuredSuperClassPasses._id).then(
-                    (filtered) => {
-                    },
-                    (securityError) => {
-                        error = securityError;
-                    }
-                ).finally(() => {
-                    if (error) {
-                        if (error.message == expectedErrorMessage) {
-                            done();
-                        }
-                        else {
-                            done(new Error(
-                                'securityFilter() threw an unexpected error.\n' + 
-                                'Expected: ' + expectedErrorMessage + '\n' + 
-                                'Actual:   ' + error.message
-                            ));
-                        }
-                    }
-                    else {
-                        done(new Error('ClassModel.securityFilter() should have thrown an error.'));
-                    }
-                });
-            });
-
-            it('Second Argument is required', (done) => {
-                let error;
-                let expectedErrorMessage = 'Incorrect parameters. ' + SecuredSuperClass.className + '.securityFilter(Array<instance> instances, ObjectId userAccountId)';
-
-                SecuredSuperClass.securityFilter([instanceOfSecuredSuperClassPasses]).then(
                     (filtered) => {
                     },
                     (securityError) => {
@@ -4785,7 +4768,7 @@ describe('Class Model Tests', function() {
 
                     let expectedInstances = [instanceOfSecuredSuperClassPasses];
                     
-                    SecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsRelationship._id)
+                    SecuredSuperClass.securityFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -4826,7 +4809,7 @@ describe('Class Model Tests', function() {
                         instanceOfSecuredSubClassOfSecuredSuperClassPasses
                     ];
 
-                    SecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsRelationship._id)
+                    SecuredSuperClass.securityFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -4872,7 +4855,7 @@ describe('Class Model Tests', function() {
                         instanceOfSecuredDiscriminatedSuperClassPasses
                     ];
 
-                    SecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsRelationship._id)
+                    SecuredSuperClass.securityFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -4925,7 +4908,7 @@ describe('Class Model Tests', function() {
                         instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses
                     ];
 
-                    SecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsRelationship._id)
+                    SecuredSuperClass.securityFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -4967,7 +4950,7 @@ describe('Class Model Tests', function() {
                         instanceOfSecuredSubClassOfSecuredSuperClassPasses
                     ];
 
-                    SecuredSubClassOfSecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsRelationship._id)
+                    SecuredSubClassOfSecuredSuperClass.securityFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -5010,7 +4993,7 @@ describe('Class Model Tests', function() {
                         instanceOfSecuredDiscriminatedSuperClassPasses
                     ];
 
-                    SecuredSubClassOfSecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsRelationship._id)
+                    SecuredSubClassOfSecuredSuperClass.securityFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -5060,7 +5043,7 @@ describe('Class Model Tests', function() {
                         instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses
                     ];
 
-                    SecuredSubClassOfSecuredSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsRelationship._id)
+                    SecuredSubClassOfSecuredSuperClass.securityFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -5103,7 +5086,7 @@ describe('Class Model Tests', function() {
                         instanceOfSecuredDiscriminatedSuperClassPasses
                     ];
 
-                    SecuredDiscriminatedSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsRelationship._id)
+                    SecuredDiscriminatedSuperClass.securityFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -5149,7 +5132,7 @@ describe('Class Model Tests', function() {
                         instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses
                     ];
 
-                    SecuredDiscriminatedSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsRelationship._id)
+                    SecuredDiscriminatedSuperClass.securityFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -5193,7 +5176,7 @@ describe('Class Model Tests', function() {
                         instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses
                     ];
 
-                    SecuredSubClassOfSecuredDiscriminatedSuperClass.securityFilter(instances, instanceOfSecuredSuperClassFailsRelationship._id)
+                    SecuredSubClassOfSecuredDiscriminatedSuperClass.securityFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -5220,6 +5203,109 @@ describe('Class Model Tests', function() {
                             done(error);
                         });
                 });
+            });
+
+            describe('SecuredClassSecuredByParameters.securityFilter()', () => {
+
+                it('Instance passes security check', done => {
+                    let instances = [instanceOfSecuredClassSecuredByParameters];
+
+                    let expectedInstances = [instanceOfSecuredClassSecuredByParameters];
+                    
+                    SecuredClassSecuredByParameters.securityFilter(instances, 1, 1, true)
+                        .then(
+                            filtered => {
+                                if (filtered.length != expectedInstances.length)
+                                    done(new Error("Filtering Failed. Instances returned: " + filtered));
+                                else {
+                                    let filteredCorrectly = true;
+
+                                    for (let instance of expectedInstances) {
+                                        if (!filtered.includes(instance))
+                                            filteredCorrectly = false;
+                                    }
+
+                                    if (!filteredCorrectly) {
+                                        done(new Error("Filtering Failed. Instances returned: " + filtered));
+                                    }
+                                    else done();
+                                }
+                            },
+                            error => {
+                                done(error);
+                            }
+                        ).catch(error => {
+                            done(error);
+                        });
+
+                });
+
+                it('Instance fails security check because of Numbers.', done => {
+                    let instances = [instanceOfSecuredClassSecuredByParameters];
+
+                    let expectedInstances = [];
+                    
+                    SecuredClassSecuredByParameters.securityFilter(instances, -2, 1, true)
+                        .then(
+                            filtered => {
+                                if (filtered.length != expectedInstances.length)
+                                    done(new Error("Filtering Failed. Instances returned: " + filtered));
+                                else {
+                                    let filteredCorrectly = true;
+
+                                    for (let instance of expectedInstances) {
+                                        if (!filtered.includes(instance))
+                                            filteredCorrectly = false;
+                                    }
+
+                                    if (!filteredCorrectly) {
+                                        done(new Error("Filtering Failed. Instances returned: " + filtered));
+                                    }
+                                    else done();
+                                }
+                            },
+                            error => {
+                                done(error);
+                            }
+                        ).catch(error => {
+                            done(error);
+                        });
+
+                });
+
+                it('Instance failes security check because of Boolean', done => {
+                    let instances = [instanceOfSecuredClassSecuredByParameters];
+
+                    let expectedInstances = [];
+                    
+                    SecuredClassSecuredByParameters.securityFilter(instances, 1, 1, false)
+                        .then(
+                            filtered => {
+                                if (filtered.length != expectedInstances.length)
+                                    done(new Error("Filtering Failed. Instances returned: " + filtered));
+                                else {
+                                    let filteredCorrectly = true;
+
+                                    for (let instance of expectedInstances) {
+                                        if (!filtered.includes(instance))
+                                            filteredCorrectly = false;
+                                    }
+
+                                    if (!filteredCorrectly) {
+                                        done(new Error("Filtering Failed. Instances returned: " + filtered));
+                                    }
+                                    else done();
+                                }
+                            },
+                            error => {
+                                done(error);
+                            }
+                        ).catch(error => {
+                            done(error);
+                        });
+
+                });
+
             });
 
         });

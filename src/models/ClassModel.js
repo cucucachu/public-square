@@ -880,19 +880,16 @@ class ClassModel {
 
     /* Takes an array of instances of the Class Model and filters out any that do not pass this Class Model's security method.
      * @param required Array<instance> : An array of instances of this Class Model to filter.
-     * @param required ObjectId : The ObjectId of a userAccount, to be passed to the securityMethod.
      * @return Promise(Array<Instance>): The given instances filtered for security.
      */
-    async securityFilter(instances, userAccountId) {
-        if (!Array.isArray(instances) || !userAccountId)
-            throw new Error('Incorrect parameters. ' + this.className + '.securityFilter(Array<instance> instances, ObjectId userAccountId)');
+    async securityFilter(instances, ...securityMethodParameters) {
+        if (!Array.isArray(instances))
+            throw new Error('Incorrect parameters. ' + this.className + '.securityFilter(Array<instance> instances, ...securityMethodParameters)');
 
         instances.forEach((instance) => {
             if (!this.isInstanceOfClassOrSubClass(instance))
                 throw new Error(this.className + '.securityFilter() called with instances of a different class.');
         });
-
-        console.log('Filtering for class ' + this.className + '. Total Instances ' + instances.length);
 
         let filtered = [];
         let index;
@@ -905,18 +902,11 @@ class ClassModel {
         else if (this.subClasses.length) {
             let instancesOfThisClass = instances.filter(instance => { return instance instanceof model });
 
-            
-            console.log('Filtering for class ' + this.className + '. Instances of this class ' + instancesOfThisClass.length);
-
-            console.log('Number of security methods ' + securityMethods.length);
-
             for (index = 0; index < securityMethods.length; index++) {
                 let securityMethod = securityMethods[index];
 
                 instancesOfThisClass = await ClassModel.asyncFilter(instancesOfThisClass, securityMethod);
             }
-
-            console.log('Filtering for class ' + this.className + '. Instances of this class after filtering ' + instancesOfThisClass.length);
 
             filtered = instancesOfThisClass;
 
@@ -926,7 +916,7 @@ class ClassModel {
                 });
 
                 if (instancesOfSubClass.length) {
-                    let filteredSubClassInstances = await subClass.securityFilter(instancesOfSubClass, userAccountId);
+                    let filteredSubClassInstances = await subClass.securityFilter(instancesOfSubClass, ...securityMethodParameters);
                     filtered.push(...filteredSubClassInstances);
                 }
             }
@@ -954,7 +944,7 @@ class ClassModel {
             for (let className in instancesByClass) {
                 if (className != this.className) {
                     let subClassModel = AllClassModels[className];
-                    let filteredSubClassInstances = await subClassModel.securityFilter(instancesByClass[className], userAccountId);
+                    let filteredSubClassInstances = await subClassModel.securityFilter(instancesByClass[className], ...securityMethodParameters);
                     filtered.push(...filteredSubClassInstances);
                 }
             }
@@ -965,7 +955,7 @@ class ClassModel {
             for (index = 0; index < securityMethods.length; index++) {
                 let securityMethod = securityMethods[index];
                 instancesOfThisClass = await ClassModel.asyncFilter(instancesOfThisClass, async (instance) => {
-                    return await securityMethod(instance, userAccountId);
+                    return await securityMethod(instance, ...securityMethodParameters);
                 });
             }
 
@@ -977,12 +967,10 @@ class ClassModel {
             for (index = 0; index < securityMethods.length; index++) {
                 let securityMethod = securityMethods[index];
                 filtered = await ClassModel.asyncFilter(filtered, async (instance) => {
-                    return await securityMethod(instance, userAccountId);
+                    return await securityMethod(instance, ...securityMethodParameters);
                 });  
             }
         }
-
-        console.log('Filtering for class ' + this.className + '. Returning ' + filtered.length + ' instances.');
 
         return filtered;
     }
