@@ -15,6 +15,7 @@ var GovernmentRole = require('../GovernmentRole');
 
 var Confirmer = new ClassModel({
 	className: 'Confirmer',
+	accessControlled: false,
 	superClasses: [GovernmentRole],
 	schema: {
 		individualConfirmationVotes: {

@@ -12,6 +12,7 @@ var ClassModel = require('../../ClassModel');
 
 var UserRole = new ClassModel({
 	className: 'UserRole',
+	accessControlled: false,
 	discriminated: true,
 	abstract: true,
 	schema: {

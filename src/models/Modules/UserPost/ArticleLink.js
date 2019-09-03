@@ -13,6 +13,7 @@ var ExternalLink = require('./ExternalLink');
 
 var ArticleLink = new ClassModel({
 	className: 'ArticleLink',
+	accessControlled: false,
 	discriminatorSuperClass: ExternalLink,
 	schema: {}
 });

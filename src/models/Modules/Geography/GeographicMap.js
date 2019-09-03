@@ -11,6 +11,7 @@ var ClassModel = require('../../ClassModel');
 
 var GeographicMap = new ClassModel({
 	className: 'GeographicMap',
+	accessControlled: false,
 	schema: {
 		name: {
 			type: String,

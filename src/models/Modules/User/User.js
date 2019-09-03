@@ -11,6 +11,7 @@ var ClassModel = require('../../ClassModel');
 
 var User = new ClassModel({
 	className: 'User',
+	accessControlled: false,
 	schema: {
 		_id: Schema.Types.ObjectId,
 		firstName: {

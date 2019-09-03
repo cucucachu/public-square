@@ -12,6 +12,7 @@ var ClassModel = require('../../../ClassModel');
 
 var BillVersion = new ClassModel({
     className: 'BillVersion',
+	accessControlled: false,
     schema: {
         versionNumber: {
             type: Number,

@@ -14,6 +14,7 @@ var ClassModel = require('../../../ClassModel');
 
 var IndividualLegislativeVote = new ClassModel({
     className: 'IndividualLegislativeVote',
+	accessControlled: false,
     schema: {
         legislator: {
             type: Schema.Types.ObjectId,

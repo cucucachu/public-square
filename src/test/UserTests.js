@@ -1,36 +1,22 @@
-require('../dist/models/Modules/User/UserModule');
 
-var assert = require('assert');
-var promiseFinally = require('promise.prototype.finally');
+const assert = require('assert');
 
+const database = require('../dist/models/database')
 require('../dist/models/Modules/Poll/PollModule');
-
-// Add 'finally()' to 'Promis.prototype'
-promiseFinally.shim();
-
-process.on('unhandledRejection', error => {
-	console.log('unhandledRejection', error.message);
-});
-
-var User = require('../dist/models/Modules/User/User');
-var UserAccount = require('../dist/models/Modules/User/UserAccount');
-var UserRole = require('../dist/models/Modules/User/UserRole');
-var AuthToken = require('../dist/models/Modules/User/AuthToken');
+require('../dist/models/Modules/User/UserModule');
+const User = require('../dist/models/Modules/User/User');
+const UserAccount = require('../dist/models/Modules/User/UserAccount');
+const UserRole = require('../dist/models/Modules/User/UserRole');
+const AuthToken = require('../dist/models/Modules/User/AuthToken');
 
 describe('User Module Tests', function() {
 	
-	before(function(done) {
-		User.clear().then(
-			function() {
-				UserAccount.clear().then(
-					function() {
-						UserRole.clear().then(done, done);
-					}, 
-					done
-				);
-			}, 
-			done
-		);
+	before(async () => {
+		await database.connect();
+
+		await User.clear();
+		await UserAccount.clear();
+		await UserRole.clear();
 	});
 
 	describe('User Model', function(){	
@@ -521,4 +507,7 @@ describe('User Module Tests', function() {
 
 	});
 	
+	after(() => {
+		database.close();
+	})
 });

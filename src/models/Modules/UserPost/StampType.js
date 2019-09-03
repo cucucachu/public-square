@@ -12,6 +12,7 @@ var ClassModel = require('../../ClassModel');
 
 var StampType = new ClassModel({
 	className: 'StampType',
+	accessControlled: false,
 	discriminated: true,
 	abstract: true,
 	schema: {

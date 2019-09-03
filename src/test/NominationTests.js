@@ -1,46 +1,30 @@
-var assert = require('assert');
-var expect = require('expect');
-var promiseFinally = require('promise.prototype.finally');
+const assert = require('assert');
 
+const database = require('../dist/models/database');
 require('../dist/models/Modules/Government/Nomination/NominationModule');
-
-// Add 'finally()' to 'Promis.prototype'
-promiseFinally.shim();
-
-process.on('unhandledRejection', error => {
-	console.log('unhandledRejection', error.message);
-});
-
-var GovernmentPosition = require('../dist/models/Modules/Government/GovernmentPosition');
-var OccupiedPosition = require('../dist/models/Modules/Government/OccupiedPosition');
-var GovernmentRole = require('../dist/models/Modules/Government/GovernmentRole');
-var PositionAcquisitionProcess = require('../dist/models/Modules/Government/PositionAcquisitionProcess');
-var User = require('../dist/models/Modules/User/User');
-var UserRole = require('../dist/models/Modules/User/UserRole');
-var Nomination = require('../dist/models/Modules/Government/Nomination/Nomination');
-var Nominator = require('../dist/models/Modules/Government/Nomination/Nominator');
-var Nominee = require('../dist/models/Modules/Government/Nomination/Nominee');
-var ConfirmationVote = require('../dist/models/Modules/Government/Nomination/ConfirmationVote');
-var IndividualConfirmationVote = require('../dist/models/Modules/Government/Nomination/IndividualConfirmationVote');
-var ConfirmationVoteOption = require('../dist/models/Modules/Government/Nomination/ConfirmationVoteOption');
-var Confirmer = require('../dist/models/Modules/Government/Nomination/Confirmer');
+const GovernmentPosition = require('../dist/models/Modules/Government/GovernmentPosition');
+const OccupiedPosition = require('../dist/models/Modules/Government/OccupiedPosition');
+const User = require('../dist/models/Modules/User/User');
+const Nomination = require('../dist/models/Modules/Government/Nomination/Nomination');
+const Nominator = require('../dist/models/Modules/Government/Nomination/Nominator');
+const Nominee = require('../dist/models/Modules/Government/Nomination/Nominee');
+const ConfirmationVote = require('../dist/models/Modules/Government/Nomination/ConfirmationVote');
+const IndividualConfirmationVote = require('../dist/models/Modules/Government/Nomination/IndividualConfirmationVote');
+const ConfirmationVoteOption = require('../dist/models/Modules/Government/Nomination/ConfirmationVoteOption');
+const Confirmer = require('../dist/models/Modules/Government/Nomination/Confirmer');
 
 describe('Nomination Module Tests', function() {
 
-    before((done) => {
-        Nomination.clear().then(() => {
-			Nominator.clear().then(() => {
-				Nominee.clear().then(() => {
-					ConfirmationVote.clear().then(() => {
-						IndividualConfirmationVote.clear().then(() => {
-							ConfirmationVoteOption.clear().then(() => {
-								Confirmer.clear().finally(done);
-							});
-						});
-					});
-				});
-			});
-		});
+    before(async () => {
+		await database.connect();
+
+		await Nomination.clear();
+		await Nominator.clear();
+		await Nominee.clear();
+		await ConfirmationVote.clear();
+		await IndividualConfirmationVote.clear();
+		await ConfirmationVoteOption.clear();
+		await Confirmer.clear();
     });
     
 	describe('Nomination Model Tests', function() {
@@ -1222,6 +1206,9 @@ describe('Nomination Module Tests', function() {
 
 		});
 
-    });
-
+	});
+	
+	after(() => {
+		database.close();
+	});
 });

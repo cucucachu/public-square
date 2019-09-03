@@ -13,6 +13,7 @@ var ClassModel = require('../../../ClassModel');
 
 var BillSponsorship = new ClassModel({
     className: 'BillSponsorship',
+	accessControlled: false,
     schema: {
         startDate: {
             type: Date,

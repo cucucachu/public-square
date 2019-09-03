@@ -12,6 +12,7 @@ var ClassModel = require('../../ClassModel');
 
 var VoteOption = new ClassModel({
     className: 'VoteOption',
+	accessControlled: false,
     abstract: true,
     discriminated: true,
     schema: {

@@ -11,6 +11,7 @@ var ClassModel = require('../../../ClassModel');
 
 var Campaign = new ClassModel({
 	className: 'Campaign',
+	accessControlled: false,
 	schema: {
 		candidate: {
 			type: Schema.Types.ObjectId,

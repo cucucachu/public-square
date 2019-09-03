@@ -15,6 +15,7 @@ var UserRole = require('../../User/UserRole');
 var Appointee = new ClassModel({
 	className: 'Appointee',
 	discriminatorSuperClass: UserRole,
+	accessControlled: false,
 	schema: {
 		appointments: {
 			type: [Schema.Types.ObjectId],

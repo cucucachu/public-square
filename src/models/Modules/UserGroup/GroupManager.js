@@ -13,6 +13,7 @@ var UserRole = require('../User/UserRole');
 
 var GroupManager = new ClassModel({
 	className: 'GroupManager',
+	accessControlled: false,
 	discriminatorSuperClass: UserRole,
 	schema: {
 		userGroups: {

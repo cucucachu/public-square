@@ -1,39 +1,27 @@
-var assert = require('assert');
-var expect = require('expect');
-var promiseFinally = require('promise.prototype.finally');
+const assert = require('assert');
 
+const database = require('../dist/models/database');
 require('../dist/models/Modules/UserGroup/UserGroupModule');
-
-// Add 'finally()' to 'Promis.prototype'
-promiseFinally.shim();
-
-process.on('unhandledRejection', error => {
-	console.log('unhandledRejection', error.message);
-});
-
-
-var User = require('../dist/models/Modules/User/User');
-var UserAccount = require('../dist/models/Modules/User/UserAccount');
-var UserRole = require('../dist/models/Modules/User/UserRole');
-var UserGroup = require('../dist/models/Modules/UserGroup/UserGroup');
-var GroupMember = require('../dist/models/Modules/UserGroup/GroupMember');
-var GroupManager = require('../dist/models/Modules/UserGroup/GroupManager');
-var GroupEvent = require('../dist/models/Modules/UserGroup/GroupEvent');
-var Organization = require('../dist/models/Modules/UserGroup/Organization');
-var OrganizationMember = require('../dist/models/Modules/UserGroup/OrganizationMember');
-var Address = require('../dist/models/Modules/Geography/Address');
+const User = require('../dist/models/Modules/User/User');
+const UserRole = require('../dist/models/Modules/User/UserRole');
+const UserGroup = require('../dist/models/Modules/UserGroup/UserGroup');
+const GroupMember = require('../dist/models/Modules/UserGroup/GroupMember');
+const GroupManager = require('../dist/models/Modules/UserGroup/GroupManager');
+const GroupEvent = require('../dist/models/Modules/UserGroup/GroupEvent');
+const Organization = require('../dist/models/Modules/UserGroup/Organization');
+const OrganizationMember = require('../dist/models/Modules/UserGroup/OrganizationMember');
+const Address = require('../dist/models/Modules/Geography/Address');
 
 
 describe('UserGroup Module Tests', function() {
 	
-	before(function(done) {
-		UserRole.clear().then(() => {
-			UserGroup.clear().then(() => {
-				GroupEvent.clear().then(() => {
-					Organization.clear().then(done);
-				});
-			});
-		});
+	before(async () => {
+		await database.connect();
+
+		await UserRole.clear();
+		await UserGroup.clear();
+		await GroupEvent.clear();
+		await Organization.clear();
 	});
 
 	describe('UserGroup Model', function() {
@@ -1293,4 +1281,7 @@ describe('UserGroup Module Tests', function() {
 
 	});
 
+	after(() => {
+		database.close();
+	});
 });

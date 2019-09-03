@@ -13,6 +13,7 @@ var ClassModel = require('../../../ClassModel');
 var ElectionResult = new ClassModel({
     className: 'ElectionResult',
     discriminated: true,
+	accessControlled: false,
     schema: {
         citizenVotes: {
             type: Number

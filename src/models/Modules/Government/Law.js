@@ -11,6 +11,7 @@ var ClassModel = require('../../ClassModel');
 
 var Law = new ClassModel({
 	className: 'Law',
+	accessControlled: false,
 	schema: {
 		startDate: {
 			type: Date,

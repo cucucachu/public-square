@@ -1,53 +1,26 @@
-var assert = require('assert');
-var promiseFinally = require('promise.prototype.finally');
+const assert = require('assert');
 
+const database = require('../dist/models/database');
 require('../dist/models/Modules/Geography/GeographyModule');
-
-// Add 'finally()' to 'Promis.prototype'
-promiseFinally.shim();
-
-process.on('unhandledRejection', error => {
-	console.log('unhandledRejection', error.message);
-});
-
-var User = require('../dist/models/Modules/User/User');
-var GeographicArea = require('../dist/models/Modules/Geography/GeographicArea');
-var GeographicMap = require('../dist/models/Modules/Geography/GeographicMap');
-var MapType = require('../dist/models/Modules/Geography/MapType');
-var Address = require('../dist/models/Modules/Geography/Address');
-var User = require('../dist/models/Modules/User/User');
-var Government = require('../dist/models/Modules/Government/Government');
-var ElectionResult = require('../dist/models/Modules/Government/Election/ElectionResult');
+const User = require('../dist/models/Modules/User/User');
+const GeographicArea = require('../dist/models/Modules/Geography/GeographicArea');
+const GeographicMap = require('../dist/models/Modules/Geography/GeographicMap');
+const MapType = require('../dist/models/Modules/Geography/MapType');
+const Address = require('../dist/models/Modules/Geography/Address');
+const Government = require('../dist/models/Modules/Government/Government');
+const ElectionResult = require('../dist/models/Modules/Government/Election/ElectionResult');
 
 describe('Geography Module Tests', function() {
 	
-	before(function(done) {
-		User.clear().then(
-			function() {
-				GeographicArea.clear().then(
-					function() {
-						GeographicMap.clear().then(
-							function() {
-								MapType.clear().then(
-									function() {
-										Address.clear().then(
-											function() {
-												User.clear().then(done, done);
-											}, 
-											done
-										);
-									},
-									done								
-								);
-							}, 
-							done
-						);
-					}, 
-					done
-				);
-			}, 
-			done
-		);
+	before(async () => {
+		await database.connect();
+
+		await User.clear();
+		await GeographicArea.clear();
+		await GeographicMap.clear();
+		await MapType.clear();
+		await Address.clear();
+		await User.clear();
 	});
 
 	describe('GeographicArea Model Tests', function() {
@@ -803,6 +776,10 @@ describe('Geography Module Tests', function() {
 
 		});
 	
+	});
+
+	after(() => {
+		database.close();
 	});
 
 });

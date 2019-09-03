@@ -14,6 +14,7 @@ var ExecutiveAction = require('./ExecutiveAction');
 
 var GroupExecutiveAction = new ClassModel({
 	className: 'GroupExecutiveAction',
+	accessControlled: false,
 	discriminatorSuperClass: ExecutiveAction,
 	schema: {
 		executiveVotes: {

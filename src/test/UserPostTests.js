@@ -1,50 +1,36 @@
-var assert = require('assert');
-var expect = require('expect');
-var promiseFinally = require('promise.prototype.finally');
+const assert = require('assert');
 
+const database = require('../dist/models/database');
 require('../dist/models/Modules/UserPost/UserPostModule');
-
-// Add 'finally()' to 'Promis.prototype'
-promiseFinally.shim();
-
-process.on('unhandledRejection', error => {
-	console.log('unhandledRejection', error.message);
-});
-
-
-var Poster = require('../dist/models/Modules/UserPost/Poster');
-var UserPost = require('../dist/models/Modules/UserPost/UserPost');
-var User = require('../dist/models/Modules/User/User');
-var UserGroup = require('../dist/models/Modules/UserGroup/UserGroup');
-var Stamp = require('../dist/models/Modules/UserPost/Stamp');
-var Stamper = require('../dist/models/Modules/UserPost/Stamper');
-var StampType = require('../dist/models/Modules/UserPost/StampType');
-var ApprovalStampType = require('../dist/models/Modules/UserPost/ApprovalStampType');
-var ObjectionStampType = require('../dist/models/Modules/UserPost/ObjectionStampType');
-var PostStream = require('../dist/models/Modules/UserPost/PostStream');
-var ExternalLink = require('../dist/models/Modules/UserPost/ExternalLink');
-var ArticleLink = require('../dist/models/Modules/UserPost/ArticleLink');
-var ImageLink = require('../dist/models/Modules/UserPost/ImageLink');
-var VideoLink = require('../dist/models/Modules/UserPost/VideoLink');
+const Poster = require('../dist/models/Modules/UserPost/Poster');
+const UserPost = require('../dist/models/Modules/UserPost/UserPost');
+const User = require('../dist/models/Modules/User/User');
+const UserGroup = require('../dist/models/Modules/UserGroup/UserGroup');
+const Stamp = require('../dist/models/Modules/UserPost/Stamp');
+const Stamper = require('../dist/models/Modules/UserPost/Stamper');
+const StampType = require('../dist/models/Modules/UserPost/StampType');
+const ApprovalStampType = require('../dist/models/Modules/UserPost/ApprovalStampType');
+const ObjectionStampType = require('../dist/models/Modules/UserPost/ObjectionStampType');
+const PostStream = require('../dist/models/Modules/UserPost/PostStream');
+const ExternalLink = require('../dist/models/Modules/UserPost/ExternalLink');
+const ArticleLink = require('../dist/models/Modules/UserPost/ArticleLink');
+const ImageLink = require('../dist/models/Modules/UserPost/ImageLink');
+const VideoLink = require('../dist/models/Modules/UserPost/VideoLink');
 
 
 
 describe('UserPost Module Tests', function() {
 	
-	before((done) => {
-		UserPost.clear().then(() => {
-			Poster.clear().then(() => {
-				Stamp.clear().then(() => {
-					Stamper.clear().then(() => {
-						StampType.clear().then(() => {
-							PostStream.clear().then(() => {
-								ExternalLink.clear().then(done, done);
-							});
-						});
-					});
-				});
-			});
-		});
+	before(async () => {
+		await database.connect();
+
+		await UserPost.clear();
+		await Poster.clear();
+		await Stamp.clear();
+		await Stamper.clear();
+		await StampType.clear();
+		await PostStream.clear();
+		await ExternalLink.clear();
 	});
 
 	describe('UserPost Model', function() {
@@ -1858,4 +1844,7 @@ describe('UserPost Module Tests', function() {
 
 	});
 
+	after(() => {
+		database.close();
+	})
 });

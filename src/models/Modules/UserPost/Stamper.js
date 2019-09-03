@@ -14,6 +14,7 @@ var UserRole = require('../User/UserRole');
 
 var Stamper = new ClassModel({
 	className: 'Stamper',
+	accessControlled: false,
 	discriminatorSuperClass: UserRole,
 	schema: {
 		stamps: 

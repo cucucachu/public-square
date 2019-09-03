@@ -1,40 +1,28 @@
-var assert = require('assert');
-var expect = require('expect');
-var promiseFinally = require('promise.prototype.finally');
+const assert = require('assert');
 
+const database = require('../dist/models/database');
 require('../dist/models/Modules/Government/Judge/JudgeModule');
-
-// Add 'finally()' to 'Promis.prototype'
-promiseFinally.shim();
-
-process.on('unhandledRejection', error => {
-	console.log('unhandledRejection', error.message);
-});
-
-var Judge = require('../dist/models/Modules/Government/Judge/Judge');
-var IndividualJudgement = require('../dist/models/Modules/Government/Judge/IndividualJudgement');
-var JudgementOption = require('../dist/models/Modules/Government/Judge/JudgementOption');
-var Judgement = require('../dist/models/Modules/Government/Judge/Judgement');
-var JudicialCase = require('../dist/models/Modules/Government/Judge/JudicialCase');
-var JudicialOpinion = require('../dist/models/Modules/Government/Judge/JudicialOpinion');
-var OccupiedPosition = require('../dist/models/Modules/Government/OccupiedPosition');
-var Law = require('../dist/models/Modules/Government/Law');
-var Poll = require('../dist/models/Modules/Poll/Poll');
+const Judge = require('../dist/models/Modules/Government/Judge/Judge');
+const IndividualJudgement = require('../dist/models/Modules/Government/Judge/IndividualJudgement');
+const JudgementOption = require('../dist/models/Modules/Government/Judge/JudgementOption');
+const Judgement = require('../dist/models/Modules/Government/Judge/Judgement');
+const JudicialCase = require('../dist/models/Modules/Government/Judge/JudicialCase');
+const JudicialOpinion = require('../dist/models/Modules/Government/Judge/JudicialOpinion');
+const OccupiedPosition = require('../dist/models/Modules/Government/OccupiedPosition');
+const Law = require('../dist/models/Modules/Government/Law');
+const Poll = require('../dist/models/Modules/Poll/Poll');
 
 describe('Judge Module Tests', function() {
 
-    before(function(done) {
-		Judge.clear().then(() => {
-			IndividualJudgement.clear().then(() => {
-				JudgementOption.clear().then(() => {
-					Judgement.clear().then(() => {
-						JudicialCase.clear().then(() => {
-							JudicialOpinion.clear().finally(done);
-						});
-					});
-				});
-			});
-		});
+    before(async () => {
+		await database.connect();
+
+		await Judge.clear();
+		await IndividualJudgement.clear();
+		await JudgementOption.clear();
+		await Judgement.clear();
+		await JudicialCase.clear();
+		await JudicialOpinion.clear();
     });
 
     
@@ -1190,6 +1178,8 @@ describe('Judge Module Tests', function() {
 
     });
 
-
+	after(() => {
+		database.close();
+	});
 
 });

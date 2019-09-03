@@ -15,6 +15,7 @@ var User = require('./User');
 
 var UserAccount = new ClassModel({
 	className: 'UserAccount',
+	accessControlled: false,
 	schema: {
 		_id: Schema.Types.ObjectId,
 		email: {

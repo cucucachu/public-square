@@ -2,21 +2,15 @@
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 var assert = require('assert');
 
-var expect = require('expect');
+var database = require('../dist/models/database');
 
-var promiseFinally = require('promise.prototype.finally');
-
-require('@babel/polyfill');
-
-require('../dist/models/Modules/Government/GovernmentModule'); // Add 'finally()' to 'Promis.prototype'
-
-
-promiseFinally.shim();
-process.on('unhandledRejection', function (error) {
-  console.log('unhandledRejection', error.message);
-});
+require('../dist/models/Modules/Government/GovernmentModule');
 
 var GeographicArea = require('../dist/models/Modules/Geography/GeographicArea');
 
@@ -46,8 +40,6 @@ var GovernmentOfficial = require('../dist/models/Modules/Government/GovernmentOf
 
 var User = require('../dist/models/Modules/User/User');
 
-var UserRole = require('../dist/models/Modules/User/UserRole');
-
 var Law = require('../dist/models/Modules/Government/Law');
 
 var VoteOption = require('../dist/models/Modules/Government/VoteOption');
@@ -65,39 +57,89 @@ var Nominator = require('../dist/models/Modules/Government/Nomination/Nominator'
 var Executive = require('../dist/models/Modules/Government/Executive/Executive');
 
 describe('Government Module Tests', function () {
-  before(function (done) {
-    Government.clear().then(function () {
-      GeographicArea.clear().then(function () {
-        GovernmentInstitution.clear().then(function () {
-          GovernmentPosition.clear().then(function () {
-            EffectivePositionDefinition.clear().then(function () {
-              PositionDefinition.clear().then(function () {
-                TermDefinition.clear().then(function () {
-                  GovernmentPower.clear().then(function () {
-                    AcquisitionProcessDefinition.clear().then(function () {
-                      OccupiedPosition.clear().then(function () {
-                        GovernmentOfficial.clear().then(function () {
-                          User.clear().then(function () {
-                            Law.clear().then(function () {
-                              VoteOption.clear().then(function () {
-                                Bill.clear().then(function () {
-                                  JudicialOpinion.clear().finally(done);
-                                });
-                              });
-                            });
-                          });
-                        });
-                      });
-                    });
-                  });
-                });
-              });
-            });
-          });
-        });
-      });
-    });
-  });
+  before(
+  /*#__PURE__*/
+  _asyncToGenerator(
+  /*#__PURE__*/
+  regeneratorRuntime.mark(function _callee() {
+    return regeneratorRuntime.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            _context.next = 2;
+            return database.connect();
+
+          case 2:
+            _context.next = 4;
+            return Government.clear();
+
+          case 4:
+            _context.next = 6;
+            return GeographicArea.clear();
+
+          case 6:
+            _context.next = 8;
+            return GovernmentInstitution.clear();
+
+          case 8:
+            _context.next = 10;
+            return GovernmentPosition.clear();
+
+          case 10:
+            _context.next = 12;
+            return EffectivePositionDefinition.clear();
+
+          case 12:
+            _context.next = 14;
+            return PositionDefinition.clear();
+
+          case 14:
+            _context.next = 16;
+            return TermDefinition.clear();
+
+          case 16:
+            _context.next = 18;
+            return GovernmentPower.clear();
+
+          case 18:
+            _context.next = 20;
+            return AcquisitionProcessDefinition.clear();
+
+          case 20:
+            _context.next = 22;
+            return OccupiedPosition.clear();
+
+          case 22:
+            _context.next = 24;
+            return GovernmentOfficial.clear();
+
+          case 24:
+            _context.next = 26;
+            return User.clear();
+
+          case 26:
+            _context.next = 28;
+            return Law.clear();
+
+          case 28:
+            _context.next = 30;
+            return VoteOption.clear();
+
+          case 30:
+            _context.next = 32;
+            return Bill.clear();
+
+          case 32:
+            _context.next = 34;
+            return JudicialOpinion.clear();
+
+          case 34:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  })));
   describe('Government Model Tests', function () {
     describe('Government.create()', function () {
       it('Government.create() creates a Government instance.', function () {
@@ -1533,5 +1575,8 @@ describe('Government Module Tests', function () {
         done();
       });
     });
+  });
+  after(function () {
+    database.close();
   });
 });

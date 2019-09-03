@@ -10,6 +10,7 @@ var ClassModel = require('../../ClassModel');
 
 var Stamp = new ClassModel({
 	className: 'Stamp',
+	accessControlled: false,
 	schema: {
 		_id: Schema.Types.ObjectId,
 		comment: {

@@ -15,6 +15,7 @@ var GovernmentRole = require('../GovernmentRole');
 var Appointer = new ClassModel({
 	className: 'Appointer',
 	superClasses: [GovernmentRole],
+	accessControlled: false,
 	schema: {
 		appointments: {
 			type: [Schema.Types.ObjectId],

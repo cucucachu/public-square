@@ -1,37 +1,27 @@
-var assert = require('assert');
-var expect = require('expect');
-var promiseFinally = require('promise.prototype.finally');
+const assert = require('assert');
 
+const database = require('../dist/models/database');
 require('../dist/models/Modules/Government/Executive/ExecutiveModule');
-// Add 'finally()' to 'Promis.prototype'
-promiseFinally.shim();
-
-process.on('unhandledRejection', error => {
-	console.log('unhandledRejection', error.message);
-});
-
-var Executive = require('../dist/models/Modules/Government/Executive/Executive');
-var ExecutiveAction = require('../dist/models/Modules/Government/Executive/ExecutiveAction');
-var IndividualExecutiveAction = require('../dist/models/Modules/Government/Executive/IndividualExecutiveAction');
-var GroupExecutiveAction = require('../dist/models/Modules/Government/Executive/GroupExecutiveAction');
-var ExecutiveVote = require('../dist/models/Modules/Government/Executive/ExecutiveVote');
-var IndividualExecutiveVote = require('../dist/models/Modules/Government/Executive/IndividualExecutiveVote');
-var ExecutiveVoteOption = require('../dist/models/Modules/Government/Executive/ExecutiveVoteOption');
-var OccupiedPosition = require('../dist/models/Modules/Government/OccupiedPosition');
-var Poll = require('../dist/models/Modules/Poll/Poll');
+const Executive = require('../dist/models/Modules/Government/Executive/Executive');
+const ExecutiveAction = require('../dist/models/Modules/Government/Executive/ExecutiveAction');
+const IndividualExecutiveAction = require('../dist/models/Modules/Government/Executive/IndividualExecutiveAction');
+const GroupExecutiveAction = require('../dist/models/Modules/Government/Executive/GroupExecutiveAction');
+const ExecutiveVote = require('../dist/models/Modules/Government/Executive/ExecutiveVote');
+const IndividualExecutiveVote = require('../dist/models/Modules/Government/Executive/IndividualExecutiveVote');
+const ExecutiveVoteOption = require('../dist/models/Modules/Government/Executive/ExecutiveVoteOption');
+const OccupiedPosition = require('../dist/models/Modules/Government/OccupiedPosition');
+const Poll = require('../dist/models/Modules/Poll/Poll');
 
 describe('Executive Module Tests', function() {
 
-    before((done) => {
-        Executive.clear().then(() => {
-			ExecutiveAction.clear().then(() => {
-				ExecutiveVote.clear().then(() => {
-					IndividualExecutiveVote.clear().then(() =>{
-						ExecutiveVoteOption.clear().then(done, done);
-					});
-				});
-			});
-		});
+    before(async () => {
+		await database.connect();
+
+		await Executive.clear();
+		await ExecutiveAction.clear();
+		await ExecutiveVote.clear();
+		await IndividualExecutiveAction.clear();
+		await ExecutiveVoteOption.clear();
     });
     
 	describe('Executive Model Tests', function() {
@@ -1058,5 +1048,9 @@ describe('Executive Module Tests', function() {
 		});
 
 	});
+
+	after(() => {
+		database.close();
+	})
     
 });

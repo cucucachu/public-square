@@ -13,6 +13,7 @@ var UserGroup = require('./UserGroup');
 
 var GroupEvent = new ClassModel({
     className: 'GroupEvent',
+	accessControlled: false,
     superClasses: [UserGroup],
     schema: {
         startTime : {

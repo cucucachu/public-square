@@ -1,75 +1,51 @@
-var assert = require('assert');
-var expect = require('expect');
-var promiseFinally = require('promise.prototype.finally');
-require('@babel/polyfill');
+const assert = require('assert');
 
+const database = require('../dist/models/database');
 require('../dist/models/Modules/Government/GovernmentModule');
-
-// Add 'finally()' to 'Promis.prototype'
-promiseFinally.shim();
-
-process.on('unhandledRejection', error => {
-	console.log('unhandledRejection', error.message);
-});
-
-var GeographicArea = require('../dist/models/Modules/Geography/GeographicArea');
-var Government = require('../dist/models/Modules/Government/Government');
-var GovernmentInstitution = require('../dist/models/Modules/Government/GovernmentInstitution');
-var GovernmentPosition = require('../dist/models/Modules/Government/GovernmentPosition');
-var EffectivePositionDefinition = require('../dist/models/Modules/Government/EffectivePositionDefinition');
-var PositionDefinition = require('../dist/models/Modules/Government/PositionDefinition');
-var TermDefinition = require('../dist/models/Modules/Government/TermDefinition');
-var GovernmentPower = require('../dist/models/Modules/Government/GovernmentPower');
-var AcquisitionProcessDefinition = require('../dist/models/Modules/Government/AcquisitionProcessDefinition');
-var PositionAcquisitionProcess = require('../dist/models/Modules/Government/PositionAcquisitionProcess')
-var OccupiedPosition = require('../dist/models/Modules/Government/OccupiedPosition');
-var GovernmentRole = require('../dist/models/Modules/Government/GovernmentRole');
-var GovernmentOfficial = require('../dist/models/Modules/Government/GovernmentOfficial');
-var User = require('../dist/models/Modules/User/User');
-var UserRole = require('../dist/models/Modules/User/UserRole');
-var Law = require('../dist/models/Modules/Government/Law');
-var VoteOption = require('../dist/models/Modules/Government/VoteOption');
-var Bill = require('../dist/models/Modules/Government/Legislator/Bill');
-var JudicialOpinion = require('../dist/models/Modules/Government/Judge/JudicialOpinion');
-var Poll = require('../dist/models/Modules/Poll/Poll');
-var Appointment = require('../dist/models/Modules/Government/Appointment/Appointment');
-var Nominator = require('../dist/models/Modules/Government/Nomination/Nominator');
-var Executive = require('../dist/models/Modules/Government/Executive/Executive');
+const GeographicArea = require('../dist/models/Modules/Geography/GeographicArea');
+const Government = require('../dist/models/Modules/Government/Government');
+const GovernmentInstitution = require('../dist/models/Modules/Government/GovernmentInstitution');
+const GovernmentPosition = require('../dist/models/Modules/Government/GovernmentPosition');
+const EffectivePositionDefinition = require('../dist/models/Modules/Government/EffectivePositionDefinition');
+const PositionDefinition = require('../dist/models/Modules/Government/PositionDefinition');
+const TermDefinition = require('../dist/models/Modules/Government/TermDefinition');
+const GovernmentPower = require('../dist/models/Modules/Government/GovernmentPower');
+const AcquisitionProcessDefinition = require('../dist/models/Modules/Government/AcquisitionProcessDefinition');
+const PositionAcquisitionProcess = require('../dist/models/Modules/Government/PositionAcquisitionProcess')
+const OccupiedPosition = require('../dist/models/Modules/Government/OccupiedPosition');
+const GovernmentRole = require('../dist/models/Modules/Government/GovernmentRole');
+const GovernmentOfficial = require('../dist/models/Modules/Government/GovernmentOfficial');
+const User = require('../dist/models/Modules/User/User');
+const Law = require('../dist/models/Modules/Government/Law');
+const VoteOption = require('../dist/models/Modules/Government/VoteOption');
+const Bill = require('../dist/models/Modules/Government/Legislator/Bill');
+const JudicialOpinion = require('../dist/models/Modules/Government/Judge/JudicialOpinion');
+const Poll = require('../dist/models/Modules/Poll/Poll');
+const Appointment = require('../dist/models/Modules/Government/Appointment/Appointment');
+const Nominator = require('../dist/models/Modules/Government/Nomination/Nominator');
+const Executive = require('../dist/models/Modules/Government/Executive/Executive');
 
 describe('Government Module Tests', function() {
 	
-	before((done) => {
-		Government.clear().then(() => {
-			GeographicArea.clear().then(() => {
-				GovernmentInstitution.clear().then(() => {
-					GovernmentPosition.clear().then(() => {
-						EffectivePositionDefinition.clear().then(() => {
-							PositionDefinition.clear().then(() => {
-								TermDefinition.clear().then(() => {
-									GovernmentPower.clear().then(() => {
-										AcquisitionProcessDefinition.clear().then(() => {
-											OccupiedPosition.clear().then(() => {
-												GovernmentOfficial.clear().then(() => {
-													User.clear().then(() => {
-														Law.clear().then(() => {
-															VoteOption.clear().then(() => {
-																Bill.clear().then(() => {
-																	JudicialOpinion.clear().finally(done);
-																});
-															});
-														});
-													});
-												});
-											});
-										});
-									});
-								});
-							});
-						});
-					});
-				});
-			});
-		});
+	before(async () => {
+		await database.connect();
+
+		await Government.clear();
+		await GeographicArea.clear();
+		await GovernmentInstitution.clear();
+		await GovernmentPosition.clear();
+		await EffectivePositionDefinition.clear();
+		await PositionDefinition.clear();
+		await TermDefinition.clear();
+		await GovernmentPower.clear();
+		await AcquisitionProcessDefinition.clear();
+		await OccupiedPosition.clear();
+		await GovernmentOfficial.clear();
+		await User.clear();
+		await Law.clear();
+		await VoteOption.clear();
+		await Bill.clear();
+		await JudicialOpinion.clear();
     });
 
 	describe('Government Model Tests', function() {
@@ -2318,5 +2294,9 @@ describe('Government Module Tests', function() {
 		});
 
 	});
+
+	after(() => {
+		database.close();
+	})
 
 });

@@ -14,6 +14,7 @@ var UserRole = require('../User/UserRole');
 
 var OrganizationMember = new ClassModel({
     className: 'OrganizationMember',
+	accessControlled: false,
     discriminatedSuperClass: UserRole,
     schema: {
         organizations: {

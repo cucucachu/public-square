@@ -11,6 +11,7 @@ var ClassModel = require('../../ClassModel');
 
 var MapType = new ClassModel({
 	className: 'MapType',
+	accessControlled: false,
 	schema: {
 		name: {
 			type: String,

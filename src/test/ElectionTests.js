@@ -1,39 +1,26 @@
-var assert = require('assert');
-var expect = require('expect');
-var promiseFinally = require('promise.prototype.finally');
+const assert = require('assert');
 
+const database = require('../dist/models/database')
 require('../dist/models/Modules/Government/Election/ElectionModule');
-
-// Add 'finally()' to 'Promis.prototype'
-promiseFinally.shim();
-
-process.on('unhandledRejection', error => {
-	console.log('unhandledRejection', error.message);
-});
-
-var GovernmentPosition = require('../dist/models/Modules/Government/GovernmentPosition');
-var PositionAcquisitionProcess = require('../dist/models/Modules/Government/PositionAcquisitionProcess');
-var Election = require('../dist/models/Modules/Government/Election/Election');
-var Campaign = require('../dist/models/Modules/Government/Election/Campaign');
-var Candidate = require('../dist/models/Modules/Government/Election/Candidate');
-var ElectionResult = require('../dist/models/Modules/Government/Election/ElectionResult');
-var PrimaryElectionResult = require('../dist/models/Modules/Government/Election/PrimaryElectionResult');
-var User = require('../dist/models/Modules/User/User');
-var UserRole = require('../dist/models/Modules/User/UserRole');
-var GeographicArea = require('../dist/models/Modules/Geography/GeographicArea');
+const GovernmentPosition = require('../dist/models/Modules/Government/GovernmentPosition');
+const Election = require('../dist/models/Modules/Government/Election/Election');
+const Campaign = require('../dist/models/Modules/Government/Election/Campaign');
+const Candidate = require('../dist/models/Modules/Government/Election/Candidate');
+const ElectionResult = require('../dist/models/Modules/Government/Election/ElectionResult');
+const PrimaryElectionResult = require('../dist/models/Modules/Government/Election/PrimaryElectionResult');
+const User = require('../dist/models/Modules/User/User');
+const GeographicArea = require('../dist/models/Modules/Geography/GeographicArea');
 
 describe('Election Module Tests', function() {
 
-    before(function(done) {
-        Election.clear().then(() => {
-			Campaign.clear().then(() => {
-				Candidate.clear().then(() => {
-					ElectionResult.clear().then(() => {
-						PrimaryElectionResult.clear().finally(done);
-					});
-				});
-			});
-		});
+    before(async () => {
+		await database.connect();
+
+		await Election.clear();
+		await Campaign.clear();
+		await Candidate.clear();
+		await ElectionResult.clear();
+		await PrimaryElectionResult.clear();
     });
     
 	describe('Election Model Tests', function() {
@@ -900,5 +887,8 @@ describe('Election Module Tests', function() {
 
 	});
 
+	after(() => {
+		database.close();
+	})
 
 });

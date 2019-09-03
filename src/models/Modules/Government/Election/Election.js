@@ -15,6 +15,7 @@ var PositionAcquisitionProcess = require('../PositionAcquisitionProcess');
 var Election = new ClassModel({
 	className: 'Election',
 	superClasses: [PositionAcquisitionProcess],
+	accessControlled: false,
 	schema: {
 		electionDate: {
 			type: Date

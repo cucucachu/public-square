@@ -15,6 +15,7 @@ var ElectionResult = require('./ElectionResult');
 var PrimaryElectionResult = new ClassModel({
     className: 'PrimaryElectionResult',
     discriminatorSuperClass: ElectionResult,
+	accessControlled: false,
     schema: {
         citizenVotes: {
             type: Number

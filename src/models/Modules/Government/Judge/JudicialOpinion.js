@@ -14,6 +14,7 @@ var Pollable = require('../../Poll/Pollable');
 
 var JudicialOpinion = new ClassModel({
 	className: 'JudicialOpinion',
+	accessControlled: false,
 	superClasses: [Pollable],
 	schema: {
 		text: {

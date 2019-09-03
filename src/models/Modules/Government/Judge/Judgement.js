@@ -13,6 +13,7 @@ var Pollable = require('../../Poll/Pollable');
 
 var Judgement = new ClassModel({
 	className: 'Judgement',
+	accessControlled: false,
 	superClasses: [Pollable],
 	schema: {
 		date: {

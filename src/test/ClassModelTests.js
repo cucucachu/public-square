@@ -1,11 +1,11 @@
-var promiseFinally = require('promise.prototype.finally');
+const promiseFinally = require('promise.prototype.finally');
 require("@babel/polyfill");
 
-var ClassModel = require('../dist/models/ClassModel');
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+const ClassModel = require('../dist/models/ClassModel');
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-require('../dist/models/database');
+const database = require('../dist/models/database');
 
 
 promiseFinally.shim();
@@ -16,13 +16,18 @@ process.on('unhandledRejection', error => {
 
 describe('Class Model Tests', function() {
 
+    before(async () => {
+        console.log('Typeof connect ' + typeof(database.connect))
+        await database.connect();
+    });
+
     // Create Class Models that will be used across tests.
     {
 
         // Compare Classes
         {        
             var CompareClass1 = new ClassModel({
-                secured: false,
+                accessControlled: false,
                 className: 'CompareClass1',
                 schema: {
                     name: {
@@ -42,7 +47,7 @@ describe('Class Model Tests', function() {
             });
 
             var CompareClass2 = new ClassModel({
-                secured: false,
+                accessControlled: false,
                 className: 'CompareClass2',
                 schema: {
                     name: {
@@ -60,7 +65,7 @@ describe('Class Model Tests', function() {
         // Validation Classes
         {        
             var AllFieldsRequiredClass = new ClassModel({
-                secured: false,
+                accessControlled: false,
                 className: 'AllFieldsRequiredClass', 
                 schema: {
                     string: {
@@ -105,7 +110,7 @@ describe('Class Model Tests', function() {
             });
         
             var AllFieldsMutexClass = new ClassModel({
-                secured: false,
+                accessControlled: false,
                 className: 'AllFieldsMutexClass', 
                 schema: {
                     string: {
@@ -150,7 +155,7 @@ describe('Class Model Tests', function() {
             });
         
             var AllFieldsInRequiredGroupClass = new ClassModel({
-                secured: false,
+                accessControlled: false,
                 className: 'AllFieldsInRequiredGroupClass',
                 schema: {
                     string: {
@@ -199,7 +204,7 @@ describe('Class Model Tests', function() {
         // Inheritance Classes
         {
             var SuperClass = new ClassModel({
-                secured: false,
+                accessControlled: false,
                 className: "SuperClass",
                 schema: {
                     name: {
@@ -215,7 +220,7 @@ describe('Class Model Tests', function() {
             });
     
             var AbstractSuperClass = new ClassModel({
-                secured: false,
+                accessControlled: false,
                 className: "AbstractSuperClass",
                 abstract: true,
                 schema: {
@@ -228,7 +233,7 @@ describe('Class Model Tests', function() {
             });
     
             var DiscriminatedSuperClass = new ClassModel({
-                secured: false,
+                accessControlled: false,
                 className: "DiscriminatedSuperClass",
                 discriminated: true,
                 schema: {
@@ -241,7 +246,7 @@ describe('Class Model Tests', function() {
             });
     
             var AbstractDiscriminatedSuperClass = new ClassModel({
-                secured: false,
+                accessControlled: false,
                 className: "AbstractDiscriminatedSuperClass",
                 discriminated: true,
                 abstract: true,
@@ -255,7 +260,7 @@ describe('Class Model Tests', function() {
             });   
     
             var SubClassOfSuperClass = new ClassModel({
-                secured: false,
+                accessControlled: false,
                 className: 'SubClassOfSuperClass',
                 superClasses: [SuperClass],
                 schema: {
@@ -269,7 +274,7 @@ describe('Class Model Tests', function() {
             });   
     
             var SubClassOfAbstractSuperClass = new ClassModel({
-                secured: false,
+                accessControlled: false,
                 className: 'SubClassOfAbstractSuperClass',
                 superClasses: [AbstractSuperClass],
                 schema: {
@@ -283,7 +288,7 @@ describe('Class Model Tests', function() {
             });
     
             var AbstractSubClassOfSuperClass = new ClassModel({
-                secured: false,
+                accessControlled: false,
                 className: 'AbstractSubClassOfSuperClass',
                 superClasses: [SuperClass],
                 abstract: true,
@@ -298,7 +303,7 @@ describe('Class Model Tests', function() {
             });      
     
             var SubClassOfMultipleSuperClasses = new ClassModel({
-                secured: false,
+                accessControlled: false,
                 className: 'SubClassOfMultipleSuperClasses',
                 superClasses: [SuperClass, AbstractSuperClass],
                 schema: {
@@ -314,7 +319,7 @@ describe('Class Model Tests', function() {
             });   
     
             var SubClassOfDiscriminatorSuperClass = new ClassModel({
-                secured: false,
+                accessControlled: false,
                 className: 'SubClassOfDiscriminatorSuperClass',
                 discriminatorSuperClass: DiscriminatedSuperClass,
                 schema: {
@@ -328,7 +333,7 @@ describe('Class Model Tests', function() {
             });
     
             var DiscriminatedSubClassOfSuperClass = new ClassModel({
-                secured: false,
+                accessControlled: false,
                 className: 'DiscriminatedSubClassOfSuperClass',
                 discriminated: true,
                 superClasses: [SuperClass],
@@ -343,7 +348,7 @@ describe('Class Model Tests', function() {
             });
     
             var SubClassOfDiscriminatedSubClassOfSuperClass = new ClassModel({
-                secured: false,
+                accessControlled: false,
                 className: 'SubClassOfDiscriminatedSubClassOfSuperClass',
                 discriminatorSuperClass: DiscriminatedSubClassOfSuperClass,
                 schema: {
@@ -357,7 +362,7 @@ describe('Class Model Tests', function() {
             });     
     
             var SubClassOfSubClassOfSuperClass = new ClassModel({
-                secured: false,
+                accessControlled: false,
                 className: 'SubClassOfSubClassOfSuperClass',
                 schema: {
                     subSubBoolean: {
@@ -371,7 +376,7 @@ describe('Class Model Tests', function() {
             });
     
             var SubClassOfAbstractSubClassOfSuperClass = new ClassModel({
-                secured: false,
+                accessControlled: false,
                 className: 'SubClassOfAbstractSubClassOfSuperClass',
                 superClasses: [AbstractSubClassOfSuperClass],
                 schema: {
@@ -389,7 +394,7 @@ describe('Class Model Tests', function() {
         // Relationship Classes
         {
             var SingularRelationshipClass = new ClassModel({
-                secured: false,
+                accessControlled: false,
                 className: 'SingularRelationshipClass',
                 schema: {
                     singularRelationship: {
@@ -406,7 +411,7 @@ describe('Class Model Tests', function() {
             });
     
             var NonSingularRelationshipClass = new ClassModel({
-                secured: false,
+                accessControlled: false,
                 className: 'NonSingularRelationshipClass',
                 schema: {
                     nonSingularRelationship: {
@@ -420,14 +425,14 @@ describe('Class Model Tests', function() {
             });
     
             var SubClassOfSingularRelationshipClass = new ClassModel({
-                secured: false,
+                accessControlled: false,
                 className: 'SubClassOfSingularRelationshipClass',
                 schema: {},
                 superClasses: [SingularRelationshipClass] 
             });
     
             var SubClassOfNonSingularRelationshipClass = new ClassModel({
-                secured: false,
+                accessControlled: false,
                 className: 'SubClassOfNonSingularRelationshipClass',
                 schema: {},
                 superClasses: [NonSingularRelationshipClass] 
@@ -435,28 +440,32 @@ describe('Class Model Tests', function() {
 
         }
 
-        // Secured Classes
+        // AccessControlled Classes
         {
-            var SecuredSuperClass = new ClassModel({
-                className: 'SecuredSuperClass',
-                secured: true,
-                securityMethod: async instance => { 
-                    let securedByInstance =  await SecuredSuperClass.walk(instance, 'securedBy');
-                    return securedByInstance.allowed;
+            // A class which is accessControlled by another instance. If that instance has a boolean attribute 'allowed' set to 
+            // true, then the instance of this class can be viewed. 
+            var AccessControlledSuperClass = new ClassModel({
+                className: 'AccessControlledSuperClass',
+                accessControlled: true,
+                accessControlMethod: async instance => { 
+                    let accessControlledByInstance =  await AccessControlledSuperClass.walk(instance, 'accessControlledBy');
+                    return accessControlledByInstance.allowed;
                 },
                 schema: {
-                    securedBy: {
+                    accessControlledBy: {
                         type: Schema.Types.ObjectId,
-                        ref: 'ClassSecuresSecuredSuperClass'
+                        ref: 'ClassControlsAccessControlledSuperClass'
                     }
                 }
             });
 
-            var SecuredSubClassOfSecuredSuperClass = new ClassModel({
-                className: 'SecuredSubClassOfSecuredSuperClass',
-                secured: true,
-                securityMethod: async instance => { return instance.boolean },
-                superClasses: [SecuredSuperClass],
+            // A class which is accessControlled by it's own boolean attribute. If the boolean is set to true, and it passes the 
+            // its super class'es access filter, then the instance will be returned by access filter.
+            var AccessControlledSubClassOfAccessControlledSuperClass = new ClassModel({
+                className: 'AccessControlledSubClassOfAccessControlledSuperClass',
+                accessControlled: true,
+                accessControlMethod: async instance => { return instance.boolean },
+                superClasses: [AccessControlledSuperClass],
                 schema: {
                     boolean: {
                         type: Boolean
@@ -464,12 +473,14 @@ describe('Class Model Tests', function() {
                 }
             });
 
-            var SecuredDiscriminatedSuperClass = new ClassModel({
-                className: 'SecuredDiscriminatedSuperClass',
-                secured: true,
+            // A class which is accessControlled by it's own string attribute. If the string matches 'accessControlled', and it passes all
+            // it's super classes accessfilters, than an instance of this class will be returned by accessFilter().
+            var AccessControlledDiscriminatedSuperClass = new ClassModel({
+                className: 'AccessControlledDiscriminatedSuperClass',
+                accessControlled: true,
                 discriminated: true,
-                superClasses: [SecuredSubClassOfSecuredSuperClass],
-                securityMethod: async instance => { return instance.string == 'secured' },
+                superClasses: [AccessControlledSubClassOfAccessControlledSuperClass],
+                accessControlMethod: async instance => { return instance.string == 'accessControlled' },
                 schema: {
                     string: {
                         type: String
@@ -477,11 +488,13 @@ describe('Class Model Tests', function() {
                 }
             });
 
-            var SecuredSubClassOfSecuredDiscriminatedSuperClass = new ClassModel({
-                className: 'SecuredSubClassOfSecuredDiscriminatedSuperClass',
-                secured: true, 
-                discriminatorSuperClass: SecuredDiscriminatedSuperClass,
-                securityMethod: async instance => { return instance.number > 0 },
+            // A class which is accessControlled by it's own number attribute. If the number is greater than 0, and it passes all
+            // it's super classes accessfilters, than an instance of this class will be returned by accessFilter().
+            var AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass = new ClassModel({
+                className: 'AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass',
+                accessControlled: true, 
+                discriminatorSuperClass: AccessControlledDiscriminatedSuperClass,
+                accessControlMethod: async instance => { return instance.number > 0 },
                 schema: {
                     number: {
                         type: Number
@@ -489,9 +502,11 @@ describe('Class Model Tests', function() {
                 }
             });
 
-            var ClassSecuresSecuredSuperClass = new ClassModel({
-                className: 'ClassSecuresSecuredSuperClass',
-                secured: false,
+            // A class which is used to secure another class. If an instance of this class has its 'allowed' attribute
+            // set to true, than instances of AccessControlledSuperClass related to this instance will pass the accessFilter.
+            var ClassControlsAccessControlledSuperClass = new ClassModel({
+                className: 'ClassControlsAccessControlledSuperClass',
+                accessControlled: false,
                 schema: {
                     allowed: {
                         type: Boolean
@@ -499,10 +514,12 @@ describe('Class Model Tests', function() {
                 }
             });
 
-            var SecuredClassSecuredByParameters = new ClassModel({
-                className: 'SecuredClassSecuredByParameters',
-                secured: true,
-                securityMethod: async (instance, numberA, numberB, boolean) => {
+            // A class which is accessControlled by parameters passed into the accessFilter method. If the two numbers add up to a 
+            // positive number, and the boolean is true, than the instance will pass the access filter. 
+            var AccessControlledClassAccessControlledByParameters = new ClassModel({
+                className: 'AccessControlledClassAccessControlledByParameters',
+                accessControlled: true,
+                accessControlMethod: async (instance, numberA, numberB, boolean) => {
                     return (numberA + numberB > 0) && boolean;
                 },
                 schema: {}
@@ -532,7 +549,7 @@ describe('Class Model Tests', function() {
 
             try {
                 new ClassModel({
-                    secured: false,
+                    accessControlled: false,
                     schema: schema
                 });
             }
@@ -549,7 +566,7 @@ describe('Class Model Tests', function() {
         it('Schema is required.', function() {
             try {
                 new ClassModel({
-                    secured: false,
+                    accessControlled: false,
                     className: 'Class'
                 });
             }
@@ -563,7 +580,7 @@ describe('Class Model Tests', function() {
             throw new Error('Constructor should have thrown an error: schema is required.');
         });
 
-        it('Secured is required', () => {
+        it('AccessControlled is required', () => {
             try {
                 new ClassModel({
                     className: 'Class',
@@ -571,89 +588,89 @@ describe('Class Model Tests', function() {
                 });
             }
             catch (error) {
-                    if (error.message == 'secured is required.')
+                    if (error.message == 'accessControlled is required.')
                         return true;
                     else 
                         throw new Error(error.message);
                 }
-            throw new Error('Constructor should have thrown an error: secured is required.');
+            throw new Error('Constructor should have thrown an error: accessControlled is required.');
         });
 
-        it('If a class is secured, it must have a security method, or it must have at least one super class with a security method.', () => {
+        it('If a class is accessControlled, it must have a accessControlMethod, or it must have at least one super class with an accessControlMethod.', () => {
             try {
                 new ClassModel({
                     className: 'Class',
-                    secured: true,
+                    accessControlled: true,
                     schema: {}
                 });
             }
             catch (error) {
-                    if (error.message == 'If a class is secured, it must have a security method, or it must have at least one super class with a security method.')
+                    if (error.message == 'If a class is accessControlled, it must have an accessControlMethod, or it must have at least one super class with an accessControlMethod.')
                         return true;
                     else 
                         throw new Error(error.message);
                 }
-            throw new Error('Constructor should have thrown an error: If a class is secured, it must have a security method, or it must have at least one super class with a security method.');
+            throw new Error('Constructor should have thrown an error: If a class is accessControlled, it must have an accessControlMethod, or it must have at least one super class with an accessControlMethod.');
         });
 
-        it('An unsecured class cannot have a security method.', () => {
+        it('A class that is not accessControlled cannot have an accessControlMethod.', () => {
             try {
                 new ClassModel({
                     className: 'Class',
-                    secured: false,
-                    securityMethod: () => { return true },
+                    accessControlled: false,
+                    accessControlMethod: () => { return true },
                     schema: {}
                 });
             }
             catch (error) {
-                    if (error.message == 'An unsecured class cannot have a security method.')
+                    if (error.message == 'A class that is not accessControlled cannot have an accessControlMethod.')
                         return true;
                     else 
                         throw new Error(error.message);
                 }
-            throw new Error('Constructor should have thrown an error: An unsecured class cannot have a security method.');
+            throw new Error('Constructor should have thrown an error: A class that is not accessControlled cannot have an accessControlMethod.');
         });
 
-        it('An unsecured class cannot be a sub class of a secured class.', () => {
+        it('A class which is not accessControlled cannot be a sub class of a class which is accessControlled.', () => {
             try {
                 new ClassModel({
                     className: 'Class',
-                    secured: false,
-                    superClasses: [SecuredSuperClass],
+                    accessControlled: false,
+                    superClasses: [AccessControlledSuperClass],
                     schema: {}
                 });
             }
             catch (error) {
-                    if (error.message == 'An unsecured class cannot be a sub class of a secured class.')
+                    if (error.message == 'A class which is not accessControlled cannot be a sub class of a class which is accessControlled.')
                         return true;
                     else 
                         throw new Error(error.message);
                 }
-            throw new Error('Constructor should have thrown an error: An unsecured class cannot be a sub class of a secured class.');
+            throw new Error('Constructor should have thrown an error: A class which is not accessControlled cannot be a sub class of a class which is accessControlled.');
         });
 
-        it('A subclass of a secured discriminated super class must also be secured.', () => {
+        it('A subclass of an accessControlled discriminated super class must also be accessControlled.', () => {
             try {
                 new ClassModel({
                     className: 'Class',
-                    secured: false,
-                    discriminatorSuperClass: SecuredDiscriminatedSuperClass,
+                    accessControlled: false,
+                    discriminatorSuperClass: AccessControlledDiscriminatedSuperClass,
                     schema: {}
                 });
             }
             catch (error) {
-                    if (error.message == 'A subclass of a secured discriminated super class must also be secured.')
+                    if (error.message == 'A subclass of a accessControlled discriminated super class must also be accessControlled.')
                         return true;
                     else 
                         throw new Error(error.message);
                 }
-            throw new Error('Constructor should have thrown an error: A subclass of a secured discriminated super class must also be secured.');
+            throw new Error('Constructor should have thrown an error: A subclass of a accessControlled discriminated super class must also be accessControlled.');
         });
 
         it('If superClasses is set, it must be an Array.', function() {
             try {
                 new ClassModel({
-                    secured: false,
+                    accessControlled: false,
                     className: 'SubClassModel',
                     schema: {
                         boolean: Boolean
@@ -674,7 +691,7 @@ describe('Class Model Tests', function() {
         it('If superClasses is set, it cannot be an empty Array.', function() {
             try {
                 new ClassModel({
-                    secured: false,
+                    accessControlled: false,
                     className: 'SubClassModel',
                     schema: {
                         boolean: Boolean
@@ -695,7 +712,7 @@ describe('Class Model Tests', function() {
         it('If discriminatorSuperClass is set, it can only be a single class.', function() {
             try {
                 new ClassModel({
-                    secured: false,
+                    accessControlled: false,
                     className: 'SubClassModel',
                     schema: {
                         boolean: Boolean
@@ -716,7 +733,7 @@ describe('Class Model Tests', function() {
         it('A ClassModel cannot have both superClasses and discriminatorSuperClass.', function() {
             try {
                 new ClassModel({
-                    secured: false,
+                    accessControlled: false,
                     className: 'SubClassModel',
                     schema: {
                         boolean: Boolean
@@ -738,7 +755,7 @@ describe('Class Model Tests', function() {
         it('A ClassModel cannot have both superClasses and discriminatorSuperClass.', function() {
             try {
                 new ClassModel({
-                    secured: false,
+                    accessControlled: false,
                     className: 'SubClassModel',
                     schema: {
                         boolean: Boolean
@@ -760,7 +777,7 @@ describe('Class Model Tests', function() {
         it('If a class is used as a discriminatedSuperClass, that class must have its "discriminated" field set to true.', function() {
             try {
                 new ClassModel({
-                    secured: false,
+                    accessControlled: false,
                     className: 'SubClassModel',
                     schema: {},
                     discriminatorSuperClass: SuperClass
@@ -779,7 +796,7 @@ describe('Class Model Tests', function() {
         it('If a class is set as a superClass, that class cannot have its "discriminated" field set to true.', function() {
             try {
                 new ClassModel({
-                    secured: false,
+                    accessControlled: false,
                     className: 'SubClassModel',
                     schema: {},
                     superClasses: [DiscriminatedSuperClass]
@@ -798,7 +815,7 @@ describe('Class Model Tests', function() {
         it('A discriminator sub class cannot be abstract.', function() {
             try {
                 new ClassModel({
-                    secured: false,
+                    accessControlled: false,
                     className: 'SubClassModel',
                     schema: {},
                     discriminatorSuperClass: DiscriminatedSuperClass,
@@ -818,7 +835,7 @@ describe('Class Model Tests', function() {
         it('A sub class of a discriminated super class cannot be discriminated.', function() {
             try {
                 new ClassModel({
-                    secured: false,
+                    accessControlled: false,
                     className: 'SubClassModel',
                     schema: {},
                     discriminatorSuperClass: DiscriminatedSuperClass,
@@ -838,7 +855,7 @@ describe('Class Model Tests', function() {
         it('Sub class schema cannot contain the same field names as a super class schema.', function() {
             try {
                 new ClassModel({
-                    secured: false,
+                    accessControlled: false,
                     className: 'SubClassModel',
                     schema: {
                         boolean: {
@@ -959,7 +976,7 @@ describe('Class Model Tests', function() {
         it('A class cannot be a sub class of a sub class of a discriminated class.', function() {
             try {
                 new ClassModel({
-                    secured: false,
+                    accessControlled: false,
                     className: 'SubClassModel',
                     schema: {},
                     superClasses: [SubClassOfDiscriminatorSuperClass]
@@ -998,7 +1015,7 @@ describe('Class Model Tests', function() {
             }
 
             var SimpleClassModel = new ClassModel({
-                secured: false,
+                accessControlled: false,
                 className: 'SimpleClassModel',
                 schema: schema
             });
@@ -2079,7 +2096,7 @@ describe('Class Model Tests', function() {
                 };
 
                 let MutexClassA = new ClassModel({
-                    secured: false,
+                    accessControlled: false,
                     className: 'MutexClassA', 
                     schema: schema
                 });
@@ -2121,7 +2138,7 @@ describe('Class Model Tests', function() {
                 };
 
                 let MutexClassAA = new ClassModel({
-                    secured: false,
+                    accessControlled: false,
                     className: 'MutexClassAA', 
                     schema: schema
                 });
@@ -2161,7 +2178,7 @@ describe('Class Model Tests', function() {
                 };
 
                 let MutexClassB = new ClassModel({
-                    secured: false,
+                    accessControlled: false,
                     className: 'MutexClassB', 
                     schema: schema
                 });
@@ -2205,7 +2222,7 @@ describe('Class Model Tests', function() {
                 };
 
                 let MutexClassBB = new ClassModel({
-                    secured: false,
+                    accessControlled: false,
                     className: 'MutexClassBB', 
                     schema: schema
                 });
@@ -2245,7 +2262,7 @@ describe('Class Model Tests', function() {
                 };
 
                 let MutexClassC = new ClassModel({
-                    secured: false,
+                    accessControlled: false,
                     className: 'MutexClassC', 
                     schema: schema
                 });
@@ -2289,7 +2306,7 @@ describe('Class Model Tests', function() {
                 };
 
                 let MutexClassCC = new ClassModel({
-                    secured: false,
+                    accessControlled: false,
                     className: 'MutexClassCC', 
                     schema: schema
                 });
@@ -4574,122 +4591,122 @@ describe('Class Model Tests', function() {
 
     });
 
-    describe('ClassModel.securityFilter()', function() {
+    describe('ClassModel.accessFilter()', function() {
 
-        // Set up secured Instances
-        // For each class, create on instance which will pass all security filters, and one each that will fail due to one of the security methods
+        // Set up accessControlled Instances
+        // For each class, create on instance which will pass all access control filters, and one each that will fail due to one of the access control methods
         {
-            // ClassSecuresSecuredSuperClass Instances
-            var instanceOfClassSecuresSecuredSuperClassAllowed = ClassSecuresSecuredSuperClass.create();
-            instanceOfClassSecuresSecuredSuperClassAllowed.allowed = true;
+            // ClassControlsAccessControlledSuperClass Instances
+            var instanceOfClassControlsAccessControlledSuperClassAllowed = ClassControlsAccessControlledSuperClass.create();
+            instanceOfClassControlsAccessControlledSuperClassAllowed.allowed = true;
             
-            var instanceOfClassSecuresSecuredSuperClassNotAllowed = ClassSecuresSecuredSuperClass.create();
-            instanceOfClassSecuresSecuredSuperClassNotAllowed.allowed = false;
+            var instanceOfClassControlsAccessControlledSuperClassNotAllowed = ClassControlsAccessControlledSuperClass.create();
+            instanceOfClassControlsAccessControlledSuperClassNotAllowed.allowed = false;
 
-            // SecuredSuperClass Instances
-            var instanceOfSecuredSuperClassPasses = SecuredSuperClass.create();
-            instanceOfSecuredSuperClassPasses.securedBy = instanceOfClassSecuresSecuredSuperClassAllowed;
+            // AccessControlledSuperClass Instances
+            var instanceOfAccessControlledSuperClassPasses = AccessControlledSuperClass.create();
+            instanceOfAccessControlledSuperClassPasses.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;
 
-            var instanceOfSecuredSuperClassFailsRelationship = SecuredSuperClass.create();
-            instanceOfSecuredSuperClassFailsRelationship.securedBy = instanceOfClassSecuresSecuredSuperClassNotAllowed;
+            var instanceOfAccessControlledSuperClassFailsRelationship = AccessControlledSuperClass.create();
+            instanceOfAccessControlledSuperClassFailsRelationship.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassNotAllowed;
 
-            // SecuredSubClassOfSecuredSuperClass Instances
-            var instanceOfSecuredSubClassOfSecuredSuperClassPasses = SecuredSubClassOfSecuredSuperClass.create();
-            instanceOfSecuredSubClassOfSecuredSuperClassPasses.securedBy = instanceOfClassSecuresSecuredSuperClassAllowed;
-            instanceOfSecuredSubClassOfSecuredSuperClassPasses.boolean = true;
+            // AccessControlledSubClassOfAccessControlledSuperClass Instances
+            var instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses = AccessControlledSubClassOfAccessControlledSuperClass.create();
+            instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;
+            instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses.boolean = true;
 
-            var instanceOfSecuredSubClassOfSecuredSuperClassFailsRelationship = SecuredSubClassOfSecuredSuperClass.create();
-            instanceOfSecuredSubClassOfSecuredSuperClassFailsRelationship.securedBy = instanceOfClassSecuresSecuredSuperClassNotAllowed;
-            instanceOfSecuredSubClassOfSecuredSuperClassFailsRelationship.boolean = true;
+            var instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship = AccessControlledSubClassOfAccessControlledSuperClass.create();
+            instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassNotAllowed;
+            instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship.boolean = true;
 
-            var instanceOfSecuredSubClassOfSecuredSuperClassFailsBoolean = SecuredSubClassOfSecuredSuperClass.create();
-            instanceOfSecuredSubClassOfSecuredSuperClassFailsBoolean.securedBy = instanceOfClassSecuresSecuredSuperClassAllowed;
-            instanceOfSecuredSubClassOfSecuredSuperClassFailsBoolean.boolean = false;
+            var instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean = AccessControlledSubClassOfAccessControlledSuperClass.create();
+            instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;
+            instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean.boolean = false;
 
-            // SecuredDiscriminatedSuperClass Instances
-            var instanceOfSecuredDiscriminatedSuperClassPasses = SecuredDiscriminatedSuperClass.create();
-            instanceOfSecuredDiscriminatedSuperClassPasses.securedBy = instanceOfClassSecuresSecuredSuperClassAllowed;
-            instanceOfSecuredDiscriminatedSuperClassPasses.boolean = true;
-            instanceOfSecuredDiscriminatedSuperClassPasses.string = 'secured';
+            // AccessControlledDiscriminatedSuperClass Instances
+            var instanceOfAccessControlledDiscriminatedSuperClassPasses = AccessControlledDiscriminatedSuperClass.create();
+            instanceOfAccessControlledDiscriminatedSuperClassPasses.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;
+            instanceOfAccessControlledDiscriminatedSuperClassPasses.boolean = true;
+            instanceOfAccessControlledDiscriminatedSuperClassPasses.string = 'accessControlled';
 
-            var instanceOfSecuredDiscriminatedSuperClassFailsRelationship = SecuredDiscriminatedSuperClass.create();
-            instanceOfSecuredDiscriminatedSuperClassFailsRelationship.securedBy = instanceOfClassSecuresSecuredSuperClassNotAllowed;
-            instanceOfSecuredDiscriminatedSuperClassFailsRelationship.boolean = true;
-            instanceOfSecuredDiscriminatedSuperClassFailsRelationship.string = 'secured';
+            var instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship = AccessControlledDiscriminatedSuperClass.create();
+            instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassNotAllowed;
+            instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship.boolean = true;
+            instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship.string = 'accessControlled';
 
-            var instanceOfSecuredDiscriminatedSuperClassFailsString = SecuredDiscriminatedSuperClass.create();
-            instanceOfSecuredDiscriminatedSuperClassFailsString.securedBy = instanceOfClassSecuresSecuredSuperClassAllowed;
-            instanceOfSecuredDiscriminatedSuperClassFailsString.boolean = true;
-            instanceOfSecuredDiscriminatedSuperClassFailsString.string = 'not secured';
+            var instanceOfAccessControlledDiscriminatedSuperClassFailsString = AccessControlledDiscriminatedSuperClass.create();
+            instanceOfAccessControlledDiscriminatedSuperClassFailsString.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;
+            instanceOfAccessControlledDiscriminatedSuperClassFailsString.boolean = true;
+            instanceOfAccessControlledDiscriminatedSuperClassFailsString.string = 'not accessControlled';
 
-            var instanceOfSecuredDiscriminatedSuperClassFailsBoolean = SecuredDiscriminatedSuperClass.create();
-            instanceOfSecuredDiscriminatedSuperClassFailsBoolean.securedBy = instanceOfClassSecuresSecuredSuperClassAllowed;
-            instanceOfSecuredDiscriminatedSuperClassFailsBoolean.boolean = false;
-            instanceOfSecuredDiscriminatedSuperClassFailsBoolean.string = 'secured';
+            var instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean = AccessControlledDiscriminatedSuperClass.create();
+            instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;
+            instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean.boolean = false;
+            instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean.string = 'accessControlled';
 
-            // SecuredSubClassOfSecuredDiscriminatedSuperClass Instances
-            var instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses = SecuredSubClassOfSecuredDiscriminatedSuperClass.create(); 
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses.securedBy = instanceOfClassSecuresSecuredSuperClassAllowed;  
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses.boolean = true;
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses.string = 'secured';         
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses.number = 1;
+            // AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass Instances
+            var instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses = AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.create(); 
+            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;  
+            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses.boolean = true;
+            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses.string = 'accessControlled';         
+            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses.number = 1;
 
-            var instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsRelationship = SecuredSubClassOfSecuredDiscriminatedSuperClass.create();
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsRelationship.securedBy = instanceOfClassSecuresSecuredSuperClassNotAllowed;             
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsRelationship.number = 1;
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsRelationship.boolean = true;
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsRelationship.string = 'secured';
+            var instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship = AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.create();
+            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassNotAllowed;             
+            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship.number = 1;
+            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship.boolean = true;
+            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship.string = 'accessControlled';
 
-            var instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBoolean = SecuredSubClassOfSecuredDiscriminatedSuperClass.create();
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBoolean.securedBy = instanceOfClassSecuresSecuredSuperClassAllowed;     
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBoolean.boolean = false;
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBoolean.string = 'secured';
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBoolean.number = 1;
+            var instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean = AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.create();
+            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;     
+            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean.boolean = false;
+            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean.string = 'accessControlled';
+            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean.number = 1;
 
-            var instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString = SecuredSubClassOfSecuredDiscriminatedSuperClass.create();
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString.securedBy = instanceOfClassSecuresSecuredSuperClassAllowed;     
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString.boolean = true;
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString.string = 'not secured';            
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString.number = 1;
+            var instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString = AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.create();
+            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;     
+            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString.boolean = true;
+            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString.string = 'not accessControlled';            
+            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString.number = 1;
 
-            var instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber = SecuredSubClassOfSecuredDiscriminatedSuperClass.create(); 
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber.securedBy = instanceOfClassSecuresSecuredSuperClassAllowed;
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber.boolean = true;
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber.string = 'secured';      
-            instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber.number = -1;
+            var instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber = AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.create(); 
+            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;
+            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber.boolean = true;
+            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber.string = 'accessControlled';      
+            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber.number = -1;
 
-            // SecuredClassSecuredByParameters Instances
-            var instanceOfSecuredClassSecuredByParameters = SecuredClassSecuredByParameters.create();
+            // AccessControlledClassAccessControlledByParameters Instances
+            var instanceOfAccessControlledClassAccessControlledByParameters = AccessControlledClassAccessControlledByParameters.create();
 
         }
 
         // Save all SecurityFilter Test Instances
         before(done => {
-            ClassSecuresSecuredSuperClass.saveAll([
-                instanceOfClassSecuresSecuredSuperClassAllowed,
-                instanceOfClassSecuresSecuredSuperClassNotAllowed
+            ClassControlsAccessControlledSuperClass.saveAll([
+                instanceOfClassControlsAccessControlledSuperClassAllowed,
+                instanceOfClassControlsAccessControlledSuperClassNotAllowed
             ]).then(() => {
-                SecuredSuperClass.saveAll([
-                    instanceOfSecuredSuperClassPasses,
-                    instanceOfSecuredSuperClassFailsRelationship
+                AccessControlledSuperClass.saveAll([
+                    instanceOfAccessControlledSuperClassPasses,
+                    instanceOfAccessControlledSuperClassFailsRelationship
                 ]).then(() => {
-                    SecuredSubClassOfSecuredSuperClass.saveAll([
-                        instanceOfSecuredSubClassOfSecuredSuperClassPasses,
-                        instanceOfSecuredSubClassOfSecuredSuperClassFailsRelationship,
-                        instanceOfSecuredSubClassOfSecuredSuperClassFailsBoolean
+                    AccessControlledSubClassOfAccessControlledSuperClass.saveAll([
+                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
+                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship,
+                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean
                     ]).then(() => {
-                        SecuredDiscriminatedSuperClass.saveAll([
-                            instanceOfSecuredDiscriminatedSuperClassPasses,
-                            instanceOfSecuredDiscriminatedSuperClassFailsRelationship,
-                            instanceOfSecuredDiscriminatedSuperClassFailsString,
-                            instanceOfSecuredDiscriminatedSuperClassFailsBoolean
+                        AccessControlledDiscriminatedSuperClass.saveAll([
+                            instanceOfAccessControlledDiscriminatedSuperClassPasses,
+                            instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship,
+                            instanceOfAccessControlledDiscriminatedSuperClassFailsString,
+                            instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean
                         ]).then(() => {
-                            SecuredSubClassOfSecuredDiscriminatedSuperClass.saveAll([
-                                instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses,
-                                instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsRelationship,
-                                instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBoolean,
-                                instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString,
-                                instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber
+                            AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.saveAll([
+                                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses,
+                                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship,
+                                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean,
+                                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString,
+                                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber
                             ]).catch(done).finally(done);
                         });
                     });
@@ -4701,13 +4718,13 @@ describe('Class Model Tests', function() {
 
             it('First Argument must be an Array', (done) => {
                 let error;
-                let expectedErrorMessage = 'Incorrect parameters. ' + SecuredSuperClass.className + '.securityFilter(Array<instance> instances, ...securityMethodParameters)';
+                let expectedErrorMessage = 'Incorrect parameters. ' + AccessControlledSuperClass.className + '.accessFilter(Array<instance> instances, ...accessControlMethodParameters)';
 
-                SecuredSuperClass.securityFilter(instanceOfSecuredSuperClassPasses, instanceOfSecuredSuperClassPasses._id).then(
+                AccessControlledSuperClass.accessFilter(instanceOfAccessControlledSuperClassPasses, instanceOfAccessControlledSuperClassPasses._id).then(
                     (filtered) => {
                     },
-                    (securityError) => {
-                        error = securityError;
+                    (accessControlError) => {
+                        error = accessControlError;
                     }
                 ).finally(() => {
                     if (error) {
@@ -4716,27 +4733,27 @@ describe('Class Model Tests', function() {
                         }
                         else {
                             done(new Error(
-                                'securityFilter() threw an unexpected error.\n' + 
+                                'accessFilter() threw an unexpected error.\n' + 
                                 'Expected: ' + expectedErrorMessage + '\n' + 
                                 'Actual:   ' + error.message
                             ));
                         }
                     }
                     else {
-                        done(new Error('ClassModel.securityFilter() should have thrown an error.'));
+                        done(new Error('ClassModel.accessFilter() should have thrown an error.'));
                     }
                 });
             });
 
             it('All instances must be of the Class or a Sub Class', (done) => {
                 let error;
-                let expectedErrorMessage = SecuredSubClassOfSecuredSuperClass.className + '.securityFilter() called with instances of a different class.';
+                let expectedErrorMessage = AccessControlledSubClassOfAccessControlledSuperClass.className + '.accessFilter() called with instances of a different class.';
 
-                SecuredSubClassOfSecuredSuperClass.securityFilter([instanceOfSecuredSuperClassPasses, instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses], instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses._id).then(
+                AccessControlledSubClassOfAccessControlledSuperClass.accessFilter([instanceOfAccessControlledSuperClassPasses, instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses], instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses._id).then(
                     (filtered) => {
                     },
-                    (securityError) => {
-                        error = securityError;
+                    (accessControlError) => {
+                        error = accessControlError;
                     }
                 ).finally(() => {
                     if (error) {
@@ -4745,30 +4762,30 @@ describe('Class Model Tests', function() {
                         }
                         else {
                             done(new Error(
-                                'securityFilter() threw an unexpected error.\n' + 
+                                'accessFilter() threw an unexpected error.\n' + 
                                 'Expected: ' + expectedErrorMessage + '\n' + 
                                 'Actual:   ' + error.message
                             ));
                         }
                     }
                     else {
-                        done(new Error('ClassModel.securityFilter() should have thrown an error.'));
+                        done(new Error('ClassModel.accessFilter() should have thrown an error.'));
                     }
                 });
             });
 
         });
 
-        describe('Test filtering out instances that don\'t pass security check.', () => {
+        describe('Test filtering out instances that don\'t pass access control check.', () => {
 
-            describe('SecuredSuperClass.securityFilter()', () => {
+            describe('AccessControlledSuperClass.accessFilter()', () => {
 
                 it('Security Filter called on Class with only direct instances of Class.', done => {
-                    let instances = [instanceOfSecuredSuperClassPasses, instanceOfSecuredSuperClassFailsRelationship];
+                    let instances = [instanceOfAccessControlledSuperClassPasses, instanceOfAccessControlledSuperClassFailsRelationship];
 
-                    let expectedInstances = [instanceOfSecuredSuperClassPasses];
+                    let expectedInstances = [instanceOfAccessControlledSuperClassPasses];
                     
-                    SecuredSuperClass.securityFilter(instances)
+                    AccessControlledSuperClass.accessFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -4797,19 +4814,19 @@ describe('Class Model Tests', function() {
 
                 it('Security Filter called on Class with instances of class and sub class.', done => {
                     let instances = [
-                        instanceOfSecuredSuperClassPasses,
-                        instanceOfSecuredSuperClassFailsRelationship,
-                        instanceOfSecuredSubClassOfSecuredSuperClassPasses,
-                        instanceOfSecuredSubClassOfSecuredSuperClassFailsBoolean,
-                        instanceOfSecuredSubClassOfSecuredSuperClassFailsRelationship
+                        instanceOfAccessControlledSuperClassPasses,
+                        instanceOfAccessControlledSuperClassFailsRelationship,
+                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
+                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean,
+                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship
                     ];
 
                     let expectedInstances = [
-                        instanceOfSecuredSuperClassPasses,
-                        instanceOfSecuredSubClassOfSecuredSuperClassPasses
+                        instanceOfAccessControlledSuperClassPasses,
+                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses
                     ];
 
-                    SecuredSuperClass.securityFilter(instances)
+                    AccessControlledSuperClass.accessFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -4838,24 +4855,24 @@ describe('Class Model Tests', function() {
 
                 it('Security Filter called on Class with instances of class and 2 layers of sub classes', done => {
                     let instances = [
-                        instanceOfSecuredSuperClassPasses,
-                        instanceOfSecuredSuperClassFailsRelationship,
-                        instanceOfSecuredSubClassOfSecuredSuperClassPasses,
-                        instanceOfSecuredSubClassOfSecuredSuperClassFailsBoolean,
-                        instanceOfSecuredSubClassOfSecuredSuperClassFailsRelationship,
-                        instanceOfSecuredDiscriminatedSuperClassPasses,
-                        instanceOfSecuredDiscriminatedSuperClassFailsString,
-                        instanceOfSecuredDiscriminatedSuperClassFailsBoolean,
-                        instanceOfSecuredDiscriminatedSuperClassFailsRelationship
+                        instanceOfAccessControlledSuperClassPasses,
+                        instanceOfAccessControlledSuperClassFailsRelationship,
+                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
+                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean,
+                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship,
+                        instanceOfAccessControlledDiscriminatedSuperClassPasses,
+                        instanceOfAccessControlledDiscriminatedSuperClassFailsString,
+                        instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship
                     ];
 
                     let expectedInstances = [
-                        instanceOfSecuredSuperClassPasses,
-                        instanceOfSecuredSubClassOfSecuredSuperClassPasses,
-                        instanceOfSecuredDiscriminatedSuperClassPasses
+                        instanceOfAccessControlledSuperClassPasses,
+                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
+                        instanceOfAccessControlledDiscriminatedSuperClassPasses
                     ];
 
-                    SecuredSuperClass.securityFilter(instances)
+                    AccessControlledSuperClass.accessFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -4885,30 +4902,30 @@ describe('Class Model Tests', function() {
 
                 it('Security Filter called on Class with instances of 3 layers of sub classes', done => {
                     let instances = [
-                        instanceOfSecuredSuperClassPasses,
-                        instanceOfSecuredSuperClassFailsRelationship,
-                        instanceOfSecuredSubClassOfSecuredSuperClassPasses,
-                        instanceOfSecuredSubClassOfSecuredSuperClassFailsBoolean,
-                        instanceOfSecuredSubClassOfSecuredSuperClassFailsRelationship,
-                        instanceOfSecuredDiscriminatedSuperClassPasses,
-                        instanceOfSecuredDiscriminatedSuperClassFailsString,
-                        instanceOfSecuredDiscriminatedSuperClassFailsBoolean,
-                        instanceOfSecuredDiscriminatedSuperClassFailsRelationship,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsRelationship,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBoolean,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber
+                        instanceOfAccessControlledSuperClassPasses,
+                        instanceOfAccessControlledSuperClassFailsRelationship,
+                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
+                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean,
+                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship,
+                        instanceOfAccessControlledDiscriminatedSuperClassPasses,
+                        instanceOfAccessControlledDiscriminatedSuperClassFailsString,
+                        instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses,
+                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString,
+                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber
                     ];
 
                     let expectedInstances = [
-                        instanceOfSecuredSuperClassPasses,
-                        instanceOfSecuredSubClassOfSecuredSuperClassPasses,
-                        instanceOfSecuredDiscriminatedSuperClassPasses,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses
+                        instanceOfAccessControlledSuperClassPasses,
+                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
+                        instanceOfAccessControlledDiscriminatedSuperClassPasses,
+                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses
                     ];
 
-                    SecuredSuperClass.securityFilter(instances)
+                    AccessControlledSuperClass.accessFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -4937,20 +4954,20 @@ describe('Class Model Tests', function() {
                 });
             });
 
-            describe('SecuredSubClassOfSecuredSuperClass.securityFilter()', () => {
+            describe('AccessControlledSubClassOfAccessControlledSuperClass.accessFilter()', () => {
 
                 it('Security Filter called on Class with only direct instances of Class.', done => {
                     let instances = [
-                        instanceOfSecuredSubClassOfSecuredSuperClassPasses,
-                        instanceOfSecuredSubClassOfSecuredSuperClassFailsBoolean,
-                        instanceOfSecuredSubClassOfSecuredSuperClassFailsRelationship
+                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
+                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean,
+                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship
                     ];
 
                     let expectedInstances = [
-                        instanceOfSecuredSubClassOfSecuredSuperClassPasses
+                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses
                     ];
 
-                    SecuredSubClassOfSecuredSuperClass.securityFilter(instances)
+                    AccessControlledSubClassOfAccessControlledSuperClass.accessFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -4979,21 +4996,21 @@ describe('Class Model Tests', function() {
 
                 it('Security Filter called on Class with instances of class and 1 layers of sub classes', done => {
                     let instances = [
-                        instanceOfSecuredSubClassOfSecuredSuperClassPasses,
-                        instanceOfSecuredSubClassOfSecuredSuperClassFailsBoolean,
-                        instanceOfSecuredSubClassOfSecuredSuperClassFailsRelationship,
-                        instanceOfSecuredDiscriminatedSuperClassPasses,
-                        instanceOfSecuredDiscriminatedSuperClassFailsString,
-                        instanceOfSecuredDiscriminatedSuperClassFailsBoolean,
-                        instanceOfSecuredDiscriminatedSuperClassFailsRelationship
+                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
+                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean,
+                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship,
+                        instanceOfAccessControlledDiscriminatedSuperClassPasses,
+                        instanceOfAccessControlledDiscriminatedSuperClassFailsString,
+                        instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship
                     ];
 
                     let expectedInstances = [
-                        instanceOfSecuredSubClassOfSecuredSuperClassPasses,
-                        instanceOfSecuredDiscriminatedSuperClassPasses
+                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
+                        instanceOfAccessControlledDiscriminatedSuperClassPasses
                     ];
 
-                    SecuredSubClassOfSecuredSuperClass.securityFilter(instances)
+                    AccessControlledSubClassOfAccessControlledSuperClass.accessFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -5023,27 +5040,27 @@ describe('Class Model Tests', function() {
 
                 it('Security Filter called on Class with instances of 2 layers of sub classes', done => {
                     let instances = [
-                        instanceOfSecuredSubClassOfSecuredSuperClassPasses,
-                        instanceOfSecuredSubClassOfSecuredSuperClassFailsBoolean,
-                        instanceOfSecuredSubClassOfSecuredSuperClassFailsRelationship,
-                        instanceOfSecuredDiscriminatedSuperClassPasses,
-                        instanceOfSecuredDiscriminatedSuperClassFailsString,
-                        instanceOfSecuredDiscriminatedSuperClassFailsBoolean,
-                        instanceOfSecuredDiscriminatedSuperClassFailsRelationship,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsRelationship,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBoolean,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber
+                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
+                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean,
+                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship,
+                        instanceOfAccessControlledDiscriminatedSuperClassPasses,
+                        instanceOfAccessControlledDiscriminatedSuperClassFailsString,
+                        instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses,
+                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString,
+                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber
                     ];
 
                     let expectedInstances = [
-                        instanceOfSecuredSubClassOfSecuredSuperClassPasses,
-                        instanceOfSecuredDiscriminatedSuperClassPasses,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses
+                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
+                        instanceOfAccessControlledDiscriminatedSuperClassPasses,
+                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses
                     ];
 
-                    SecuredSubClassOfSecuredSuperClass.securityFilter(instances)
+                    AccessControlledSubClassOfAccessControlledSuperClass.accessFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -5072,21 +5089,21 @@ describe('Class Model Tests', function() {
                 });
             });
 
-            describe('SecuredDiscriminatedSuperClass.securityFilter()', () => {
+            describe('AccessControlledDiscriminatedSuperClass.accessFilter()', () => {
 
                 it('Security Filter called on Class with only direct instances of Class.', done => {
                     let instances = [
-                        instanceOfSecuredDiscriminatedSuperClassPasses,
-                        instanceOfSecuredDiscriminatedSuperClassFailsString,
-                        instanceOfSecuredDiscriminatedSuperClassFailsBoolean,
-                        instanceOfSecuredDiscriminatedSuperClassFailsRelationship
+                        instanceOfAccessControlledDiscriminatedSuperClassPasses,
+                        instanceOfAccessControlledDiscriminatedSuperClassFailsString,
+                        instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship
                     ];
 
                     let expectedInstances = [
-                        instanceOfSecuredDiscriminatedSuperClassPasses
+                        instanceOfAccessControlledDiscriminatedSuperClassPasses
                     ];
 
-                    SecuredDiscriminatedSuperClass.securityFilter(instances)
+                    AccessControlledDiscriminatedSuperClass.accessFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -5116,23 +5133,23 @@ describe('Class Model Tests', function() {
 
                 it('Security Filter called on Class with instances of 1 layers of sub classes', done => {
                     let instances = [
-                        instanceOfSecuredDiscriminatedSuperClassPasses,
-                        instanceOfSecuredDiscriminatedSuperClassFailsString,
-                        instanceOfSecuredDiscriminatedSuperClassFailsBoolean,
-                        instanceOfSecuredDiscriminatedSuperClassFailsRelationship,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsRelationship,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBoolean,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber
+                        instanceOfAccessControlledDiscriminatedSuperClassPasses,
+                        instanceOfAccessControlledDiscriminatedSuperClassFailsString,
+                        instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses,
+                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString,
+                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber
                     ];
 
                     let expectedInstances = [
-                        instanceOfSecuredDiscriminatedSuperClassPasses,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses
+                        instanceOfAccessControlledDiscriminatedSuperClassPasses,
+                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses
                     ];
 
-                    SecuredDiscriminatedSuperClass.securityFilter(instances)
+                    AccessControlledDiscriminatedSuperClass.accessFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -5161,22 +5178,22 @@ describe('Class Model Tests', function() {
                 });
             });
 
-            describe('SecuredSubClassOfSecuredDiscriminatedSuperClass.securityFilter()', () => {
+            describe('AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.accessFilter()', () => {
 
                 it('Security Filter called on Class with only direct instances of Class.', done => {
                     let instances = [
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsRelationship,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsString,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsBoolean,
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassFailsNumber
+                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses,
+                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString,
+                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber
                     ];
 
                     let expectedInstances = [
-                        instanceOfSecuredSubClassOfSecuredDiscriminatedSuperClassPasses
+                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses
                     ];
 
-                    SecuredSubClassOfSecuredDiscriminatedSuperClass.securityFilter(instances)
+                    AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.accessFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -5205,14 +5222,14 @@ describe('Class Model Tests', function() {
                 });
             });
 
-            describe('SecuredClassSecuredByParameters.securityFilter()', () => {
+            describe('AccessControlledClassAccessControlledByParameters.accessFilter()', () => {
 
-                it('Instance passes security check', done => {
-                    let instances = [instanceOfSecuredClassSecuredByParameters];
+                it('Instance passes access control check', done => {
+                    let instances = [instanceOfAccessControlledClassAccessControlledByParameters];
 
-                    let expectedInstances = [instanceOfSecuredClassSecuredByParameters];
+                    let expectedInstances = [instanceOfAccessControlledClassAccessControlledByParameters];
                     
-                    SecuredClassSecuredByParameters.securityFilter(instances, 1, 1, true)
+                    AccessControlledClassAccessControlledByParameters.accessFilter(instances, 1, 1, true)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -5240,12 +5257,12 @@ describe('Class Model Tests', function() {
 
                 });
 
-                it('Instance fails security check because of Numbers.', done => {
-                    let instances = [instanceOfSecuredClassSecuredByParameters];
+                it('Instance fails access control check because of Numbers.', done => {
+                    let instances = [instanceOfAccessControlledClassAccessControlledByParameters];
 
                     let expectedInstances = [];
                     
-                    SecuredClassSecuredByParameters.securityFilter(instances, -2, 1, true)
+                    AccessControlledClassAccessControlledByParameters.accessFilter(instances, -2, 1, true)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -5273,12 +5290,12 @@ describe('Class Model Tests', function() {
 
                 });
 
-                it('Instance failes security check because of Boolean', done => {
-                    let instances = [instanceOfSecuredClassSecuredByParameters];
+                it('Instance failes access control check because of Boolean', done => {
+                    let instances = [instanceOfAccessControlledClassAccessControlledByParameters];
 
                     let expectedInstances = [];
                     
-                    SecuredClassSecuredByParameters.securityFilter(instances, 1, 1, false)
+                    AccessControlledClassAccessControlledByParameters.accessFilter(instances, 1, 1, false)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -5310,6 +5327,10 @@ describe('Class Model Tests', function() {
 
         });
 
+    });
+
+    after(() => {
+        database.close();
     });
 
 });

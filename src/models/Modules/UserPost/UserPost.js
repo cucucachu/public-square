@@ -10,6 +10,7 @@ var ClassModel = require('../../ClassModel');
 
 var UserPost = new ClassModel({
 	className: 'UserPost',
+	accessControlled: false,
 	schema: {
 		_id: Schema.Types.ObjectId,
 		textContent: {

@@ -2,19 +2,15 @@
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 var assert = require('assert');
 
-var expect = require('expect');
+var database = require('../dist/models/database');
 
-var promiseFinally = require('promise.prototype.finally');
-
-require('../dist/models/Modules/Government/Executive/ExecutiveModule'); // Add 'finally()' to 'Promis.prototype'
-
-
-promiseFinally.shim();
-process.on('unhandledRejection', function (error) {
-  console.log('unhandledRejection', error.message);
-});
+require('../dist/models/Modules/Government/Executive/ExecutiveModule');
 
 var Executive = require('../dist/models/Modules/Government/Executive/Executive');
 
@@ -35,17 +31,45 @@ var OccupiedPosition = require('../dist/models/Modules/Government/OccupiedPositi
 var Poll = require('../dist/models/Modules/Poll/Poll');
 
 describe('Executive Module Tests', function () {
-  before(function (done) {
-    Executive.clear().then(function () {
-      ExecutiveAction.clear().then(function () {
-        ExecutiveVote.clear().then(function () {
-          IndividualExecutiveVote.clear().then(function () {
-            ExecutiveVoteOption.clear().then(done, done);
-          });
-        });
-      });
-    });
-  });
+  before(
+  /*#__PURE__*/
+  _asyncToGenerator(
+  /*#__PURE__*/
+  regeneratorRuntime.mark(function _callee() {
+    return regeneratorRuntime.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            _context.next = 2;
+            return database.connect();
+
+          case 2:
+            _context.next = 4;
+            return Executive.clear();
+
+          case 4:
+            _context.next = 6;
+            return ExecutiveAction.clear();
+
+          case 6:
+            _context.next = 8;
+            return ExecutiveVote.clear();
+
+          case 8:
+            _context.next = 10;
+            return IndividualExecutiveAction.clear();
+
+          case 10:
+            _context.next = 12;
+            return ExecutiveVoteOption.clear();
+
+          case 12:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  })));
   describe('Executive Model Tests', function () {
     describe('Executive.create()', function () {
       it('Executive.create() creates a Executive instance.', function () {
@@ -696,5 +720,8 @@ describe('Executive Module Tests', function () {
         });
       });
     });
+  });
+  after(function () {
+    database.close();
   });
 });

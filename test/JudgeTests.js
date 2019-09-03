@@ -2,19 +2,15 @@
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 var assert = require('assert');
 
-var expect = require('expect');
+var database = require('../dist/models/database');
 
-var promiseFinally = require('promise.prototype.finally');
-
-require('../dist/models/Modules/Government/Judge/JudgeModule'); // Add 'finally()' to 'Promis.prototype'
-
-
-promiseFinally.shim();
-process.on('unhandledRejection', function (error) {
-  console.log('unhandledRejection', error.message);
-});
+require('../dist/models/Modules/Government/Judge/JudgeModule');
 
 var Judge = require('../dist/models/Modules/Government/Judge/Judge');
 
@@ -35,19 +31,49 @@ var Law = require('../dist/models/Modules/Government/Law');
 var Poll = require('../dist/models/Modules/Poll/Poll');
 
 describe('Judge Module Tests', function () {
-  before(function (done) {
-    Judge.clear().then(function () {
-      IndividualJudgement.clear().then(function () {
-        JudgementOption.clear().then(function () {
-          Judgement.clear().then(function () {
-            JudicialCase.clear().then(function () {
-              JudicialOpinion.clear().finally(done);
-            });
-          });
-        });
-      });
-    });
-  });
+  before(
+  /*#__PURE__*/
+  _asyncToGenerator(
+  /*#__PURE__*/
+  regeneratorRuntime.mark(function _callee() {
+    return regeneratorRuntime.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            _context.next = 2;
+            return database.connect();
+
+          case 2:
+            _context.next = 4;
+            return Judge.clear();
+
+          case 4:
+            _context.next = 6;
+            return IndividualJudgement.clear();
+
+          case 6:
+            _context.next = 8;
+            return JudgementOption.clear();
+
+          case 8:
+            _context.next = 10;
+            return Judgement.clear();
+
+          case 10:
+            _context.next = 12;
+            return JudicialCase.clear();
+
+          case 12:
+            _context.next = 14;
+            return JudicialOpinion.clear();
+
+          case 14:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  })));
   describe('Judge Model Tests', function () {
     describe('Judge.create()', function () {
       it('Judge.create() creates a Judge instance.', function () {
@@ -770,5 +796,8 @@ describe('Judge Module Tests', function () {
         });
       });
     });
+  });
+  after(function () {
+    database.close();
   });
 });

@@ -1,48 +1,31 @@
-var assert = require('assert');
-var expect = require('expect');
-var promiseFinally = require('promise.prototype.finally');
+const assert = require('assert');
 
+const database = require('../dist/models/database');
 require('../dist/models/Modules/Government/Legislator/LegislatorModule');
-
-// Add 'finally()' to 'Promis.prototype'
-promiseFinally.shim();
-
-process.on('unhandledRejection', error => {
-	console.log('unhandledRejection', error.message);
-});
-
-var OccupiedPosition = require('../dist/models/Modules/Government/OccupiedPosition');
-var GovernmentRole = require('../dist/models/Modules/Government/GovernmentRole');
-var Legislator = require('../dist/models/Modules/Government/Legislator/Legislator');
-var IndividualLegislativeVote = require('../dist/models/Modules/Government/Legislator/IndividualLegislativeVote');
-var LegislativeVoteOption = require('../dist/models/Modules/Government/Legislator/LegislativeVoteOption');
-var LegislativeVote = require('../dist/models/Modules/Government/Legislator/LegislativeVote');
-var BillSponsorship = require('../dist/models/Modules/Government/Legislator/BillSponsorship');
-var Bill = require('../dist/models/Modules/Government/Legislator/Bill');
-var BillVersion = require('../dist/models/Modules/Government/Legislator/BillVersion');
-var Law = require('../dist/models/Modules/Government/Law');
-var VoteOption = require('../dist/models/Modules/Government/VoteOption');
-var Poll = require('../dist/models/Modules/Poll/Poll');
-
+const OccupiedPosition = require('../dist/models/Modules/Government/OccupiedPosition');
+const Legislator = require('../dist/models/Modules/Government/Legislator/Legislator');
+const IndividualLegislativeVote = require('../dist/models/Modules/Government/Legislator/IndividualLegislativeVote');
+const LegislativeVoteOption = require('../dist/models/Modules/Government/Legislator/LegislativeVoteOption');
+const LegislativeVote = require('../dist/models/Modules/Government/Legislator/LegislativeVote');
+const BillSponsorship = require('../dist/models/Modules/Government/Legislator/BillSponsorship');
+const Bill = require('../dist/models/Modules/Government/Legislator/Bill');
+const BillVersion = require('../dist/models/Modules/Government/Legislator/BillVersion');
+const Law = require('../dist/models/Modules/Government/Law');
+const Poll = require('../dist/models/Modules/Poll/Poll');
 
 describe('Legislator Module Tests', function() {
 
-    before(function(done) {
-		Legislator.clear().then(() => {
-			IndividualLegislativeVote.clear().then(() => {
-				LegislativeVoteOption.clear().then(() => {
-					LegislativeVote.clear().then(() => {
-						BillSponsorship.clear().then(() => {
-							Bill.clear().then(() => {
-								BillVersion.clear().then(() => {
-									Law.clear().finally(done);
-								});
-							});
-						});
-					});
-				});
-			});
-		});
+    before(async () => {
+		await database.connect();
+
+		await Legislator.clear();
+		await IndividualLegislativeVote.clear();
+		await LegislativeVoteOption.clear();
+		await LegislativeVote.clear();
+		await BillSponsorship.clear();
+		await Bill.clear();
+		await BillVersion.clear();
+		await Law.clear();
     });
     
     
@@ -1316,4 +1299,7 @@ describe('Legislator Module Tests', function() {
 
 	});
 
+	after(() => {
+		database.close();
+	});
 });

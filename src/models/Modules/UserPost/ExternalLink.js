@@ -11,6 +11,7 @@ var ClassModel = require('../../ClassModel');
 
 var ExternalLink = new ClassModel({
 	className: 'ExternalLink',
+	accessControlled: false,
 	discriminated: true,
 	schema: {
 		_id: Schema.Types.ObjectId,

@@ -2,23 +2,17 @@
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 var assert = require('assert');
 
-var expect = require('expect');
+var database = require('../dist/models/database');
 
-var promiseFinally = require('promise.prototype.finally');
-
-require('../dist/models/Modules/Government/Legislator/LegislatorModule'); // Add 'finally()' to 'Promis.prototype'
-
-
-promiseFinally.shim();
-process.on('unhandledRejection', function (error) {
-  console.log('unhandledRejection', error.message);
-});
+require('../dist/models/Modules/Government/Legislator/LegislatorModule');
 
 var OccupiedPosition = require('../dist/models/Modules/Government/OccupiedPosition');
-
-var GovernmentRole = require('../dist/models/Modules/Government/GovernmentRole');
 
 var Legislator = require('../dist/models/Modules/Government/Legislator/Legislator');
 
@@ -36,28 +30,60 @@ var BillVersion = require('../dist/models/Modules/Government/Legislator/BillVers
 
 var Law = require('../dist/models/Modules/Government/Law');
 
-var VoteOption = require('../dist/models/Modules/Government/VoteOption');
-
 var Poll = require('../dist/models/Modules/Poll/Poll');
 
 describe('Legislator Module Tests', function () {
-  before(function (done) {
-    Legislator.clear().then(function () {
-      IndividualLegislativeVote.clear().then(function () {
-        LegislativeVoteOption.clear().then(function () {
-          LegislativeVote.clear().then(function () {
-            BillSponsorship.clear().then(function () {
-              Bill.clear().then(function () {
-                BillVersion.clear().then(function () {
-                  Law.clear().finally(done);
-                });
-              });
-            });
-          });
-        });
-      });
-    });
-  });
+  before(
+  /*#__PURE__*/
+  _asyncToGenerator(
+  /*#__PURE__*/
+  regeneratorRuntime.mark(function _callee() {
+    return regeneratorRuntime.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            _context.next = 2;
+            return database.connect();
+
+          case 2:
+            _context.next = 4;
+            return Legislator.clear();
+
+          case 4:
+            _context.next = 6;
+            return IndividualLegislativeVote.clear();
+
+          case 6:
+            _context.next = 8;
+            return LegislativeVoteOption.clear();
+
+          case 8:
+            _context.next = 10;
+            return LegislativeVote.clear();
+
+          case 10:
+            _context.next = 12;
+            return BillSponsorship.clear();
+
+          case 12:
+            _context.next = 14;
+            return Bill.clear();
+
+          case 14:
+            _context.next = 16;
+            return BillVersion.clear();
+
+          case 16:
+            _context.next = 18;
+            return Law.clear();
+
+          case 18:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  })));
   describe('Legislator Model Tests', function () {
     describe('Legislator.create()', function () {
       it('Legislator.create() creates a Legislator instance.', function () {
@@ -865,5 +891,8 @@ describe('Legislator Module Tests', function () {
         });
       });
     });
+  });
+  after(function () {
+    database.close();
   });
 });

@@ -14,6 +14,7 @@ var ClassModel = require('../../../ClassModel');
 
 var IndividualConfirmationVote = new ClassModel({
     className: 'IndividualConfirmationVote',
+	accessControlled: false,
     schema: {
         confirmer: {
             type: Schema.Types.ObjectId,

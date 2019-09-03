@@ -13,6 +13,7 @@ var UserRole = require('../User/UserRole');
 
 var GovernmentOfficial = new ClassModel({
 	className: 'GovernmentOfficial',
+	accessControlled: false,
 	discriminatorSuperClass: UserRole,
 	schema: {
 		occupiedPositions: {

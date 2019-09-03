@@ -13,6 +13,7 @@ var UserGroup = require('./UserGroup');
 
 var Organization = new ClassModel({
     className: 'Organization',
+	accessControlled: false,
     superClasses: [UserGroup],
     schema: {
         organizationMembers: {

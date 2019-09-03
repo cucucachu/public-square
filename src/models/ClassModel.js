@@ -68,35 +68,35 @@ class ClassModel {
         this.subClasses = [];
         this.abstract = parameters.abstract;
         this.discriminated = parameters.discriminated;
-        this.secured = parameters.secured;
-        this.securityMethod = parameters.securityMethod ? parameters.securityMethod : undefined;
+        this.accessControlled = parameters.accessControlled;
+        this.accessControlMethod = parameters.accessControlMethod ? parameters.accessControlMethod : undefined;
         this.superClasses = parameters.superClasses ? parameters.superClasses : [];
         this.discriminatorSuperClass = parameters.discriminatorSuperClass;
 
-        if (parameters.secured === undefined) {
-            throw new Error('secured is required.');
+        if (parameters.accessControlled === undefined) {
+            throw new Error('accessControlled is required.');
         }
 
-        if (parameters.secured && !this.allSecurityMethodsforClassModel().length) {
-            throw new Error('If a class is secured, it must have a security method, or it must have at least one super class with a security method.');
+        if (parameters.accessControlled && !this.allAccessControlMethodsforClassModel().length) {
+            throw new Error('If a class is accessControlled, it must have an accessControlMethod, or it must have at least one super class with an accessControlMethod.');
         }
 
-        if (!parameters.secured) {
-            if (parameters.securityMethod) {
-                throw new Error('An unsecured class cannot have a security method.');
+        if (!parameters.accessControlled) {
+            if (parameters.accessControlMethod) {
+                throw new Error('A class that is not accessControlled cannot have an accessControlMethod.');
             }
 
             if (parameters.superClasses) {
                 parameters.superClasses.forEach(function(superClass) {
-                    if (superClass.secured) {
-                        throw new Error('An unsecured class cannot be a sub class of a secured class.');
+                    if (superClass.accessControlled) {
+                        throw new Error('A class which is not accessControlled cannot be a sub class of a class which is accessControlled.');
                     }
                 });
             }
 
             if (parameters.discriminatorSuperClass) {
-                if (parameters.discriminatorSuperClass.secured) {
-                    throw new Error('A subclass of a secured discriminated super class must also be secured.');
+                if (parameters.discriminatorSuperClass.accessControlled) {
+                    throw new Error('A subclass of a accessControlled discriminated super class must also be accessControlled.');
                 }
             }
         } 
@@ -855,57 +855,57 @@ class ClassModel {
 
     // Security Methods
 
-    /* A recursive method which retrieves all the security methods that should be run on instances of a classmodel, including the classes own
-     *    security method and all the security methods of its secured parents.
-     * @return An Array containing all the security methods that should be run for a particular class model.
+    /* A recursive method which retrieves all the access control methods that should be run on instances of a classmodel, including the classes own
+     *    access control method and all the access control methods of its accessControlled parents.
+     * @return An Array containing all the access control methods that should be run for a particular class model.
      */
-    allSecurityMethodsforClassModel() {
-        if (!this.secured)
+    allAccessControlMethodsforClassModel() {
+        if (!this.accessControlled)
             return [];
         
-        let securityMethods = [];
+        let accessControlMethods = [];
 
         for (let superClass of this.superClasses) {
-            securityMethods.push(...superClass.allSecurityMethodsforClassModel());
+            accessControlMethods.push(...superClass.allAccessControlMethodsforClassModel());
         }
 
         if (this.discriminatorSuperClass)
-            securityMethods.push(...this.discriminatorSuperClass.allSecurityMethodsforClassModel());
+            accessControlMethods.push(...this.discriminatorSuperClass.allAccessControlMethodsforClassModel());
 
-        if (this.securityMethod)
-            securityMethods.push(this.securityMethod);
+        if (this.accessControlMethod)
+            accessControlMethods.push(this.accessControlMethod);
 
-        return securityMethods;
+        return accessControlMethods;
     }
 
-    /* Takes an array of instances of the Class Model and filters out any that do not pass this Class Model's security method.
+    /* Takes an array of instances of the Class Model and filters out any that do not pass this Class Model's access control method.
      * @param required Array<instance> : An array of instances of this Class Model to filter.
-     * @return Promise(Array<Instance>): The given instances filtered for security.
+     * @return Promise(Array<Instance>): The given instances filtered for access control.
      */
-    async securityFilter(instances, ...securityMethodParameters) {
+    async accessFilter(instances, ...accessControlMethodParameters) {
         if (!Array.isArray(instances))
-            throw new Error('Incorrect parameters. ' + this.className + '.securityFilter(Array<instance> instances, ...securityMethodParameters)');
+            throw new Error('Incorrect parameters. ' + this.className + '.accessFilter(Array<instance> instances, ...accessControlMethodParameters)');
 
         instances.forEach((instance) => {
             if (!this.isInstanceOfClassOrSubClass(instance))
-                throw new Error(this.className + '.securityFilter() called with instances of a different class.');
+                throw new Error(this.className + '.accessFilter() called with instances of a different class.');
         });
 
         let filtered = [];
         let index;
-        let model = this.Model;
-        let securityMethods = this.allSecurityMethodsforClassModel();
+        const model = this.Model;
+        let accessControlMethods = this.allAccessControlMethodsforClassModel();
 
-        if (!this.secured) {
+        if (!this.accessControlled) {
             filtered = instances;
         }
         else if (this.subClasses.length) {
             let instancesOfThisClass = instances.filter(instance => { return instance instanceof model });
 
-            for (index = 0; index < securityMethods.length; index++) {
-                let securityMethod = securityMethods[index];
+            for (index = 0; index < accessControlMethods.length; index++) {
+                let accessControlMethod = accessControlMethods[index];
 
-                instancesOfThisClass = await ClassModel.asyncFilter(instancesOfThisClass, securityMethod);
+                instancesOfThisClass = await ClassModel.asyncFilter(instancesOfThisClass, accessControlMethod);
             }
 
             filtered = instancesOfThisClass;
@@ -916,7 +916,7 @@ class ClassModel {
                 });
 
                 if (instancesOfSubClass.length) {
-                    let filteredSubClassInstances = await subClass.securityFilter(instancesOfSubClass, ...securityMethodParameters);
+                    let filteredSubClassInstances = await subClass.accessFilter(instancesOfSubClass, ...accessControlMethodParameters);
                     filtered.push(...filteredSubClassInstances);
                 }
             }
@@ -944,7 +944,7 @@ class ClassModel {
             for (let className in instancesByClass) {
                 if (className != this.className) {
                     let subClassModel = AllClassModels[className];
-                    let filteredSubClassInstances = await subClassModel.securityFilter(instancesByClass[className], ...securityMethodParameters);
+                    let filteredSubClassInstances = await subClassModel.accessFilter(instancesByClass[className], ...accessControlMethodParameters);
                     filtered.push(...filteredSubClassInstances);
                 }
             }
@@ -952,10 +952,10 @@ class ClassModel {
             let instancesOfThisClass = instancesByClass[this.className];
 
 
-            for (index = 0; index < securityMethods.length; index++) {
-                let securityMethod = securityMethods[index];
+            for (index = 0; index < accessControlMethods.length; index++) {
+                let accessControlMethod = accessControlMethods[index];
                 instancesOfThisClass = await ClassModel.asyncFilter(instancesOfThisClass, async (instance) => {
-                    return await securityMethod(instance, ...securityMethodParameters);
+                    return await accessControlMethod(instance, ...accessControlMethodParameters);
                 });
             }
 
@@ -964,10 +964,10 @@ class ClassModel {
         else {
             filtered = instances;
 
-            for (index = 0; index < securityMethods.length; index++) {
-                let securityMethod = securityMethods[index];
+            for (index = 0; index < accessControlMethods.length; index++) {
+                let accessControlMethod = accessControlMethods[index];
                 filtered = await ClassModel.asyncFilter(filtered, async (instance) => {
-                    return await securityMethod(instance, ...securityMethodParameters);
+                    return await accessControlMethod(instance, ...accessControlMethodParameters);
                 });  
             }
         }

@@ -14,6 +14,7 @@ var ClassModel = require('../../ClassModel');
 var GovernmentRole = new ClassModel({
 	className: 'GovernmentRole',
 	abstract: true,
+	accessControlled: false,
 	schema: {
 		occupiedPosition: {
 			type: Schema.Types.ObjectId,

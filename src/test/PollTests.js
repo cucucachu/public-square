@@ -1,47 +1,26 @@
-var assert = require('assert');
-var promiseFinally = require('promise.prototype.finally');
+const assert = require('assert');
 
+const database = require('../dist/models/database');
 require('../dist/models/Modules/Poll/PollModule');
-
-// Add 'finally()' to 'Promis.prototype'
-promiseFinally.shim();
-
-process.on('unhandledRejection', error => {
-	console.log('unhandledRejection', error.message);
-});
-
-var Poll = require('../dist/models/Modules/Poll/Poll');
-var PollResponse = require('../dist/models/Modules/Poll/PollResponse');
-var PollOption = require('../dist/models/Modules/Poll/PollOption');
-var Pollable = require('../dist/models/Modules/Poll/Pollable');
-var Civilian = require('../dist/models/Modules/Poll/Civilian');
-var Citizen = require('../dist/models/Modules/Poll/Citizen');
-
-var Government = require('../dist/models/Modules/Government/Government');
-var GeographicArea = require('../dist/models/Modules/Geography/GeographicArea');
-
-var User = require ('../dist/models/Modules/User/User');
+const Poll = require('../dist/models/Modules/Poll/Poll');
+const PollResponse = require('../dist/models/Modules/Poll/PollResponse');
+const PollOption = require('../dist/models/Modules/Poll/PollOption');
+const Civilian = require('../dist/models/Modules/Poll/Civilian');
+const Citizen = require('../dist/models/Modules/Poll/Citizen');
+const Government = require('../dist/models/Modules/Government/Government');
+const GeographicArea = require('../dist/models/Modules/Geography/GeographicArea');
+const User = require ('../dist/models/Modules/User/User');
 
 describe('Poll Module Tests', function() {
 
-    before(function(done) {
-        Poll.clear().then(
-            function() {
-                PollResponse.clear().then(
-                    function() {
-                        PollOption.clear().then(
-                            function() {
-                                Civilian.clear().then(
-                                    function() {
-                                        Citizen.clear().finally(done);
-                                    }
-                                );
-                            }
-                        );
-                    }
-                );
-            }
-        );
+    before(async () => {
+		await database.connect();
+
+		await Poll.clear();
+		await PollResponse.clear();
+		await PollOption.clear();
+		await Civilian.clear();
+		await Citizen.clear();
     });
     
 	describe('Poll Model Tests', function() {
@@ -823,6 +802,8 @@ describe('Poll Module Tests', function() {
 
 	});
 
-
+	after(() => {
+		database.close();
+	});
 
 });

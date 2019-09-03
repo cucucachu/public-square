@@ -15,6 +15,7 @@ var PositionAcquisitionProcess = require('../PositionAcquisitionProcess');
 
 var Nomination = new ClassModel({
     className: 'Nomination',
+	accessControlled: false,
     superClasses: [PositionAcquisitionProcess],
     schema: {
         nominationDate: {

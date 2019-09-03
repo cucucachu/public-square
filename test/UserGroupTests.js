@@ -2,23 +2,17 @@
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 var assert = require('assert');
 
-var expect = require('expect');
+var database = require('../dist/models/database');
 
-var promiseFinally = require('promise.prototype.finally');
-
-require('../dist/models/Modules/UserGroup/UserGroupModule'); // Add 'finally()' to 'Promis.prototype'
-
-
-promiseFinally.shim();
-process.on('unhandledRejection', function (error) {
-  console.log('unhandledRejection', error.message);
-});
+require('../dist/models/Modules/UserGroup/UserGroupModule');
 
 var User = require('../dist/models/Modules/User/User');
-
-var UserAccount = require('../dist/models/Modules/User/UserAccount');
 
 var UserRole = require('../dist/models/Modules/User/UserRole');
 
@@ -37,15 +31,41 @@ var OrganizationMember = require('../dist/models/Modules/UserGroup/OrganizationM
 var Address = require('../dist/models/Modules/Geography/Address');
 
 describe('UserGroup Module Tests', function () {
-  before(function (done) {
-    UserRole.clear().then(function () {
-      UserGroup.clear().then(function () {
-        GroupEvent.clear().then(function () {
-          Organization.clear().then(done);
-        });
-      });
-    });
-  });
+  before(
+  /*#__PURE__*/
+  _asyncToGenerator(
+  /*#__PURE__*/
+  regeneratorRuntime.mark(function _callee() {
+    return regeneratorRuntime.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            _context.next = 2;
+            return database.connect();
+
+          case 2:
+            _context.next = 4;
+            return UserRole.clear();
+
+          case 4:
+            _context.next = 6;
+            return UserGroup.clear();
+
+          case 6:
+            _context.next = 8;
+            return GroupEvent.clear();
+
+          case 8:
+            _context.next = 10;
+            return Organization.clear();
+
+          case 10:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  })));
   describe('UserGroup Model', function () {
     describe('UserGroup.create()', function () {
       it('create() creates a UserGroup instance.', function () {
@@ -870,5 +890,8 @@ describe('UserGroup Module Tests', function () {
         });
       });
     });
+  });
+  after(function () {
+    database.close();
   });
 });

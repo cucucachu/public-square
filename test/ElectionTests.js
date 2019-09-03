@@ -2,23 +2,17 @@
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 var assert = require('assert');
 
-var expect = require('expect');
+var database = require('../dist/models/database');
 
-var promiseFinally = require('promise.prototype.finally');
-
-require('../dist/models/Modules/Government/Election/ElectionModule'); // Add 'finally()' to 'Promis.prototype'
-
-
-promiseFinally.shim();
-process.on('unhandledRejection', function (error) {
-  console.log('unhandledRejection', error.message);
-});
+require('../dist/models/Modules/Government/Election/ElectionModule');
 
 var GovernmentPosition = require('../dist/models/Modules/Government/GovernmentPosition');
-
-var PositionAcquisitionProcess = require('../dist/models/Modules/Government/PositionAcquisitionProcess');
 
 var Election = require('../dist/models/Modules/Government/Election/Election');
 
@@ -32,22 +26,48 @@ var PrimaryElectionResult = require('../dist/models/Modules/Government/Election/
 
 var User = require('../dist/models/Modules/User/User');
 
-var UserRole = require('../dist/models/Modules/User/UserRole');
-
 var GeographicArea = require('../dist/models/Modules/Geography/GeographicArea');
 
 describe('Election Module Tests', function () {
-  before(function (done) {
-    Election.clear().then(function () {
-      Campaign.clear().then(function () {
-        Candidate.clear().then(function () {
-          ElectionResult.clear().then(function () {
-            PrimaryElectionResult.clear().finally(done);
-          });
-        });
-      });
-    });
-  });
+  before(
+  /*#__PURE__*/
+  _asyncToGenerator(
+  /*#__PURE__*/
+  regeneratorRuntime.mark(function _callee() {
+    return regeneratorRuntime.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            _context.next = 2;
+            return database.connect();
+
+          case 2:
+            _context.next = 4;
+            return Election.clear();
+
+          case 4:
+            _context.next = 6;
+            return Campaign.clear();
+
+          case 6:
+            _context.next = 8;
+            return Candidate.clear();
+
+          case 8:
+            _context.next = 10;
+            return ElectionResult.clear();
+
+          case 10:
+            _context.next = 12;
+            return PrimaryElectionResult.clear();
+
+          case 12:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  })));
   describe('Election Model Tests', function () {
     describe('Election.create()', function () {
       it('Election.create() creates a Election instance.', function () {
@@ -586,5 +606,8 @@ describe('Election Module Tests', function () {
         });
       });
     });
+  });
+  after(function () {
+    database.close();
   });
 });

@@ -2,17 +2,15 @@
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 var assert = require('assert');
 
-var promiseFinally = require('promise.prototype.finally');
+var database = require('../dist/models/database');
 
-require('../dist/models/Modules/Geography/GeographyModule'); // Add 'finally()' to 'Promis.prototype'
-
-
-promiseFinally.shim();
-process.on('unhandledRejection', function (error) {
-  console.log('unhandledRejection', error.message);
-});
+require('../dist/models/Modules/Geography/GeographyModule');
 
 var User = require('../dist/models/Modules/User/User');
 
@@ -24,26 +22,54 @@ var MapType = require('../dist/models/Modules/Geography/MapType');
 
 var Address = require('../dist/models/Modules/Geography/Address');
 
-var User = require('../dist/models/Modules/User/User');
-
 var Government = require('../dist/models/Modules/Government/Government');
 
 var ElectionResult = require('../dist/models/Modules/Government/Election/ElectionResult');
 
 describe('Geography Module Tests', function () {
-  before(function (done) {
-    User.clear().then(function () {
-      GeographicArea.clear().then(function () {
-        GeographicMap.clear().then(function () {
-          MapType.clear().then(function () {
-            Address.clear().then(function () {
-              User.clear().then(done, done);
-            }, done);
-          }, done);
-        }, done);
-      }, done);
-    }, done);
-  });
+  before(
+  /*#__PURE__*/
+  _asyncToGenerator(
+  /*#__PURE__*/
+  regeneratorRuntime.mark(function _callee() {
+    return regeneratorRuntime.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            _context.next = 2;
+            return database.connect();
+
+          case 2:
+            _context.next = 4;
+            return User.clear();
+
+          case 4:
+            _context.next = 6;
+            return GeographicArea.clear();
+
+          case 6:
+            _context.next = 8;
+            return GeographicMap.clear();
+
+          case 8:
+            _context.next = 10;
+            return MapType.clear();
+
+          case 10:
+            _context.next = 12;
+            return Address.clear();
+
+          case 12:
+            _context.next = 14;
+            return User.clear();
+
+          case 14:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  })));
   describe('GeographicArea Model Tests', function () {
     describe('GeographicArea.create()', function () {
       it('GeographicArea.create() creates a GeographicArea instance.', function () {
@@ -520,5 +546,8 @@ describe('Geography Module Tests', function () {
         });
       });
     });
+  });
+  after(function () {
+    database.close();
   });
 });

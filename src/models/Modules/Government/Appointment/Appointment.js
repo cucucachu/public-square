@@ -15,6 +15,7 @@ var PositionAcquisitionProcess = require('../PositionAcquisitionProcess');
 var Appointment = new ClassModel({
     className: 'Appointment',
     superClasses: [PositionAcquisitionProcess],
+	accessControlled: false,
     schema: {
         appointmentDate: {
             type: Date

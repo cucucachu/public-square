@@ -11,6 +11,7 @@ var ClassModel = require('../../ClassModel');
 
 var TermDefinition = new ClassModel({
 	className: 'TermDefinition',
+	accessControlled: false,
 	schema: {
 		termLength: {
 			type: Number,

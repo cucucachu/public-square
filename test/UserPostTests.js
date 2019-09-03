@@ -2,19 +2,15 @@
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 var assert = require('assert');
 
-var expect = require('expect');
+var database = require('../dist/models/database');
 
-var promiseFinally = require('promise.prototype.finally');
-
-require('../dist/models/Modules/UserPost/UserPostModule'); // Add 'finally()' to 'Promis.prototype'
-
-
-promiseFinally.shim();
-process.on('unhandledRejection', function (error) {
-  console.log('unhandledRejection', error.message);
-});
+require('../dist/models/Modules/UserPost/UserPostModule');
 
 var Poster = require('../dist/models/Modules/UserPost/Poster');
 
@@ -45,21 +41,53 @@ var ImageLink = require('../dist/models/Modules/UserPost/ImageLink');
 var VideoLink = require('../dist/models/Modules/UserPost/VideoLink');
 
 describe('UserPost Module Tests', function () {
-  before(function (done) {
-    UserPost.clear().then(function () {
-      Poster.clear().then(function () {
-        Stamp.clear().then(function () {
-          Stamper.clear().then(function () {
-            StampType.clear().then(function () {
-              PostStream.clear().then(function () {
-                ExternalLink.clear().then(done, done);
-              });
-            });
-          });
-        });
-      });
-    });
-  });
+  before(
+  /*#__PURE__*/
+  _asyncToGenerator(
+  /*#__PURE__*/
+  regeneratorRuntime.mark(function _callee() {
+    return regeneratorRuntime.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            _context.next = 2;
+            return database.connect();
+
+          case 2:
+            _context.next = 4;
+            return UserPost.clear();
+
+          case 4:
+            _context.next = 6;
+            return Poster.clear();
+
+          case 6:
+            _context.next = 8;
+            return Stamp.clear();
+
+          case 8:
+            _context.next = 10;
+            return Stamper.clear();
+
+          case 10:
+            _context.next = 12;
+            return StampType.clear();
+
+          case 12:
+            _context.next = 14;
+            return PostStream.clear();
+
+          case 14:
+            _context.next = 16;
+            return ExternalLink.clear();
+
+          case 16:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee, this);
+  })));
   describe('UserPost Model', function () {
     describe('UserPost.create()', function () {
       it('create() creates a UserPost instance.', function () {
@@ -1194,5 +1222,8 @@ describe('UserPost Module Tests', function () {
         });
       });
     });
+  });
+  after(function () {
+    database.close();
   });
 });

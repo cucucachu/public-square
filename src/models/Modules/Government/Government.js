@@ -15,6 +15,7 @@ let Pollable = require('../Poll/Pollable');
 
 let Government = new ClassModel({
 	className: 'Government',
+	accessControlled: false,
 	superClasses: [Pollable],
 	schema: {
 		name: {

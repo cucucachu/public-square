@@ -1,36 +1,22 @@
-var assert = require('assert');
-var expect = require('expect');
-var promiseFinally = require('promise.prototype.finally');
+const assert = require('assert');
 
+const database = require('../dist/models/database');
 require('../dist/models/Modules/Government/Appointment/AppointmentModule');
-// Add 'finally()' to 'Promis.prototype'
-promiseFinally.shim();
-
-process.on('unhandledRejection', error => {
-	console.log('unhandledRejection', error.message);
-});
-
-var GovernmentPosition = require('../dist/models/Modules/Government/GovernmentPosition');
-var OccupiedPosition = require('../dist/models/Modules/Government/OccupiedPosition');
-var User = require('../dist/models/Modules/User/User');
-var Appointment = require('../dist/models/Modules/Government/Appointment/Appointment');
-var Appointer = require('../dist/models/Modules/Government/Appointment/Appointer');
-var Appointee = require('../dist/models/Modules/Government/Appointment/Appointee');
+const GovernmentPosition = require('../dist/models/Modules/Government/GovernmentPosition');
+const OccupiedPosition = require('../dist/models/Modules/Government/OccupiedPosition');
+const User = require('../dist/models/Modules/User/User');
+const Appointment = require('../dist/models/Modules/Government/Appointment/Appointment');
+const Appointer = require('../dist/models/Modules/Government/Appointment/Appointer');
+const Appointee = require('../dist/models/Modules/Government/Appointment/Appointee');
 
 describe('Appointment Module Tests', function() {
 
-    before(function(done) {
-        Appointment.clear().then(
-            function() {
-                Appointer.clear().then(
-                    function() {
-                        Appointee.clear().then(done, done);
-                    },
-                    done
-                );
-            },
-            done
-        );
+    before(async () => {
+		await database.connect();
+
+		await Appointment.clear();
+		await Appointer.clear();
+		await Appointee.clear();
     });
     
 	describe('Appointment Model Tests', function() {
@@ -582,5 +568,9 @@ describe('Appointment Module Tests', function() {
 		});
 
 	});
+
+	after(() => {
+		database.close();
+	})
 
 });
