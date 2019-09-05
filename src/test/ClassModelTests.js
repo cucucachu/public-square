@@ -3421,385 +3421,262 @@ describe('Class Model Tests', function() {
     
                 describe('Calling find on the Class of the instance you want to find. (Direct)', function() {
         
-                    it('An instance of a concrete class with no subclasses can be found.', function(done) {
-                        let error;
-                        let instances;
-                        let filter = {
+                    it('An instance of a concrete class with no subclasses can be found.', async () => {
+                        const classToCallFindOn = AllFieldsMutexClass;
+                        const classOfInstance = AllFieldsMutexClass;
+                        const instanceToFind = instanceOfAllFieldsMutexClass;
+    
+                        const filter = {
                             string: 'instanceOfAllFieldsMutexClass'
                         }
-        
-                        AllFieldsMutexClass.find(filter).then(
-                            function(foundInstances) {
-                                instances = foundInstances;
-                            },
-                            function(findError) {
-                                error = findError;
-                            }
-                        ).finally(function() {
-                            if (error)
-                                done(error);
-                            else {
-                                if (instances == null || instances.length == 0) {
-                                    done(new Error('find() did not return any instances.'));
-                                }
-                                else if (instances.length > 1) {
-                                    done(new Error('find() returned more than one instance.'));
-                                }
-                                else {
-                                    instances.forEach(function(instance) {
-                                        let compareResult = AllFieldsMutexClass.compare(instance, instanceOfAllFieldsMutexClass);
-                                        if (!instance._id.equals(instanceOfAllFieldsMutexClass._id) || compareResult.match == false) {
-                                            done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
-                                        }
-                                    });
-                                    done();
-                                }
-                            }
-                        });
+    
+                        const instancesFound = await classToCallFindOn.find(filter);
+    
+                        if (instancesFound == null || instancesFound.length == 0)
+                            throw new Error('find() did not return any instances.');
+
+                        if (instancesFound.length > 1) {
+                            throw new Error('find() returned more than one instance.');
+                        }
+                        
+                        const compareResult = classOfInstance.compare(instancesFound[0], instanceToFind);
+    
+                        if (!instancesFound[0]._id.equals(instanceToFind._id) || compareResult.match == false) {
+                            throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
+                        }
                     });
-            
-                    it('An instance of a concrete discriminated class can be found.', function(done) {
-                        let error;
-                        let instances;
-                        let filter = {
+        
+                    it('An instance of a concrete discriminated class can be found.', async () => {
+                        const classToCallFindOn = SubClassOfDiscriminatorSuperClass;
+                        const classOfInstance = SubClassOfDiscriminatorSuperClass;
+                        const instanceToFind = instanceOfSubClassOfDiscriminatorSuperClass;
+    
+                        const filter = {
                             name: 'instanceOfSubClassOfDiscriminatorSuperClass'
                         }
-        
-                        SubClassOfDiscriminatorSuperClass.find(filter).then(
-                            function(foundInstances) {
-                                instances = foundInstances;
-                            },
-                            function(findError) {
-                                error = findError;
-                            }
-                        ).finally(function() {
-                            if (error)
-                                done(error);
-                            else {
-                                if (instances == null || instances.length == 0) {
-                                    done(new Error('find() did not return any instances.'));
-                                }
-                                else if (instances.length > 1) {
-                                    done(new Error('find() returned more than one instance.'));
-                                }
-                                else {
-                                    instances.forEach(function(instance) {
-                                        let compareResult = SubClassOfDiscriminatorSuperClass.compare(instance, instanceOfSubClassOfDiscriminatorSuperClass);
-                                        if (!instance._id.equals(instanceOfSubClassOfDiscriminatorSuperClass._id) || compareResult.match == false) {
-                                            done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
-                                        }
-                                    });
-                                    done();
-                                }
-                            }
-                        });
+    
+                        const instancesFound = await classToCallFindOn.find(filter);
+    
+                        if (instancesFound == null || instancesFound.length == 0)
+                            throw new Error('find() did not return any instances.');
+
+                        if (instancesFound.length > 1) {
+                            throw new Error('find() returned more than one instance.');
+                        }
+                        
+                        const compareResult = classOfInstance.compare(instancesFound[0], instanceToFind);
+    
+                        if (!instancesFound[0]._id.equals(instanceToFind._id) || compareResult.match == false) {
+                            throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
+                        }
                     });
-            
-                    it('An instance of a concrete super class can be found.', function(done) {
-                        let error;
-                        let instances;
-                        let filter = {
+        
+                    it('An instance of a concrete super class can be found.', async () => {
+                        const classToCallFindOn = SuperClass;
+                        const classOfInstance = SuperClass;
+                        const instanceToFind = instanceOfSuperClass;
+    
+                        const filter = {
                             name: 'instanceOfSuperClass'
                         }
-        
-                        SuperClass.find(filter).then(
-                            function(foundInstances) {
-                                instances = foundInstances;
-                            },
-                            function(findError) {
-                                error = findError;
-                            }
-                        ).finally(function() {
-                            if (error)
-                                done(error);
-                            else {
-                                if (instances == null || instances.length == 0) {
-                                    done(new Error('find() did not return any instances.'));
-                                }
-                                else if (instances.length > 1) {
-                                    done(new Error('find() returned more than one instance.'));
-                                }
-                                else {
-                                    instances.forEach(function(instance) {
-                                        let compareResult = SuperClass.compare(instance, instanceOfSuperClass);
-                                        if (!instance._id.equals(instanceOfSuperClass._id) || compareResult.match == false) {
-                                            done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
-                                        }
+    
+                        const instancesFound = await classToCallFindOn.find(filter);
+    
+                        if (instancesFound == null || instancesFound.length == 0)
+                            throw new Error('find() did not return any instances.');
 
-                                    });
-                                    done();
-                                }
-                            }
-                        });
+                        if (instancesFound.length > 1) {
+                            throw new Error('find() returned more than one instance.');
+                        }
+                        
+                        const compareResult = classOfInstance.compare(instancesFound[0], instanceToFind);
+    
+                        if (!instancesFound[0]._id.equals(instanceToFind._id) || compareResult.match == false) {
+                            throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
+                        }
                     });
-            
-                    it('An instance of a concrete discriminated sub-class can be found.', function(done) {
-                        let error;
-                        let instances;
-                        let filter = {
+        
+                    it('An instance of a concrete discriminated sub-class can be found.', async () => {
+                        const classToCallFindOn = DiscriminatedSuperClass;
+                        const classOfInstance = DiscriminatedSuperClass;
+                        const instanceToFind = instanceOfDiscriminatedSuperClass;
+    
+                        const filter = {
                             name: 'instanceOfDiscriminatedSuperClass'
                         }
-        
-                        DiscriminatedSuperClass.find(filter).then(
-                            function(foundInstances) {
-                                instances = foundInstances;
-                            },
-                            function(findError) {
-                                error = findError;
-                            }
-                        ).finally(function() {
-                            if (error)
-                                done(error);
-                            else {
-                                if (instances == null || instances.length == 0) {
-                                    done(new Error('find() did not return any instances.'));
-                                }
-                                else if (instances.length > 1) {
-                                    done(new Error('find() returned more than one instance.'));
-                                }
-                                else {
-                                    instances.forEach(function(instance) {
-                                        let compareResult = DiscriminatedSuperClass.compare(instance, instanceOfDiscriminatedSuperClass);
-                                        if (!instance._id.equals(instanceOfDiscriminatedSuperClass._id) || compareResult.match == false) {
-                                            done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
-                                        }
-                                    })
-                                    done();
-                                }
-                            }
-                        });
+    
+                        const instancesFound = await classToCallFindOn.find(filter);
+    
+                        if (instancesFound == null || instancesFound.length == 0)
+                            throw new Error('find() did not return any instances.');
+
+                        if (instancesFound.length > 1) {
+                            throw new Error('find() returned more than one instance.');
+                        }
+                        
+                        const compareResult = classOfInstance.compare(instancesFound[0], instanceToFind);
+    
+                        if (!instancesFound[0]._id.equals(instanceToFind._id) || compareResult.match == false) {
+                            throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
+                        }
                     });
         
                 });
         
                 describe('Calling find on a super class of the class of the instance you want to find. (Indirect)', function() {
-            
-                    it('An instance of a sub class of a discrimintated super class can be found by Id from the super class.', function(done) {
-                        let error;
-                        let instances;
-                        let filter = {
+        
+                    it('An instance of a sub class of a discrimintated super class can be found by Id from the super class.', async () => {
+                        const classToCallFindOn = DiscriminatedSuperClass;
+                        const classOfInstance = SubClassOfDiscriminatorSuperClass;
+                        const instanceToFind = instanceOfSubClassOfDiscriminatorSuperClass;
+    
+                        const filter = {
                             name: 'instanceOfSubClassOfDiscriminatorSuperClass'
                         }
-        
-                        DiscriminatedSuperClass.find(filter).then(
-                            function(foundInstances) {
-                                instances = foundInstances;
-                            },
-                            function(findError) {
-                                error = findError;
-                            }
-                        ).finally(function() {
-                            if (error)
-                                done(error);
-                            else {
-                                if (instances == null || instances.length == 0) {
-                                    done(new Error('find() did not return any instances.'));
-                                }
-                                else if (instances.length > 1) {
-                                    done(new Error('find() returned more than one instance.'));
-                                }
-                                else {
-                                    instances.forEach(function(instance) {
-                                        let compareResult = SubClassOfDiscriminatorSuperClass.compare(instance, instanceOfSubClassOfDiscriminatorSuperClass);
-                                        if (!instance._id.equals(instanceOfSubClassOfDiscriminatorSuperClass._id) || compareResult.match == false) {
-                                            done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
-                                        }
+    
+                        const instancesFound = await classToCallFindOn.find(filter);
+    
+                        if (instancesFound == null || instancesFound.length == 0)
+                            throw new Error('find() did not return any instances.');
 
-                                    });
-                                    done();
-                                }
-                            }
-                        });
+                        if (instancesFound.length > 1) {
+                            throw new Error('find() returned more than one instance.');
+                        }
+                        
+                        const compareResult = classOfInstance.compare(instancesFound[0], instanceToFind);
+    
+                        if (!instancesFound[0]._id.equals(instanceToFind._id) || compareResult.match == false) {
+                            throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
+                        }
                     });
-            
-                    it('An instance of a concrete sub class of a non-discriminated super class can be found by Id from the super class.', function(done) {
-                        let error;
-                        let instances;
-                        let filter = {
+        
+                    it('An instance of a concrete sub class of a non-discriminated super class can be found by Id from the super class.', async () => {
+                        const classToCallFindOn = SuperClass;
+                        const classOfInstance = SubClassOfSuperClass;
+                        const instanceToFind = instanceOfSubClassOfSuperClass;
+    
+                        const filter = {
                             name: 'instanceOfSubClassOfSuperClass'
                         }
-        
-                        SuperClass.find(filter).then(
-                            function(foundInstances) {
-                                instances = foundInstances;
-                            },
-                            function(findError) {
-                                error = findError;
-                            }
-                        ).finally(function() {
-                            if (error)
-                                done(error);
-                            else {
-                                if (instances == null || instances.length == 0) {
-                                    done(new Error('find() did not return any instances.'));
-                                }
-                                else if (instances.length > 1) {
-                                    done(new Error('find() returned more than one instance.'));
-                                }
-                                else {
-                                    instances.forEach(function(instance) {
-                                        let compareResult = SubClassOfSuperClass.compare(instance, instanceOfSubClassOfSuperClass);
-                                        if (!instance._id.equals(instanceOfSubClassOfSuperClass._id) || compareResult.match == false) {
-                                            done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
-                                        }
-                                    });
-                                    done();
-                                }
-                            }
-                        });
+    
+                        const instancesFound = await classToCallFindOn.find(filter);
+    
+                        if (instancesFound == null || instancesFound.length == 0)
+                            throw new Error('find() did not return any instances.');
+
+                        if (instancesFound.length > 1) {
+                            throw new Error('find() returned more than one instance.');
+                        }
+                        
+                        const compareResult = classOfInstance.compare(instancesFound[0], instanceToFind);
+    
+                        if (!instancesFound[0]._id.equals(instanceToFind._id) || compareResult.match == false) {
+                            throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
+                        }
                     });
-                    
-                    it('An instance of a concrete sub class of a non-discriminated abstract super class can be found by Id from the super class.', function(done) {
-                        let error;
-                        let instances;
-                        let filter = {
+        
+                    it('An instance of a concrete sub class of a non-discriminated abstract super class can be found by Id from the super class.', async () => {
+                        const classToCallFindOn = AbstractSuperClass;
+                        const classOfInstance = SubClassOfAbstractSuperClass;
+                        const instanceToFind = instanceOfSubClassOfAbstractSuperClass;
+    
+                        const filter = {
                             name: 'instanceOfSubClassOfAbstractSuperClass'
                         }
-        
-                        AbstractSuperClass.find(filter).then(
-                            function(foundInstances) {
-                                instances = foundInstances;
-                            },
-                            function(findError) {
-                                error = findError;
-                            }
-                        ).finally(function() {
-                            if (error)
-                                done(error);
-                            else {
-                                if (instances == null || instances.length == 0) {
-                                    done(new Error('find() did not return any instances.'));
-                                }
-                                else if (instances.length > 1) {
-                                    done(new Error('find() returned more than one instance.'));
-                                }
-                                else {
-                                    instances.forEach(function(instance) {
-                                        let compareResult = SubClassOfAbstractSuperClass.compare(instance, instanceOfSubClassOfAbstractSuperClass);
-                                        if (!instance._id.equals(instanceOfSubClassOfAbstractSuperClass._id) || compareResult.match == false) {
-                                            done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
-                                        }
-                                    });
-                                    done();
-                                }
-                            }
-                        });
+    
+                        const instancesFound = await classToCallFindOn.find(filter);
+    
+                        if (instancesFound == null || instancesFound.length == 0)
+                            throw new Error('find() did not return any instances.');
+
+                        if (instancesFound.length > 1) {
+                            throw new Error('find() returned more than one instance.');
+                        }
+                        
+                        const compareResult = classOfInstance.compare(instancesFound[0], instanceToFind);
+    
+                        if (!instancesFound[0]._id.equals(instanceToFind._id) || compareResult.match == false) {
+                            throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
+                        }
                     });
         
                 });
         
                 describe('Calling find() on a super class of the super class of the instance you want to find. (Recursive)', function() {
-            
-                    it('SuperClass -> Discriminated Sub Class -> Sub Sub Class', function(done) {
-                        let error;
-                        let instances;
-                        let filter = {
+        
+                    it('SuperClass -> Discriminated Sub Class -> Sub Sub Class', async () => {
+                        const classToCallFindOn = SuperClass;
+                        const classOfInstance = SubClassOfDiscriminatedSubClassOfSuperClass;
+                        const instanceToFind = instanceOfSubClassOfDiscriminatedSubClassOfSuperClass;
+    
+                        const filter = {
                             name: 'instanceOfSubClassOfDiscriminatedSubClassOfSuperClass'
                         }
-        
-                        SuperClass.find(filter).then(
-                            function(foundInstances) {
-                                instances = foundInstances;
-                            },
-                            function(findError) {
-                                error = findError;
-                            }
-                        ).finally(function() {
-                            if (error)
-                                done(error);
-                            else {
-                                if (instances == null || instances.length == 0) {
-                                    done(new Error('find() did not return any instances.'));
-                                }
-                                else if (instances.length > 1) {
-                                    done(new Error('find() returned more than one instance.'));
-                                }
-                                else {
-                                    instances.forEach(function(instance) {
-                                        let compareResult = SubClassOfDiscriminatedSubClassOfSuperClass.compare(instance, instanceOfSubClassOfDiscriminatedSubClassOfSuperClass);
-                                        if (!instance._id.equals(instanceOfSubClassOfDiscriminatedSubClassOfSuperClass._id) || compareResult.match == false) {
-                                            done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
-                                        }
-                                    });
-                                    done();
-                                }
-                            }
-                        });
+    
+                        const instancesFound = await classToCallFindOn.find(filter);
+    
+                        if (instancesFound == null || instancesFound.length == 0)
+                            throw new Error('find() did not return any instances.');
+
+                        if (instancesFound.length > 1) {
+                            throw new Error('find() returned more than one instance.');
+                        }
+                        
+                        const compareResult = classOfInstance.compare(instancesFound[0], instanceToFind);
+    
+                        if (!instancesFound[0]._id.equals(instanceToFind._id) || compareResult.match == false) {
+                            throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
+                        }
                     });
-            
-                    it('SuperClass -> Sub Class -> Sub Sub Class', function(done) {
-                        let error;
-                        let instances;
-                        let filter = {
+        
+                    it('SuperClass -> Sub Class -> Sub Sub Class', async () => {
+                        const classToCallFindOn = SuperClass;
+                        const classOfInstance = SubClassOfSubClassOfSuperClass;
+                        const instanceToFind = instanceOfSubClassOfSubClassOfSuperClass;
+    
+                        const filter = {
                             name: 'instanceOfSubClassOfSubClassOfSuperClass'
                         }
-        
-                        SuperClass.find(filter).then(
-                            function(foundInstances) {
-                                instances = foundInstances;
-                            },
-                            function(findError) {
-                                error = findError;
-                            }
-                        ).finally(function() {
-                            if (error)
-                                done(error);
-                            else {
-                                if (instances == null || instances.length == 0) {
-                                    done(new Error('find() did not return any instances.'));
-                                }
-                                else if (instances.length > 1) {
-                                    done(new Error('find() returned more than one instance.'));
-                                }
-                                else {
-                                    instances.forEach(function(instance) {
-                                        let compareResult = SubClassOfSubClassOfSuperClass.compare(instance, instanceOfSubClassOfSubClassOfSuperClass);
-                                        if (!instance._id.equals(instanceOfSubClassOfSubClassOfSuperClass._id) || compareResult.match == false) {
-                                            done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
-                                        }
-                                    });
-                                    done();
-                                }
-                            }
-                        });
+    
+                        const instancesFound = await classToCallFindOn.find(filter);
+    
+                        if (instancesFound == null || instancesFound.length == 0)
+                            throw new Error('find() did not return any instances.');
+
+                        if (instancesFound.length > 1) {
+                            throw new Error('find() returned more than one instance.');
+                        }
+                        
+                        const compareResult = classOfInstance.compare(instancesFound[0], instanceToFind);
+    
+                        if (!instancesFound[0]._id.equals(instanceToFind._id) || compareResult.match == false) {
+                            throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
+                        }
                     });
-            
-                    it('SuperClass -> Abstract Sub Class -> Sub Sub Class', function(done) {
-                        let error;
-                        let instances;
-                        let filter = {
+        
+                    it('SuperClass -> Abstract Sub Class -> Sub Sub Class', async () => {
+                        const classToCallFindOn = SuperClass;
+                        const classOfInstance = SubClassOfAbstractSubClassOfSuperClass;
+                        const instanceToFind = instanceOfSubClassOfAbstractSubClassOfSuperClass;
+    
+                        const filter = {
                             name: 'instanceOfSubClassOfAbstractSubClassOfSuperClass'
                         }
-        
-                        SuperClass.find(filter).then(
-                            function(foundInstances) {
-                                instances = foundInstances;
-                            },
-                            function(findError) {
-                                error = findError;
-                            }
-                        ).finally(function() {
-                            if (error)
-                                done(error);
-                            else {
-                                if (instances == null || instances.length == 0) {
-                                    done(new Error('find() did not return any instances.'));
-                                }
-                                else if (instances.length > 1) {
-                                    done(new Error('find() returned more than one instance.'));
-                                }
-                                else {
-                                    instances.forEach(function(instance) {
-                                        let compareResult = SubClassOfAbstractSubClassOfSuperClass.compare(instance, instanceOfSubClassOfAbstractSubClassOfSuperClass);
-                                        if (!instance._id.equals(instanceOfSubClassOfAbstractSubClassOfSuperClass._id) || compareResult.match == false) {
-                                            done(new Error('An instance was returned, but it is not the correct one. ' + compareResult.message));
-                                        }
+    
+                        const instancesFound = await classToCallFindOn.find(filter);
+    
+                        if (instancesFound == null || instancesFound.length == 0)
+                            throw new Error('find() did not return any instances.');
 
-                                    });
-                                    done();
-                                }
-                            }
-                        });
+                        if (instancesFound.length > 1) {
+                            throw new Error('find() returned more than one instance.');
+                        }
+                        
+                        const compareResult = classOfInstance.compare(instancesFound[0], instanceToFind);
+    
+                        if (!instancesFound[0]._id.equals(instanceToFind._id) || compareResult.match == false) {
+                            throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
+                        }
                     });
         
                 });
@@ -3807,69 +3684,54 @@ describe('Class Model Tests', function() {
             });
 
             describe('Finding Multiple Instances.', function() {
+        
+                it('Find two instances of a super class. One is an instance of the super class itself, one is 2 levels deep.', async () => {
+                    const classToCallFindOn = SuperClass;
+                    const instancesToFind = [instanceOfSuperClass, instanceOfSubClassOfDiscriminatedSubClassOfSuperClass];
 
-                it('Find two instances of a super class. One is an instance of the super class itself, one is 2 levels deep.', function(done) {
-                    let error;
-                    let instances;
-                    let desiredInstances = [instanceOfSuperClass, instanceOfSubClassOfDiscriminatedSubClassOfSuperClass];
-                    let filter = {
+                    const filter = {
                         name: {$in: ['instanceOfSuperClass', 'instanceOfSubClassOfDiscriminatedSubClassOfSuperClass']}
-                    };
-    
-                    SuperClass.find(filter).then(
-                        function(foundInstances) {
-                            instances = foundInstances;
-                        },
-                        function(findError) {
-                            error = findError;
-                        }
-                    ).finally(function() {
-                        if (error)
-                            done(error);
-                        else {
-                            if (instances == null || instances.length == 0) {
-                                done(new Error('find() did not return any instances.'));
-                            }
-                            else if (instances.length < desiredInstances.length) {
-                                done(new Error('find() did not return all the instances.'));
-                            }
-                            else if (instances.length > desiredInstances.length) {
-                                done(new Error('find() returned too many instances'));
-                            }
-                            else {
-                                desiredInstances.forEach(function(desiredInstance) {
-                                    let compareResult;
-                                    let desiredInstanceFound = false;
-                                    instances.forEach(function(instance) {
-                                        if (instance._id.equals(desiredInstance._id)) {
-                                            desiredInstanceFound = true;
-                                            compareResult = SubClassOfDiscriminatedSubClassOfSuperClass.compare(instance, desiredInstance);
-                                        }
-                                    });
-                                    if (desiredInstanceFound && compareResult.match == false) {
-                                        done(new Error('Desired instance was returned, but it doesn\'t match.' + compareResult.message));
-                                    }
-                                    if (desiredInstanceFound == false) {
-                                        done(new Error('Wrong instance returned. Desired instance missing from returned instances:' + desiredInstance));
-                                    }
-                                });
-                                done();
-                            }
-                        }
-                    });
-                });
+                    }; 
 
-                it('Find all the instances of a super class. One is an instance of the super class itself, and the others are the instances of the various sub classes.', function(done) {
-                    let error;
-                    let instances;
-                    let desiredInstances = [
+                    const instancesFound = await classToCallFindOn.find(filter);
+
+                    if (instancesFound == null || instancesFound.length == 0)
+                        throw new Error('find() did not return any instances.');
+                    
+                    if (instancesFound.length < instancesToFind.length)
+                        throw new Error('find() did not return all the instances.');
+                    
+                    if (instancesFound.length > instancesToFind.length)
+                        throw new Error('find() returned too many instances');
+                    
+                    let instancesCorrectlyFound = 0;
+
+                    for (const instanceToFind of instancesToFind)
+                        for (const instanceFound of instancesFound)
+                            if (instanceFound.id == instanceToFind.id) {
+                                instancesCorrectlyFound++;
+                                break;
+                            }
+                    
+                    if (instancesCorrectlyFound != instancesToFind.length)
+                        throw new Error(
+                            'find() returned the correct number of instances, but did not return the correct instances.\n' +
+                            'Instances found: \n' + instancesFound + '\n' + 
+                            'Expected instances: \n' + instancesToFind
+                        );
+                });
+        
+                it('Find all the instances of a super class. One is an instance of the super class itself, and the others are the instances of the various sub classes.', async () => {
+                    const classToCallFindOn = SuperClass;
+                    const instancesToFind = [
                         instanceOfSuperClass, 
                         instanceOfSubClassOfSuperClass,
                         instanceOfSubClassOfDiscriminatedSubClassOfSuperClass,
                         instanceOfSubClassOfSubClassOfSuperClass,
                         instanceOfSubClassOfAbstractSubClassOfSuperClass
                     ];
-                    let filter = {
+
+                    const filter = {
                         name: {$in: [
                             'instanceOfSuperClass', 
                             'instanceOfSubClassOfSuperClass',
@@ -3877,52 +3739,35 @@ describe('Class Model Tests', function() {
                             'instanceOfSubClassOfSubClassOfSuperClass',
                             'instanceOfSubClassOfAbstractSubClassOfSuperClass'
                         ]}
-                    };
-    
-                    SuperClass.find(filter).then(
-                        function(foundInstances) {
-                            instances = foundInstances;
-                        },
-                        function(findError) {
-                            error = findError;
-                        }
-                    ).finally(function() {
-                        if (error)
-                            done(error);
-                        else {
-                            if (instances == null || instances.length == 0) {
-                                done(new Error('find() did not return any instances.'));
+                    }; 
+
+                    const instancesFound = await classToCallFindOn.find(filter);
+
+                    if (instancesFound == null || instancesFound.length == 0)
+                        throw new Error('find() did not return any instances.');
+                    
+                    if (instancesFound.length < instancesToFind.length)
+                        throw new Error('find() did not return all the instances.');
+                    
+                    if (instancesFound.length > instancesToFind.length)
+                        throw new Error('find() returned too many instances');
+                    
+                    let instancesCorrectlyFound = 0;
+
+                    for (const instanceToFind of instancesToFind)
+                        for (const instanceFound of instancesFound)
+                            if (instanceFound.id == instanceToFind.id) {
+                                instancesCorrectlyFound++;
+                                break;
                             }
-                            else if (instances.length < desiredInstances.length) {
-                                done(new Error('find() did not return all the instances.'));
-                            }
-                            else if (instances.length > desiredInstances.length) {
-                                done(new Error('find() returned too many instances'));
-                            }
-                            else {
-                                desiredInstances.forEach(function(desiredInstance) {
-                                    let compareResult;
-                                    let desiredInstanceFound = false;
-                                    instances.forEach(function(instance) {
-                                        if (instance._id.equals(desiredInstance._id)) {
-                                            desiredInstanceFound = true;
-                                            compareResult = SubClassOfDiscriminatedSubClassOfSuperClass.compare(instance, desiredInstance);
-                                        }
-                                    });
-                                    if (desiredInstanceFound && compareResult.match == false) {
-                                        done(new Error('Desired instance was returned, but it doesn\'t match.' + compareResult.message));
-                                    }
-                                    if (desiredInstanceFound == false) {
-                                        done(new Error('Wrong instance returned. Desired instance missing from returned instances:' + desiredInstance));
-                                    }
-                                });
-                                done();
-                            }
-                        }
-                    });
+                    
+                    if (instancesCorrectlyFound != instancesToFind.length)
+                        throw new Error(
+                            'find() returned the correct number of instances, but did not return the correct instances.\n' +
+                            'Instances found: \n' + instancesFound + '\n' + 
+                            'Expected instances: \n' + instancesToFind
+                        );
                 });
-
-
 
             });
 
