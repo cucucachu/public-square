@@ -452,6 +452,9 @@ describe('Class Model Tests', function() {
                     return accessControlledByInstance.allowed;
                 },
                 schema: {
+                    name: {
+                        type: String
+                    },
                     accessControlledBy: {
                         type: Schema.Types.ObjectId,
                         ref: 'ClassControlsAccessControlledSuperClass'
@@ -3006,7 +3009,7 @@ describe('Class Model Tests', function() {
                     const instanceFound = await classOfInstance.findById(instanceToFind._id);
 
                     if (!instanceFound) {
-                        throw new Error('findById() did not return an instance');
+                        throw new Error('findById() did not return an instance.');
                     }
                     
                     const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
@@ -3022,7 +3025,7 @@ describe('Class Model Tests', function() {
                     const instanceFound = await classOfInstance.findById(instanceToFind._id);
 
                     if (!instanceFound) {
-                        throw new Error('findById() did not return an instance');
+                        throw new Error('findById() did not return an instance.');
                     }
                     
                     const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
@@ -3038,7 +3041,7 @@ describe('Class Model Tests', function() {
                     const instanceFound = await classOfInstance.findById(instanceToFind._id);
 
                     if (!instanceFound) {
-                        throw new Error('findById() did not return an instance');
+                        throw new Error('findById() did not return an instance.');
                     }
                     
                     const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
@@ -3054,7 +3057,7 @@ describe('Class Model Tests', function() {
                     const instanceFound = await classOfInstance.findById(instanceToFind._id);
 
                     if (!instanceFound) {
-                        throw new Error('findById() did not return an instance');
+                        throw new Error('findById() did not return an instance.');
                     }
                     
                     const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
@@ -3075,7 +3078,7 @@ describe('Class Model Tests', function() {
                     const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
 
                     if (!instanceFound) {
-                        throw new Error('findById() did not return an instance');
+                        throw new Error('findById() did not return an instance.');
                     }
                     
                     const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
@@ -3092,7 +3095,7 @@ describe('Class Model Tests', function() {
                     const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
 
                     if (!instanceFound) {
-                        throw new Error('findById() did not return an instance');
+                        throw new Error('findById() did not return an instance.');
                     }
                     
                     const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
@@ -3109,7 +3112,7 @@ describe('Class Model Tests', function() {
                     const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
 
                     if (!instanceFound) {
-                        throw new Error('findById() did not return an instance');
+                        throw new Error('findById() did not return an instance.');
                     }
                     
                     const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
@@ -3131,7 +3134,7 @@ describe('Class Model Tests', function() {
                     const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
 
                     if (!instanceFound) {
-                        throw new Error('findById() did not return an instance');
+                        throw new Error('findById() did not return an instance.');
                     }
                     
                     const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
@@ -3148,7 +3151,7 @@ describe('Class Model Tests', function() {
                     const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
 
                     if (!instanceFound) {
-                        throw new Error('findById() did not return an instance');
+                        throw new Error('findById() did not return an instance.');
                     }
                     
                     const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
@@ -3165,7 +3168,7 @@ describe('Class Model Tests', function() {
                     const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
 
                     if (!instanceFound) {
-                        throw new Error('findById() did not return an instance');
+                        throw new Error('findById() did not return an instance.');
                     }
                     
                     const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
@@ -3195,7 +3198,7 @@ describe('Class Model Tests', function() {
                     const instanceFound = await classToCallFindOneOn.findOne(filter);
 
                     if (!instanceFound) {
-                        throw new Error('findOne() did not return an instance');
+                        throw new Error('findOne() did not return an instance.');
                     }
                     
                     const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
@@ -3217,7 +3220,7 @@ describe('Class Model Tests', function() {
                     const instanceFound = await classToCallFindOneOn.findOne(filter);
 
                     if (!instanceFound) {
-                        throw new Error('findOne() did not return an instance');
+                        throw new Error('findOne() did not return an instance.');
                     }
                     
                     const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
@@ -3239,7 +3242,7 @@ describe('Class Model Tests', function() {
                     const instanceFound = await classToCallFindOneOn.findOne(filter);
 
                     if (!instanceFound) {
-                        throw new Error('findOne() did not return an instance');
+                        throw new Error('findOne() did not return an instance.');
                     }
                     
                     const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
@@ -3261,7 +3264,7 @@ describe('Class Model Tests', function() {
                     const instanceFound = await classToCallFindOneOn.findOne(filter);
 
                     if (!instanceFound) {
-                        throw new Error('findOne() did not return an instance');
+                        throw new Error('findOne() did not return an instance.');
                     }
                     
                     const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
@@ -3287,7 +3290,7 @@ describe('Class Model Tests', function() {
                     const instanceFound = await classToCallFindOneOn.findOne(filter);
 
                     if (!instanceFound) {
-                        throw new Error('findOne() did not return an instance');
+                        throw new Error('findOne() did not return an instance.');
                     }
                     
                     const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
@@ -3309,7 +3312,7 @@ describe('Class Model Tests', function() {
                     const instanceFound = await classToCallFindOneOn.findOne(filter);
 
                     if (!instanceFound) {
-                        throw new Error('findOne() did not return an instance');
+                        throw new Error('findOne() did not return an instance.');
                     }
                     
                     const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
@@ -3331,7 +3334,7 @@ describe('Class Model Tests', function() {
                     const instanceFound = await classToCallFindOneOn.findOne(filter);
 
                     if (!instanceFound) {
-                        throw new Error('findOne() did not return an instance');
+                        throw new Error('findOne() did not return an instance.');
                     }
                     
                     const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
@@ -3357,7 +3360,7 @@ describe('Class Model Tests', function() {
                     const instanceFound = await classToCallFindOneOn.findOne(filter);
 
                     if (!instanceFound) {
-                        throw new Error('findOne() did not return an instance');
+                        throw new Error('findOne() did not return an instance.');
                     }
                     
                     const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
@@ -3379,7 +3382,7 @@ describe('Class Model Tests', function() {
                     const instanceFound = await classToCallFindOneOn.findOne(filter);
 
                     if (!instanceFound) {
-                        throw new Error('findOne() did not return an instance');
+                        throw new Error('findOne() did not return an instance.');
                     }
                     
                     const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
@@ -3401,7 +3404,7 @@ describe('Class Model Tests', function() {
                     const instanceFound = await classToCallFindOneOn.findOne(filter);
 
                     if (!instanceFound) {
-                        throw new Error('findOne() did not return an instance');
+                        throw new Error('findOne() did not return an instance.');
                     }
                     
                     const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
@@ -4198,71 +4201,85 @@ describe('Class Model Tests', function() {
 
             // AccessControlledSuperClass Instances
             var instanceOfAccessControlledSuperClassPasses = AccessControlledSuperClass.create();
+            instanceOfAccessControlledSuperClassPasses.name = 'instanceOfAccessControlledSuperClassPasses';
             instanceOfAccessControlledSuperClassPasses.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;
 
             var instanceOfAccessControlledSuperClassFailsRelationship = AccessControlledSuperClass.create();
+            instanceOfAccessControlledSuperClassFailsRelationship.name = 'instanceOfAccessControlledSuperClassFailsRelationship';
             instanceOfAccessControlledSuperClassFailsRelationship.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassNotAllowed;
 
             // AccessControlledSubClassOfAccessControlledSuperClass Instances
             var instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses = AccessControlledSubClassOfAccessControlledSuperClass.create();
+            instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses.name = 'instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses';
             instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;
             instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses.boolean = true;
 
             var instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship = AccessControlledSubClassOfAccessControlledSuperClass.create();
+            instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship.name = 'instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship';
             instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassNotAllowed;
             instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship.boolean = true;
 
             var instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean = AccessControlledSubClassOfAccessControlledSuperClass.create();
+            instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean.name = 'instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean'
             instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;
             instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean.boolean = false;
 
             // AccessControlledDiscriminatedSuperClass Instances
             var instanceOfAccessControlledDiscriminatedSuperClassPasses = AccessControlledDiscriminatedSuperClass.create();
+            instanceOfAccessControlledDiscriminatedSuperClassPasses.name = 'instanceOfAccessControlledDiscriminatedSuperClassPasses';
             instanceOfAccessControlledDiscriminatedSuperClassPasses.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;
             instanceOfAccessControlledDiscriminatedSuperClassPasses.boolean = true;
             instanceOfAccessControlledDiscriminatedSuperClassPasses.string = 'accessControlled';
 
             var instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship = AccessControlledDiscriminatedSuperClass.create();
+            instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship.name = 'instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship';
             instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassNotAllowed;
             instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship.boolean = true;
             instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship.string = 'accessControlled';
 
             var instanceOfAccessControlledDiscriminatedSuperClassFailsString = AccessControlledDiscriminatedSuperClass.create();
+            instanceOfAccessControlledDiscriminatedSuperClassFailsString.name = 'instanceOfAccessControlledDiscriminatedSuperClassFailsString';
             instanceOfAccessControlledDiscriminatedSuperClassFailsString.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;
             instanceOfAccessControlledDiscriminatedSuperClassFailsString.boolean = true;
             instanceOfAccessControlledDiscriminatedSuperClassFailsString.string = 'not accessControlled';
 
             var instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean = AccessControlledDiscriminatedSuperClass.create();
+            instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean.name = 'instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean';
             instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;
             instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean.boolean = false;
             instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean.string = 'accessControlled';
 
             // AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass Instances
-            var instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses = AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.create(); 
+            var instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses = AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.create();
+            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses.name = 'instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses';
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;  
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses.boolean = true;
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses.string = 'accessControlled';         
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses.number = 1;
 
             var instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship = AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.create();
+            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship.name = 'instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship';
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassNotAllowed;             
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship.number = 1;
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship.boolean = true;
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship.string = 'accessControlled';
 
             var instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean = AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.create();
+            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean.name = 'instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean';
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;     
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean.boolean = false;
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean.string = 'accessControlled';
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean.number = 1;
 
             var instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString = AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.create();
+            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString.name = 'instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString';
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;     
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString.boolean = true;
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString.string = 'not accessControlled';            
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString.number = 1;
 
-            var instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber = AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.create(); 
+            var instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber = AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.create();
+            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber.name = 'instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber';
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber.boolean = true;
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber.string = 'accessControlled';      
@@ -4274,37 +4291,34 @@ describe('Class Model Tests', function() {
         }
 
         // Save all SecurityFilter Test Instances
-        before(done => {
-            ClassControlsAccessControlledSuperClass.saveAll([
+        before(async () => {
+            await ClassControlsAccessControlledSuperClass.saveAll([
                 instanceOfClassControlsAccessControlledSuperClassAllowed,
                 instanceOfClassControlsAccessControlledSuperClassNotAllowed
-            ]).then(() => {
-                AccessControlledSuperClass.saveAll([
-                    instanceOfAccessControlledSuperClassPasses,
-                    instanceOfAccessControlledSuperClassFailsRelationship
-                ]).then(() => {
-                    AccessControlledSubClassOfAccessControlledSuperClass.saveAll([
-                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
-                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship,
-                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean
-                    ]).then(() => {
-                        AccessControlledDiscriminatedSuperClass.saveAll([
-                            instanceOfAccessControlledDiscriminatedSuperClassPasses,
-                            instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship,
-                            instanceOfAccessControlledDiscriminatedSuperClassFailsString,
-                            instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean
-                        ]).then(() => {
-                            AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.saveAll([
-                                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses,
-                                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship,
-                                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean,
-                                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString,
-                                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber
-                            ]).catch(done).finally(done);
-                        });
-                    });
-                });
-            });
+            ]);
+            await AccessControlledSuperClass.saveAll([
+                instanceOfAccessControlledSuperClassPasses,
+                instanceOfAccessControlledSuperClassFailsRelationship
+            ]);
+            await AccessControlledSubClassOfAccessControlledSuperClass.saveAll([
+                instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
+                instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship,
+                instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean
+            ]);
+            await AccessControlledDiscriminatedSuperClass.saveAll([
+                instanceOfAccessControlledDiscriminatedSuperClassPasses,
+                instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship,
+                instanceOfAccessControlledDiscriminatedSuperClassFailsString,
+                instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean
+            ]);
+            await AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.saveAll([
+                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses,
+                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship,
+                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean,
+                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString,
+                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber
+            ]);
+
         });
 
         describe('Tests for invalid arguments.', function() {
@@ -4918,6 +4932,225 @@ describe('Class Model Tests', function() {
 
             });
 
+        });
+
+        describe('Test find methods for access filtering.', () => {
+
+            describe('Test findById() with access filtering', () => {
+
+                it('Call findByID() on an instance of an access controlled class. Instance passes filter.', async () => {
+                    const classToCallFindByIdOn = AccessControlledSuperClass;
+                    const instanceToFind = instanceOfAccessControlledSuperClassPasses;
+                    const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
+
+                    if (!instanceFound)
+                        throw new Error('findById() did not return an instance.');
+
+                    if (!instanceFound._id.equals(instanceToFind._id))
+                        throw new Error(
+                            'An instance was returned, but it is not the correct one.\n' +
+                            'Expected: \n' + instanceToFind + '\n' +
+                            'Actual: \n' + instanceFound
+                        );
+                });
+
+                it('Call findByID() on an instance of an access controlled class, from super class. Instance passes filter.', async () => {
+                    const classToCallFindByIdOn = AccessControlledSuperClass;
+                    const instanceToFind = instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses;
+                    const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
+
+                    if (!instanceFound)
+                        throw new Error('findById() did not return an instance.');
+
+                    if (!instanceFound._id.equals(instanceToFind._id))
+                        throw new Error(
+                            'An instance was returned, but it is not the correct one.\n' +
+                            'Expected: \n' + instanceToFind + '\n' +
+                            'Actual: \n' + instanceFound
+                        );
+
+                });
+
+                it('Call findByID() on an instance of an access controlled class. Instance does not pass filter.', async () => {
+                    const classToCallFindByIdOn = AccessControlledSuperClass;
+                    const instanceToFind = instanceOfAccessControlledSuperClassFailsRelationship;
+                    const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
+
+                    if (instanceFound)
+                        throw new Error('findById() returned an instance.');
+                });
+
+                it('Call findByID() on an instance of an access controlled class, from super class. Instance does not pass filter based on super access control method.', async () => {
+                    const classToCallFindByIdOn = AccessControlledSuperClass;
+                    const instanceToFind = instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship;
+                    const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
+
+                    if (instanceFound)
+                        throw new Error('findById() returned an instance.');
+
+                });
+
+                it('Call findByID() on an instance of an access controlled class, from super class. Instance does not pass filter based on it\'s own access control method.', async () => {
+                    const classToCallFindByIdOn = AccessControlledSuperClass;
+                    const instanceToFind = instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean;
+                    const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
+
+                    if (instanceFound)
+                        throw new Error('findById() returned an instance.');
+
+                });
+
+            });
+
+            describe('Test findOne() with access filtering', () => {
+
+                it('Call findOne() on an instance of an access controlled class. instance passes filter.', async () => {
+                    const classToCallFindByIdOn = AccessControlledSuperClass;
+                    const instanceToFind = instanceOfAccessControlledSuperClassPasses;
+
+                    const filter = {
+                        name: 'instanceOfAccessControlledSuperClassPasses'
+                    }
+
+                    const instanceFound = await classToCallFindByIdOn.findOne(filter);
+
+                    if (!instanceFound)
+                        throw new Error('findOne() did not return an instance.');
+
+                    if (!instanceFound._id.equals(instanceToFind._id))
+                        throw new Error(
+                            'An instance was returned, but it is not the correct one.\n' +
+                            'Expected: \n' + instanceToFind + '\n' +
+                            'Actual: \n' + instanceFound
+                        );
+                });
+
+                it('Call findOne() on an instance of an access controlled class, from super class. Instance passes filter.', async () => {
+                    const classToCallFindByIdOn = AccessControlledSuperClass;
+                    const instanceToFind = instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses;
+
+                    const filter = {
+                        name: 'instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses'
+                    }
+
+                    const instanceFound = await classToCallFindByIdOn.findOne(filter);
+
+                    if (!instanceFound)
+                        throw new Error('findOne() did not return an instance.');
+
+                    if (!instanceFound._id.equals(instanceToFind._id))
+                        throw new Error(
+                            'An instance was returned, but it is not the correct one.\n' +
+                            'Expected: \n' + instanceToFind + '\n' +
+                            'Actual: \n' + instanceFound
+                        );
+                });
+
+                it('Call findOne() on an instance of an access controlled class. Instance does not pass filter.', async () => {
+                    const classToCallFindByIdOn = AccessControlledSuperClass;
+
+                    const filter = {
+                        name: 'instanceOfAccessControlledSuperClassFailsRelationship'
+                    }
+
+                    const instanceFound = await classToCallFindByIdOn.findOne(filter);
+
+                    if (instanceFound)
+                        throw new Error('findOne() returned an instance');
+
+                });
+
+                it('Call findOne() on an instance of an access controlled class, from super class. Instance does not pass filter based on super access control method.', async () => {
+                    const classToCallFindByIdOn = AccessControlledSuperClass;
+
+                    const filter = {
+                        name: 'instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship'
+                    }
+
+                    const instanceFound = await classToCallFindByIdOn.findOne(filter);
+
+                    if (instanceFound)
+                        throw new Error('findOne() returned an instance');
+
+                });
+
+                it('Call findOne() on an instance of an access controlled class, from super class. Instance does not pass filter based on it\'s own access control method.', async () => {
+                    const classToCallFindByIdOn = AccessControlledSuperClass;
+
+                    const filter = {
+                        name: 'instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean'
+                    }
+
+                    const instanceFound = await classToCallFindByIdOn.findOne(filter);
+
+                    if (instanceFound)
+                        throw new Error('findOne() returned an instance');
+
+                });
+
+            });
+
+            describe('Test find() with access filtering', () => {
+
+                it('Call find() on access controlled super class with a passing and not passing instance of each sub class.', async () => {
+                    const instanceNames = [
+                        'instanceOfAccessControlledSuperClassPasses',
+                        'instanceOfAccessControlledSuperClassFailsRelationship',
+                        'instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses',
+                        'instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship',
+                        'instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean',
+                        'instanceOfAccessControlledDiscriminatedSuperClassPasses',
+                        'instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship',
+                        'instanceOfAccessControlledDiscriminatedSuperClassFailsString',
+                        'instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean',
+                        'instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses',
+                        'instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship',
+                        'instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean',
+                        'AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass',
+                        'AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass'
+                    ];
+                    const instancesToFind = [
+                        instanceOfAccessControlledSuperClassPasses,
+                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
+                        instanceOfAccessControlledDiscriminatedSuperClassPasses,
+                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses
+                    ];
+
+                    const instancesFound = await AccessControlledSuperClass.find({name: {$in: instanceNames}});
+
+                    if (instancesFound.length < instancesToFind.length) 
+                        throw new Error('find() returned too few instances.');
+                    
+                    if (instancesFound.length > instancesToFind.length)
+                        throw new Error('find() returned too many instances')
+
+                    let instancesCorrectlyFound = 0;
+
+                    for (const instanceToFind of instancesToFind)
+                        for (const instanceFound of instancesFound)
+                            if (instanceFound.id == instanceToFind.id) {
+                                instancesCorrectlyFound++;
+                                break;
+                            }
+                    
+                    if (instancesCorrectlyFound != instancesToFind.length)
+                        throw new Error(
+                            'find() returned the correct number of instances, but did not return the correct instances.\n' +
+                            'Instances found: \n' + instancesFound + '\n' + 
+                            'Expected instances: \n' + instancesToFind
+                        );
+                });
+
+            });
+
+        });
+
+        after(async () => {
+            await ClassControlsAccessControlledSuperClass.clear();
+            await AccessControlledSuperClass.clear();
+            await AccessControlledSubClassOfAccessControlledSuperClass.clear();
+            await AccessControlledDiscriminatedSuperClass.clear();
+            await AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.clear();
         });
 
     });

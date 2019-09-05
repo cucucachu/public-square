@@ -606,10 +606,9 @@ class ClassModel {
             // If this is a concrete super class, we need to check this ClassModel's own collection.
             if (concrete){
                 foundInstancesOfThisClass = await Model.find(queryFilter).exec();
-                if (foundInstancesOfThisClass.length) {
+
+                if (foundInstancesOfThisClass.length)
                     foundInstancesOfThisClass = await this.accessFilter(foundInstancesOfThisClass, ...accessControlMethodParameters);
-                }
-                //promises.push(Model.find(queryFilter).exec());
             }
 
             // Call find on our subclasses as well.
