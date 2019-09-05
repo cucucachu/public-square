@@ -502,7 +502,12 @@ class ClassModel {
 
     // Query Methods
 
-    findById(id) {
+    /* Finds an instance of this ClassModel with the given id in the database. 
+     * If called on a superclass, will recursively check this ClassModel's collection, and then it's subclasses collections.
+     * Parameter id - the Object ID of the instance to find.
+     * Returns a promise, which will resolve with the instance with the given id if it can be found, otherwise null.
+     */
+    async findById(id) {
         let concrete = !this.abstract;
         let abstract = this.abstract;
         let discriminated = this.discriminated;
@@ -510,94 +515,34 @@ class ClassModel {
         let subClasses = this.subClasses;
         let className = this.className;
         let Model = this.Model;
+        
+        // If this class is a non-discriminated abstract class and it doesn't have any sub classes, throw an error.
+        if (abstract && !isSuperClass)
+            throw new Error('Error in ' + className + '.findById(). This class is abstract and non-discriminated, but it has no sub-classes.');
 
-        //console.log(className + '.findById(' + id + '):');
+        // If this is a discriminated class, or it is a concrete class with no subclasses, find the instance in this ClassModel's collection.
+        if ((concrete && !isSuperClass) || discriminated) 
+            return Model.findById(id).exec();
+        
+        // If this is a non-discriminated super class, we may need to check this classmodel's collection as well,
+        //  as well as the subclasses collections.
+        if (isSuperClass && !discriminated) {
 
-        return new Promise(function(resolve, reject) {
-            // If this class is a non-discriminated abstract class and it doesn't have any sub classes, throw an error
-            if (abstract && !isSuperClass)
-                throw new Error('Error in ' + className + '.findById(). This class is abstract and non-discriminated, but it has no sub-classes.');
-
-            // If this class is a not a super class and is concrete, or if the class is discriminated, then call the built in mongoose query.
-            if ((concrete && !isSuperClass) || discriminated) {
-                let instance;
-                let error;
-
-                //console.log('   Looking directly in my Model.');
-
-                Model.findById(id).exec().then(
-                    function(foundInstance) {
-                        instance = foundInstance;
-                    },
-                    function(findError) {
-                        error = findError;
-                    }
-                ).finally(function() {
-                    if (error)
-                        reject(error)
-                    else {
-                        resolve(instance);
-                        // if (instance != null)
-                        //     console.log('Found the instance in class ' + className + '.');
-                    } 
-                });
+            // If this is a concrete super class, we need to check this ClassModel's own collection first.
+            if (concrete){
+                const foundInstance = await Model.findById(id).exec();
+                if (foundInstance)
+                    return foundInstance;
             }
+            
+            // If we haven't yet found the instance (because it's not in this ClassModel/s collection,
+            //  or because this ClassModel is abstract), then we need to search the subClass collections.
+            let promises = [];
+            for (let subClass of subClasses)
+                promises.push(subClass.findById(id));
 
-            // If class is a non-discriminated super class, we need to combine the query on this class with the queries for each sub class, 
-            //    until we find an instance. If this class is abstract, we do not query for this class directly.
-            else if (isSuperClass && !discriminated) {
-                if (!abstract) {
-                    //console.log('   Checking myself first.');
-
-                    Model.findById(id, function(err, foundInstance) {
-                        if (err) {
-                            reject(err);
-                        }
-                        else if (foundInstance) {
-                            resolve(foundInstance);
-                        }
-                        else {
-                            //console.log('   Now looking in my subClasses. (' + className + ')');
-
-                            let promises = [];
-                            for (var index in subClasses) {
-                                promises.push(
-                                    subClasses[index].findById(id)
-                                );
-                            }
-
-                            ClassModel.firstNonNullPromiseResolution(promises).then(
-                                function(foundInstance) {
-                                    resolve(foundInstance);
-                                },
-                                function(error) {
-                                    reject(error);
-                                }
-                            );
-                        }
-                    });
-                }
-                else {
-                    //console.log('   Looking in my subClasses. (' + className + ')');
-
-                    let promises = [];
-                    for (var index in subClasses) {
-                        promises.push(
-                            subClasses[index].findById(id)
-                        );
-                    }
-
-                    ClassModel.firstNonNullPromiseResolution(promises).then(
-                        function(foundInstance) {
-                            resolve(foundInstance);
-                        },
-                        function(error) {
-                            reject(error);
-                        }
-                    );
-                }
-            }
-        });
+            return ClassModel.firstNonNullPromiseResolution(promises);
+        }
     }
 
     findOne() {
