@@ -1,6 +1,6 @@
 /* 
  Class Model
- Model: User
+ Model: Person
  Description: Describes attributes of a Person such as names, Addresses, etc.
 */
 
@@ -9,8 +9,8 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 var ClassModel = require('../../ClassModel');
 
-var User = new ClassModel({
-	className: 'User',
+var Person = new ClassModel({
+	className: 'Person',
 	accessControlled: false,
 	schema: {
 		_id: Schema.Types.ObjectId,
@@ -27,14 +27,17 @@ var User = new ClassModel({
 		},
 		userAccount: {
 			type: Schema.Types.ObjectId, 
-			ref: 'UserAccount',
-			required: true
+			ref: 'UserAccount'
 		},
-		userRoles: {
+		address: {
+			type: Schema.Types.ObjectId,
+			ref: 'Address',
+		},
+		personRoles: {
 			type: [Schema.Types.ObjectId],
-			ref: 'UserRoles'
+			ref: 'PersonRole'
 		}
 	}
 });
 
-module.exports = User;
+module.exports = Person;

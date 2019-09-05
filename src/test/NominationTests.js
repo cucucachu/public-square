@@ -4,7 +4,7 @@ const database = require('../dist/models/database');
 require('../dist/models/Modules/Government/Nomination/NominationModule');
 const GovernmentPosition = require('../dist/models/Modules/Government/GovernmentPosition');
 const OccupiedPosition = require('../dist/models/Modules/Government/OccupiedPosition');
-const User = require('../dist/models/Modules/User/User');
+const Person = require('../dist/models/Modules/User/Person');
 const Nomination = require('../dist/models/Modules/Government/Nomination/Nomination');
 const Nominator = require('../dist/models/Modules/Government/Nomination/Nominator');
 const Nominee = require('../dist/models/Modules/Government/Nomination/Nominee');
@@ -486,7 +486,7 @@ describe('Nomination Module Tests', function() {
 				var nominee = Nominee.create();
 				var testFailed = 0;
 				var error;
-                var expectedErrorMessage = 'Nominee validation failed: nominations: Path `nominations` is required. Nominee validation failed: user: Path `user` is required., startDate: Path `startDate` is required.';
+                var expectedErrorMessage = 'Nominee validation failed: nominations: Path `nominations` is required. Nominee validation failed: person: Path `person` is required.';
 
 				Nominee.save(nominee).then(
 					function(result) {
@@ -513,14 +513,14 @@ describe('Nomination Module Tests', function() {
 				});
 			});
 
-			it('Nominee.user must be a valid ID.', function(done) {
+			it('Nominee.person must be a valid ID.', function(done) {
 				var nominee = Nominee.create();
 				var testFailed = 0;
 				var error;
-                var expectedErrorMessage = 'Nominee validation failed: user: Cast to ObjectID failed for value "abcd1234efgh9876" at path "user"';
+                var expectedErrorMessage = 'Nominee validation failed: person: Cast to ObjectID failed for value "abcd1234efgh9876" at path "person"';
 
 				nominee.startDate = new Date();
-                nominee.user = 'abcd1234efgh9876';
+                nominee.person = 'abcd1234efgh9876';
 				nominee.nominations = [Nomination.create()._id, Nomination.create()._id];
 
 				Nominee.save(nominee).then(
@@ -555,7 +555,7 @@ describe('Nomination Module Tests', function() {
                 var expectedErrorMessage = 'Nominee validation failed: nominations: Path `nominations` is required. Nominee validation failed: nominations: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "nominations"';
                 
 				nominee.startDate = new Date();
-                nominee.user = User.create()._id;
+                nominee.person = Person.create()._id;
                 nominee.nominations = ['abcd1234efgh9876', 'abcd1234efgh9875'];
 
 				Nominee.save(nominee).then(
@@ -589,7 +589,7 @@ describe('Nomination Module Tests', function() {
                 var compareResult;
 
 				nominee.startDate = new Date();
-                nominee.user = User.create()._id;
+                nominee.person = Person.create()._id;
                 nominee.nominations = [Nomination.create()._id, Nomination.create()._id];
 
 				Nominee.save(nominee).then(

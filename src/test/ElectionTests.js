@@ -8,7 +8,7 @@ const Campaign = require('../dist/models/Modules/Government/Election/Campaign');
 const Candidate = require('../dist/models/Modules/Government/Election/Candidate');
 const ElectionResult = require('../dist/models/Modules/Government/Election/ElectionResult');
 const PrimaryElectionResult = require('../dist/models/Modules/Government/Election/PrimaryElectionResult');
-const User = require('../dist/models/Modules/User/User');
+const Person = require('../dist/models/Modules/User/Person');
 const GeographicArea = require('../dist/models/Modules/Geography/GeographicArea');
 
 describe('Election Module Tests', function() {
@@ -434,7 +434,7 @@ describe('Election Module Tests', function() {
 				var candidate = Candidate.create();
 				var testFailed = 0;
 				var error;
-                var expectedErrorMessage = 'Candidate validation failed: campaigns: Path `campaigns` is required. Candidate validation failed: user: Path `user` is required., startDate: Path `startDate` is required.';
+                var expectedErrorMessage = 'Candidate validation failed: campaigns: Path `campaigns` is required. Candidate validation failed: person: Path `person` is required.';
 
 				Candidate.save(candidate).then(
 					function(result) {
@@ -461,14 +461,14 @@ describe('Election Module Tests', function() {
 				});
 			});
 
-			it('Candidate.user must be a valid ID.', function(done) {
+			it('Candidate.person must be a valid ID.', function(done) {
 				var candidate = Candidate.create();
 				var testFailed = 0;
 				var error;
-                var expectedErrorMessage = 'Candidate validation failed: user: Cast to ObjectID failed for value "abcd1234efgh9876" at path "user"';
+                var expectedErrorMessage = 'Candidate validation failed: person: Cast to ObjectID failed for value "abcd1234efgh9876" at path "person"';
 
                 candidate.startDate = new Date();
-                candidate.user = 'abcd1234efgh9876';
+                candidate.person = 'abcd1234efgh9876';
                 candidate.campaigns = [Campaign.create()._id, Campaign.create()._id];
 
 				Candidate.save(candidate).then(
@@ -503,7 +503,7 @@ describe('Election Module Tests', function() {
                 var expectedErrorMessage = 'Candidate validation failed: campaigns: Path `campaigns` is required. Candidate validation failed: campaigns: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "campaigns"';
 
                 candidate.startDate = new Date();
-                candidate.user = User.create()._id;
+                candidate.person = Person.create()._id;
                 candidate.campaigns = ['abcd1234efgh9876', 'abcd1234efgh9875'];
 
 				Candidate.save(candidate).then(
@@ -537,7 +537,7 @@ describe('Election Module Tests', function() {
                 var compareResult;
 
                 candidate.startDate = new Date();
-                candidate.user = User.create()._id;
+                candidate.person = Person.create()._id;
                 candidate.campaigns = [Campaign.create()._id, Campaign.create()._id];
 
 				Candidate.save(candidate).then(

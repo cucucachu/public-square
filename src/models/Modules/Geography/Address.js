@@ -20,9 +20,9 @@ var Address = new ClassModel({
 		unit: {
 			type: String
 		},
-		users: {
+		persons: {
 			type: [Schema.Types.ObjectId],
-			ref: 'User'
+			ref: 'Person'
 		},
 		street: {
 			type: Schema.Types.ObjectId,

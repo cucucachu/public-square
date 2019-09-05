@@ -16,8 +16,15 @@ var GroupMember = new ClassModel({
 	accessControlled: false,
 	discriminatorSuperClass: UserRole,
 	schema: {
-		userGroups: {
-			type: [Schema.Types.ObjectId],
+		startDate: {
+			type: Date,
+			required: true
+		},
+		endDate: {
+			type: Date
+		},
+		userGroup: {
+			type: Schema.Types.ObjectId,
 			ref: 'UserGoup',
 			required: true
 		}

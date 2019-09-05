@@ -15,7 +15,7 @@ const PositionAcquisitionProcess = require('../dist/models/Modules/Government/Po
 const OccupiedPosition = require('../dist/models/Modules/Government/OccupiedPosition');
 const GovernmentRole = require('../dist/models/Modules/Government/GovernmentRole');
 const GovernmentOfficial = require('../dist/models/Modules/Government/GovernmentOfficial');
-const User = require('../dist/models/Modules/User/User');
+const Person = require('../dist/models/Modules/User/Person');
 const Law = require('../dist/models/Modules/Government/Law');
 const VoteOption = require('../dist/models/Modules/Government/VoteOption');
 const Bill = require('../dist/models/Modules/Government/Legislator/Bill');
@@ -41,7 +41,7 @@ describe('Government Module Tests', function() {
 		await AcquisitionProcessDefinition.clear();
 		await OccupiedPosition.clear();
 		await GovernmentOfficial.clear();
-		await User.clear();
+		await Person.clear();
 		await Law.clear();
 		await VoteOption.clear();
 		await Bill.clear();
@@ -1857,7 +1857,7 @@ describe('Government Module Tests', function() {
 				var governmentOfficial = GovernmentOfficial.create();
 				var testFailed = 0;
 				var error;
-				var expectedErrorMessage = 'GovernmentOfficial validation failed: user: Path `user` is required., startDate: Path `startDate` is required.';
+				var expectedErrorMessage = 'GovernmentOfficial validation failed: person: Path `person` is required.';
 
 				GovernmentOfficial.save(governmentOfficial).then(
 					function(result) {
@@ -1884,14 +1884,14 @@ describe('Government Module Tests', function() {
 				});
 			});
 
-			it('GovernmentOfficial.user must be a valid ID.', function(done) {
+			it('GovernmentOfficial.person must be a valid ID.', function(done) {
 				var governmentOfficial = GovernmentOfficial.create();
 				var testFailed = 0;
 				var error;
-				var expectedErrorMessage = 'GovernmentOfficial validation failed: user: Cast to ObjectID failed for value "abcd1234efgh9876" at path "user"';
+				var expectedErrorMessage = 'GovernmentOfficial validation failed: person: Cast to ObjectID failed for value "abcd1234efgh9876" at path "person"';
 
 				governmentOfficial.startDate = new Date();
-				governmentOfficial.user = 'abcd1234efgh9876';
+				governmentOfficial.person = 'abcd1234efgh9876';
 				governmentOfficial.occupiedPositions = [OccupiedPosition.create()._id, OccupiedPosition.create()._id];
 
 				GovernmentOfficial.save(governmentOfficial).then(
@@ -1926,7 +1926,7 @@ describe('Government Module Tests', function() {
 				var expectedErrorMessage = 'GovernmentOfficial validation failed: occupiedPositions: Cast to Array failed for value "[ \'abcd1234efgh9876\', \'abcd1234efgh9875\' ]" at path "occupiedPositions"';
 
 				governmentOfficial.startDate = new Date();
-				governmentOfficial.user = User.create()._id;
+				governmentOfficial.person = Person.create()._id;
 				governmentOfficial.occupiedPositions = ['abcd1234efgh9876', 'abcd1234efgh9875'];
 
 				GovernmentOfficial.save(governmentOfficial).then(
@@ -1960,7 +1960,7 @@ describe('Government Module Tests', function() {
 				var compareResult;
 
 				governmentOfficial.startDate = new Date();
-				governmentOfficial.user = User.create()._id;
+				governmentOfficial.person = Person.create()._id;
 				governmentOfficial.occupiedPositions = [OccupiedPosition.create()._id, OccupiedPosition.create()._id];
 
 				GovernmentOfficial.save(governmentOfficial).then(
