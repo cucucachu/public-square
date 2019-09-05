@@ -195,7 +195,9 @@ class ClassModel {
         let results = [];
 
         for (var index in promises) {
-            results = results.concat(await promises[index]);
+            let singleResult = await promises[index];
+            if (singleResult.length)
+                results = results.concat(await promises[index]);
         }
 
         return results;
@@ -423,7 +425,8 @@ class ClassModel {
             if (!(instance instanceof classModel.Model)) {
                 reject(new Error(classModel.className + '.save() called on an instance of a different class.'));
             }
-            else {classModel.validate(instance);
+            else {
+                classModel.validate(instance);
 
                 instance.save(function(err, saved) {
                     if (err) {
@@ -508,214 +511,92 @@ class ClassModel {
      * Returns a promise, which will resolve with the instance with the given id if it can be found, otherwise null.
      */
     async findById(id) {
-        let concrete = !this.abstract;
-        let abstract = this.abstract;
-        let discriminated = this.discriminated;
-        let isSuperClass = (this.subClasses.length > 0 || this.discriminated);
-        let subClasses = this.subClasses;
-        let className = this.className;
-        let Model = this.Model;
+        const isSuperClass = (this.subClasses.length > 0 || this.discriminated);
         
         // If this class is a non-discriminated abstract class and it doesn't have any sub classes, throw an error.
+        if (this.abstract && !isSuperClass)
+            throw new Error('Error in ' + this.className + '.findById(). This class is abstract and non-discriminated, but it has no sub-classes.');
+
+        if (id == undefined)
+            return null;
+
+        return this.findOne({
+            _id : id
+        });
+    }
+
+
+    /* Finds an instance of this ClassModel with using the given query filter in the database. 
+     * If called on a superclass, will recursively check this ClassModel's collection, and then it's subclasses collections.
+     * Parameter queryFilter - An object identifying filtering according to mongoose's definitions.
+     * Returns a promise, which will resolve with the instance with the given query filter if it can be found, otherwise null.
+     */
+    async findOne(queryFilter) {
+        const concrete = !this.abstract;
+        const abstract = this.abstract;
+        const discriminated = this.discriminated;
+        const isSuperClass = (this.subClasses.length > 0 || this.discriminated);
+        const subClasses = this.subClasses;
+        const className = this.className;
+        const Model = this.Model;
+
+        // If this class is a non-discriminated abstract class and it doesn't have any sub classes, throw an error.
         if (abstract && !isSuperClass)
-            throw new Error('Error in ' + className + '.findById(). This class is abstract and non-discriminated, but it has no sub-classes.');
+            throw new Error('Error in ' + className + '.findOne(). This class is abstract and non-discriminated, but it has no sub-classes.');
 
         // If this is a discriminated class, or it is a concrete class with no subclasses, find the instance in this ClassModel's collection.
         if ((concrete && !isSuperClass) || discriminated) 
-            return Model.findById(id).exec();
+            return Model.findOne(queryFilter).exec();
         
         // If this is a non-discriminated super class, we may need to check this classmodel's collection as well,
         //  as well as the subclasses collections.
         if (isSuperClass && !discriminated) {
-
-            // If this is a concrete super class, we need to check this ClassModel's own collection first.
-            if (concrete){
-                const foundInstance = await Model.findById(id).exec();
-                if (foundInstance)
-                    return foundInstance;
-            }
-            
-            // If we haven't yet found the instance (because it's not in this ClassModel/s collection,
-            //  or because this ClassModel is abstract), then we need to search the subClass collections.
             let promises = [];
+
+            // If this is a concrete super class, we need to check this ClassModel's own collection.
+            if (concrete)
+                promises.push(Model.findOne(queryFilter).exec());
+            
+            // Call findOne on our subclasses as well.
             for (let subClass of subClasses)
-                promises.push(subClass.findById(id));
+                promises.push(subClass.findOne(queryFilter));
 
             return ClassModel.firstNonNullPromiseResolution(promises);
         }
     }
 
-    findOne() {
-        let concrete = !this.abstract;
-        let abstract = this.abstract;
-        let discriminated = this.discriminated;
-        let isSuperClass = (this.subClasses.length > 0 || this.discriminated);
-        let subClasses = this.subClasses;
-        let className = this.className;
-        let Model = this.Model;
-        let queryFilter = arguments[0];
+    async find(queryFilter) {
+        const concrete = !this.abstract;
+        const abstract = this.abstract;
+        const discriminated = this.discriminated;
+        const isSuperClass = (this.subClasses.length > 0 || this.discriminated);
+        const subClasses = this.subClasses;
+        const className = this.className;
+        const Model = this.Model;
 
+        // If this class is a non-discriminated abstract class and it doesn't have any sub classes, throw an error.
+        if (abstract && !isSuperClass)
+            throw new Error('Error in ' + className + '.find(). This class is abstract and non-discriminated, but it has no sub-classes.');
 
+        // If this is a discriminated class, or it is a concrete class with no subclasses, find the instance in this ClassModel's collection.
+        if ((concrete && !isSuperClass) || discriminated) 
+            return Model.find(queryFilter).exec();
+        
+        // If this is a non-discriminated super class, we may need to check this classmodel's collection as well,
+        //  as well as the subclasses collections.
+        if (isSuperClass && !discriminated) {
+            let promises = [];
 
-        //console.log(className + '.findOne(' + JSON.stringify(queryFilter) + '):');
+            // If this is a concrete super class, we need to check this ClassModel's own collection.
+            if (concrete)
+                promises.push(Model.find(queryFilter).exec());
+            
+            // Call find on our subclasses as well.
+            for (let subClass of subClasses)
+                promises.push(subClass.find(queryFilter));
 
-        return new Promise(function(resolve, reject) {
-            // If this class is a non-discriminated abstract class and it doesn't have any sub classes, throw an error
-            if (abstract && !isSuperClass)
-                throw new Error('Error in ' + className + '.findOne(). This class is abstract and non-discriminated, but it has no sub-classes.');
-
-            // If this class is a not a super class and is concrete, or if the class is discriminated, then call the built in mongoose query.
-            if ((concrete && !isSuperClass) || discriminated) {
-                let instance;
-                let error;
-
-                //console.log('   Looking directly in my Model.');
-
-                Model.findOne(queryFilter).exec().then(
-                    function(foundInstance) {
-                        instance = foundInstance;
-                    },
-                    function(findError) {
-                        error = findError;
-                    }
-                ).finally(function() {
-                    if (error)
-                        reject(error)
-                    else {
-                        resolve(instance);
-                        // if (instance != null)
-                        //     console.log('Found the instance in class ' + className + '.');
-                    } 
-                });
-            }
-
-            // If class is a non-discriminated super class, we need to combine the query on this class with the queries for each sub class, 
-            //    until we find an instance. If this class is abstract, we do not query for this class directly.
-            else if (isSuperClass && !discriminated) {
-                if (!abstract) {
-                    //console.log('   Checking myself first.');
-
-                    Model.findOne(queryFilter, function(err, foundInstance) {
-                        if (err) {
-                            reject(err);
-                        }
-                        else if (foundInstance) {
-                            resolve(foundInstance);
-                        }
-                        else {
-                            //console.log('   Now looking in my subClasses. (' + className + ')');
-
-                            let promises = [];
-                            for (var index in subClasses) {
-                                promises.push(
-                                    subClasses[index].findOne(queryFilter)
-                                );
-                            }
-
-                            ClassModel.firstNonNullPromiseResolution(promises).then(
-                                function(foundInstance) {
-                                    resolve(foundInstance);
-                                },
-                                function(error) {
-                                    reject(error);
-                                }
-                            );
-                        }
-                    });
-                }
-                else {
-                    //console.log('   Now looking in my subClasses. (' + className + ')');
-
-                    let promises = [];
-                    for (var index in subClasses) {
-                        promises.push(
-                            subClasses[index].findOne(queryFilter)
-                        );
-                    }
-
-                    ClassModel.firstNonNullPromiseResolution(promises).then(
-                        function(foundInstance) {
-                            resolve(foundInstance);
-                        },
-                        function(error) {
-                            reject(error);
-                        }
-                    );
-                }
-            }
-        });
-    }
-
-    find() {
-        let concrete = !this.abstract;
-        let abstract = this.abstract;
-        let discriminated = this.discriminated;
-        let isSuperClass = (this.subClasses.length > 0 || this.discriminated);
-        let subClasses = this.subClasses;
-        let className = this.className;
-        let Model = this.Model;
-        let queryFilter = arguments[0];
-        let instances = [];
-
-
-
-        //console.log(className + '.find(' + JSON.stringify(queryFilter) + '):');
-
-        return new Promise(function(resolve, reject) {
-            // If this class is a non-discriminated abstract class and it doesn't have any sub classes, throw an error
-            if (abstract && !isSuperClass)
-                throw new Error('Error in ' + className + '.find(). This class is abstract and non-discriminated, but it has no sub-classes.');
-
-            // If this class is a not a super class and is concrete, or if the class is discriminated, then call the built in mongoose query.
-            if ((concrete && !isSuperClass) || discriminated) {
-                let instances;
-                let error;
-
-                //console.log('   Looking directly in my Model.');
-
-                Model.find(queryFilter).exec().then(
-                    function(foundInstances) {
-                        instances = foundInstances;
-                    },
-                    function(findError) {
-                        error = findError;
-                    }
-                ).finally(function() {
-                    if (error)
-                        reject(error)
-                    else {
-                        resolve(instances);
-                        // if (instances.length)
-                        //     console.log('Found the instances in class ' + className + '.');
-                    }
-                });
-            }
-
-            // If class is a non-discriminated super class, we need to combine the query on this class with the queries for each sub class, 
-            //    until we find an instance. If this class is abstract, we do not query for this class directly.
-            else if (isSuperClass && !discriminated) {
-                let promises = [];
-
-                if (!abstract) {
-                    promises.push(Model.find(queryFilter));
-                }
-
-                for (var index in subClasses) {
-                    promises.push(
-                        subClasses[index].find(queryFilter)
-                    );
-                }
-
-                ClassModel.allPromiseResultions(promises).then(
-                    function(foundInstances) {
-                        resolve(foundInstances);
-                    },
-                    function(error) {
-                        reject(error);
-                    }
-                );
-            }
-        });
+            return ClassModel.allPromiseResultions(promises);
+        }
     }
 
     // Relationship Methods

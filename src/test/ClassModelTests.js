@@ -3251,7 +3251,7 @@ describe('Class Model Tests', function() {
                     });
                 });
         
-                it('An instance of a concrete super class can be found by Id.', function(done) {
+                it('An instance of a concrete super class can be found.', function(done) {
                     let error;
                     let instance;
                     let filter = {
@@ -3285,7 +3285,7 @@ describe('Class Model Tests', function() {
                     });
                 });
         
-                it('An instance of a concrete discriminated sub-class can be found by Id.', function(done) {
+                it('An instance of a concrete discriminated sub-class can be found.', function(done) {
                     let error;
                     let instance;
                     let filter = {
@@ -3615,7 +3615,7 @@ describe('Class Model Tests', function() {
                         });
                     });
             
-                    it('An instance of a concrete super class can be found by Id.', function(done) {
+                    it('An instance of a concrete super class can be found.', function(done) {
                         let error;
                         let instances;
                         let filter = {
@@ -3653,7 +3653,7 @@ describe('Class Model Tests', function() {
                         });
                     });
             
-                    it('An instance of a concrete discriminated sub-class can be found by Id.', function(done) {
+                    it('An instance of a concrete discriminated sub-class can be found.', function(done) {
                         let error;
                         let instances;
                         let filter = {
