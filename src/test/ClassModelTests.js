@@ -28,6 +28,7 @@ describe('Class Model Tests', function() {
         {        
             var CompareClass1 = new ClassModel({
                 accessControlled: false,
+                updateControlled: false,
                 className: 'CompareClass1',
                 schema: {
                     name: {
@@ -48,6 +49,7 @@ describe('Class Model Tests', function() {
 
             var CompareClass2 = new ClassModel({
                 accessControlled: false,
+                updateControlled: false,
                 className: 'CompareClass2',
                 schema: {
                     name: {
@@ -66,6 +68,7 @@ describe('Class Model Tests', function() {
         {        
             var AllFieldsRequiredClass = new ClassModel({
                 accessControlled: false,
+                updateControlled: false,
                 className: 'AllFieldsRequiredClass', 
                 schema: {
                     string: {
@@ -111,6 +114,7 @@ describe('Class Model Tests', function() {
         
             var AllFieldsMutexClass = new ClassModel({
                 accessControlled: false,
+                updateControlled: false,
                 className: 'AllFieldsMutexClass', 
                 schema: {
                     string: {
@@ -156,6 +160,7 @@ describe('Class Model Tests', function() {
         
             var AllFieldsInRequiredGroupClass = new ClassModel({
                 accessControlled: false,
+                updateControlled: false,
                 className: 'AllFieldsInRequiredGroupClass',
                 schema: {
                     string: {
@@ -205,6 +210,7 @@ describe('Class Model Tests', function() {
         {
             var SuperClass = new ClassModel({
                 accessControlled: false,
+                updateControlled: false,
                 className: "SuperClass",
                 schema: {
                     name: {
@@ -221,6 +227,7 @@ describe('Class Model Tests', function() {
     
             var AbstractSuperClass = new ClassModel({
                 accessControlled: false,
+                updateControlled: false,
                 className: "AbstractSuperClass",
                 abstract: true,
                 schema: {
@@ -234,6 +241,7 @@ describe('Class Model Tests', function() {
     
             var DiscriminatedSuperClass = new ClassModel({
                 accessControlled: false,
+                updateControlled: false,
                 className: "DiscriminatedSuperClass",
                 discriminated: true,
                 schema: {
@@ -247,6 +255,7 @@ describe('Class Model Tests', function() {
     
             var AbstractDiscriminatedSuperClass = new ClassModel({
                 accessControlled: false,
+                updateControlled: false,
                 className: "AbstractDiscriminatedSuperClass",
                 discriminated: true,
                 abstract: true,
@@ -261,6 +270,7 @@ describe('Class Model Tests', function() {
     
             var SubClassOfSuperClass = new ClassModel({
                 accessControlled: false,
+                updateControlled: false,
                 className: 'SubClassOfSuperClass',
                 superClasses: [SuperClass],
                 schema: {
@@ -275,6 +285,7 @@ describe('Class Model Tests', function() {
     
             var SubClassOfAbstractSuperClass = new ClassModel({
                 accessControlled: false,
+                updateControlled: false,
                 className: 'SubClassOfAbstractSuperClass',
                 superClasses: [AbstractSuperClass],
                 schema: {
@@ -289,6 +300,7 @@ describe('Class Model Tests', function() {
     
             var AbstractSubClassOfSuperClass = new ClassModel({
                 accessControlled: false,
+                updateControlled: false,
                 className: 'AbstractSubClassOfSuperClass',
                 superClasses: [SuperClass],
                 abstract: true,
@@ -304,6 +316,7 @@ describe('Class Model Tests', function() {
     
             var SubClassOfMultipleSuperClasses = new ClassModel({
                 accessControlled: false,
+                updateControlled: false,
                 className: 'SubClassOfMultipleSuperClasses',
                 superClasses: [SuperClass, AbstractSuperClass],
                 schema: {
@@ -320,6 +333,7 @@ describe('Class Model Tests', function() {
     
             var SubClassOfDiscriminatorSuperClass = new ClassModel({
                 accessControlled: false,
+                updateControlled: false,
                 className: 'SubClassOfDiscriminatorSuperClass',
                 discriminatorSuperClass: DiscriminatedSuperClass,
                 schema: {
@@ -334,6 +348,7 @@ describe('Class Model Tests', function() {
     
             var DiscriminatedSubClassOfSuperClass = new ClassModel({
                 accessControlled: false,
+                updateControlled: false,
                 className: 'DiscriminatedSubClassOfSuperClass',
                 discriminated: true,
                 superClasses: [SuperClass],
@@ -349,6 +364,7 @@ describe('Class Model Tests', function() {
     
             var SubClassOfDiscriminatedSubClassOfSuperClass = new ClassModel({
                 accessControlled: false,
+                updateControlled: false,
                 className: 'SubClassOfDiscriminatedSubClassOfSuperClass',
                 discriminatorSuperClass: DiscriminatedSubClassOfSuperClass,
                 schema: {
@@ -363,6 +379,7 @@ describe('Class Model Tests', function() {
     
             var SubClassOfSubClassOfSuperClass = new ClassModel({
                 accessControlled: false,
+                updateControlled: false,
                 className: 'SubClassOfSubClassOfSuperClass',
                 schema: {
                     subSubBoolean: {
@@ -377,6 +394,7 @@ describe('Class Model Tests', function() {
     
             var SubClassOfAbstractSubClassOfSuperClass = new ClassModel({
                 accessControlled: false,
+                updateControlled: false,
                 className: 'SubClassOfAbstractSubClassOfSuperClass',
                 superClasses: [AbstractSubClassOfSuperClass],
                 schema: {
@@ -395,6 +413,7 @@ describe('Class Model Tests', function() {
         {
             var SingularRelationshipClass = new ClassModel({
                 accessControlled: false,
+                updateControlled: false,
                 className: 'SingularRelationshipClass',
                 schema: {
                     singularRelationship: {
@@ -412,6 +431,7 @@ describe('Class Model Tests', function() {
     
             var NonSingularRelationshipClass = new ClassModel({
                 accessControlled: false,
+                updateControlled: false,
                 className: 'NonSingularRelationshipClass',
                 schema: {
                     nonSingularRelationship: {
@@ -426,6 +446,7 @@ describe('Class Model Tests', function() {
     
             var SubClassOfSingularRelationshipClass = new ClassModel({
                 accessControlled: false,
+                updateControlled: false,
                 className: 'SubClassOfSingularRelationshipClass',
                 schema: {},
                 superClasses: [SingularRelationshipClass] 
@@ -433,6 +454,7 @@ describe('Class Model Tests', function() {
     
             var SubClassOfNonSingularRelationshipClass = new ClassModel({
                 accessControlled: false,
+                updateControlled: false,
                 className: 'SubClassOfNonSingularRelationshipClass',
                 schema: {},
                 superClasses: [NonSingularRelationshipClass] 
@@ -447,6 +469,7 @@ describe('Class Model Tests', function() {
             var AccessControlledSuperClass = new ClassModel({
                 className: 'AccessControlledSuperClass',
                 accessControlled: true,
+                updateControlled: false,
                 accessControlMethod: async instance => { 
                     let accessControlledByInstance =  await AccessControlledSuperClass.walk(instance, 'accessControlledBy');
                     return accessControlledByInstance.allowed;
@@ -467,6 +490,7 @@ describe('Class Model Tests', function() {
             var AccessControlledSubClassOfAccessControlledSuperClass = new ClassModel({
                 className: 'AccessControlledSubClassOfAccessControlledSuperClass',
                 accessControlled: true,
+                updateControlled: false,
                 accessControlMethod: async instance => { return instance.boolean },
                 superClasses: [AccessControlledSuperClass],
                 schema: {
@@ -481,6 +505,7 @@ describe('Class Model Tests', function() {
             var AccessControlledDiscriminatedSuperClass = new ClassModel({
                 className: 'AccessControlledDiscriminatedSuperClass',
                 accessControlled: true,
+                updateControlled: false,
                 discriminated: true,
                 superClasses: [AccessControlledSubClassOfAccessControlledSuperClass],
                 accessControlMethod: async instance => { return instance.string == 'accessControlled' },
@@ -496,6 +521,7 @@ describe('Class Model Tests', function() {
             var AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass = new ClassModel({
                 className: 'AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass',
                 accessControlled: true, 
+                updateControlled: false,
                 discriminatorSuperClass: AccessControlledDiscriminatedSuperClass,
                 accessControlMethod: async instance => { return instance.number > 0 },
                 schema: {
@@ -510,6 +536,7 @@ describe('Class Model Tests', function() {
             var ClassControlsAccessControlledSuperClass = new ClassModel({
                 className: 'ClassControlsAccessControlledSuperClass',
                 accessControlled: false,
+                updateControlled: false,
                 schema: {
                     allowed: {
                         type: Boolean
@@ -522,7 +549,103 @@ describe('Class Model Tests', function() {
             var AccessControlledClassAccessControlledByParameters = new ClassModel({
                 className: 'AccessControlledClassAccessControlledByParameters',
                 accessControlled: true,
+                updateControlled: false,
                 accessControlMethod: async (instance, numberA, numberB, boolean) => {
+                    return (numberA + numberB > 0) && boolean;
+                },
+                schema: {}
+            });
+        }
+
+        // UpdateControlled Classes
+        {
+            // A class which is updateControlled by another instance. If that instance has a boolean attribute 'allowed' set to 
+            // true, then the instance of this class can be viewed. 
+            var UpdateControlledSuperClass = new ClassModel({
+                className: 'UpdateControlledSuperClass',
+                accessControlled: false,
+                updateControlled: true,
+                updateControlMethod: async instance => { 
+                    let updateControlledByInstance =  await UpdateControlledSuperClass.walk(instance, 'updateControlledBy');
+                    return updateControlledByInstance.allowed;
+                },
+                schema: {
+                    name: {
+                        type: String
+                    },
+                    updateControlledBy: {
+                        type: Schema.Types.ObjectId,
+                        ref: 'ClassControlsUpdateControlledSuperClass'
+                    }
+                }
+            });
+
+            // A class which is updateControlled by it's own boolean attribute. If the boolean is set to true, and it passes the 
+            // its super class'es update filter, then the instance will be returned by update filter.
+            var UpdateControlledSubClassOfUpdateControlledSuperClass = new ClassModel({
+                className: 'UpdateControlledSubClassOfUpdateControlledSuperClass',
+                accessControlled: false,
+                updateControlled: true,
+                updateControlMethod: async instance => { return instance.boolean },
+                superClasses: [UpdateControlledSuperClass],
+                schema: {
+                    boolean: {
+                        type: Boolean
+                    }
+                }
+            });
+
+            // A class which is updateControlled by it's own string attribute. If the string matches 'updateControlled', and it passes all
+            // it's super classes updatefilters, than an instance of this class will be returned by updateFilter().
+            var UpdateControlledDiscriminatedSuperClass = new ClassModel({
+                className: 'UpdateControlledDiscriminatedSuperClass',
+                accessControlled: false,
+                updateControlled: true,
+                discriminated: true,
+                superClasses: [UpdateControlledSubClassOfUpdateControlledSuperClass],
+                updateControlMethod: async instance => { return instance.string == 'updateControlled' },
+                schema: {
+                    string: {
+                        type: String
+                    }
+                }
+            });
+
+            // A class which is updateControlled by it's own number attribute. If the number is greater than 0, and it passes all
+            // it's super classes updatefilters, than an instance of this class will be returned by updateFilter().
+            var UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass = new ClassModel({
+                className: 'UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass',
+                accessControlled: false, 
+                updateControlled: true,
+                discriminatorSuperClass: UpdateControlledDiscriminatedSuperClass,
+                updateControlMethod: async instance => { return instance.number > 0 },
+                schema: {
+                    number: {
+                        type: Number
+                    }
+                }
+            });
+
+            // A class which is used to secure another class. If an instance of this class has its 'allowed' attribute
+            // set to true, than instances of UpdateControlledSuperClass related to this instance will pass the updateFilter.
+            var ClassControlsUpdateControlledSuperClass = new ClassModel({
+                className: 'ClassControlsUpdateControlledSuperClass',
+                accessControlled: false,
+                updateControlled: false,
+                schema: {
+                    allowed: {
+                        type: Boolean
+                    }
+                }
+            });
+
+            // A class which is updateControlled by parameters passed into the updateFilter method. If the two numbers add up to a 
+            // positive number, and the boolean is true, than the instance will pass the update filter. 
+            var UpdateControlledClassUpdateControlledByParameters = new ClassModel({
+                className: 'UpdateControlledClassUpdateControlledByParameters',
+                accessControlled: false,
+                updateControlled: true,
+                updateControlMethod: async (instance, numberA, numberB, boolean) => {
                     return (numberA + numberB > 0) && boolean;
                 },
                 schema: {}
@@ -533,501 +656,631 @@ describe('Class Model Tests', function() {
 
     describe('Class Model Constructor', function() {
 
-        it('ClassName is required.', function() {
-            var schema = {
-                text: {
-                    type: String,
-                    required: true
-                },
-                singularRelationship: {
-                    type: Schema.Types.ObjectId,
-                    ref: 'OtherClass',
-                    required: true
-                },
-                nonSingularRelationship: {
-                    type: [Schema.Types.ObjectId],
-                    ref: 'OtherClass'
+        describe('Required constructor parameters', () => {
+
+            it('ClassName is required.', function() {
+                var schema = {
+                    text: {
+                        type: String,
+                        required: true
+                    },
+                    singularRelationship: {
+                        type: Schema.Types.ObjectId,
+                        ref: 'OtherClass',
+                        required: true
+                    },
+                    nonSingularRelationship: {
+                        type: [Schema.Types.ObjectId],
+                        ref: 'OtherClass'
+                    }
                 }
-            }
-
-            try {
-                new ClassModel({
-                    accessControlled: false,
-                    schema: schema
-                });
-            }
-            catch(error) {
-                if (error.message == 'className is required.')
-                    return true;
-                else 
-                    throw new Error(error.message);
-            }
-
-            throw new Error('Constructor should have thrown an error: className is required.');
-        });
-
-        it('Schema is required.', function() {
-            try {
-                new ClassModel({
-                    accessControlled: false,
-                    className: 'Class'
-                });
-            }
-            catch(error) {
-                if (error.message == 'schema is required.')
-                    return true;
-                else 
-                    throw new Error(error.message);
-            }
-
-            throw new Error('Constructor should have thrown an error: schema is required.');
-        });
-
-        it('AccessControlled is required', () => {
-            try {
-                new ClassModel({
-                    className: 'Class',
-                    schema: {}
-                });
-            }
-            catch (error) {
-                    if (error.message == 'accessControlled is required.')
+    
+                try {
+                    new ClassModel({
+                        accessControlled: false,
+                        updateControlled: false,
+                        schema: schema
+                    });
+                }
+                catch(error) {
+                    if (error.message == 'className is required.')
                         return true;
                     else 
                         throw new Error(error.message);
                 }
-            throw new Error('Constructor should have thrown an error: accessControlled is required.');
-        });
-
-        it('If a class is accessControlled, it must have a accessControlMethod, or it must have at least one super class with an accessControlMethod.', () => {
-            try {
-                new ClassModel({
-                    className: 'Class',
-                    accessControlled: true,
-                    schema: {}
-                });
-            }
-            catch (error) {
-                    if (error.message == 'If a class is accessControlled, it must have an accessControlMethod, or it must have at least one super class with an accessControlMethod.')
+    
+                throw new Error('Constructor should have thrown an error: className is required.');
+            });
+    
+            it('Schema is required.', function() {
+                try {
+                    new ClassModel({
+                        accessControlled: false,
+                        updateControlled: false,
+                        className: 'Class'
+                    });
+                }
+                catch(error) {
+                    if (error.message == 'schema is required.')
                         return true;
                     else 
                         throw new Error(error.message);
                 }
-            throw new Error('Constructor should have thrown an error: If a class is accessControlled, it must have an accessControlMethod, or it must have at least one super class with an accessControlMethod.');
-        });
-
-        it('A class that is not accessControlled cannot have an accessControlMethod.', () => {
-            try {
-                new ClassModel({
-                    className: 'Class',
-                    accessControlled: false,
-                    accessControlMethod: () => { return true },
-                    schema: {}
-                });
-            }
-            catch (error) {
-                    if (error.message == 'A class that is not accessControlled cannot have an accessControlMethod.')
-                        return true;
-                    else 
-                        throw new Error(error.message);
+    
+                throw new Error('Constructor should have thrown an error: schema is required.');
+            });
+    
+            it('AccessControlled is required', () => {
+                try {
+                    new ClassModel({
+                        className: 'Class',
+                        updateControlled: false,
+                        schema: {}
+                    });
                 }
-            throw new Error('Constructor should have thrown an error: A class that is not accessControlled cannot have an accessControlMethod.');
-        });
-
-        it('A class which is not accessControlled cannot be a sub class of a class which is accessControlled.', () => {
-            try {
-                new ClassModel({
-                    className: 'Class',
-                    accessControlled: false,
-                    superClasses: [AccessControlledSuperClass],
-                    schema: {}
-                });
-            }
-            catch (error) {
-                    if (error.message == 'A class which is not accessControlled cannot be a sub class of a class which is accessControlled.')
-                        return true;
-                    else 
-                        throw new Error(error.message);
+                catch (error) {
+                        if (error.message == 'accessControlled is required.')
+                            return true;
+                        else 
+                            throw new Error(error.message);
+                    }
+                throw new Error('Constructor should have thrown an error: accessControlled is required.');
+            });
+    
+            it('UpdateControlled is required', () => {
+                try {
+                    new ClassModel({
+                        className: 'Class',
+                        accessControlled: false,
+                        schema: {}
+                    });
                 }
-            throw new Error('Constructor should have thrown an error: A class which is not accessControlled cannot be a sub class of a class which is accessControlled.');
-        });
-
-        it('A subclass of an accessControlled discriminated super class must also be accessControlled.', () => {
-            try {
-                new ClassModel({
-                    className: 'Class',
-                    accessControlled: false,
-                    discriminatorSuperClass: AccessControlledDiscriminatedSuperClass,
-                    schema: {}
-                });
-            }
-            catch (error) {
-                    if (error.message == 'A subclass of a accessControlled discriminated super class must also be accessControlled.')
-                        return true;
-                    else 
-                        throw new Error(error.message);
-                }
-            throw new Error('Constructor should have thrown an error: A subclass of a accessControlled discriminated super class must also be accessControlled.');
-        });
-
-        it('If superClasses is set, it must be an Array.', function() {
-            try {
-                new ClassModel({
-                    accessControlled: false,
-                    className: 'SubClassModel',
-                    schema: {
-                        boolean: Boolean
-                    },
-                    superClasses: SuperClass
-                });
-            }
-            catch(error) {
-                if (error.message == 'If superClasses is set, it must be an Array.')
-                    return true;
-                else 
-                    throw new Error(error.message);
-            }
-
-            throw new Error('Constructor should have thrown an error: If superClasses is set, it must be an Array.');
-        });
-
-        it('If superClasses is set, it cannot be an empty Array.', function() {
-            try {
-                new ClassModel({
-                    accessControlled: false,
-                    className: 'SubClassModel',
-                    schema: {
-                        boolean: Boolean
-                    },
-                    superClasses: []
-                });
-            }
-            catch(error) {
-                if (error.message == 'If superClasses is set, it cannot be an empty Array.')
-                    return true;
-                else 
-                    throw new Error(error.message);
-            }
-
-            throw new Error('Constructor should have thrown an error: If superClasses is set, it cannot be an empty Array.');
-        });
-
-        it('If discriminatorSuperClass is set, it can only be a single class.', function() {
-            try {
-                new ClassModel({
-                    accessControlled: false,
-                    className: 'SubClassModel',
-                    schema: {
-                        boolean: Boolean
-                    },
-                    discriminatorSuperClass: [SuperClass, DiscriminatedSuperClass]
-                });
-            }
-            catch(error) {
-                if (error.message == 'If discriminatorSuperClass is set, it can only be a single class.')
-                    return true;
-                else 
-                    throw new Error(error.message);
-            }
-
-            throw new Error('Constructor should have thrown an error: If discriminatorSuperClass is set, it can only be a single class.');
-        });
-
-        it('A ClassModel cannot have both superClasses and discriminatorSuperClass.', function() {
-            try {
-                new ClassModel({
-                    accessControlled: false,
-                    className: 'SubClassModel',
-                    schema: {
-                        boolean: Boolean
-                    },
-                    superClasses: [SuperClass],
-                    discriminatorSuperClass: DiscriminatedSuperClass
-                });
-            }
-            catch(error) {
-                if (error.message == 'A ClassModel cannot have both superClasses and discriminatorSuperClass.')
-                    return true;
-                else 
-                    throw new Error(error.message);
-            }
-
-            throw new Error('Constructor should have thrown an error: A ClassModel cannot have both superClasses and discriminatorSuperClass.');
-        });
-
-        it('A ClassModel cannot have both superClasses and discriminatorSuperClass.', function() {
-            try {
-                new ClassModel({
-                    accessControlled: false,
-                    className: 'SubClassModel',
-                    schema: {
-                        boolean: Boolean
-                    },
-                    superClasses: [SuperClass],
-                    discriminatorSuperClass: DiscriminatedSuperClass
-                });
-            }
-            catch(error) {
-                if (error.message == 'A ClassModel cannot have both superClasses and discriminatorSuperClass.')
-                    return true;
-                else 
-                    throw new Error(error.message);
-            }
-
-            throw new Error('Constructor should have thrown an error: A ClassModel cannot have both superClasses and discriminatorSuperClass.');
-        });
-
-        it('If a class is used as a discriminatedSuperClass, that class must have its "discriminated" field set to true.', function() {
-            try {
-                new ClassModel({
-                    accessControlled: false,
-                    className: 'SubClassModel',
-                    schema: {},
-                    discriminatorSuperClass: SuperClass
-                });
-            }
-            catch(error) {
-                if (error.message == 'If a class is used as a discriminatedSuperClass, that class must have its "discriminated" field set to true.')
-                    return true;
-                else 
-                    throw new Error(error.message);
-            }
-
-            throw new Error('Constructor should have thrown an error: If a class is used as a discriminatedSuperClass, that class must have its "discriminated" field set to true.');
-        });
-
-        it('If a class is set as a superClass, that class cannot have its "discriminated" field set to true.', function() {
-            try {
-                new ClassModel({
-                    accessControlled: false,
-                    className: 'SubClassModel',
-                    schema: {},
-                    superClasses: [DiscriminatedSuperClass]
-                });
-            }
-            catch(error) {
-                if (error.message == 'If a class is set as a superClass, that class cannot have its "discriminated" field set to true.')
-                    return true;
-                else 
-                    throw new Error(error.message);
-            }
-
-            throw new Error('Constructor should have thrown an error: If a class is set as a superClass, that class cannot have its "discriminated" field set to true.');
-        });  
-
-        it('A discriminator sub class cannot be abstract.', function() {
-            try {
-                new ClassModel({
-                    accessControlled: false,
-                    className: 'SubClassModel',
-                    schema: {},
-                    discriminatorSuperClass: DiscriminatedSuperClass,
-                    abstract: true
-                });
-            }
-            catch(error) {
-                if (error.message == 'A discriminator sub class cannot be abstract.')
-                    return true;
-                else 
-                    throw new Error(error.message);
-            }
-
-            throw new Error('Constructor should have thrown an error: A discriminator sub class cannot be abstract.');
-        });  
-
-        it('A sub class of a discriminated super class cannot be discriminated.', function() {
-            try {
-                new ClassModel({
-                    accessControlled: false,
-                    className: 'SubClassModel',
-                    schema: {},
-                    discriminatorSuperClass: DiscriminatedSuperClass,
-                    discriminated: true
-                });
-            }
-            catch(error) {
-                if (error.message == 'A sub class of a discriminated super class cannot be discriminated.')
-                    return true;
-                else 
-                    throw new Error(error.message);
-            }
-
-            throw new Error('A sub class of a discriminated super class cannot be discriminated.');
-        });  
-
-        it('Sub class schema cannot contain the same field names as a super class schema.', function() {
-            try {
-                new ClassModel({
-                    accessControlled: false,
-                    className: 'SubClassModel',
-                    schema: {
-                        boolean: {
-                            type: Boolean
-                        }
-                    },
-                    superClasses: [SuperClass]
-                });
-            }
-            catch(error) {
-                if (error.message == 'Sub class schema cannot contain the same field names as a super class schema.')
-                    return true;
-                else 
-                    throw new Error(error.message);
-            }
-
-            throw new Error('Constructor should have thrown an error: Sub class schema cannot contain the same field names as a super class schema.');
-        });  
-
-        it('If a sub class is created, it is pushed to the super class\'s "subClasses" array.', function() {
-
-            if (SuperClass.subClasses.length == 0)
-                throw new Error('SuperClass.subClasses array has no entries in it.');
-            if (!SuperClass.subClasses.includes(SubClassOfSuperClass)) 
-                throw new Error('SuperClass.subClasses does not contain sub class.');
-
-            return true;
-        });
-
-        it('A subclass schema is the combination of its direct schema with the schema of a super class.', function() {
-            if(Object.keys(SubClassOfSuperClass.schema).includes('boolean') == false) {
-                throw new Error('Sub Class is missing the field "boolean".');
-            }
-
-            if(Object.keys(SubClassOfSuperClass.schema).includes('number') == false) {
-                throw new Error('Sub Class is missing the field "number".');
-            }
-
-            if(Object.keys(SubClassOfSuperClass.schema).includes('subBoolean') == false) {
-                throw new Error('Sub Class is missing the field "subBoolean".');
-            }
-
-            if(Object.keys(SubClassOfSuperClass.schema).includes('subNumber') == false) {
-                throw new Error('Sub Class is missing the field "subNumber".');
-            }
-
-            if (SuperClass.schema.boolean.type != SubClassOfSuperClass.schema.boolean.type) {
-                throw new Error('The field boolean.type was not copied correctly.')
-            }
-
-            return true;
-        });
-
-        it('A subclass schema is the combination of its direct schema with the schema the whole chane of Super Classes.', function() {
-            if(Object.keys(SubClassOfSubClassOfSuperClass.schema).includes('boolean') == false) {
-                throw new Error('Sub Class is missing the field "boolean".');
-            }
-
-            if(Object.keys(SubClassOfSubClassOfSuperClass.schema).includes('number') == false) {
-                throw new Error('Sub Class is missing the field "number".');
-            }
-
-            if(Object.keys(SubClassOfSubClassOfSuperClass.schema).includes('subBoolean') == false) {
-                throw new Error('Sub Class is missing the field "subBoolean".');
-            }
-
-            if(Object.keys(SubClassOfSubClassOfSuperClass.schema).includes('subNumber') == false) {
-                throw new Error('Sub Class is missing the field "subNumber".');
-            }
-
-            if(Object.keys(SubClassOfSubClassOfSuperClass.schema).includes('subSubBoolean') == false) {
-                throw new Error('Sub Class is missing the field "subSubBoolean".');
-            }
-
-            if(Object.keys(SubClassOfSubClassOfSuperClass.schema).includes('subSubNumber') == false) {
-                throw new Error('Sub Class is missing the field "subSubNumber".');
-            }
-
-            if (SuperClass.schema.boolean.type != SubClassOfSubClassOfSuperClass.schema.boolean.type) {
-                throw new Error('The field boolean.type was not copied correctly.')
-            }
-
-            return true;
-        });
-
-        it('A subclass schema is the combination of its direct schema with the schema of each of its super classes.', function() {
-            if(Object.keys(SubClassOfMultipleSuperClasses.schema).includes('boolean') == false) {
-                throw new Error('Sub Class is missing the field "boolean".');
-            }
-
-            if(Object.keys(SubClassOfMultipleSuperClasses.schema).includes('number') == false) {
-                throw new Error('Sub Class is missing the field "number".');
-            }
-
-            if(Object.keys(SubClassOfMultipleSuperClasses.schema).includes('subBoolean') == false) {
-                throw new Error('Sub Class is missing the field "subBoolean".');
-            }
-
-            if(Object.keys(SubClassOfMultipleSuperClasses.schema).includes('subNumber') == false) {
-                throw new Error('Sub Class is missing the field "subNumber".');
-            }
-
-            if(Object.keys(SubClassOfMultipleSuperClasses.schema).includes('abstractBoolean') == false) {
-                throw new Error('Sub Class is missing the field "abstractBoolean".');
-            }
-
-            if(Object.keys(SubClassOfMultipleSuperClasses.schema).includes('abstractNumber') == false) {
-                throw new Error('Sub Class is missing the field "abstractNumber".');
-            }
-
-            if (SuperClass.schema.boolean.type != SubClassOfMultipleSuperClasses.schema.boolean.type) {
-                throw new Error('The field boolean.type was not copied correctly.')
-            }
-
-            return true;
-        });
-
-        it('A class cannot be a sub class of a sub class of a discriminated class.', function() {
-            try {
-                new ClassModel({
-                    accessControlled: false,
-                    className: 'SubClassModel',
-                    schema: {},
-                    superClasses: [SubClassOfDiscriminatorSuperClass]
-                });
-            }
-            catch(error) {
-                if (error.message == 'A class cannot be a sub class of a sub class of a discriminated class.')
-                    return true;
-                else 
-                    throw new Error(error.message);
-            }
-
-            throw new Error('Constructor should have thrown an error: A class cannot be a sub class of a sub class of a discriminated class.');
-        });
-
-        it('An abstract, non-discriminated class should have no Model.', function() {
-            if (AbstractSuperClass.Model)
-                throw new Error('An abstract, non-discriminated class should have no Model.');
-        });
-
-        it('Constructor excepts and sets parameters.', function() {
-            var schema = {
-                text: {
-                    type: String,
-                    required: true
-                },
-                singularRelationship: {
-                    type: Schema.Types.ObjectId,
-                    ref: 'OtherClass',
-                    required: true
-                },
-                nonSingularRelationship: {
-                    type: [Schema.Types.ObjectId],
-                    ref: 'OtherClass'
-                }
-            }
-
-            var SimpleClassModel = new ClassModel({
-                accessControlled: false,
-                className: 'SimpleClassModel',
-                schema: schema
+                catch (error) {
+                        if (error.message == 'updateControlled is required.')
+                            return true;
+                        else 
+                            throw new Error(error.message);
+                    }
+                throw new Error('Constructor should have thrown an error: updateControlled is required.');
             });
 
-            if (SimpleClassModel.className != 'SimpleClassModel')
-                return false;
-            if (SimpleClassModel.schema != schema)
-                return false;
-            return true;
+        });
+
+        describe('Inheritence Requirements', () => {
+
+            it('If superClasses is set, it must be an Array.', function() {
+                try {
+                    new ClassModel({
+                        accessControlled: false,
+                        updateControlled: false,
+                        className: 'SubClassModel',
+                        schema: {
+                            boolean: Boolean
+                        },
+                        superClasses: SuperClass
+                    });
+                }
+                catch(error) {
+                    if (error.message == 'If superClasses is set, it must be an Array.')
+                        return true;
+                    else 
+                        throw new Error(error.message);
+                }
+    
+                throw new Error('Constructor should have thrown an error: If superClasses is set, it must be an Array.');
+            });
+    
+            it('If superClasses is set, it cannot be an empty Array.', function() {
+                try {
+                    new ClassModel({
+                        accessControlled: false,
+                        updateControlled: false,
+                        className: 'SubClassModel',
+                        schema: {
+                            boolean: Boolean
+                        },
+                        superClasses: []
+                    });
+                }
+                catch(error) {
+                    if (error.message == 'If superClasses is set, it cannot be an empty Array.')
+                        return true;
+                    else 
+                        throw new Error(error.message);
+                }
+    
+                throw new Error('Constructor should have thrown an error: If superClasses is set, it cannot be an empty Array.');
+            });
+    
+            it('If discriminatorSuperClass is set, it can only be a single class.', function() {
+                try {
+                    new ClassModel({
+                        accessControlled: false,
+                        updateControlled: false,
+                        className: 'SubClassModel',
+                        schema: {
+                            boolean: Boolean
+                        },
+                        discriminatorSuperClass: [SuperClass, DiscriminatedSuperClass]
+                    });
+                }
+                catch(error) {
+                    if (error.message == 'If discriminatorSuperClass is set, it can only be a single class.')
+                        return true;
+                    else 
+                        throw new Error(error.message);
+                }
+    
+                throw new Error('Constructor should have thrown an error: If discriminatorSuperClass is set, it can only be a single class.');
+            });
+    
+            it('A ClassModel cannot have both superClasses and discriminatorSuperClass.', function() {
+                try {
+                    new ClassModel({
+                        accessControlled: false,
+                        updateControlled: false,
+                        className: 'SubClassModel',
+                        schema: {
+                            boolean: Boolean
+                        },
+                        superClasses: [SuperClass],
+                        discriminatorSuperClass: DiscriminatedSuperClass
+                    });
+                }
+                catch(error) {
+                    if (error.message == 'A ClassModel cannot have both superClasses and discriminatorSuperClass.')
+                        return true;
+                    else 
+                        throw new Error(error.message);
+                }
+    
+                throw new Error('Constructor should have thrown an error: A ClassModel cannot have both superClasses and discriminatorSuperClass.');
+            });
+    
+            it('A ClassModel cannot have both superClasses and discriminatorSuperClass.', function() {
+                try {
+                    new ClassModel({
+                        accessControlled: false,
+                        updateControlled: false,
+                        className: 'SubClassModel',
+                        schema: {
+                            boolean: Boolean
+                        },
+                        superClasses: [SuperClass],
+                        discriminatorSuperClass: DiscriminatedSuperClass
+                    });
+                }
+                catch(error) {
+                    if (error.message == 'A ClassModel cannot have both superClasses and discriminatorSuperClass.')
+                        return true;
+                    else 
+                        throw new Error(error.message);
+                }
+    
+                throw new Error('Constructor should have thrown an error: A ClassModel cannot have both superClasses and discriminatorSuperClass.');
+            });
+    
+            it('If a class is used as a discriminatedSuperClass, that class must have its "discriminated" field set to true.', function() {
+                try {
+                    new ClassModel({
+                        accessControlled: false,
+                        updateControlled: false,
+                        className: 'SubClassModel',
+                        schema: {},
+                        discriminatorSuperClass: SuperClass
+                    });
+                }
+                catch(error) {
+                    if (error.message == 'If a class is used as a discriminatedSuperClass, that class must have its "discriminated" field set to true.')
+                        return true;
+                    else 
+                        throw new Error(error.message);
+                }
+    
+                throw new Error('Constructor should have thrown an error: If a class is used as a discriminatedSuperClass, that class must have its "discriminated" field set to true.');
+            });
+    
+            it('If a class is set as a superClass, that class cannot have its "discriminated" field set to true.', function() {
+                try {
+                    new ClassModel({
+                        accessControlled: false,
+                        updateControlled: false,
+                        className: 'SubClassModel',
+                        schema: {},
+                        superClasses: [DiscriminatedSuperClass]
+                    });
+                }
+                catch(error) {
+                    if (error.message == 'If a class is set as a superClass, that class cannot have its "discriminated" field set to true.')
+                        return true;
+                    else 
+                        throw new Error(error.message);
+                }
+    
+                throw new Error('Constructor should have thrown an error: If a class is set as a superClass, that class cannot have its "discriminated" field set to true.');
+            });  
+    
+            it('A discriminator sub class cannot be abstract.', function() {
+                try {
+                    new ClassModel({
+                        accessControlled: false,
+                        updateControlled: false,
+                        className: 'SubClassModel',
+                        schema: {},
+                        discriminatorSuperClass: DiscriminatedSuperClass,
+                        abstract: true
+                    });
+                }
+                catch(error) {
+                    if (error.message == 'A discriminator sub class cannot be abstract.')
+                        return true;
+                    else 
+                        throw new Error(error.message);
+                }
+    
+                throw new Error('Constructor should have thrown an error: A discriminator sub class cannot be abstract.');
+            });  
+    
+            it('A sub class of a discriminated super class cannot be discriminated.', function() {
+                try {
+                    new ClassModel({
+                        accessControlled: false,
+                        updateControlled: false,
+                        className: 'SubClassModel',
+                        schema: {},
+                        discriminatorSuperClass: DiscriminatedSuperClass,
+                        discriminated: true
+                    });
+                }
+                catch(error) {
+                    if (error.message == 'A sub class of a discriminated super class cannot be discriminated.')
+                        return true;
+                    else 
+                        throw new Error(error.message);
+                }
+    
+                throw new Error('A sub class of a discriminated super class cannot be discriminated.');
+            });  
+    
+            it('Sub class schema cannot contain the same field names as a super class schema.', function() {
+                try {
+                    new ClassModel({
+                        accessControlled: false,
+                        updateControlled: false,
+                        className: 'SubClassModel',
+                        schema: {
+                            boolean: {
+                                type: Boolean
+                            }
+                        },
+                        superClasses: [SuperClass]
+                    });
+                }
+                catch(error) {
+                    if (error.message == 'Sub class schema cannot contain the same field names as a super class schema.')
+                        return true;
+                    else 
+                        throw new Error(error.message);
+                }
+    
+                throw new Error('Constructor should have thrown an error: Sub class schema cannot contain the same field names as a super class schema.');
+            });  
+    
+            it('If a sub class is created, it is pushed to the super class\'s "subClasses" array.', function() {
+    
+                if (SuperClass.subClasses.length == 0)
+                    throw new Error('SuperClass.subClasses array has no entries in it.');
+                if (!SuperClass.subClasses.includes(SubClassOfSuperClass)) 
+                    throw new Error('SuperClass.subClasses does not contain sub class.');
+    
+                return true;
+            });
+    
+            it('A subclass schema is the combination of its direct schema with the schema of a super class.', function() {
+                if(Object.keys(SubClassOfSuperClass.schema).includes('boolean') == false) {
+                    throw new Error('Sub Class is missing the field "boolean".');
+                }
+    
+                if(Object.keys(SubClassOfSuperClass.schema).includes('number') == false) {
+                    throw new Error('Sub Class is missing the field "number".');
+                }
+    
+                if(Object.keys(SubClassOfSuperClass.schema).includes('subBoolean') == false) {
+                    throw new Error('Sub Class is missing the field "subBoolean".');
+                }
+    
+                if(Object.keys(SubClassOfSuperClass.schema).includes('subNumber') == false) {
+                    throw new Error('Sub Class is missing the field "subNumber".');
+                }
+    
+                if (SuperClass.schema.boolean.type != SubClassOfSuperClass.schema.boolean.type) {
+                    throw new Error('The field boolean.type was not copied correctly.')
+                }
+    
+                return true;
+            });
+    
+            it('A subclass schema is the combination of its direct schema with the schema the whole chane of Super Classes.', function() {
+                if(Object.keys(SubClassOfSubClassOfSuperClass.schema).includes('boolean') == false) {
+                    throw new Error('Sub Class is missing the field "boolean".');
+                }
+    
+                if(Object.keys(SubClassOfSubClassOfSuperClass.schema).includes('number') == false) {
+                    throw new Error('Sub Class is missing the field "number".');
+                }
+    
+                if(Object.keys(SubClassOfSubClassOfSuperClass.schema).includes('subBoolean') == false) {
+                    throw new Error('Sub Class is missing the field "subBoolean".');
+                }
+    
+                if(Object.keys(SubClassOfSubClassOfSuperClass.schema).includes('subNumber') == false) {
+                    throw new Error('Sub Class is missing the field "subNumber".');
+                }
+    
+                if(Object.keys(SubClassOfSubClassOfSuperClass.schema).includes('subSubBoolean') == false) {
+                    throw new Error('Sub Class is missing the field "subSubBoolean".');
+                }
+    
+                if(Object.keys(SubClassOfSubClassOfSuperClass.schema).includes('subSubNumber') == false) {
+                    throw new Error('Sub Class is missing the field "subSubNumber".');
+                }
+    
+                if (SuperClass.schema.boolean.type != SubClassOfSubClassOfSuperClass.schema.boolean.type) {
+                    throw new Error('The field boolean.type was not copied correctly.')
+                }
+    
+                return true;
+            });
+    
+            it('A subclass schema is the combination of its direct schema with the schema of each of its super classes.', function() {
+                if(Object.keys(SubClassOfMultipleSuperClasses.schema).includes('boolean') == false) {
+                    throw new Error('Sub Class is missing the field "boolean".');
+                }
+    
+                if(Object.keys(SubClassOfMultipleSuperClasses.schema).includes('number') == false) {
+                    throw new Error('Sub Class is missing the field "number".');
+                }
+    
+                if(Object.keys(SubClassOfMultipleSuperClasses.schema).includes('subBoolean') == false) {
+                    throw new Error('Sub Class is missing the field "subBoolean".');
+                }
+    
+                if(Object.keys(SubClassOfMultipleSuperClasses.schema).includes('subNumber') == false) {
+                    throw new Error('Sub Class is missing the field "subNumber".');
+                }
+    
+                if(Object.keys(SubClassOfMultipleSuperClasses.schema).includes('abstractBoolean') == false) {
+                    throw new Error('Sub Class is missing the field "abstractBoolean".');
+                }
+    
+                if(Object.keys(SubClassOfMultipleSuperClasses.schema).includes('abstractNumber') == false) {
+                    throw new Error('Sub Class is missing the field "abstractNumber".');
+                }
+    
+                if (SuperClass.schema.boolean.type != SubClassOfMultipleSuperClasses.schema.boolean.type) {
+                    throw new Error('The field boolean.type was not copied correctly.')
+                }
+    
+                return true;
+            });
+    
+            it('A class cannot be a sub class of a sub class of a discriminated class.', function() {
+                try {
+                    new ClassModel({
+                        accessControlled: false,
+                        className: 'SubClassModel',
+                        schema: {},
+                        superClasses: [SubClassOfDiscriminatorSuperClass]
+                    });
+                }
+                catch(error) {
+                    if (error.message == 'A class cannot be a sub class of a sub class of a discriminated class.')
+                        return true;
+                    else 
+                        throw new Error(error.message);
+                }
+    
+                throw new Error('Constructor should have thrown an error: A class cannot be a sub class of a sub class of a discriminated class.');
+            });
+    
+            it('An abstract, non-discriminated class should have no Model.', function() {
+                if (AbstractSuperClass.Model)
+                    throw new Error('An abstract, non-discriminated class should have no Model.');
+            });
+
+        });
+
+        describe('Access Control Requirements', () => {
+
+            it('If a class is accessControlled, it must have a accessControlMethod, or it must have at least one super class with an accessControlMethod.', () => {
+                try {
+                    new ClassModel({
+                        className: 'Class',
+                        accessControlled: true,
+                        updateControlled: false,
+                        schema: {}
+                    });
+                }
+                catch (error) {
+                        if (error.message == 'If a class is accessControlled, it must have an accessControlMethod, or it must have at least one super class with an accessControlMethod.')
+                            return true;
+                        else 
+                            throw new Error(error.message);
+                    }
+                throw new Error('Constructor should have thrown an error: If a class is accessControlled, it must have an accessControlMethod, or it must have at least one super class with an accessControlMethod.');
+            });
+    
+            it('A class that is not accessControlled cannot have an accessControlMethod.', () => {
+                try {
+                    new ClassModel({
+                        className: 'Class',
+                        accessControlled: false,
+                        updateControlled: false,
+                        accessControlMethod: () => { return true },
+                        schema: {}
+                    });
+                }
+                catch (error) {
+                        if (error.message == 'A class that is not accessControlled cannot have an accessControlMethod.')
+                            return true;
+                        else 
+                            throw new Error(error.message);
+                    }
+                throw new Error('Constructor should have thrown an error: A class that is not accessControlled cannot have an accessControlMethod.');
+            });
+    
+            it('A class which is not accessControlled cannot be a sub class of a class which is accessControlled.', () => {
+                try {
+                    new ClassModel({
+                        className: 'Class',
+                        accessControlled: false,
+                        updateControlled: false,
+                        superClasses: [AccessControlledSuperClass],
+                        schema: {}
+                    });
+                }
+                catch (error) {
+                        if (error.message == 'A class which is not accessControlled cannot be a sub class of a class which is accessControlled.')
+                            return true;
+                        else 
+                            throw new Error(error.message);
+                    }
+                throw new Error('Constructor should have thrown an error: A class which is not accessControlled cannot be a sub class of a class which is accessControlled.');
+            });
+    
+            it('A subclass of an accessControlled discriminated super class must also be accessControlled.', () => {
+                try {
+                    new ClassModel({
+                        className: 'Class',
+                        accessControlled: false,
+                        updateControlled: false,
+                        discriminatorSuperClass: AccessControlledDiscriminatedSuperClass,
+                        schema: {}
+                    });
+                }
+                catch (error) {
+                        if (error.message == 'A subclass of a accessControlled discriminated super class must also be accessControlled.')
+                            return true;
+                        else 
+                            throw new Error(error.message);
+                    }
+                throw new Error('Constructor should have thrown an error: A subclass of a accessControlled discriminated super class must also be accessControlled.');
+            });
+
+        });
+
+        describe('Update Control Requirements', () => {
+
+            it('If a class is updateControlled, it must have a updateControlMethod, or it must have at least one super class with an updateControlMethod.', () => {
+                try {
+                    new ClassModel({
+                        className: 'Class',
+                        accessControlled: false,
+                        updateControlled: true,
+                        schema: {}
+                    });
+                }
+                catch (error) {
+                        if (error.message == 'If a class is updateControlled, it must have an updateControlMethod, or it must have at least one super class with an updateControlMethod.')
+                            return true;
+                        else 
+                            throw new Error(error.message);
+                    }
+                throw new Error('Constructor should have thrown an error: If a class is updateControlled, it must have an updateControlMethod, or it must have at least one super class with an updateControlMethod.');
+            });
+    
+            it('A class that is not updateControlled cannot have an updateControlMethod.', () => {
+                try {
+                    new ClassModel({
+                        className: 'Class',
+                        accessControlled: false,
+                        updateControlled: false,
+                        updateControlMethod: () => { return true },
+                        schema: {}
+                    });
+                }
+                catch (error) {
+                        if (error.message == 'A class that is not updateControlled cannot have an updateControlMethod.')
+                            return true;
+                        else 
+                            throw new Error(error.message);
+                    }
+                throw new Error('Constructor should have thrown an error: A class that is not updateControlled cannot have an updateControlMethod.');
+            });
+    
+            it('A class which is not updateControlled cannot be a sub class of a class which is updateControlled.', () => {
+                try {
+                    new ClassModel({
+                        className: 'Class',
+                        accessControlled: false,
+                        updateControlled: false,
+                        superClasses: [UpdateControlledSuperClass],
+                        schema: {}
+                    });
+                }
+                catch (error) {
+                        if (error.message == 'A class which is not updateControlled cannot be a sub class of a class which is updateControlled.')
+                            return true;
+                        else 
+                            throw new Error(error.message);
+                    }
+                throw new Error('Constructor should have thrown an error: A class which is not updateControlled cannot be a sub class of a class which is updateControlled.');
+            });
+    
+            it('A subclass of an updateControlled discriminated super class must also be updateControlled.', () => {
+                try {
+                    new ClassModel({
+                        className: 'Class',
+                        accessControlled: false,
+                        updateControlled: false,
+                        discriminatorSuperClass: UpdateControlledDiscriminatedSuperClass,
+                        schema: {}
+                    });
+                }
+                catch (error) {
+                        if (error.message == 'A subclass of a updateControlled discriminated super class must also be updateControlled.')
+                            return true;
+                        else 
+                            throw new Error(error.message);
+                    }
+                throw new Error('Constructor should have thrown an error: A subclass of a updateControlled discriminated super class must also be updateControlled.');
+            });
+
+        });
+
+        describe('Happy Path', () => {
+
+            it('Constructor excepts and sets parameters.', function() {
+                var schema = {
+                    text: {
+                        type: String,
+                        required: true
+                    },
+                    singularRelationship: {
+                        type: Schema.Types.ObjectId,
+                        ref: 'OtherClass',
+                        required: true
+                    },
+                    nonSingularRelationship: {
+                        type: [Schema.Types.ObjectId],
+                        ref: 'OtherClass'
+                    }
+                }
+    
+                var SimpleClassModel = new ClassModel({
+                    accessControlled: false,
+                    updateControlled: false,
+                    className: 'SimpleClassModel',
+                    schema: schema
+                });
+    
+                if (SimpleClassModel.className != 'SimpleClassModel')
+                    return false;
+                if (SimpleClassModel.schema != schema)
+                    return false;
+                return true;
+            });
+
         });
         
     });
@@ -2100,6 +2353,7 @@ describe('Class Model Tests', function() {
 
                 let MutexClassA = new ClassModel({
                     accessControlled: false,
+                    updateControlled: false,
                     className: 'MutexClassA', 
                     schema: schema
                 });
@@ -2142,6 +2396,7 @@ describe('Class Model Tests', function() {
 
                 let MutexClassAA = new ClassModel({
                     accessControlled: false,
+                    updateControlled: false,
                     className: 'MutexClassAA', 
                     schema: schema
                 });
@@ -2182,6 +2437,7 @@ describe('Class Model Tests', function() {
 
                 let MutexClassB = new ClassModel({
                     accessControlled: false,
+                    updateControlled: false,
                     className: 'MutexClassB', 
                     schema: schema
                 });
@@ -2226,6 +2482,7 @@ describe('Class Model Tests', function() {
 
                 let MutexClassBB = new ClassModel({
                     accessControlled: false,
+                    updateControlled: false,
                     className: 'MutexClassBB', 
                     schema: schema
                 });
@@ -2266,6 +2523,7 @@ describe('Class Model Tests', function() {
 
                 let MutexClassC = new ClassModel({
                     accessControlled: false,
+                    updateControlled: false,
                     className: 'MutexClassC', 
                     schema: schema
                 });
@@ -2310,6 +2568,7 @@ describe('Class Model Tests', function() {
 
                 let MutexClassCC = new ClassModel({
                     accessControlled: false,
+                    updateControlled: false,
                     className: 'MutexClassCC', 
                     schema: schema
                 });

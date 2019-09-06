@@ -72,9 +72,12 @@ class ClassModel {
         this.discriminated = parameters.discriminated;
         this.accessControlled = parameters.accessControlled;
         this.accessControlMethod = parameters.accessControlMethod ? parameters.accessControlMethod : undefined;
+        this.updateControlled = parameters.updateControlled;
+        this.updateControlMethod = parameters.updateControlMethod ? parameters.updateControlMethod : undefined;
         this.superClasses = parameters.superClasses ? parameters.superClasses : [];
         this.discriminatorSuperClass = parameters.discriminatorSuperClass;
 
+        // Access Control Settings
         if (parameters.accessControlled === undefined) {
             throw new Error('accessControlled is required.');
         }
@@ -99,6 +102,35 @@ class ClassModel {
             if (parameters.discriminatorSuperClass) {
                 if (parameters.discriminatorSuperClass.accessControlled) {
                     throw new Error('A subclass of a accessControlled discriminated super class must also be accessControlled.');
+                }
+            }
+        } 
+
+        // Update Control Settings
+        if (parameters.updateControlled === undefined) {
+            throw new Error('updateControlled is required.');
+        }
+
+        if (parameters.updateControlled && !this.allUpdateControlMethodsforClassModel().length) {
+            throw new Error('If a class is updateControlled, it must have an updateControlMethod, or it must have at least one super class with an updateControlMethod.');
+        }
+
+        if (!parameters.updateControlled) {
+            if (parameters.updateControlMethod) {
+                throw new Error('A class that is not updateControlled cannot have an updateControlMethod.');
+            }
+
+            if (parameters.superClasses) {
+                parameters.superClasses.forEach(function(superClass) {
+                    if (superClass.updateControlled) {
+                        throw new Error('A class which is not updateControlled cannot be a sub class of a class which is updateControlled.');
+                    }
+                });
+            }
+
+            if (parameters.discriminatorSuperClass) {
+                if (parameters.discriminatorSuperClass.updateControlled) {
+                    throw new Error('A subclass of a updateControlled discriminated super class must also be updateControlled.');
                 }
             }
         } 
@@ -837,6 +869,29 @@ class ClassModel {
             return filtered[0];
         else
             return null;
+    }
+
+    /* A recursive method which retrieves all the update control methods that should be run on instances of a classmodel, including the classes own
+     *    update control method and all the update control methods of its updateControlled parents.
+     * @return An Array containing all the update control methods that should be run for a particular class model.
+     */
+    allUpdateControlMethodsforClassModel() {
+        if (!this.updateControlled)
+            return [];
+        
+        let updateControlMethods = [];
+
+        for (let superClass of this.superClasses) {
+            updateControlMethods.push(...superClass.allUpdateControlMethodsforClassModel());
+        }
+
+        if (this.discriminatorSuperClass)
+            updateControlMethods.push(...this.discriminatorSuperClass.allUpdateControlMethodsforClassModel());
+
+        if (this.updateControlMethod)
+            updateControlMethods.push(this.updateControlMethod);
+
+        return updateControlMethods;
     }
 
     // Comparison Methods
