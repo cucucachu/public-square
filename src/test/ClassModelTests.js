@@ -3098,7 +3098,7 @@ describe('Class Model Tests', function() {
 
         it('Throws an error if argument an instance of the wrong classModel.', function(done) {
             let instance = AllFieldsRequiredClass.create();
-            let expectedErrorMessage = 'SuperClass.save() called on an instance of a different class.';
+            let expectedErrorMessage = 'SuperClass.saveAll() passed instances of a different class.';
             let error;
             
             SuperClass.saveAll([instance]).then(

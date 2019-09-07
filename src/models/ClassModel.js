@@ -457,26 +457,22 @@ class ClassModel {
     }
 
     // Save
-    save(instance) {
-        let classModel = this;
-        return new Promise(function(resolve, reject) {
+    async save(instance, ...updateControlMethodParameters) {
+        const classModel = this;
 
-            if (!(instance instanceof classModel.Model)) {
-                reject(new Error(classModel.className + '.save() called on an instance of a different class.'));
-            }
-            else {
-                classModel.validate(instance);
+        if (!(instance instanceof classModel.Model)) 
+            throw new Error(classModel.className + '.save() called on an instance of a different class.');
 
-                instance.save(function(error, saved) {
-                    if (error) {
-                        reject(error);
-                    }
-                    else {
-                        resolve(saved);
-                    }
-                });
-            }
-        });
+        classModel.validate(instance);
+
+        try {
+            this.updateControlCheckOne(instance, ...updateControlMethodParameters);
+        }
+        catch (error) {
+            throw new Error('Error in ' + this.className + '.save(): ' + error.message);
+        }
+
+        return instance.save();
     }
 
     delete(instance) {
@@ -507,33 +503,34 @@ class ClassModel {
         return savedInstances;
     }
 
-    saveAll(instances) {
-        let classModel = this;
-
-        return new Promise(function(resolve, reject) {
-            if (instances == null) {
-                reject(new Error(classModel.className + '.saveAll(instances): instances cannot be null.'));
-            }
-            else if (!Array.isArray(instances)) {
-                reject(new Error(classModel.className + '.saveAll(instances): instances must be an Array.'));
-            }
-            else {
-                let promises = [];
-
-                instances.forEach(function(instance) {
-                    promises.push(classModel.save(instance));
-                });
+    async saveAll(instances, ...updateControlMethodParameters) {
+        const classModel = this;
         
-                ClassModel.saveAllHelper(promises).then(
-                    function(savedInstances) {
-                        resolve(savedInstances);
-                    },
-                    function (error) {
-                        reject(error);
-                    }
-                );
-            }
+        if (instances == null) 
+            throw new Error(classModel.className + '.saveAll(instances): instances cannot be null.');
+        
+        if (!Array.isArray(instances)) 
+            throw new Error(classModel.className + '.saveAll(instances): instances must be an Array.');
+        
+        instances.forEach(instance => {
+            if (!(instance instanceof this.Model))
+                throw new Error(this.className + '.saveAll() passed instances of a different class.');
         });
+        
+        instances.forEach(instance => classModel.validate(instance));
+
+        try {
+            this.updateControlCheck(instances, ...updateControlMethodParameters);
+        }
+        catch(error) {
+            throw new Error('Error in ' + this.className + '.saveAll(): ' + error.message);
+        }
+
+        let promises = [];
+    
+        instances.forEach(instance => promises.push(instance.save()));
+        
+        return ClassModel.saveAllHelper(promises);
     }
 
     // Query Methods
@@ -900,6 +897,13 @@ class ClassModel {
         return updateControlMethods;
     }
 
+
+    /* Takes an array of instances of the Class Model and checks that they can be updated accoding to the updateControlMethod for each isntance.
+     * Required Parameter instances - Array<instance> : An array of instances of this Class Model to filter.
+     * Rest Parameter updateControlParameters - The parameters needed for updateControlMethods.
+     * Returns true if all the instances can be updated.
+     * Throws an error if any instance cannot be updated. Error message contains Ids of instances which failed update control check.
+     */
     async updateControlCheck(instances, ...updateControlParameters) {
         if (!Array.isArray(instances))
             throw new Error('Incorrect parameters. ' + this.className + '.updateControlCheck(Array<instance> instances, ...updateControlMethodParameters)');
@@ -924,12 +928,9 @@ class ClassModel {
         }
     }
 
-    /* Takes an array of instances of the Class Model and checks that they can be updated accoding to the updateControlMethod for each isntance.
-     * Required Parameter instances - Array<instance> : An array of instances of this Class Model to filter.
-     * Returns an object {
-     *    updateAllowed <Boolean> - True if all the instances can be updated, false otherwise
-     *    rejectedInstances <InstanceSet> - An Instance Set of the instances which failed their updateControlMethods. This will
-     *       be empty if updateAllowed is true.
+    /* Recursive method to be called by updateControlCheck()
+     * Required Parameter instances - Array<instance> : An array of instances of this Class Model to run update control method on.
+     * Returns an InstanceSet containing instances which do not pass update control check.
      * }
      */
     async updateControlCheckRecursive(instances, ...updateControlMethodParameters) {
