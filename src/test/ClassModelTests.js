@@ -6009,223 +6009,197 @@ describe('Class Model Tests', function() {
 
         });
 
-        // describe('Test find methods for access filtering.', () => {
+        describe('Test save methods for update control checks.', () => {
 
-        //     describe('Test findById() with access filtering', () => {
+            describe('Test save() with update control checks', () => {
 
-        //         it('Call findByID() on an instance of an access controlled class. Instance passes filter.', async () => {
-        //             const classToCallFindByIdOn = UpdateControlledSuperClass;
-        //             const instanceToFind = instanceOfUpdateControlledSuperClassPasses;
-        //             const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
+                describe('Without updateControlMethodParameters.', () => {
 
-        //             if (!instanceFound)
-        //                 throw new Error('findById() did not return an instance.');
+                    it('Call save() on an instance of an update controlled class. Instance saved.', async () => {
+                        const classToCallSaveOn = UpdateControlledSuperClass;
+                        const instanceToSave = instanceOfUpdateControlledSuperClassPasses;
+    
+                        await classToCallSaveOn.save(instanceToSave);
+                        const instanceSaved = await classToCallSaveOn.findById(instanceToSave._id);
+    
+                        if (!instanceSaved)
+                            throw new Error('.save() returned without error, but instance could not be found in the database.');
+                    });
+    
+                    it('Call save() on an instance of an update controlled class. Save fails due to update control check.', async () => {
+                        const classToCallSaveOn = UpdateControlledSuperClass;
+                        const instanceToSave = instanceOfUpdateControlledSuperClassFailsRelationship;
+                        const expectedErrorMessage = 'Error in ' + classToCallSaveOn.className + '.save(): Illegal attempt to update instances: ' + instanceToSave.id;
+                        let errorThrown = false;
+    
+                        try {
+                            await classToCallSaveOn.save(instanceToSave);
+                        }
+                        catch (error) {
+                            if (error.message != expectedErrorMessage) {
+                                throw new Error(
+                                    '.save() threw an error, but not the expected one.\n' +
+                                    'expected: ' + expectedErrorMessage + '\n' + 
+                                    'actual:   ' + error.message
+                                );
+                            }
+                            errorThrown = true;
+                        }
+    
+                        if (!errorThrown)
+                            throw new Error('.save() returned when it should have returned an error.');
+                        
+                        const instanceFound = await classToCallSaveOn.findById(instanceToSave._id);
 
-        //             if (!instanceFound._id.equals(instanceToFind._id))
-        //                 throw new Error(
-        //                     'An instance was returned, but it is not the correct one.\n' +
-        //                     'Expected: \n' + instanceToFind + '\n' +
-        //                     'Actual: \n' + instanceFound
-        //                 );
-        //         });
+                        if (instanceFound) 
+                            throw new Error('.save() threw an error, but the instance was saved anyway.')
+                    });
 
-        //         it('Call findByID() on an instance of an access controlled class, from super class. Instance passes filter.', async () => {
-        //             const classToCallFindByIdOn = UpdateControlledSuperClass;
-        //             const instanceToFind = instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses;
-        //             const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
+                });
 
-        //             if (!instanceFound)
-        //                 throw new Error('findById() did not return an instance.');
+                describe('Calling save with updateControlMethodParameters', () => {
 
-        //             if (!instanceFound._id.equals(instanceToFind._id))
-        //                 throw new Error(
-        //                     'An instance was returned, but it is not the correct one.\n' +
-        //                     'Expected: \n' + instanceToFind + '\n' +
-        //                     'Actual: \n' + instanceFound
-        //                 );
+                    it('Call save() on an instance of an update controlled class with updateControlMethodParameters. Instance saved.', async () => {
+                        const classToCallSaveOn = UpdateControlledClassUpdateControlledByParameters;
+                        const instanceToSave = instanceOfUpdateControlledClassUpdateControlledByParameters;
+                        const updateControlMethodParameters = [1, 1, true];
+    
+                        await classToCallSaveOn.save(instanceToSave, ...updateControlMethodParameters);
+                        const instanceSaved = await classToCallSaveOn.findById(instanceToSave._id);
+    
+                        if (!instanceSaved)
+                            throw new Error('.save() returned without error, but instance could not be found in the database.');
+                        
+                            
+                        await classToCallSaveOn.delete(instanceToSave);
+                    });
+    
+                    it('Call save() on an instance of an update controlled class with updateControlMethodParameters. Save fails due to update control check.', async () => {
+                        const classToCallSaveOn = UpdateControlledClassUpdateControlledByParameters;
+                        const instanceToSave = instanceOfUpdateControlledClassUpdateControlledByParameters;
+                        const expectedErrorMessage = 'Error in ' + classToCallSaveOn.className + '.save(): Illegal attempt to update instances: ' + instanceToSave.id;
+                        const updateControlMethodParameters = [-2, 1, true];
+                        let errorThrown = false;
+    
+                        try {
+                            await classToCallSaveOn.save(instanceToSave, ...updateControlMethodParameters);
+                        }
+                        catch (error) {
+                            if (error.message != expectedErrorMessage) {
+                                throw new Error(
+                                    '.save() threw an error, but not the expected one.\n' +
+                                    'expected: ' + expectedErrorMessage + '\n' + 
+                                    'actual:   ' + error.message
+                                );
+                            }
+                            errorThrown = true;
+                        }
+    
+                        if (!errorThrown)
+                            throw new Error('.save() returned when it should have returned an error.');
+                        
+                        const instanceFound = await classToCallSaveOn.findById(instanceToSave._id);
 
-        //         });
+                        if (instanceFound) 
+                            throw new Error('.save() threw an error, but the instance was saved anyway.')
+                    });
+    
+                    it('Call save() on an instance of an update controlled class with updateControlMethodParameters. Save fails due to update control check.', async () => {
+                        const classToCallSaveOn = UpdateControlledClassUpdateControlledByParameters;
+                        const instanceToSave = instanceOfUpdateControlledClassUpdateControlledByParameters;
+                        const expectedErrorMessage = 'Error in ' + classToCallSaveOn.className + '.save(): Illegal attempt to update instances: ' + instanceToSave.id;
+                        const updateControlMethodParameters = [1, 1, false];
+                        let errorThrown = false;
+                        
+                        try {
+                            await classToCallSaveOn.save(instanceToSave, ...updateControlMethodParameters);
+                        }
+                        catch (error) {
+                            if (error.message != expectedErrorMessage) {
+                                throw new Error(
+                                    '.save() threw an error, but not the expected one.\n' +
+                                    'expected: ' + expectedErrorMessage + '\n' + 
+                                    'actual:   ' + error.message
+                                );
+                            }
+                            errorThrown = true;
+                        }
+    
+                        if (!errorThrown)
+                            throw new Error('.save() returned when it should have returned an error.');
 
-        //         it('Call findByID() on an instance of an access controlled class. Instance does not pass filter.', async () => {
-        //             const classToCallFindByIdOn = UpdateControlledSuperClass;
-        //             const instanceToFind = instanceOfUpdateControlledSuperClassFailsRelationship;
-        //             const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
+                        const instanceFound = await classToCallSaveOn.findById(instanceToSave._id);
 
-        //             if (instanceFound)
-        //                 throw new Error('findById() returned an instance.');
-        //         });
+                        if (instanceFound) 
+                            throw new Error('.save() threw an error, but the instance was saved anyway.')
+                    });
 
-        //         it('Call findByID() on an instance of an access controlled class, from super class. Instance does not pass filter based on super access control method.', async () => {
-        //             const classToCallFindByIdOn = UpdateControlledSuperClass;
-        //             const instanceToFind = instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship;
-        //             const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
+                });
 
-        //             if (instanceFound)
-        //                 throw new Error('findById() returned an instance.');
+            });
 
-        //         });
+            // describe('Test find() with access filtering', () => {
 
-        //         it('Call findByID() on an instance of an access controlled class, from super class. Instance does not pass filter based on it\'s own access control method.', async () => {
-        //             const classToCallFindByIdOn = UpdateControlledSuperClass;
-        //             const instanceToFind = instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean;
-        //             const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
+            //     it('Call find() on access controlled super class with a passing and not passing instance of each sub class.', async () => {
+            //         const instanceNames = [
+            //             'instanceOfUpdateControlledSuperClassPasses',
+            //             'instanceOfUpdateControlledSuperClassFailsRelationship',
+            //             'instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses',
+            //             'instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship',
+            //             'instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean',
+            //             'instanceOfUpdateControlledDiscriminatedSuperClassPasses',
+            //             'instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship',
+            //             'instanceOfUpdateControlledDiscriminatedSuperClassFailsString',
+            //             'instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean',
+            //             'instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses',
+            //             'instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship',
+            //             'instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean',
+            //             'UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass',
+            //             'UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass'
+            //         ];
+            //         const instancesToFind = [
+            //             instanceOfUpdateControlledSuperClassPasses,
+            //             instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
+            //             instanceOfUpdateControlledDiscriminatedSuperClassPasses,
+            //             instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses
+            //         ];
 
-        //             if (instanceFound)
-        //                 throw new Error('findById() returned an instance.');
+            //         const instancesFound = await UpdateControlledSuperClass.find({name: {$in: instanceNames}});
 
-        //         });
-
-        //     });
-
-        //     describe('Test findOne() with access filtering', () => {
-
-        //         it('Call findOne() on an instance of an access controlled class. instance passes filter.', async () => {
-        //             const classToCallFindByIdOn = UpdateControlledSuperClass;
-        //             const instanceToFind = instanceOfUpdateControlledSuperClassPasses;
-
-        //             const filter = {
-        //                 name: 'instanceOfUpdateControlledSuperClassPasses'
-        //             }
-
-        //             const instanceFound = await classToCallFindByIdOn.findOne(filter);
-
-        //             if (!instanceFound)
-        //                 throw new Error('findOne() did not return an instance.');
-
-        //             if (!instanceFound._id.equals(instanceToFind._id))
-        //                 throw new Error(
-        //                     'An instance was returned, but it is not the correct one.\n' +
-        //                     'Expected: \n' + instanceToFind + '\n' +
-        //                     'Actual: \n' + instanceFound
-        //                 );
-        //         });
-
-        //         it('Call findOne() on an instance of an access controlled class, from super class. Instance passes filter.', async () => {
-        //             const classToCallFindByIdOn = UpdateControlledSuperClass;
-        //             const instanceToFind = instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses;
-
-        //             const filter = {
-        //                 name: 'instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses'
-        //             }
-
-        //             const instanceFound = await classToCallFindByIdOn.findOne(filter);
-
-        //             if (!instanceFound)
-        //                 throw new Error('findOne() did not return an instance.');
-
-        //             if (!instanceFound._id.equals(instanceToFind._id))
-        //                 throw new Error(
-        //                     'An instance was returned, but it is not the correct one.\n' +
-        //                     'Expected: \n' + instanceToFind + '\n' +
-        //                     'Actual: \n' + instanceFound
-        //                 );
-        //         });
-
-        //         it('Call findOne() on an instance of an access controlled class. Instance does not pass filter.', async () => {
-        //             const classToCallFindByIdOn = UpdateControlledSuperClass;
-
-        //             const filter = {
-        //                 name: 'instanceOfUpdateControlledSuperClassFailsRelationship'
-        //             }
-
-        //             const instanceFound = await classToCallFindByIdOn.findOne(filter);
-
-        //             if (instanceFound)
-        //                 throw new Error('findOne() returned an instance');
-
-        //         });
-
-        //         it('Call findOne() on an instance of an access controlled class, from super class. Instance does not pass filter based on super access control method.', async () => {
-        //             const classToCallFindByIdOn = UpdateControlledSuperClass;
-
-        //             const filter = {
-        //                 name: 'instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship'
-        //             }
-
-        //             const instanceFound = await classToCallFindByIdOn.findOne(filter);
-
-        //             if (instanceFound)
-        //                 throw new Error('findOne() returned an instance');
-
-        //         });
-
-        //         it('Call findOne() on an instance of an access controlled class, from super class. Instance does not pass filter based on it\'s own access control method.', async () => {
-        //             const classToCallFindByIdOn = UpdateControlledSuperClass;
-
-        //             const filter = {
-        //                 name: 'instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean'
-        //             }
-
-        //             const instanceFound = await classToCallFindByIdOn.findOne(filter);
-
-        //             if (instanceFound)
-        //                 throw new Error('findOne() returned an instance');
-
-        //         });
-
-        //     });
-
-        //     describe('Test find() with access filtering', () => {
-
-        //         it('Call find() on access controlled super class with a passing and not passing instance of each sub class.', async () => {
-        //             const instanceNames = [
-        //                 'instanceOfUpdateControlledSuperClassPasses',
-        //                 'instanceOfUpdateControlledSuperClassFailsRelationship',
-        //                 'instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses',
-        //                 'instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship',
-        //                 'instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean',
-        //                 'instanceOfUpdateControlledDiscriminatedSuperClassPasses',
-        //                 'instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship',
-        //                 'instanceOfUpdateControlledDiscriminatedSuperClassFailsString',
-        //                 'instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean',
-        //                 'instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses',
-        //                 'instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship',
-        //                 'instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean',
-        //                 'UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass',
-        //                 'UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass'
-        //             ];
-        //             const instancesToFind = [
-        //                 instanceOfUpdateControlledSuperClassPasses,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
-        //                 instanceOfUpdateControlledDiscriminatedSuperClassPasses,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses
-        //             ];
-
-        //             const instancesFound = await UpdateControlledSuperClass.find({name: {$in: instanceNames}});
-
-        //             if (instancesFound.length < instancesToFind.length) 
-        //                 throw new Error('find() returned too few instances.');
+            //         if (instancesFound.length < instancesToFind.length) 
+            //             throw new Error('find() returned too few instances.');
                     
-        //             if (instancesFound.length > instancesToFind.length)
-        //                 throw new Error('find() returned too many instances')
+            //         if (instancesFound.length > instancesToFind.length)
+            //             throw new Error('find() returned too many instances')
 
-        //             let instancesCorrectlyFound = 0;
+            //         let instancesCorrectlyFound = 0;
 
-        //             for (const instanceToFind of instancesToFind)
-        //                 for (const instanceFound of instancesFound)
-        //                     if (instanceFound.id == instanceToFind.id) {
-        //                         instancesCorrectlyFound++;
-        //                         break;
-        //                     }
+            //         for (const instanceToSave of instancesToFind)
+            //             for (const instanceFound of instancesFound)
+            //                 if (instanceFound.id == instanceToSave.id) {
+            //                     instancesCorrectlyFound++;
+            //                     break;
+            //                 }
                     
-        //             if (instancesCorrectlyFound != instancesToFind.length)
-        //                 throw new Error(
-        //                     'find() returned the correct number of instances, but did not return the correct instances.\n' +
-        //                     'Instances found: \n' + instancesFound + '\n' + 
-        //                     'Expected instances: \n' + instancesToFind
-        //                 );
-        //         });
+            //         if (instancesCorrectlyFound != instancesToFind.length)
+            //             throw new Error(
+            //                 'find() returned the correct number of instances, but did not return the correct instances.\n' +
+            //                 'Instances found: \n' + instancesFound + '\n' + 
+            //                 'Expected instances: \n' + instancesToFind
+            //             );
+            //     });
 
-        //     });
+            // });
 
-        // });
+        });
 
         after(async () => {
-            // await ClassControlsUpdateControlledSuperClass.clear();
-            // await UpdateControlledSuperClass.clear();
-            // await UpdateControlledSubClassOfUpdateControlledSuperClass.clear();
-            // await UpdateControlledDiscriminatedSuperClass.clear();
-            // await UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.clear();
+            await ClassControlsUpdateControlledSuperClass.clear();
+            await UpdateControlledSuperClass.clear();
+            await UpdateControlledSubClassOfUpdateControlledSuperClass.clear();
+            await UpdateControlledDiscriminatedSuperClass.clear();
+            await UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.clear();
+            await UpdateControlledClassUpdateControlledByParameters.clear();
         });
 
     });

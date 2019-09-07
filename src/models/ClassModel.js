@@ -466,12 +466,12 @@ class ClassModel {
         classModel.validate(instance);
 
         try {
-            this.updateControlCheckOne(instance, ...updateControlMethodParameters);
+            await this.updateControlCheckOne(instance, ...updateControlMethodParameters);
         }
         catch (error) {
             throw new Error('Error in ' + this.className + '.save(): ' + error.message);
         }
-
+        
         return instance.save();
     }
 
@@ -520,7 +520,7 @@ class ClassModel {
         instances.forEach(instance => classModel.validate(instance));
 
         try {
-            this.updateControlCheck(instances, ...updateControlMethodParameters);
+            await this.updateControlCheck(instances, ...updateControlMethodParameters);
         }
         catch(error) {
             throw new Error('Error in ' + this.className + '.saveAll(): ' + error.message);
