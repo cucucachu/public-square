@@ -1,10 +1,10 @@
 const promiseFinally = require('promise.prototype.finally');
 require("@babel/polyfill");
-
-const ClassModel = require('../dist/models/ClassModel');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+const ClassModel = require('../dist/models/ClassModel');
+const InstanceSet = require('../dist/models/InstanceSet');
 const database = require('../dist/models/database');
 
 
@@ -17,7 +17,6 @@ process.on('unhandledRejection', error => {
 describe('Class Model Tests', function() {
 
     before(async () => {
-        console.log('Typeof connect ' + typeof(database.connect))
         await database.connect();
     });
 
@@ -4446,7 +4445,7 @@ describe('Class Model Tests', function() {
 
     });
 
-    describe('ClassModel.accessFilter()', function() {
+    describe('ClassModel.accessControlFilter()', function() {
 
         // Set up accessControlled Instances
         // For each class, create on instance which will pass all access control filters, and one each that will fail due to one of the access control methods
@@ -4584,9 +4583,9 @@ describe('Class Model Tests', function() {
 
             it('First Argument must be an Array', (done) => {
                 let error;
-                let expectedErrorMessage = 'Incorrect parameters. ' + AccessControlledSuperClass.className + '.accessFilter(Array<instance> instances, ...accessControlMethodParameters)';
+                let expectedErrorMessage = 'Incorrect parameters. ' + AccessControlledSuperClass.className + '.accessControlFilter(Array<instance> instances, ...accessControlMethodParameters)';
 
-                AccessControlledSuperClass.accessFilter(instanceOfAccessControlledSuperClassPasses, instanceOfAccessControlledSuperClassPasses._id).then(
+                AccessControlledSuperClass.accessControlFilter(instanceOfAccessControlledSuperClassPasses, instanceOfAccessControlledSuperClassPasses._id).then(
                     (filtered) => {
                     },
                     (accessControlError) => {
@@ -4606,16 +4605,16 @@ describe('Class Model Tests', function() {
                         }
                     }
                     else {
-                        done(new Error('ClassModel.accessFilter() should have thrown an error.'));
+                        done(new Error('ClassModel.accessControlFilter() should have thrown an error.'));
                     }
                 });
             });
 
             it('All instances must be of the Class or a Sub Class', (done) => {
                 let error;
-                let expectedErrorMessage = AccessControlledSubClassOfAccessControlledSuperClass.className + '.accessFilter() called with instances of a different class.';
+                let expectedErrorMessage = AccessControlledSubClassOfAccessControlledSuperClass.className + '.accessControlFilter() called with instances of a different class.';
 
-                AccessControlledSubClassOfAccessControlledSuperClass.accessFilter([instanceOfAccessControlledSuperClassPasses, instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses], instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses._id).then(
+                AccessControlledSubClassOfAccessControlledSuperClass.accessControlFilter([instanceOfAccessControlledSuperClassPasses, instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses], instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses._id).then(
                     (filtered) => {
                     },
                     (accessControlError) => {
@@ -4635,7 +4634,7 @@ describe('Class Model Tests', function() {
                         }
                     }
                     else {
-                        done(new Error('ClassModel.accessFilter() should have thrown an error.'));
+                        done(new Error('ClassModel.accessControlFilter() should have thrown an error.'));
                     }
                 });
             });
@@ -4644,14 +4643,14 @@ describe('Class Model Tests', function() {
 
         describe('Test filtering out instances that don\'t pass access control check.', () => {
 
-            describe('AccessControlledSuperClass.accessFilter()', () => {
+            describe('AccessControlledSuperClass.accessControlFilter()', () => {
 
-                it('Security Filter called on Class with only direct instances of Class.', done => {
+                it('Access Control Filter called on Class with only direct instances of Class.', done => {
                     let instances = [instanceOfAccessControlledSuperClassPasses, instanceOfAccessControlledSuperClassFailsRelationship];
 
                     let expectedInstances = [instanceOfAccessControlledSuperClassPasses];
                     
-                    AccessControlledSuperClass.accessFilter(instances)
+                    AccessControlledSuperClass.accessControlFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -4678,7 +4677,7 @@ describe('Class Model Tests', function() {
                         });
                 });
 
-                it('Security Filter called on Class with instances of class and sub class.', done => {
+                it('Access Control Filter called on Class with instances of class and sub class.', done => {
                     let instances = [
                         instanceOfAccessControlledSuperClassPasses,
                         instanceOfAccessControlledSuperClassFailsRelationship,
@@ -4692,7 +4691,7 @@ describe('Class Model Tests', function() {
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses
                     ];
 
-                    AccessControlledSuperClass.accessFilter(instances)
+                    AccessControlledSuperClass.accessControlFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -4719,7 +4718,7 @@ describe('Class Model Tests', function() {
                         });
                 });
 
-                it('Security Filter called on Class with instances of class and 2 layers of sub classes', done => {
+                it('Access Control Filter called on Class with instances of class and 2 layers of sub classes', done => {
                     let instances = [
                         instanceOfAccessControlledSuperClassPasses,
                         instanceOfAccessControlledSuperClassFailsRelationship,
@@ -4738,7 +4737,7 @@ describe('Class Model Tests', function() {
                         instanceOfAccessControlledDiscriminatedSuperClassPasses
                     ];
 
-                    AccessControlledSuperClass.accessFilter(instances)
+                    AccessControlledSuperClass.accessControlFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -4766,7 +4765,7 @@ describe('Class Model Tests', function() {
                         });
                 });
 
-                it('Security Filter called on Class with instances of 3 layers of sub classes', done => {
+                it('Access Control Filter called on Class with instances of 3 layers of sub classes', done => {
                     let instances = [
                         instanceOfAccessControlledSuperClassPasses,
                         instanceOfAccessControlledSuperClassFailsRelationship,
@@ -4791,7 +4790,7 @@ describe('Class Model Tests', function() {
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses
                     ];
 
-                    AccessControlledSuperClass.accessFilter(instances)
+                    AccessControlledSuperClass.accessControlFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -4820,9 +4819,9 @@ describe('Class Model Tests', function() {
                 });
             });
 
-            describe('AccessControlledSubClassOfAccessControlledSuperClass.accessFilter()', () => {
+            describe('AccessControlledSubClassOfAccessControlledSuperClass.accessControlFilter()', () => {
 
-                it('Security Filter called on Class with only direct instances of Class.', done => {
+                it('Access Control Filter called on Class with only direct instances of Class.', done => {
                     let instances = [
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean,
@@ -4833,7 +4832,7 @@ describe('Class Model Tests', function() {
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses
                     ];
 
-                    AccessControlledSubClassOfAccessControlledSuperClass.accessFilter(instances)
+                    AccessControlledSubClassOfAccessControlledSuperClass.accessControlFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -4860,7 +4859,7 @@ describe('Class Model Tests', function() {
                         });
                 });
 
-                it('Security Filter called on Class with instances of class and 1 layers of sub classes', done => {
+                it('Access Control Filter called on Class with instances of class and 1 layers of sub classes', done => {
                     let instances = [
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean,
@@ -4876,7 +4875,7 @@ describe('Class Model Tests', function() {
                         instanceOfAccessControlledDiscriminatedSuperClassPasses
                     ];
 
-                    AccessControlledSubClassOfAccessControlledSuperClass.accessFilter(instances)
+                    AccessControlledSubClassOfAccessControlledSuperClass.accessControlFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -4904,7 +4903,7 @@ describe('Class Model Tests', function() {
                         });
                 });
 
-                it('Security Filter called on Class with instances of 2 layers of sub classes', done => {
+                it('Access Control Filter called on Class with instances of 2 layers of sub classes', done => {
                     let instances = [
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean,
@@ -4926,7 +4925,7 @@ describe('Class Model Tests', function() {
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses
                     ];
 
-                    AccessControlledSubClassOfAccessControlledSuperClass.accessFilter(instances)
+                    AccessControlledSubClassOfAccessControlledSuperClass.accessControlFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -4955,9 +4954,9 @@ describe('Class Model Tests', function() {
                 });
             });
 
-            describe('AccessControlledDiscriminatedSuperClass.accessFilter()', () => {
+            describe('AccessControlledDiscriminatedSuperClass.accessControlFilter()', () => {
 
-                it('Security Filter called on Class with only direct instances of Class.', done => {
+                it('Access Control Filter called on Class with only direct instances of Class.', done => {
                     let instances = [
                         instanceOfAccessControlledDiscriminatedSuperClassPasses,
                         instanceOfAccessControlledDiscriminatedSuperClassFailsString,
@@ -4969,7 +4968,7 @@ describe('Class Model Tests', function() {
                         instanceOfAccessControlledDiscriminatedSuperClassPasses
                     ];
 
-                    AccessControlledDiscriminatedSuperClass.accessFilter(instances)
+                    AccessControlledDiscriminatedSuperClass.accessControlFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -4997,7 +4996,7 @@ describe('Class Model Tests', function() {
                         });
                 });
 
-                it('Security Filter called on Class with instances of 1 layers of sub classes', done => {
+                it('Access Control Filter called on Class with instances of 1 layers of sub classes', done => {
                     let instances = [
                         instanceOfAccessControlledDiscriminatedSuperClassPasses,
                         instanceOfAccessControlledDiscriminatedSuperClassFailsString,
@@ -5015,7 +5014,7 @@ describe('Class Model Tests', function() {
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses
                     ];
 
-                    AccessControlledDiscriminatedSuperClass.accessFilter(instances)
+                    AccessControlledDiscriminatedSuperClass.accessControlFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -5044,9 +5043,9 @@ describe('Class Model Tests', function() {
                 });
             });
 
-            describe('AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.accessFilter()', () => {
+            describe('AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.accessControlFilter()', () => {
 
-                it('Security Filter called on Class with only direct instances of Class.', done => {
+                it('Access Control Filter called on Class with only direct instances of Class.', done => {
                     let instances = [
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses,
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship,
@@ -5059,7 +5058,7 @@ describe('Class Model Tests', function() {
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses
                     ];
 
-                    AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.accessFilter(instances)
+                    AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.accessControlFilter(instances)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -5088,14 +5087,14 @@ describe('Class Model Tests', function() {
                 });
             });
 
-            describe('AccessControlledClassAccessControlledByParameters.accessFilter()', () => {
+            describe('AccessControlledClassAccessControlledByParameters.accessControlFilter()', () => {
 
                 it('Instance passes access control check', done => {
                     let instances = [instanceOfAccessControlledClassAccessControlledByParameters];
 
                     let expectedInstances = [instanceOfAccessControlledClassAccessControlledByParameters];
                     
-                    AccessControlledClassAccessControlledByParameters.accessFilter(instances, 1, 1, true)
+                    AccessControlledClassAccessControlledByParameters.accessControlFilter(instances, 1, 1, true)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -5128,7 +5127,7 @@ describe('Class Model Tests', function() {
 
                     let expectedInstances = [];
                     
-                    AccessControlledClassAccessControlledByParameters.accessFilter(instances, -2, 1, true)
+                    AccessControlledClassAccessControlledByParameters.accessControlFilter(instances, -2, 1, true)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -5161,7 +5160,7 @@ describe('Class Model Tests', function() {
 
                     let expectedInstances = [];
                     
-                    AccessControlledClassAccessControlledByParameters.accessFilter(instances, 1, 1, false)
+                    AccessControlledClassAccessControlledByParameters.accessControlFilter(instances, 1, 1, false)
                         .then(
                             filtered => {
                                 if (filtered.length != expectedInstances.length)
@@ -5410,6 +5409,823 @@ describe('Class Model Tests', function() {
             await AccessControlledSubClassOfAccessControlledSuperClass.clear();
             await AccessControlledDiscriminatedSuperClass.clear();
             await AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.clear();
+        });
+
+    });
+
+    describe('ClassModel.updateControlFilter()', function() {
+
+        // Set up updateControlled Instances
+        // For each class, create on instance which will pass all update control filters, and one each that will fail due to one of the update control methods
+        {
+            // ClassControlsUpdateControlledSuperClass Instances
+            var instanceOfClassControlsUpdateControlledSuperClassAllowed = ClassControlsUpdateControlledSuperClass.create();
+            instanceOfClassControlsUpdateControlledSuperClassAllowed.allowed = true;
+            
+            var instanceOfClassControlsUpdateControlledSuperClassNotAllowed = ClassControlsUpdateControlledSuperClass.create();
+            instanceOfClassControlsUpdateControlledSuperClassNotAllowed.allowed = false;
+
+            // UpdateControlledSuperClass Instances
+            var instanceOfUpdateControlledSuperClassPasses = UpdateControlledSuperClass.create();
+            instanceOfUpdateControlledSuperClassPasses.name = 'instanceOfUpdateControlledSuperClassPasses';
+            instanceOfUpdateControlledSuperClassPasses.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
+
+            var instanceOfUpdateControlledSuperClassFailsRelationship = UpdateControlledSuperClass.create();
+            instanceOfUpdateControlledSuperClassFailsRelationship.name = 'instanceOfUpdateControlledSuperClassFailsRelationship';
+            instanceOfUpdateControlledSuperClassFailsRelationship.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassNotAllowed;
+
+            // UpdateControlledSubClassOfUpdateControlledSuperClass Instances
+            var instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses = UpdateControlledSubClassOfUpdateControlledSuperClass.create();
+            instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses.name = 'instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses';
+            instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
+            instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses.boolean = true;
+
+            var instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship = UpdateControlledSubClassOfUpdateControlledSuperClass.create();
+            instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship.name = 'instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship';
+            instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassNotAllowed;
+            instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship.boolean = true;
+
+            var instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean = UpdateControlledSubClassOfUpdateControlledSuperClass.create();
+            instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean.name = 'instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean'
+            instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
+            instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean.boolean = false;
+
+            // UpdateControlledDiscriminatedSuperClass Instances
+            var instanceOfUpdateControlledDiscriminatedSuperClassPasses = UpdateControlledDiscriminatedSuperClass.create();
+            instanceOfUpdateControlledDiscriminatedSuperClassPasses.name = 'instanceOfUpdateControlledDiscriminatedSuperClassPasses';
+            instanceOfUpdateControlledDiscriminatedSuperClassPasses.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
+            instanceOfUpdateControlledDiscriminatedSuperClassPasses.boolean = true;
+            instanceOfUpdateControlledDiscriminatedSuperClassPasses.string = 'updateControlled';
+
+            var instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship = UpdateControlledDiscriminatedSuperClass.create();
+            instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship.name = 'instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship';
+            instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassNotAllowed;
+            instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship.boolean = true;
+            instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship.string = 'updateControlled';
+
+            var instanceOfUpdateControlledDiscriminatedSuperClassFailsString = UpdateControlledDiscriminatedSuperClass.create();
+            instanceOfUpdateControlledDiscriminatedSuperClassFailsString.name = 'instanceOfUpdateControlledDiscriminatedSuperClassFailsString';
+            instanceOfUpdateControlledDiscriminatedSuperClassFailsString.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
+            instanceOfUpdateControlledDiscriminatedSuperClassFailsString.boolean = true;
+            instanceOfUpdateControlledDiscriminatedSuperClassFailsString.string = 'not updateControlled';
+
+            var instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean = UpdateControlledDiscriminatedSuperClass.create();
+            instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean.name = 'instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean';
+            instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
+            instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean.boolean = false;
+            instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean.string = 'updateControlled';
+
+            // UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass Instances
+            var instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses = UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.create();
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses.name = 'instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses';
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;  
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses.boolean = true;
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses.string = 'updateControlled';         
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses.number = 1;
+
+            var instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship = UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.create();
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship.name = 'instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship';
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassNotAllowed;             
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship.number = 1;
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship.boolean = true;
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship.string = 'updateControlled';
+
+            var instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean = UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.create();
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean.name = 'instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean';
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;     
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean.boolean = false;
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean.string = 'updateControlled';
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean.number = 1;
+
+            var instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString = UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.create();
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString.name = 'instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString';
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;     
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString.boolean = true;
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString.string = 'not updateControlled';            
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString.number = 1;
+
+            var instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber = UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.create();
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber.name = 'instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber';
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber.boolean = true;
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber.string = 'updateControlled';      
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber.number = -1;
+
+            // UpdateControlledClassUpdateControlledByParameters Instances
+            var instanceOfUpdateControlledClassUpdateControlledByParameters = UpdateControlledClassUpdateControlledByParameters.create();
+
+        }
+
+        // Save all SecurityFilter Test Instances
+        before(async () => {
+            await ClassControlsUpdateControlledSuperClass.saveAll([
+                instanceOfClassControlsUpdateControlledSuperClassAllowed,
+                instanceOfClassControlsUpdateControlledSuperClassNotAllowed
+            ]);
+
+        });
+
+        describe('Tests for invalid arguments.', function() {
+
+            it('First Argument must be an Array', async () => {
+                let updatable;
+                const expectedErrorMessage = 'Incorrect parameters. ' + UpdateControlledSuperClass.className + '.updateControlCheck(Array<instance> instances, ...updateControlMethodParameters)';
+
+                try {
+                    updatable = await UpdateControlledSuperClass.updateControlCheck(instanceOfUpdateControlledSuperClassPasses, instanceOfUpdateControlledSuperClassPasses._id);
+                }
+                catch (error) {
+                    if (error.message != expectedErrorMessage) {
+                        throw  new Error(
+                            'accessFilter() threw an unexpected error.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' + 
+                            'Actual:   ' + error.message
+                        );
+                    }
+                }
+
+                if (updatable)
+                    throw new Error ('ClassModel.updateControlCheck() returned when it should have thrown an error.');
+            });
+
+            it('All instances must be of the Class or a Sub Class', async () => {
+                let updatable;
+                const expectedErrorMessage = UpdateControlledSubClassOfUpdateControlledSuperClass.className + '.updateControlCheck() called with instances of a different class.';
+
+                try {
+                    updatable = await UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheck([instanceOfUpdateControlledSuperClassPasses, instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses], instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses._id)
+                }
+                catch (error) {
+                    if (error.message != expectedErrorMessage) {
+                        throw  new Error(
+                            'accessFilter() threw an unexpected error.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' + 
+                            'Actual:   ' + error.message
+                        );
+                    }
+                }
+
+                if (updatable)
+                    throw new Error ('ClassModel.updateControlCheck() returned when it should have thrown an error.');
+            });
+
+        });
+
+        describe('Test Update Control Check throws error when an instance doesn\'t pass check.', () => {
+
+            describe('UpdateControlledSuperClass.updateControlCheck()', () => {
+
+                it('Update Control Check called on Class with only direct instances of Class.', async () => {
+                    const instances = [instanceOfUpdateControlledSuperClassPasses, instanceOfUpdateControlledSuperClassFailsRelationship];
+                    const instancesExpectedToFail = new InstanceSet([instanceOfUpdateControlledSuperClassFailsRelationship]);
+                    const expectedInstanceIds = instancesExpectedToFail.mapToArray(instance => instance.id);
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+                    let passed = false;
+
+                    try {
+                        await UpdateControlledSuperClass.updateControlCheck(instances);
+                    }
+                    catch (error) {
+                        if (error.message != expectedErrorMessage) {
+                            throw new Error(
+                                'updateControlCheck() threw an error, but not the expected one.\n' + 
+                                'expected: ' + expectedErrorMessage + '\n' + 
+                                'actual:   ' + error.message
+                            );
+                        }
+                        passed = true;
+                    }
+
+                    if (!passed) {
+                        throw new Error('updateControlCheck() returned when it should have thrown an error.');
+                    }
+                });
+
+                it('Update Control Check called on Class with instances of class and sub class.', async () => {
+                    const instances = [
+                        instanceOfUpdateControlledSuperClassPasses,
+                        instanceOfUpdateControlledSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship
+                    ];
+                    const instancesExpectedToFail = new InstanceSet([
+                        instanceOfUpdateControlledSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship
+                    ]);
+                    const expectedInstanceIds = instancesExpectedToFail.mapToArray(instance => instance.id);
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+                    let passed = false;
+
+                    try {
+                        await UpdateControlledSuperClass.updateControlCheck(instances);
+                    }
+                    catch (error) {
+                        if (error.message != expectedErrorMessage) {
+                            throw new Error(
+                                'updateControlCheck() threw an error, but not the expected one.\n' + 
+                                'expected: ' + expectedErrorMessage + '\n' + 
+                                'actual:   ' + error.message
+                            );
+                        }
+                        passed = true;
+                    }
+
+                    if (!passed) {
+                        throw new Error('updateControlCheck() returned when it should have thrown an error.');
+                    }
+                });
+
+                it('Update Control Check called on Class with instances of class and 3 layers of sub classes', async () => {
+                    const instances = [
+                        instanceOfUpdateControlledSuperClassPasses,
+                        instanceOfUpdateControlledSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
+                        instanceOfUpdateControlledDiscriminatedSuperClassPasses,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
+                    ];
+                    const instancesExpectedToFail = new InstanceSet([                
+                        instanceOfUpdateControlledSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
+
+                    ]);
+                    const expectedInstanceIds = instancesExpectedToFail.mapToArray(instance => instance.id);
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+                    let passed = false;
+
+                    try {
+                        await UpdateControlledSuperClass.updateControlCheck(instances);
+                    }
+                    catch (error) {
+                        if (error.message != expectedErrorMessage) {
+                            throw new Error(
+                                'updateControlCheck() threw an error, but not the expected one.\n' + 
+                                'expected: ' + expectedErrorMessage + '\n' + 
+                                'actual:   ' + error.message
+                            );
+                        }
+                        passed = true;
+                    }
+
+                    if (!passed) {
+                        throw new Error('updateControlCheck() returned when it should have thrown an error.');
+                    }
+                });
+
+            });
+
+            describe('UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheck()', () => {
+
+                it('Update Control Check called on Class with only direct instances of Class.', async () => {
+                    const instances = [
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship
+                    ];
+                    const instancesExpectedToFail = new InstanceSet([                
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
+
+                    ]);
+                    const expectedInstanceIds = instancesExpectedToFail.mapToArray(instance => instance.id);
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+                    let passed = false;
+
+                    try {
+                        await UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheck(instances);
+                    }
+                    catch (error) {
+                        if (error.message != expectedErrorMessage) {
+                            throw new Error(
+                                'updateControlCheck() threw an error, but not the expected one.\n' + 
+                                'expected: ' + expectedErrorMessage + '\n' + 
+                                'actual:   ' + error.message
+                            );
+                        }
+                        passed = true;
+                    }
+
+                    if (!passed) {
+                        throw new Error('updateControlCheck() returned when it should have thrown an error.');
+                    }
+                });
+
+                it('Update Control Check called on Class with instances of class and 1 layers of sub classes', async () => {
+                    const instances = [
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
+                        instanceOfUpdateControlledDiscriminatedSuperClassPasses,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship
+                    ];
+                    const instancesExpectedToFail = new InstanceSet([                
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship
+                    ]);
+                    const expectedInstanceIds = instancesExpectedToFail.mapToArray(instance => instance.id);
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+                    let passed = false;
+
+                    try {
+                        await UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheck(instances);
+                    }
+                    catch (error) {
+                        if (error.message != expectedErrorMessage) {
+                            throw new Error(
+                                'updateControlCheck() threw an error, but not the expected one.\n' + 
+                                'expected: ' + expectedErrorMessage + '\n' + 
+                                'actual:   ' + error.message
+                            );
+                        }
+                        passed = true;
+                    }
+
+                    if (!passed) {
+                        throw new Error('updateControlCheck() returned when it should have thrown an error.');
+                    }
+                });
+
+                it('Update Control Check called on Class with instances of 2 layers of sub classes', async () => {
+                    const instances = [
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
+                        instanceOfUpdateControlledDiscriminatedSuperClassPasses,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
+                    ];
+                    const instancesExpectedToFail = new InstanceSet([                
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
+                    ]);
+                    const expectedInstanceIds = instancesExpectedToFail.mapToArray(instance => instance.id);
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+                    let passed = false;
+
+                    try {
+                        await UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheck(instances);
+                    }
+                    catch (error) {
+                        if (error.message != expectedErrorMessage) {
+                            throw new Error(
+                                'updateControlCheck() threw an error, but not the expected one.\n' + 
+                                'expected: ' + expectedErrorMessage + '\n' + 
+                                'actual:   ' + error.message
+                            );
+                        }
+                        passed = true;
+                    }
+
+                    if (!passed) {
+                        throw new Error('updateControlCheck() returned when it should have thrown an error.');
+                    }
+                });
+
+            });
+
+            describe('UpdateControlledDiscriminatedSuperClass.updateControlCheck()', () => {
+
+                it('Update Control Check called on Class with only direct instances of Class.', async () => {
+                    const instances = [
+                        instanceOfUpdateControlledDiscriminatedSuperClassPasses,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship
+                    ];
+                    const instancesExpectedToFail = new InstanceSet([
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship
+                    ]);
+                    const expectedInstanceIds = instancesExpectedToFail.mapToArray(instance => instance.id);
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+                    let passed = false;
+
+                    try {
+                        await UpdateControlledDiscriminatedSuperClass.updateControlCheck(instances);
+                    }
+                    catch (error) {
+                        if (error.message != expectedErrorMessage) {
+                            throw new Error(
+                                'updateControlCheck() threw an error, but not the expected one.\n' + 
+                                'expected: ' + expectedErrorMessage + '\n' + 
+                                'actual:   ' + error.message
+                            );
+                        }
+                        passed = true;
+                    }
+
+                    if (!passed) {
+                        throw new Error('updateControlCheck() returned when it should have thrown an error.');
+                    }
+                });
+
+                it('Update Control Check called on Class with instances of 1 layers of sub classes', async () => {
+                    const instances = [
+                        instanceOfUpdateControlledDiscriminatedSuperClassPasses,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
+                    ];
+                    const instancesExpectedToFail = new InstanceSet([
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
+                    ]);
+                    const expectedInstanceIds = instancesExpectedToFail.mapToArray(instance => instance.id);
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+                    let passed = false;
+
+                    try {
+                        await UpdateControlledDiscriminatedSuperClass.updateControlCheck(instances);
+                    }
+                    catch (error) {
+                        if (error.message != expectedErrorMessage) {
+                            throw new Error(
+                                'updateControlCheck() threw an error, but not the expected one.\n' + 
+                                'expected: ' + expectedErrorMessage + '\n' + 
+                                'actual:   ' + error.message
+                            );
+                        }
+                        passed = true;
+                    }
+
+                    if (!passed) {
+                        throw new Error('updateControlCheck() returned when it should have thrown an error.');
+                    }
+                });
+
+            });
+
+            describe('UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.updateControlCheck()', () => {
+
+                it('Update Control Check called on Class with only direct instances of Class.', async () => {
+                    const instances = [
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
+                    ];
+                    const instancesExpectedToFail = new InstanceSet([
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
+                    ]);
+                    const expectedInstanceIds = instancesExpectedToFail.mapToArray(instance => instance.id);
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+                    let passed = false;
+
+                    try {
+                        await UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.updateControlCheck(instances);
+                    }
+                    catch (error) {
+                        if (error.message != expectedErrorMessage) {
+                            throw new Error(
+                                'updateControlCheck() threw an error, but not the expected one.\n' + 
+                                'expected: ' + expectedErrorMessage + '\n' + 
+                                'actual:   ' + error.message
+                            );
+                        }
+                        passed = true;
+                    }
+
+                    if (!passed) {
+                        throw new Error('updateControlCheck() returned when it should have thrown an error.');
+                    }
+                });
+
+            });
+
+            describe('UpdateControlledClassUpdateControlledByParameters.updateControlCheck()', () => {
+
+                it('Update Control Check passes', async () => {
+                    const updateAllowed = await UpdateControlledClassUpdateControlledByParameters.updateControlCheck([instanceOfUpdateControlledClassUpdateControlledByParameters], 1, 1, true);
+                    
+                    if (!updateAllowed) {
+                        throw new Error('Update check passed when it should have thrown an error.');
+                    }
+                });
+
+                it('Instance fails update control check because of Numbers.', async () => {
+                    const instances = [instanceOfUpdateControlledClassUpdateControlledByParameters];
+                    const instancesExpectedToFail = new InstanceSet([instanceOfUpdateControlledClassUpdateControlledByParameters]);
+                    const expectedInstanceIds = instancesExpectedToFail.mapToArray(instance => instance.id);
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+                    let passed = false;
+
+                    try {
+                        await UpdateControlledClassUpdateControlledByParameters.updateControlCheck(instances, -2, 1, true);
+                    }
+                    catch (error) {
+                        if (error.message != expectedErrorMessage) {
+                            throw new Error(
+                                'updateControlCheck() threw an error, but not the expected one.\n' + 
+                                'expected: ' + expectedErrorMessage + '\n' + 
+                                'actual:   ' + error.message
+                            );
+                        }
+                        passed = true;
+                    }
+
+                    if (!passed) {
+                        throw new Error('updateControlCheck() returned when it should have thrown an error.');
+                    }
+                });
+
+                it('Instance fails update control check because of Boolean.', async () => {
+                    const instances = [instanceOfUpdateControlledClassUpdateControlledByParameters];
+                    const instancesExpectedToFail = new InstanceSet([instanceOfUpdateControlledClassUpdateControlledByParameters]);
+                    const expectedInstanceIds = instancesExpectedToFail.mapToArray(instance => instance.id);
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+                    let passed = false;
+
+                    try {
+                        await UpdateControlledClassUpdateControlledByParameters.updateControlCheck(instances, 1, 1, false);
+                    }
+                    catch (error) {
+                        if (error.message != expectedErrorMessage) {
+                            throw new Error(
+                                'updateControlCheck() threw an error, but not the expected one.\n' + 
+                                'expected: ' + expectedErrorMessage + '\n' + 
+                                'actual:   ' + error.message
+                            );
+                        }
+                        passed = true;
+                    }
+
+                    if (!passed) {
+                        throw new Error('updateControlCheck() returned when it should have thrown an error.');
+                    }
+                });
+
+            });
+
+        });
+
+        // describe('Test find methods for access filtering.', () => {
+
+        //     describe('Test findById() with access filtering', () => {
+
+        //         it('Call findByID() on an instance of an access controlled class. Instance passes filter.', async () => {
+        //             const classToCallFindByIdOn = UpdateControlledSuperClass;
+        //             const instanceToFind = instanceOfUpdateControlledSuperClassPasses;
+        //             const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
+
+        //             if (!instanceFound)
+        //                 throw new Error('findById() did not return an instance.');
+
+        //             if (!instanceFound._id.equals(instanceToFind._id))
+        //                 throw new Error(
+        //                     'An instance was returned, but it is not the correct one.\n' +
+        //                     'Expected: \n' + instanceToFind + '\n' +
+        //                     'Actual: \n' + instanceFound
+        //                 );
+        //         });
+
+        //         it('Call findByID() on an instance of an access controlled class, from super class. Instance passes filter.', async () => {
+        //             const classToCallFindByIdOn = UpdateControlledSuperClass;
+        //             const instanceToFind = instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses;
+        //             const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
+
+        //             if (!instanceFound)
+        //                 throw new Error('findById() did not return an instance.');
+
+        //             if (!instanceFound._id.equals(instanceToFind._id))
+        //                 throw new Error(
+        //                     'An instance was returned, but it is not the correct one.\n' +
+        //                     'Expected: \n' + instanceToFind + '\n' +
+        //                     'Actual: \n' + instanceFound
+        //                 );
+
+        //         });
+
+        //         it('Call findByID() on an instance of an access controlled class. Instance does not pass filter.', async () => {
+        //             const classToCallFindByIdOn = UpdateControlledSuperClass;
+        //             const instanceToFind = instanceOfUpdateControlledSuperClassFailsRelationship;
+        //             const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
+
+        //             if (instanceFound)
+        //                 throw new Error('findById() returned an instance.');
+        //         });
+
+        //         it('Call findByID() on an instance of an access controlled class, from super class. Instance does not pass filter based on super access control method.', async () => {
+        //             const classToCallFindByIdOn = UpdateControlledSuperClass;
+        //             const instanceToFind = instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship;
+        //             const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
+
+        //             if (instanceFound)
+        //                 throw new Error('findById() returned an instance.');
+
+        //         });
+
+        //         it('Call findByID() on an instance of an access controlled class, from super class. Instance does not pass filter based on it\'s own access control method.', async () => {
+        //             const classToCallFindByIdOn = UpdateControlledSuperClass;
+        //             const instanceToFind = instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean;
+        //             const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
+
+        //             if (instanceFound)
+        //                 throw new Error('findById() returned an instance.');
+
+        //         });
+
+        //     });
+
+        //     describe('Test findOne() with access filtering', () => {
+
+        //         it('Call findOne() on an instance of an access controlled class. instance passes filter.', async () => {
+        //             const classToCallFindByIdOn = UpdateControlledSuperClass;
+        //             const instanceToFind = instanceOfUpdateControlledSuperClassPasses;
+
+        //             const filter = {
+        //                 name: 'instanceOfUpdateControlledSuperClassPasses'
+        //             }
+
+        //             const instanceFound = await classToCallFindByIdOn.findOne(filter);
+
+        //             if (!instanceFound)
+        //                 throw new Error('findOne() did not return an instance.');
+
+        //             if (!instanceFound._id.equals(instanceToFind._id))
+        //                 throw new Error(
+        //                     'An instance was returned, but it is not the correct one.\n' +
+        //                     'Expected: \n' + instanceToFind + '\n' +
+        //                     'Actual: \n' + instanceFound
+        //                 );
+        //         });
+
+        //         it('Call findOne() on an instance of an access controlled class, from super class. Instance passes filter.', async () => {
+        //             const classToCallFindByIdOn = UpdateControlledSuperClass;
+        //             const instanceToFind = instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses;
+
+        //             const filter = {
+        //                 name: 'instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses'
+        //             }
+
+        //             const instanceFound = await classToCallFindByIdOn.findOne(filter);
+
+        //             if (!instanceFound)
+        //                 throw new Error('findOne() did not return an instance.');
+
+        //             if (!instanceFound._id.equals(instanceToFind._id))
+        //                 throw new Error(
+        //                     'An instance was returned, but it is not the correct one.\n' +
+        //                     'Expected: \n' + instanceToFind + '\n' +
+        //                     'Actual: \n' + instanceFound
+        //                 );
+        //         });
+
+        //         it('Call findOne() on an instance of an access controlled class. Instance does not pass filter.', async () => {
+        //             const classToCallFindByIdOn = UpdateControlledSuperClass;
+
+        //             const filter = {
+        //                 name: 'instanceOfUpdateControlledSuperClassFailsRelationship'
+        //             }
+
+        //             const instanceFound = await classToCallFindByIdOn.findOne(filter);
+
+        //             if (instanceFound)
+        //                 throw new Error('findOne() returned an instance');
+
+        //         });
+
+        //         it('Call findOne() on an instance of an access controlled class, from super class. Instance does not pass filter based on super access control method.', async () => {
+        //             const classToCallFindByIdOn = UpdateControlledSuperClass;
+
+        //             const filter = {
+        //                 name: 'instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship'
+        //             }
+
+        //             const instanceFound = await classToCallFindByIdOn.findOne(filter);
+
+        //             if (instanceFound)
+        //                 throw new Error('findOne() returned an instance');
+
+        //         });
+
+        //         it('Call findOne() on an instance of an access controlled class, from super class. Instance does not pass filter based on it\'s own access control method.', async () => {
+        //             const classToCallFindByIdOn = UpdateControlledSuperClass;
+
+        //             const filter = {
+        //                 name: 'instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean'
+        //             }
+
+        //             const instanceFound = await classToCallFindByIdOn.findOne(filter);
+
+        //             if (instanceFound)
+        //                 throw new Error('findOne() returned an instance');
+
+        //         });
+
+        //     });
+
+        //     describe('Test find() with access filtering', () => {
+
+        //         it('Call find() on access controlled super class with a passing and not passing instance of each sub class.', async () => {
+        //             const instanceNames = [
+        //                 'instanceOfUpdateControlledSuperClassPasses',
+        //                 'instanceOfUpdateControlledSuperClassFailsRelationship',
+        //                 'instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses',
+        //                 'instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship',
+        //                 'instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean',
+        //                 'instanceOfUpdateControlledDiscriminatedSuperClassPasses',
+        //                 'instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship',
+        //                 'instanceOfUpdateControlledDiscriminatedSuperClassFailsString',
+        //                 'instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean',
+        //                 'instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses',
+        //                 'instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship',
+        //                 'instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean',
+        //                 'UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass',
+        //                 'UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass'
+        //             ];
+        //             const instancesToFind = [
+        //                 instanceOfUpdateControlledSuperClassPasses,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
+        //                 instanceOfUpdateControlledDiscriminatedSuperClassPasses,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses
+        //             ];
+
+        //             const instancesFound = await UpdateControlledSuperClass.find({name: {$in: instanceNames}});
+
+        //             if (instancesFound.length < instancesToFind.length) 
+        //                 throw new Error('find() returned too few instances.');
+                    
+        //             if (instancesFound.length > instancesToFind.length)
+        //                 throw new Error('find() returned too many instances')
+
+        //             let instancesCorrectlyFound = 0;
+
+        //             for (const instanceToFind of instancesToFind)
+        //                 for (const instanceFound of instancesFound)
+        //                     if (instanceFound.id == instanceToFind.id) {
+        //                         instancesCorrectlyFound++;
+        //                         break;
+        //                     }
+                    
+        //             if (instancesCorrectlyFound != instancesToFind.length)
+        //                 throw new Error(
+        //                     'find() returned the correct number of instances, but did not return the correct instances.\n' +
+        //                     'Instances found: \n' + instancesFound + '\n' + 
+        //                     'Expected instances: \n' + instancesToFind
+        //                 );
+        //         });
+
+        //     });
+
+        // });
+
+        after(async () => {
+            // await ClassControlsUpdateControlledSuperClass.clear();
+            // await UpdateControlledSuperClass.clear();
+            // await UpdateControlledSubClassOfUpdateControlledSuperClass.clear();
+            // await UpdateControlledDiscriminatedSuperClass.clear();
+            // await UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.clear();
         });
 
     });

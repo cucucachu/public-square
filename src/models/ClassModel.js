@@ -8,6 +8,8 @@ var Schema = mongoose.Schema;
 require('./database');
 require('@babel/polyfill');
 
+const InstanceSet = require('./InstanceSet');
+
 const AllClassModels = [];
 
 class ClassModel {
@@ -255,6 +257,10 @@ class ClassModel {
                 filtered.push(instances[instanceIndex]);
             
         return filtered;
+    }
+
+    isSuperClass() {
+        return ((this.subClasses && this.subClasses.length) || this.discriminated)
     }
 
     /*
@@ -577,7 +583,7 @@ class ClassModel {
         // If this is a discriminated class, or it is a concrete class with no subclasses, find the instance in this ClassModel's collection.
         if ((concrete && !isSuperClass) || discriminated) {
             const instanceFound = await Model.findOne(queryFilter).exec();
-            return this.accessFilterOne(instanceFound, ...accessControlMethodParameters);
+            return this.accessControlFilterOne(instanceFound, ...accessControlMethodParameters);
         }
         // If this is a non-discriminated super class, we may need to check this classmodel's collection as well,
         //  as well as the subclasses collections.
@@ -588,7 +594,7 @@ class ClassModel {
             if (concrete){
                 const foundInstance = await Model.findOne(queryFilter).exec();
                 if (foundInstance) 
-                    return this.accessFilterOne(foundInstance, ...accessControlMethodParameters);
+                    return this.accessControlFilterOne(foundInstance, ...accessControlMethodParameters);
             }
 
             // Call findOne on our subclasses as well.
@@ -621,7 +627,7 @@ class ClassModel {
         // If this is a discriminated class, or it is a concrete class with no subclasses, find the instance in this ClassModel's collection.
         if ((concrete && !isSuperClass) || discriminated) {
             const foundInstances = await Model.find(queryFilter).exec();
-            return this.accessFilter(foundInstances, ...accessControlMethodParameters);
+            return this.accessControlFilter(foundInstances, ...accessControlMethodParameters);
 
         }
         // If this is a non-discriminated super class, we may need to check this classmodel's collection as well,
@@ -635,7 +641,7 @@ class ClassModel {
                 foundInstancesOfThisClass = await Model.find(queryFilter).exec();
 
                 if (foundInstancesOfThisClass.length)
-                    foundInstancesOfThisClass = await this.accessFilter(foundInstancesOfThisClass, ...accessControlMethodParameters);
+                    foundInstancesOfThisClass = await this.accessControlFilter(foundInstancesOfThisClass, ...accessControlMethodParameters);
             }
 
             // Call find on our subclasses as well.
@@ -756,9 +762,9 @@ class ClassModel {
      * @param required Array<instance> : An array of instances of this Class Model to filter.
      * @return Promise(Array<Instance>): The given instances filtered for access control.
      */
-    async accessFilter(instances, ...accessControlMethodParameters) {
+    async accessControlFilter(instances, ...accessControlMethodParameters) {
         if (!Array.isArray(instances))
-            throw new Error('Incorrect parameters. ' + this.className + '.accessFilter(Array<instance> instances, ...accessControlMethodParameters)');
+            throw new Error('Incorrect parameters. ' + this.className + '.accessControlFilter(Array<instance> instances, ...accessControlMethodParameters)');
 
         // If instances is an empty array, return an empty array.
         if (!instances.length)
@@ -766,7 +772,7 @@ class ClassModel {
         
         instances.forEach((instance) => {
             if (!this.isInstanceOfClassOrSubClass(instance))
-                throw new Error(this.className + '.accessFilter() called with instances of a different class.');
+                throw new Error(this.className + '.accessControlFilter() called with instances of a different class.');
         });
 
         let filtered = [];
@@ -794,7 +800,7 @@ class ClassModel {
                 });
 
                 if (instancesOfSubClass.length) {
-                    let filteredSubClassInstances = await subClass.accessFilter(instancesOfSubClass, ...accessControlMethodParameters);
+                    let filteredSubClassInstances = await subClass.accessControlFilter(instancesOfSubClass, ...accessControlMethodParameters);
                     filtered.push(...filteredSubClassInstances);
                 }
             }
@@ -822,7 +828,7 @@ class ClassModel {
             for (let className in instancesByClass) {
                 if (className != this.className) {
                     let subClassModel = AllClassModels[className];
-                    let filteredSubClassInstances = await subClassModel.accessFilter(instancesByClass[className], ...accessControlMethodParameters);
+                    let filteredSubClassInstances = await subClassModel.accessControlFilter(instancesByClass[className], ...accessControlMethodParameters);
                     filtered.push(...filteredSubClassInstances);
                 }
             }
@@ -855,15 +861,15 @@ class ClassModel {
 
     /* Takes a single instance of the Class Model. If the instance passes this Class Model's access control method, it is returned,
      *  otherwise, returns null
-     * Required Parameter - instance : An array of instances of this Class Model to filter.
+     * Required Parameter - instance : An instance of this Class Model to filter.
      * Rest Parameter - accessControlMethodParameters - an array of parameters used by this ClassModel's access control method.
      * Returns Promise(Instance): The given instance or null.
      */
-    async accessFilterOne(instance, ...accessControlMethodParameters) {
+    async accessControlFilterOne(instance, ...accessControlMethodParameters) {
         if (!instance)
             return null;
 
-        const filtered = await this.accessFilter([instance], ...accessControlMethodParameters);
+        const filtered = await this.accessControlFilter([instance], ...accessControlMethodParameters);
 
         if (filtered.length) 
             return filtered[0];
@@ -892,6 +898,110 @@ class ClassModel {
             updateControlMethods.push(this.updateControlMethod);
 
         return updateControlMethods;
+    }
+
+    async updateControlCheck(instances, ...updateControlParameters) {
+        if (!Array.isArray(instances))
+            throw new Error('Incorrect parameters. ' + this.className + '.updateControlCheck(Array<instance> instances, ...updateControlMethodParameters)');
+        
+        instances.forEach((instance) => {
+            if (!this.isInstanceOfClassOrSubClass(instance))
+                throw new Error(this.className + '.updateControlCheck() called with instances of a different class.');
+        });
+
+        // If instances is an empty array, return true.
+        // THE !THIS.UPDATECONTROLLED PART IS A POTENTIAL SECURITY HOLE IF A SUBCLASS IS UPDATE CONTROLLED
+        if (!instances.length || !this.updateControlled)
+            return true;
+
+        const rejectedInstances = await this.updateControlCheckRecursive(instances, ...updateControlParameters);
+
+        if (rejectedInstances.isEmpty())
+            return true;
+        else {
+            const rejectedInstanceIds = rejectedInstances.mapToArray(instance => instance.id);
+            throw new Error('Illegal attempt to update instances: ' + rejectedInstanceIds);
+        }
+    }
+
+    /* Takes an array of instances of the Class Model and checks that they can be updated accoding to the updateControlMethod for each isntance.
+     * Required Parameter instances - Array<instance> : An array of instances of this Class Model to filter.
+     * Returns an object {
+     *    updateAllowed <Boolean> - True if all the instances can be updated, false otherwise
+     *    rejectedInstances <InstanceSet> - An Instance Set of the instances which failed their updateControlMethods. This will
+     *       be empty if updateAllowed is true.
+     * }
+     */
+    async updateControlCheckRecursive(instances, ...updateControlMethodParameters) {
+        const updateControlMethods = this.allUpdateControlMethodsforClassModel();
+        let rejectedInstances = new InstanceSet();
+
+        let instancesOfThisClass;
+        if (this.discriminated)
+            instancesOfThisClass = instances.filter(instance => instance.__t === undefined);
+        else
+            instancesOfThisClass = instances.filter(instance => instance instanceof this.Model);
+
+        let updatableInstancesOfThisClass = instancesOfThisClass;
+
+        for (const updateControlMethod of updateControlMethods) {
+            updatableInstancesOfThisClass = await ClassModel.asyncFilter(updatableInstancesOfThisClass, async (instance) => {
+                return updateControlMethod(instance, ...updateControlMethodParameters);
+            });
+        }
+
+        updatableInstancesOfThisClass = new InstanceSet(updatableInstancesOfThisClass);
+        rejectedInstances = (new InstanceSet(instancesOfThisClass)).difference(updatableInstancesOfThisClass);
+
+        if (this.isSuperClass()) {
+            if (this.discriminated) {
+                let instancesByClass = {};
+                instancesByClass[this.className] = [];
+    
+                for (let instance of instances)
+                    if (instance.__t)
+                        if (!instancesByClass[instance.__t])
+                            instancesByClass[instance.__t] = [instance];
+                        else
+                            instancesByClass[instance.__t].push(instance);
+                    else 
+                        instancesByClass[this.className].push(instance);
+    
+                for (let className in instancesByClass) {
+                    if (className != this.className) {
+                        const subClassModel = AllClassModels[className];
+                        const rejectedSubClassInstances = await subClassModel.updateControlCheckRecursive(instancesByClass[className], ...updateControlMethodParameters);
+                        rejectedInstances.addFromIterable(rejectedSubClassInstances);
+                    }
+                }
+            }
+            else if (this.subClasses.length) {
+                for (let subClass of this.subClasses) {
+                    let instancesOfSubClass = instances.filter(instance => {
+                        return subClass.isInstanceOfClassOrSubClass(instance);
+                    });
+    
+                    if (instancesOfSubClass.length) {
+                        const rejectedSubClassInstances = await subClass.updateControlCheckRecursive(instancesOfSubClass, ...updateControlMethodParameters);
+                        rejectedInstances.addFromIterable(rejectedSubClassInstances);
+                    }
+                }
+            }
+        }
+
+        return rejectedInstances;
+    }
+
+    /* Takes a single instance of the Class Model and returns true if the instance can be updated.
+     * Required Parameter - instance : An instance of this Class Model to filter.
+     * Rest Parameter - updateControlMethodParameters - an array of parameters used by this ClassModel's update control method.
+     * Returns a Promise which resolves to true if the instance can be updated. Otherwise throws an error.
+     */
+    async updateControlCheckOne(instance, ...updateControlMethodParameters) {
+        if (!instance)
+            return true;
+
+        return this.updateControlCheck([instance], ...updateControlMethodParameters);
     }
 
     // Comparison Methods
