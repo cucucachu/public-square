@@ -16,6 +16,7 @@ var GovernmentRole = require('../GovernmentRole');
 var Judge = new ClassModel({
 	className: 'Judge',
 	accessControlled: false,
+	updateControlled: false,
 	superClasses: [GovernmentRole],
 	schema: {
 		individualJudgements: {

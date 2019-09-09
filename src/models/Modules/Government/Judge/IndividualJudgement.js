@@ -13,6 +13,7 @@ var ClassModel = require('../../../ClassModel');
 var IndividualJudgement = new ClassModel({
     className: 'IndividualJudgement',
 	accessControlled: false,
+	updateControlled: false,
     schema: {
         judge: {
             type: Schema.Types.ObjectId,

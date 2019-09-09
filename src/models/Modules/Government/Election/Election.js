@@ -16,6 +16,7 @@ var Election = new ClassModel({
 	className: 'Election',
 	superClasses: [PositionAcquisitionProcess],
 	accessControlled: false,
+	updateControlled: false,
 	schema: {
 		electionDate: {
 			type: Date

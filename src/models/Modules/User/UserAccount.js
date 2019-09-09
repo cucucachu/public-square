@@ -12,6 +12,7 @@ var ClassModel = require('../../ClassModel');
 var UserAccount = new ClassModel({
 	className: 'UserAccount',
 	accessControlled: false,
+	updateControlled: false,
 	schema: {
 		email: {
 			type: String,

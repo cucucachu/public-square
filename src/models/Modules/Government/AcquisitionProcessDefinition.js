@@ -15,6 +15,7 @@ var ClassModel = require('../../ClassModel');
 var AcquisitionProcessDefinition = new ClassModel({
     className: 'AcquisitionProcessDefinition',
 	accessControlled: false,
+	updateControlled: false,
     schema: {
         name: {
             type: String,

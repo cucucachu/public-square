@@ -16,6 +16,7 @@ var PrimaryElectionResult = new ClassModel({
     className: 'PrimaryElectionResult',
     discriminatorSuperClass: ElectionResult,
 	accessControlled: false,
+	updateControlled: false,
     schema: {
         citizenVotes: {
             type: Number

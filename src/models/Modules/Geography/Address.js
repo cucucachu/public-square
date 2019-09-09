@@ -13,6 +13,7 @@ var ClassModel = require('../../ClassModel');
 var Address = new ClassModel({
 	className: 'Address',
 	accessControlled: false,
+	updateControlled: false,
 	schema: {
 		streetNumber: {
 			type: String

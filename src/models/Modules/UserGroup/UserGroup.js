@@ -13,6 +13,7 @@ var ClassModel = require('../../ClassModel');
 var UserGroup = new ClassModel({
 	className: 'UserGroup',
 	accessControlled: false,
+	updateControlled: false,
 	schema: {
 		_id: Schema.Types.ObjectId,
 		name: {

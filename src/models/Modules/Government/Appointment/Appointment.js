@@ -16,6 +16,7 @@ var Appointment = new ClassModel({
     className: 'Appointment',
     superClasses: [PositionAcquisitionProcess],
 	accessControlled: false,
+	updateControlled: false,
     schema: {
         appointmentDate: {
             type: Date

@@ -15,6 +15,7 @@ var PersonRole = require('../../User/PersonRole');
 var Candidate = new ClassModel({
 	className: 'Candidate',
 	accessControlled: false,
+	updateControlled: false,
 	discriminatorSuperClass: PersonRole,
 	schema: {
 		campaigns: {

@@ -18,6 +18,7 @@ var Pollable = require('../../Poll/Pollable');
 var ExecutiveAction = new ClassModel({
     className: 'ExecutiveAction',
 	accessControlled: false,
+	updateControlled: false,
     abstract: true,
     discriminated: true,
     superClasses: [Pollable],

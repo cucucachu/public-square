@@ -16,6 +16,7 @@ var GovernmentRole = require('../GovernmentRole');
 var Legislator = new ClassModel({
 	className: 'Legislator',
 	accessControlled: false,
+	updateControlled: false,
 	superClasses: [GovernmentRole],
 	schema: {
 		individualLegislativeVotes: {

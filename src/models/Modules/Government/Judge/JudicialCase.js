@@ -12,6 +12,7 @@ var ClassModel = require('../../../ClassModel');
 var JudicialCase = new ClassModel({
 	className: 'JudicialCase',
 	accessControlled: false,
+	updateControlled: false,
 	schema: {
 		name: {
 			type: String,

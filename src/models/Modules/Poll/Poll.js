@@ -14,6 +14,7 @@ var ClassModel = require('../../ClassModel');
 var Poll = new ClassModel({
     className: 'Poll',
 	accessControlled: false,
+	updateControlled: false,
     schema: {
         pollable: {
             type: Schema.Types.ObjectId,

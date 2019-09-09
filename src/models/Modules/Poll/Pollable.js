@@ -14,6 +14,7 @@ var ClassModel = require('../../ClassModel');
 var Pollable = new ClassModel({
     className: 'Pollable',
 	accessControlled: false,
+	updateControlled: false,
     abstract: true,
     schema: {
         poll: {

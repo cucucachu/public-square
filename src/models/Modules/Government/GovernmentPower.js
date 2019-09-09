@@ -14,6 +14,7 @@ var ClassModel = require('../../ClassModel');
 var GovernmentPower = new ClassModel({
     className: 'GovernmentPower',
 	accessControlled: false,
+	updateControlled: false,
     schema: {
         name: {
             type: String,

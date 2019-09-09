@@ -12,6 +12,7 @@ var ClassModel = require('../../ClassModel');
 var AuthToken = new ClassModel({
 	className: 'AuthToken',
 	accessControlled: false,
+	updateControlled: false,
 	schema: {
         createdAt: {
             type: Date,

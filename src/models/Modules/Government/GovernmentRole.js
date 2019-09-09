@@ -15,6 +15,7 @@ var GovernmentRole = new ClassModel({
 	className: 'GovernmentRole',
 	abstract: true,
 	accessControlled: false,
+	updateControlled: false,
 	schema: {
 		occupiedPosition: {
 			type: Schema.Types.ObjectId,

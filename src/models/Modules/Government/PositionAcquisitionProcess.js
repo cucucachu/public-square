@@ -13,6 +13,7 @@ var ClassModel = require('../../ClassModel');
 var PositionAcquisitionProcess = new ClassModel({
 	className: 'PositionAcquisitionProcess',
 	accessControlled: false,
+	updateControlled: false,
 	abstract: true,
 	schema: {
 		governmentPosition: {

@@ -15,6 +15,7 @@ var ExecutiveAction = require('./ExecutiveAction');
 var IndividualExecutiveAction = new ClassModel({
 	className: 'IndividualExecutiveAction',
 	accessControlled: false,
+	updateControlled: false,
 	discriminatorSuperClass: ExecutiveAction,
 	schema: {}
 });

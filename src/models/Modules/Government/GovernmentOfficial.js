@@ -15,6 +15,7 @@ var GovernmentOfficial = new ClassModel({
 	className: 'GovernmentOfficial',
 	discriminatorSuperClass: PersonRole,
 	accessControlled: false,
+	updateControlled: false,
 	schema: {
 		occupiedPositions: {
 			type: [Schema.Types.ObjectId],

@@ -16,6 +16,7 @@ var Appointee = new ClassModel({
 	className: 'Appointee',
 	discriminatorSuperClass: PersonRole,
 	accessControlled: false,
+	updateControlled: false,
 	schema: {
 		appointments: {
 			type: [Schema.Types.ObjectId],

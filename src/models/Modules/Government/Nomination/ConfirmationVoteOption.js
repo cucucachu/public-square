@@ -17,6 +17,7 @@ var VoteOption = require('../VoteOption');
 var ConfirmationVoteOption = new ClassModel({
 	className: 'ConfirmationVoteOption',
 	accessControlled: false,
+	updateControlled: false,
 	discriminatorSuperClass: VoteOption,
 	schema: {}
 });

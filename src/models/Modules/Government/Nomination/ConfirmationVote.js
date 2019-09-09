@@ -12,6 +12,7 @@ var ClassModel = require('../../../ClassModel');
 var ConfirmationVote = new ClassModel({
 	className: 'ConfirmationVote',
 	accessControlled: false,
+	updateControlled: false,
 	schema: {
 		date: {
 			type: Date,

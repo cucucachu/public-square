@@ -15,6 +15,7 @@ var UserRole = require('../User/UserRole');
 var Poster = new ClassModel({
 	className: 'Poster',
 	accessControlled: false,
+	updateControlled: false,
 	discriminatorSuperClass: UserRole,
 	schema: {
 		userPosts: 

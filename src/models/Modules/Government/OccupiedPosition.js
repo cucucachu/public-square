@@ -16,6 +16,7 @@ var Pollable = require('../Poll/Pollable');
 var OccupiedPosition = new ClassModel({
 	className: 'OccupiedPosition',
 	accessControlled: false,
+	updateControlled: false,
 	superClasses: [Pollable],
 	schema: {
 		startDate: {

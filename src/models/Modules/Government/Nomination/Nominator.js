@@ -15,6 +15,7 @@ var GovernmentRole = require('../GovernmentRole');
 var Nominator = new ClassModel({
 	className: 'Nominator',
 	accessControlled: false,
+	updateControlled: false,
 	superClasses: [GovernmentRole],
 	schema: {
 		nominations: {

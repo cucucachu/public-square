@@ -12,6 +12,7 @@ var ClassModel = require('../../../ClassModel');
 var ExecutiveVote = new ClassModel({
 	className: 'ExecutiveVote',
 	accessControlled: false,
+	updateControlled: false,
 	schema: {
 		date: {
 			type: Date,

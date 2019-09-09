@@ -14,6 +14,7 @@ var ExternalLink = require('./ExternalLink');
 var VideoLink = new ClassModel({
 	className: 'VideoLink',
 	accessControlled: false,
+	updateControlled: false,
 	discriminatorSuperClass: ExternalLink,
 	schema: {}
 });

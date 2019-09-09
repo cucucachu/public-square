@@ -14,6 +14,7 @@ var StampType = require('./StampType');
 var ObjectionStampType = new ClassModel({
 	className: 'ObjectionStampType',
 	accessControlled: false,
+	updateControlled: false,
 	discriminatorSuperClass: StampType,
 	schema: {}
 })

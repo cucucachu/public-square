@@ -13,6 +13,7 @@ var ClassModel = require('../../ClassModel');
 var GeographicArea = new ClassModel({
 	className: 'GeographicArea',
 	accessControlled: false,
+	updateControlled: false,
 	schema: {
 		name: {
 			type: String,

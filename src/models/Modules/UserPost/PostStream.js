@@ -11,6 +11,7 @@ var ClassModel = require('../../ClassModel');
 var PostStream = new ClassModel({
 	className: 'PostStream',
 	accessControlled: false,
+	updateControlled: false,
 	schema: {
 		_id: Schema.Types.ObjectId,
 		userGroup: {

@@ -17,6 +17,7 @@ var UserRole = require('../User/UserRole');
 var Citizen = new ClassModel({
 	className: 'Citizen',
 	accessControlled: false,
+	updateControlled: false,
 	discriminatorSuperClass: UserRole,
 	schema: {
 		pollResponses: {

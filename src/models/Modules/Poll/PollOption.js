@@ -9,6 +9,7 @@ var ClassModel = require('../../ClassModel');
 var PollOption = new ClassModel({
     className: 'PollOption',
 	accessControlled: false,
+	updateControlled: false,
     schema: {
         name: {
             type: String,

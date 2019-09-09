@@ -15,6 +15,7 @@ var UserRole = require('../User/UserRole');
 var OrganizationMember = new ClassModel({
     className: 'OrganizationMember',
     accessControlled: false,
+	updateControlled: false,
     discriminatorSuperClass: UserRole,
     schema: {
 		startDate: {

@@ -3096,34 +3096,27 @@ describe('Class Model Tests', function() {
             });
         });
 
-        it('Throws an error if argument an instance of the wrong classModel.', function(done) {
-            let instance = AllFieldsRequiredClass.create();
-            let expectedErrorMessage = 'SuperClass.saveAll() passed instances of a different class.';
-            let error;
+        it('Throws an error if argument an instance of the wrong classModel.', async () => {
+            const instance = AllFieldsRequiredClass.create();
+            const expectedErrorMessage = 'SuperClass.saveAll() passed instances of a different class.';
+            let errorThrown = false;
+
+            try {
+                await SuperClass.saveAll([instance]);
+            }
+            catch (error) {
+                if (error.message != expectedErrorMessage) {
+                    throw new Error(
+                        'ClassModel.save() did not throw the expected error message.\n' + 
+                        'Expected: ' + expectedErrorMessage + '\n' + 
+                        'Actual:   ' + error.message
+                    );
+                }
+                errorThrown = true;
+            }
             
-            SuperClass.saveAll([instance]).then(
-                function() {
-                },
-                function(saveError) {
-                    error = saveError;
-                }
-            ).finally(function() {
-                if (!error) {
-                    done(new Error('ClassModel.saveAll() did not throw an error when it should have.'));
-                }
-                else {
-                    if (error.message != expectedErrorMessage) {
-                        done(new Error(
-                            'ClassModel.save() did not throw the expected error message.\n' + 
-                            'Expected: ' + expectedErrorMessage + '\n' + 
-                            'Actual:   ' + error.message
-                        ));
-                    }
-                    else {
-                        done();
-                    }
-                }
-            });
+            if (!errorThrown)
+                throw new Error('ClassModel.saveAll() did not throw an error when it should have.');
         });
 
         it('Saves multiple instances.', function(done) {
@@ -3219,42 +3212,18 @@ describe('Class Model Tests', function() {
             instanceOfSubClassOfAbstractSubClassOfSuperClass.name = 'instanceOfSubClassOfAbstractSubClassOfSuperClass';
         }
 
-        before(function(done) {
-
-            AllFieldsMutexClass.save(instanceOfAllFieldsMutexClass).then(
-                function() {
-                    DiscriminatedSuperClass.save(instanceOfDiscriminatedSuperClass).then(
-                        function() {
-                            SuperClass.save(instanceOfSuperClass).then(
-                                function() {
-                                    SubClassOfSuperClass.save(instanceOfSubClassOfSuperClass).then(
-                                        function() {
-                                            SubClassOfDiscriminatorSuperClass.save(instanceOfSubClassOfDiscriminatorSuperClass).then(
-                                                function() {
-                                                    SubClassOfAbstractSuperClass.save(instanceOfSubClassOfAbstractSuperClass).then(
-                                                        function() {
-                                                            SubClassOfDiscriminatedSubClassOfSuperClass.save(instanceOfSubClassOfDiscriminatedSubClassOfSuperClass).then(
-                                                                function() {
-                                                                    SubClassOfSubClassOfSuperClass.save(instanceOfSubClassOfSubClassOfSuperClass).then(
-                                                                        function() {
-                                                                            SubClassOfAbstractSubClassOfSuperClass.save(instanceOfSubClassOfAbstractSubClassOfSuperClass).finally(done);
-                                                                        }
-                                                                    );
-                                                                }
-                                                            );
-                                                        }
-                                                    );
-                                                }
-                                            );
-                                        }
-                                    )
-                                }
-                            )
-                        }
-                    )
-                }
-            );
-
+        before(async () => {
+            await Promise.all([
+                AllFieldsMutexClass.save(instanceOfAllFieldsMutexClass),
+                DiscriminatedSuperClass.save(instanceOfDiscriminatedSuperClass),
+                SuperClass.save(instanceOfSuperClass),
+                SubClassOfSuperClass.save(instanceOfSubClassOfSuperClass),
+                SubClassOfDiscriminatorSuperClass.save(instanceOfSubClassOfDiscriminatorSuperClass),
+                SubClassOfAbstractSuperClass.save(instanceOfSubClassOfAbstractSuperClass),
+                SubClassOfDiscriminatedSubClassOfSuperClass.save(instanceOfSubClassOfDiscriminatedSubClassOfSuperClass),
+                SubClassOfSubClassOfSuperClass.save(instanceOfSubClassOfSubClassOfSuperClass),
+                SubClassOfAbstractSubClassOfSuperClass.save(instanceOfSubClassOfAbstractSubClassOfSuperClass),
+            ]);
         });
 
         describe('ClassModel.findById()', function() {
@@ -6017,13 +5986,17 @@ describe('Class Model Tests', function() {
 
                     it('Call save() on an instance of an update controlled class. Instance saved.', async () => {
                         const classToCallSaveOn = UpdateControlledSuperClass;
-                        const instanceToSave = instanceOfUpdateControlledSuperClassPasses;
+                        const instanceToSave = UpdateControlledSuperClass.create();
+                        instanceToSave.name = 'instanceOfUpdateControlledSuperClassPasses-save';
+                        instanceToSave.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
     
                         await classToCallSaveOn.save(instanceToSave);
                         const instanceSaved = await classToCallSaveOn.findById(instanceToSave._id);
     
                         if (!instanceSaved)
                             throw new Error('.save() returned without error, but instance could not be found in the database.');
+                        
+                        await classToCallSaveOn.delete(instanceToSave);
                     });
     
                     it('Call save() on an instance of an update controlled class. Save fails due to update control check.', async () => {
@@ -6052,27 +6025,12 @@ describe('Class Model Tests', function() {
                         const instanceFound = await classToCallSaveOn.findById(instanceToSave._id);
 
                         if (instanceFound) 
-                            throw new Error('.save() threw an error, but the instance was saved anyway.')
+                            throw new Error('.save() threw an error, but the instance was saved anyway.');
                     });
 
                 });
 
                 describe('Calling save with updateControlMethodParameters', () => {
-
-                    it('Call save() on an instance of an update controlled class with updateControlMethodParameters. Instance saved.', async () => {
-                        const classToCallSaveOn = UpdateControlledClassUpdateControlledByParameters;
-                        const instanceToSave = instanceOfUpdateControlledClassUpdateControlledByParameters;
-                        const updateControlMethodParameters = [1, 1, true];
-    
-                        await classToCallSaveOn.save(instanceToSave, ...updateControlMethodParameters);
-                        const instanceSaved = await classToCallSaveOn.findById(instanceToSave._id);
-    
-                        if (!instanceSaved)
-                            throw new Error('.save() returned without error, but instance could not be found in the database.');
-                        
-                            
-                        await classToCallSaveOn.delete(instanceToSave);
-                    });
     
                     it('Call save() on an instance of an update controlled class with updateControlMethodParameters. Save fails due to update control check.', async () => {
                         const classToCallSaveOn = UpdateControlledClassUpdateControlledByParameters;
@@ -6134,62 +6092,157 @@ describe('Class Model Tests', function() {
                             throw new Error('.save() threw an error, but the instance was saved anyway.')
                     });
 
+                    it('Call save() on an instance of an update controlled class with updateControlMethodParameters. Instance saved.', async () => {
+                        const classToCallSaveOn = UpdateControlledClassUpdateControlledByParameters;
+                        const instanceToSave = UpdateControlledClassUpdateControlledByParameters.create();
+                        const updateControlMethodParameters = [1, 1, true];
+    
+                        await classToCallSaveOn.save(instanceToSave, ...updateControlMethodParameters);
+                        const instanceSaved = await classToCallSaveOn.findById(instanceToSave._id);
+    
+                        if (!instanceSaved)
+                            throw new Error('.save() returned without error, but instance could not be found in the database.');
+                    });
+
                 });
 
             });
 
-            // describe('Test find() with access filtering', () => {
+            describe('Test saveAll() with update control check', () => {
 
-            //     it('Call find() on access controlled super class with a passing and not passing instance of each sub class.', async () => {
-            //         const instanceNames = [
-            //             'instanceOfUpdateControlledSuperClassPasses',
-            //             'instanceOfUpdateControlledSuperClassFailsRelationship',
-            //             'instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses',
-            //             'instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship',
-            //             'instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean',
-            //             'instanceOfUpdateControlledDiscriminatedSuperClassPasses',
-            //             'instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship',
-            //             'instanceOfUpdateControlledDiscriminatedSuperClassFailsString',
-            //             'instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean',
-            //             'instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses',
-            //             'instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship',
-            //             'instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean',
-            //             'UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass',
-            //             'UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass'
-            //         ];
-            //         const instancesToFind = [
-            //             instanceOfUpdateControlledSuperClassPasses,
-            //             instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
-            //             instanceOfUpdateControlledDiscriminatedSuperClassPasses,
-            //             instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses
-            //         ];
+                describe('Without updateControlMethodParameters.', () => {
 
-            //         const instancesFound = await UpdateControlledSuperClass.find({name: {$in: instanceNames}});
+                    it('Call saveAll() on an instances of an update controlled class. Instances saved.', async () => {
+                        const classToCallSaveAllOn = UpdateControlledSuperClass;
+                        const instanceToSave = UpdateControlledSuperClass.create();
+                        instanceToSave.name = 'instanceOfUpdateControlledSuperClassPasses-saveAll';
+                        instanceToSave.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
+    
+                        await classToCallSaveAllOn.saveAll([instanceToSave]);
+                        const instanceSaved = await classToCallSaveAllOn.findById(instanceToSave._id);
+    
+                        if (!instanceSaved)
+                            throw new Error('.saveAll() returned without error, but instance could not be found in the database.');
+                        
+                        await classToCallSaveAllOn.delete(instanceToSave);
+                    });
+    
+                    it('Call saveAll() on instances of an update controlled class. Save fails due to update control check.', async () => {
+                        const classToCallSaveAllOn = UpdateControlledSuperClass;
+                        const instancesToSave = [
+                            instanceOfUpdateControlledSuperClassPasses,
+                            instanceOfUpdateControlledSuperClassFailsRelationship,
+                        ];
+                        const expectedErrorMessage = 'Error in ' + classToCallSaveAllOn.className + '.saveAll(): Illegal attempt to update instances: ' + instancesToSave[1].id;
+                        let errorThrown = false;
+    
+                        try {
+                            await classToCallSaveAllOn.saveAll(instancesToSave);
+                        }
+                        catch (error) {
+                            if (error.message != expectedErrorMessage) {
+                                throw new Error(
+                                    '.saveAll() threw an error, but not the expected one.\n' +
+                                    'expected: ' + expectedErrorMessage + '\n' + 
+                                    'actual:   ' + error.message
+                                );
+                            }
+                            errorThrown = true;
+                        }
+    
+                        if (!errorThrown)
+                            throw new Error('.saveAll() returned when it should have returned an error.');
+                        
+                        const instancesFound = await classToCallSaveAllOn.find({
+                            _id: {$in: instancesToSave.map(instance => instance.id)}
+                        });
 
-            //         if (instancesFound.length < instancesToFind.length) 
-            //             throw new Error('find() returned too few instances.');
-                    
-            //         if (instancesFound.length > instancesToFind.length)
-            //             throw new Error('find() returned too many instances')
+                        if (instancesFound && instancesFound.length) 
+                            throw new Error('.saveAll() threw an error, but the instance was saved anyway.');
+                    });
 
-            //         let instancesCorrectlyFound = 0;
+                });
 
-            //         for (const instanceToSave of instancesToFind)
-            //             for (const instanceFound of instancesFound)
-            //                 if (instanceFound.id == instanceToSave.id) {
-            //                     instancesCorrectlyFound++;
-            //                     break;
-            //                 }
-                    
-            //         if (instancesCorrectlyFound != instancesToFind.length)
-            //             throw new Error(
-            //                 'find() returned the correct number of instances, but did not return the correct instances.\n' +
-            //                 'Instances found: \n' + instancesFound + '\n' + 
-            //                 'Expected instances: \n' + instancesToFind
-            //             );
-            //     });
+                describe('Calling save with updateControlMethodParameters', () => {
 
-            // });
+                    it('Call saveAll() on an instance of an update controlled class with updateControlMethodParameters. Instance saved.', async () => {
+                        const classToCallSaveAllOn = UpdateControlledClassUpdateControlledByParameters;
+                        const instanceToSave = UpdateControlledClassUpdateControlledByParameters.create();
+                        const updateControlMethodParameters = [1, 1, true];
+    
+                        await classToCallSaveAllOn.saveAll([instanceToSave], ...updateControlMethodParameters);
+                        const instanceSaved = await classToCallSaveAllOn.findById(instanceToSave._id);
+    
+                        if (!instanceSaved)
+                            throw new Error('.saveAll() returned without error, but instance could not be found in the database.');
+                        
+                            
+                        await classToCallSaveAllOn.delete(instanceToSave);
+                    });
+    
+                    it('Call saveAll() on an instance of an update controlled class with updateControlMethodParameters. Save fails due to update control check.', async () => {
+                        const classToCallSaveAllOn = UpdateControlledClassUpdateControlledByParameters;
+                        const instanceToSave = UpdateControlledClassUpdateControlledByParameters.create();
+                        const expectedErrorMessage = 'Error in ' + classToCallSaveAllOn.className + '.saveAll(): Illegal attempt to update instances: ' + instanceToSave.id;
+                        const updateControlMethodParameters = [-2, 1, true];
+                        let errorThrown = false;
+    
+                        try {
+                            await classToCallSaveAllOn.saveAll([instanceToSave], ...updateControlMethodParameters);
+                        }
+                        catch (error) {
+                            if (error.message != expectedErrorMessage) {
+                                throw new Error(
+                                    '.saveAll() threw an error, but not the expected one.\n' +
+                                    'expected: ' + expectedErrorMessage + '\n' + 
+                                    'actual:   ' + error.message
+                                );
+                            }
+                            errorThrown = true;
+                        }
+    
+                        if (!errorThrown)
+                            throw new Error('.saveAll() returned when it should have returned an error.');
+                        
+                        const instanceFound = await classToCallSaveAllOn.findById(instanceToSave._id);
+
+                        if (instanceFound) 
+                            throw new Error('.saveAll() threw an error, but the instance was saved anyway.')
+                    });
+    
+                    it('Call save() on an instance of an update controlled class with updateControlMethodParameters. Save fails due to update control check.', async () => {
+                        const classToCallSaveAllOn = UpdateControlledClassUpdateControlledByParameters;
+                        const instanceToSave = UpdateControlledClassUpdateControlledByParameters.create();
+                        const expectedErrorMessage = 'Error in ' + classToCallSaveAllOn.className + '.saveAll(): Illegal attempt to update instances: ' + instanceToSave.id;
+                        const updateControlMethodParameters = [1, 1, false];
+                        let errorThrown = false;
+                        
+                        try {
+                            await classToCallSaveAllOn.saveAll([instanceToSave], ...updateControlMethodParameters);
+                        }
+                        catch (error) {
+                            if (error.message != expectedErrorMessage) {
+                                throw new Error(
+                                    '.saveAll() threw an error, but not the expected one.\n' +
+                                    'expected: ' + expectedErrorMessage + '\n' + 
+                                    'actual:   ' + error.message
+                                );
+                            }
+                            errorThrown = true;
+                        }
+    
+                        if (!errorThrown)
+                            throw new Error('.saveAll() returned when it should have returned an error.');
+
+                        const instanceFound = await classToCallSaveAllOn.findById(instanceToSave._id);
+
+                        if (instanceFound) 
+                            throw new Error('.saveAll() threw an error, but the instance was saved anyway.')
+                    });
+
+                });
+
+            });
 
         });
 

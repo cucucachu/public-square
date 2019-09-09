@@ -16,6 +16,7 @@ var ClassModel = require('../../ClassModel');
 var PositionDefinition = new ClassModel({
 	className: 'PositionDefinition',
 	accessControlled: false,
+	updateControlled: false,
 	schema: {
 		name: {
 			type: String,

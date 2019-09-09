@@ -12,6 +12,7 @@ var ClassModel = require('../../ClassModel');
 var EffectivePositionDefinition = new ClassModel({
     className: 'EffectivePositionDefinition',
 	accessControlled: false,
+	updateControlled: false,
     schema: {
         startDate: {
             type: Date,

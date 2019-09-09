@@ -16,6 +16,7 @@ var Appointer = new ClassModel({
 	className: 'Appointer',
 	superClasses: [GovernmentRole],
 	accessControlled: false,
+	updateControlled: false,
 	schema: {
 		appointments: {
 			type: [Schema.Types.ObjectId],

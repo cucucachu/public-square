@@ -14,6 +14,7 @@ var UserRole = require('../User/UserRole');
 var GroupMember = new ClassModel({
 	className: 'GroupMember',
 	accessControlled: false,
+	updateControlled: false,
 	discriminatorSuperClass: UserRole,
 	schema: {
 		startDate: {

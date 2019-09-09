@@ -14,6 +14,7 @@ var StampType = require('./StampType');
 var ApprovalStampType = new ClassModel({
 	className: 'ApprovalStampType',
 	accessControlled: false,
+	updateControlled: false,
 	discriminatorSuperClass: StampType,
 	schema: {}
 })

@@ -15,6 +15,7 @@ var GovernmentRole = require('../GovernmentRole');
 var Executive = new ClassModel({
 	className: 'Executive',
 	accessControlled: false,
+	updateControlled: false,
 	superClasses: [GovernmentRole],
 	schema: {
 		individualExecutiveVotes: {
