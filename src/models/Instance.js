@@ -126,18 +126,14 @@ class Instance {
     async save() {
         if (this.deleted) 
             throw new Error('instance.save(): You cannot save an instance which has been deleted.');
-
-        const valid = this.validate();
-
-        if (valid) {
-            await this[doc].save();
-            this.saved = true;
-            return this;
-        }
+        this.validate();
+        await this[doc].save({validateBeforeSave: false});
+        this.saved = true;
+        return this;
     }
 
     async delete() {
-        await this[doc].delete();
+        await this.classModel.delete(this[doc]);
         this.deleted = true;
         return true;
     }

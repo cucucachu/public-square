@@ -3,6 +3,7 @@ require("@babel/polyfill");
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+const database = require('../dist/models/database');
 const ClassModel = require('../dist/models/ClassModel');
 const Instance = require('../dist/models/Instance');
 const TestClassModels = require('./TestClassModels');
@@ -40,6 +41,27 @@ function testForError(functionName, expectedErrorMessage, functionToCall) {
         throw new Error(functionName + ' did not throw an error when it should have.');
 }
 
+async function testForErrorAsync(functionName, expectedErrorMessage, functionToCall) {
+    let errorThrown = false;
+
+    try {
+        await functionToCall();
+    }
+    catch (error) {
+        if (error.message != expectedErrorMessage) {
+            throw new Error(
+                functionName + ' threw an error, but not the expected one.\n' + 
+                'expected: ' + expectedErrorMessage + '\n' + 
+                'actual:   ' + error.message
+            )
+        }
+        errorThrown = true;
+    }
+
+    if (!errorThrown)
+        throw new Error(functionName + ' did not throw an error when it should have.');
+}
+
 
 describe('Instance Tests', () => {
 
@@ -56,8 +78,8 @@ describe('Instance Tests', () => {
         });
     }
 
-    before(() => {
-
+    before(async () => {
+        await database.connect();
     });
 
     describe('Instance.constructor Tests', () => {
@@ -699,5 +721,87 @@ describe('Instance Tests', () => {
         });
 
     });
+
+    describe('instance.save()', () => {
+
+        it('instance.save() works properly.', async () => {
+            let instance = new Instance(AllFieldsRequiredClass);
+            instance.assign({
+                string: 'String',
+                strings: ['String'],
+                date: new Date(),
+                boolean: true,
+                booleans: [true],
+                number: 1,
+                numbers: [1],
+                class1: CompareClass1.create(),
+                class2s: [CompareClass2.create()],
+            });
+            await instance.save();
+            const found = await AllFieldsRequiredClass.findById(instance._id);
+
+            if (!found) 
+                throw new Error('instance.save() did not throw an error, but was not saved.');
+
+            if (instance.id != found.id)
+                throw new Error('instance.save() did not throw an error, but the instance found is different than the instance saved.');
+        });
+
+        it('instance.save() throws an error when instance is invalid. Instance not saved.', async () => {
+            let expectedErrorMessage = 'AllFieldsRequiredClass validation failed: string: Path `string` is required.';
+            let instance = new Instance(AllFieldsRequiredClass);
+            instance.assign({
+                strings: ['String'],
+                date: new Date(),
+                boolean: true,
+                booleans: [true],
+                number: 1,
+                numbers: [1],
+                class1: CompareClass1.create(),
+                class2s: [CompareClass2.create()],
+            });
+
+            await testForErrorAsync('instance.save', expectedErrorMessage, async () => {
+                return instance.save();
+            });
+
+            const found = await AllFieldsRequiredClass.findById(instance._id);
+
+            if (found) 
+                throw new Error('instance was saved.');
+        });
+
+        it('instance.save() throws an error if instance has already been deleted. Instance not saved.', async () => {
+            let expectedErrorMessage = 'instance.save(): You cannot save an instance which has been deleted.';
+            let instance = new Instance(AllFieldsRequiredClass);
+            instance.assign({
+                string: 'String',
+                strings: ['String'],
+                date: new Date(),
+                boolean: true,
+                booleans: [true],
+                number: 1,
+                numbers: [1],
+                class1: CompareClass1.create(),
+                class2s: [CompareClass2.create()],
+            });
+
+            instance.deleted = true;
+
+            await testForErrorAsync('instance.save', expectedErrorMessage, async () => {
+                return instance.save();
+            });
+        });
+
+        after(async () => {
+            await AllFieldsRequiredClass.clear();
+        });
+
+    });
+
+    after(() => {
+        database.close();
+    });
+
 
 });
