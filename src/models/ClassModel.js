@@ -8,7 +8,7 @@ var Schema = mongoose.Schema;
 require('./database');
 require('@babel/polyfill');
 
-const InstanceSet = require('./InstanceSet');
+const SuperSet = require('./SuperSet');
 
 const AllClassModels = [];
 
@@ -930,12 +930,12 @@ class ClassModel {
 
     /* Recursive method to be called by updateControlCheck()
      * Required Parameter instances - Array<instance> : An array of instances of this Class Model to run update control method on.
-     * Returns an InstanceSet containing instances which do not pass update control check.
+     * Returns an SuperSet containing instances which do not pass update control check.
      * }
      */
     async updateControlCheckRecursive(instances, ...updateControlMethodParameters) {
         const updateControlMethods = this.allUpdateControlMethodsforClassModel();
-        let rejectedInstances = new InstanceSet();
+        let rejectedInstances = new SuperSet();
 
         let instancesOfThisClass;
         if (this.discriminated)
@@ -951,8 +951,8 @@ class ClassModel {
             });
         }
 
-        updatableInstancesOfThisClass = new InstanceSet(updatableInstancesOfThisClass);
-        rejectedInstances = (new InstanceSet(instancesOfThisClass)).difference(updatableInstancesOfThisClass);
+        updatableInstancesOfThisClass = new SuperSet(updatableInstancesOfThisClass);
+        rejectedInstances = (new SuperSet(instancesOfThisClass)).difference(updatableInstancesOfThisClass);
 
         if (this.isSuperClass()) {
             if (this.discriminated) {

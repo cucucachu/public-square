@@ -1,12 +1,28 @@
 require('@babel/polyfill');
 
-class InstanceSet extends Set {
-    constructor(iterable) {
-        super(iterable);
+const ClassModel = require('./ClassModel');
+const Instance = require('./Instance');
+const SuperSet = require('./SuperSet');
+
+class InstanceSet extends SuperSet {
+    constructor(classModel, instances) {
+        constructorValidations(classModel, instances);
+        super(instances);
     }
 
-    toString() {
-        return [...this].toString();
+    static constructorValidations(classModel, instances) {
+        if (!(classModel instanceof ClassModel))
+            throw new Error('InstanceSet.constructor() first argument must be an instance of ClassModel.');
+        InstanceSet.addInstanceValidations(classModel, instances);
+    }
+
+    static addInstanceValidations(classModel, instances) {
+        instances.forEach(instance => {
+            if (!(instance instanceof Instance))
+                throw new Error('Illegal attempt to add something other than Instances to an InstanceSet.');
+            if (instance.isInstanceOfClass(classModel))
+                throw new Error('Illegal attempt to add instances of a different class to an InstanceSet.');
+        })
     }
 
     // Set Math
@@ -14,17 +30,7 @@ class InstanceSet extends Set {
         if (!(instanceSet instanceof InstanceSet))
             throw new Error('InstanceSet.equals() argument is not an InstanceSet.');
         
-        if (this.size != instanceSet.size)
-            return false;
-
-        if (this.size == 0 && instanceSet.size == 0)
-            return true;
-
-        const equalSet = [...this].reduce((x, y) => {
-            return new Set([...x, instanceSet.has(y)]);
-        }, []);
-
-        return !equalSet.has(false);
+        return super.equals(instanceSet);
     }
 
     difference(instanceSet) {
@@ -41,38 +47,14 @@ class InstanceSet extends Set {
         return combination;
     }
 
-    static setsEqual(setA, setB) {
-        if (setA.size != setB.size) return false;
-
-        const equalSet = [...setA].reduce((x, y) => {
-            return new Set([...x, setB.has(y)]);
-        }, []);
-
-        return !equalSet.has(false);
-    }
-
     static setsDifference(setA, setB) {
-        return new Set([...setA].filter(x => !setB.has(x)));
+        return new InstanceSet([...setA].filter(x => !setB.has(x)));
     }
 
     // forEach, Map, Reduce
 
-    forEach(callback) {
-        [...this].forEach(callback);
-    }
-
     map(callback) {
         return new InstanceSet([...this].map(callback));
-    }
-
-    mapToArray(callback) {
-        return [...this].map(callback);
-    }
-
-    reduce(callback, initialValue=undefined) {
-        if (initialValue != undefined)
-            return [...this].reduce(callback, initialValue);
-        return [...this].reduce(callback);
     }
 
     // Adding elements
@@ -84,37 +66,11 @@ class InstanceSet extends Set {
         if (!(typeof iterable[Symbol.iterator] === 'function'))
             throw new Error('InstanceSet.addFromIterable() called with an argument which is not iterable.');
 
+        InstanceSet.addInstanceValidations(this.classModel, iterable);
+
         for (const instance of iterable)
             this.add(instance);
     }
-
-    remove(instance) {
-        if (instance == null)
-            return;
-
-        this.delete(instance);
-    }
-
-    // Removing elements
-    removeFromIterable(iterable) {
-        //Check if iterable is really iterable
-        if (iterable == null)
-            return;
-
-        if (!(typeof iterable[Symbol.iterator] === 'function'))
-            throw new Error('InstanceSet.removeFromIterable() called with an argument which is not iterable.');
-        
-        if (!this.size)
-            return;
-
-        for (const instance of iterable)
-            this.remove(instance);
-    }
-
-    isEmpty() {
-        return this.size == 0;
-    }
-
 
 }
 

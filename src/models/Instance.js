@@ -26,8 +26,8 @@ class Instance {
         this.saved = saved;
         this.deleted = false;
 
-        const documentProperties = Object.keys(this.classModel.schema);
-        const unSettableInstanceProperties = ['classModel', doc];     
+        const documentProperties = Object.keys(this.classModel.schema).concat(['id', '_id']);
+        const unSettableInstanceProperties = ['classModel', doc, 'id', '_id'];     
         const instanceMethods = Object.getOwnPropertyNames(Object.getPrototypeOf(this)); 
 
         return new Proxy(this, {
@@ -35,13 +35,13 @@ class Instance {
                 if (this.deleted) 
                     throw new Error('Illegal Attempt to set a property after instance has been deleted.');
 
+                if (unSettableInstanceProperties.includes(key))
+                    throw new Error('Illegal attempt to change the ' + key + ' of an Instance.');
+
                 if (documentProperties.includes(key)) {
                     trapTarget[doc][key] = value;
                     return true;
                 }
-
-                if (unSettableInstanceProperties.includes(key))
-                    throw new Error('Illegal attempt to change the ' + key + ' of an Instance.');
 
                 return Reflect.set(trapTarget, key, value, receiver);
             },
@@ -95,6 +95,14 @@ class Instance {
 
     }
 
+    assign(object) {
+        const documentProperties = Object.keys(this.classModel.schema);
+        for (const key in object) {
+            if (documentProperties.includes(key))
+                this[key] = object[key];
+        }
+    }
+
     documentEquals(otherDocument) {
         return this[doc] == otherDocument;
     }
@@ -105,8 +113,12 @@ class Instance {
 
     // Validation Methods
 
-    async validate() {
+    validate() {
+        this.classModel.validate(this[doc]);
+    }
 
+    validateSync() {
+        return this[doc].validateSync();
     }
 
     // Update and Delete Methods Methods
@@ -128,6 +140,10 @@ class Instance {
         await this[doc].delete();
         this.deleted = true;
         return true;
+    }
+
+    isInstanceOfClass(classModel) {
+        return classModel.isInstanceOfClassOrSubClass(this[doc]);
     }
 }
 
