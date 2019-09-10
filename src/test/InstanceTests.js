@@ -523,7 +523,7 @@ describe('Instance Tests', () => {
                     schema: schema
                 });
 
-                let instance = new Instance(MutexClassA);
+                const instance = new Instance(MutexClassA);
                 instance.assign({
                     boolean: true,
                     date: new Date(),
@@ -567,7 +567,7 @@ describe('Instance Tests', () => {
                     schema: schema
                 });
 
-                let instance = new Instance(MutexClassAA);
+                const instance = new Instance(MutexClassAA);
 
                 instance.boolean = true;
 
@@ -608,7 +608,7 @@ describe('Instance Tests', () => {
                     schema: schema
                 });
 
-                let instance = new Instance(MutexClassB);
+                const instance = new Instance(MutexClassB);
 
                 instance.class1 = CompareClass1.create()._id;
                 instance.class2 = CompareClass2.create()._id;
@@ -653,7 +653,7 @@ describe('Instance Tests', () => {
                     schema: schema
                 });
 
-                let instance = new Instance(MutexClassBB);
+                const instance = new Instance(MutexClassBB);
 
                 instance.class1 = CompareClass1.create()._id;
 
@@ -694,7 +694,7 @@ describe('Instance Tests', () => {
                     schema: schema
                 });
 
-                let instance = new Instance(MutexClassC);
+                const instance = new Instance(MutexClassC);
 
                 instance.class1s = [CompareClass1.create()._id, CompareClass1.create()._id];
                 instance.class2s = [CompareClass2.create()._id, CompareClass2.create()._id];
@@ -725,7 +725,7 @@ describe('Instance Tests', () => {
     describe('instance.save()', () => {
 
         it('instance.save() works properly.', async () => {
-            let instance = new Instance(AllFieldsRequiredClass);
+            const instance = new Instance(AllFieldsRequiredClass);
             instance.assign({
                 string: 'String',
                 strings: ['String'],
@@ -745,11 +745,14 @@ describe('Instance Tests', () => {
 
             if (instance.id != found.id)
                 throw new Error('instance.save() did not throw an error, but the instance found is different than the instance saved.');
+
+            if (!instance.saved) 
+                throw new Error('instance.save() did not set the saved property to true.');
         });
 
         it('instance.save() throws an error when instance is invalid. Instance not saved.', async () => {
             let expectedErrorMessage = 'AllFieldsRequiredClass validation failed: string: Path `string` is required.';
-            let instance = new Instance(AllFieldsRequiredClass);
+            const instance = new Instance(AllFieldsRequiredClass);
             instance.assign({
                 strings: ['String'],
                 date: new Date(),
@@ -773,7 +776,7 @@ describe('Instance Tests', () => {
 
         it('instance.save() throws an error if instance has already been deleted. Instance not saved.', async () => {
             let expectedErrorMessage = 'instance.save(): You cannot save an instance which has been deleted.';
-            let instance = new Instance(AllFieldsRequiredClass);
+            const instance = new Instance(AllFieldsRequiredClass);
             instance.assign({
                 string: 'String',
                 strings: ['String'],
@@ -795,6 +798,56 @@ describe('Instance Tests', () => {
 
         after(async () => {
             await AllFieldsRequiredClass.clear();
+        });
+
+    });
+
+    describe('instance.delete()', () => {
+
+        it('Instance can be deleted as expected.', async () => {
+            const instance = new Instance(AllFieldsRequiredClass);
+            instance.assign({
+                string: 'String',
+                strings: ['String'],
+                date: new Date(),
+                boolean: true,
+                booleans: [true],
+                number: 1,
+                numbers: [1],
+                class1: CompareClass1.create(),
+                class2s: [CompareClass2.create()],
+            });
+            await instance.save();
+            await instance.delete();
+
+            const found = await AllFieldsRequiredClass.findById(instance._id);
+
+            if (found) 
+                throw new Error('instance.delete() did no throw an error, but the instance was not deleted.');
+
+            if (!instance.deleted)
+                throw new Error('Instance was deleted, but the deleted property was not set to true.');
+
+        });
+
+        it('Instance cannot be deleted if it has never been saved.', async () => {
+            const expectedErrorMessage = 'instance.delete(): You cannot delete an instance which hasn\'t been saved yet';
+            const instance = new Instance(AllFieldsRequiredClass);
+            instance.assign({
+                string: 'String',
+                strings: ['String'],
+                date: new Date(),
+                boolean: true,
+                booleans: [true],
+                number: 1,
+                numbers: [1],
+                class1: CompareClass1.create(),
+                class2s: [CompareClass2.create()],
+            });
+
+            await testForErrorAsync('instance.delete()', expectedErrorMessage, async() => {
+                return instance.delete();
+            });
         });
 
     });
