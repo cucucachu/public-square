@@ -1,4 +1,3 @@
-const promiseFinally = require('promise.prototype.finally');
 require("@babel/polyfill");
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
@@ -7,12 +6,6 @@ const ClassModel = require('../dist/models/ClassModel');
 const InstanceSet = require('../dist/models/InstanceSet');
 const database = require('../dist/models/database');
 
-
-promiseFinally.shim();
-
-process.on('unhandledRejection', error => {
-	console.log('unhandledRejection', error.message);
-});
 
 describe('Class Model Tests', function() {
 
@@ -2947,36 +2940,31 @@ describe('Class Model Tests', function() {
 
     describe('ClassModel.save()', function() {    
 
-        it('ClassModel.save() throws an error when called on an instance of a different ClassModel.', function() {
-            let expectedErrorMessage = 'AllFieldsRequiredClass.save() called on an instance of a different class.'; 
-            let instance = SuperClass.create();
-            let testFailed = true;
+        it('ClassModel.save() throws an error when called on an instance of a different ClassModel.', async () => {
+            const expectedErrorMessage = 'AllFieldsRequiredClass.save() called on an instance of a different class.'; 
+            const instance = SuperClass.create();
+            let errorThrown = false;
 
-            AllFieldsRequiredClass.save(instance).then(
-                () => {
-
-                },
-                (saveError) => {
-                    if (saveError.message != expectedErrorMessage) 
-                        throw new Error(
-                            'ClassModel.save() did not throw the expected error message.\n' + 
-                            'Expected: ' + expectedErrorMessage + '\n' + 
-                            'Actual:   ' + saveError.message
-                        )
-                    
-                    testFailed = false;
-
+            try {
+                await AllFieldsRequiredClass.save(instance);
+            }
+            catch (error) {
+                if (error.message != expectedErrorMessage) {
+                    throw new Error(
+                        'ClassModel.save() did not throw the expected error message.\n' + 
+                        'Expected: ' + expectedErrorMessage + '\n' + 
+                        'Actual:   ' + error.message
+                    );
                 }
-            ).finally(() => {
-                if (testFailed)
-                    throw new Error('ClassModel.save() did not throw an error when it should have.');
-            })
+                errorThrown = true;
+            }
 
+            if (!errorThrown) 
+                throw new Error('ClassModel.save() did not throw an error when it should have.');
         });
 
         it('ClassModel.save() works properly.', async () => {
             let instance = AllFieldsRequiredClass.create();
-
             instance.string = 'String';
             instance.strings = ['String'];
             instance.date = new Date();
@@ -2987,48 +2975,14 @@ describe('Class Model Tests', function() {
             instance.class1 = CompareClass1.create()._id;
             instance.class2s = [CompareClass2.create()._id];
 
-            // await AllFieldsRequiredClass.save(instance);
-            // console.log('Instance Saved');
-            // console.log(instance._id);
-            // const found = await AllFieldsRequiredClass.findById(instance._id);
-            // console.log('Instance Found');
-            // const compareResult = AllFieldsRequiredClass.compare(instance, found);
-            // console.log('Instance compared.');
+            await AllFieldsRequiredClass.save(instance);
+            const found = await AllFieldsRequiredClass.findById(instance._id);
 
-            // if (!compareResult.match) {
-            //     console.log('in here' + compareResult.message);
-            //     throw new Error(compareResult.mesasage);
-            // }
+            if (!found) 
+                throw new Error('ClassModel.save() did not throw an error, but was not saved.');
 
-            // console.log('done');
-            // return true;
-
-
-
-            AllFieldsRequiredClass.save(instance).then(    
-                function(saved) {
-                    AllFieldsRequiredClass.findById(instance._id).then(
-                        function(found) {
-                            compareResult = AllFieldsRequiredClass.compare(instance, found);
-                            if (compareResult.match == false)
-                                error = new Error(compareResult.message);
-                        },
-                        function(findError) {
-                            console.log('error');
-                            error = findError;
-                        }
-                    );
-                },
-                function(saveErr) {
-                    testFailed = 1;
-                    error = saveErr;
-                }
-            ).finally(function() {
-                if (error)
-                    done(error);
-                else
-                    done();
-            });
+            if (instance.id != found.id)
+                throw new Error('ClassModel.save() did not throw an error, but the instance found is different than the instance saved.');
         });
 
     });
