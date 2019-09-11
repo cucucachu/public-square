@@ -652,6 +652,93 @@ describe('InstanceSet Tests', () => {
 
     describe('InstanceSet.removeInstances()', () => {
 
+        it('instanceSet.removeInstances() throws an error when passed an argument which is not iterable.', () => {
+            const instance = new Instance(SuperClass);
+            const instanceSet = new InstanceSet(SuperClass, [instance]);
+            const expectedErrorMessage = 'instances argument must be iterable.';
+            testForError('instanceSet.removeInstances()', expectedErrorMessage, () => {
+                instanceSet.removeInstances(instance);
+            });
+        });
+
+        it('instanceSet.removeInstances() called with null does not affect the InstanceSet.', () => {
+            const instance = new Instance(SuperClass);
+            const instanceSet = new InstanceSet(SuperClass, [instance]);
+            instanceSet.removeInstances(null);
+
+            if(instanceSet.size != 1 || !instanceSet.has(instance))
+                throw new Error('InstanceSet had instance removed.');
+        });
+
+        it('instanceSet.removeInstances() called with undefined does not affect the InstanceSet.', () => {
+            const instance = new Instance(SuperClass);
+            const instanceSet = new InstanceSet(SuperClass, [instance]);
+            instanceSet.removeInstances();
+
+            if(instanceSet.size != 1 || !instanceSet.has(instance))
+                throw new Error('InstanceSet had instance removed.');
+        });
+
+        it('instanceSet.removeInstances() called on an empty InstanceSet does not affect the InstanceSet.', () => {
+            const instance = new Instance(SuperClass);
+            const instanceSet = new InstanceSet(SuperClass);
+            instanceSet.removeInstances([instance]);
+
+            if(instanceSet.size != 0 || instanceSet.classModel != SuperClass)
+                throw new Error('Something happened to the InstanceSet.');
+        });
+
+        it('instanceSet.removeInstances() called on an InstanceSet with Instances not in the InstanceSet does not affect the InstanceSet.', () => {
+            const instance1 = new Instance(SuperClass);
+            const instance2 = new Instance(SuperClass);
+            const instance3 = new Instance(SuperClass);
+            const instanceSet = new InstanceSet(SuperClass, [instance1]);
+            instanceSet.removeInstances([instance2, instance3]);
+
+            if(instanceSet.size != 1 || !instanceSet.has(instance1))
+                throw new Error('InstanceSet had instance removed.');
+
+        });
+
+        it('instanceSet.removeInstances() removes the given Instances from the InstanceSet.', () => {
+            const instance1 = new Instance(SuperClass);
+            const instance2 = new Instance(SuperClass);
+            const instance3 = new Instance(SuperClass);
+            const instances = [instance1, instance2, instance3]
+            const instanceSet = new InstanceSet(SuperClass);
+            instanceSet.addInstances(instances);
+            instanceSet.removeInstances(instances);
+
+            if(instanceSet.size != 0 || instanceSet.has(instance1) || instanceSet.has(instance2) || instanceSet.has(instance3))
+                throw new Error('Instance was not removed from InstanceSet.');
+
+        });
+
+        it('instanceSet.removeInstances() can be called with an InstanceSet as an argument.', () => {
+            const instance1 = new Instance(SuperClass);
+            const instance2 = new Instance(SuperClass);
+            const instance3 = new Instance(SuperClass);
+            const instances = [instance1, instance2, instance3]
+            const instanceSet = new InstanceSet(SuperClass);
+            instanceSet.addInstances(instances);
+            instanceSet.removeInstances(instanceSet);
+
+            if(instanceSet.size != 0 || instanceSet.has(instance1) || instanceSet.has(instance2) || instanceSet.has(instance3))
+                throw new Error('Instance was not removed from InstanceSet.');
+
+        });
+
+        it('instanceSet.removeInstances() called twice with the same instance removes the given Instance from the InstanceSet.', () => {
+            const instance = new Instance(SuperClass);
+            const instanceSet = new InstanceSet(SuperClass);
+            instanceSet.add(instance);
+            instanceSet.removeInstances([instance]);
+            instanceSet.removeInstances([instance]);
+
+            if(instanceSet.size != 0 || instanceSet.has(instance))
+                throw new Error('Instance was not removed from InstanceSet.');
+        });
+
     });
 
     describe('InstanceSet.union()', () => {
