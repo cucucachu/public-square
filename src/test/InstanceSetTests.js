@@ -357,4 +357,87 @@ describe('InstanceSet Tests', () => {
 
     });
 
+    describe('InstanceSet.add()', () => {
+
+        it('instanceSet.add() throws an error if argument is not an instance.', () => {
+            const instanceSet = new InstanceSet(SuperClass);
+            const expectedErrorMessage = 'Illegal attempt to add something other than Instances to an InstanceSet.';
+
+            testForError('instanceSet.add()', expectedErrorMessage, () => {
+                instanceSet.add(1);
+            });
+        });
+
+        it('instanceSet.add() throws an error if argument is not an instance of the classModel of the InstanceSet.', () => {
+            const instanceSet = new InstanceSet(SuperClass);
+            const instance = new Instance(TestClassWithBoolean);
+            const expectedErrorMessage = 'Illegal attempt to add instances of a different class to an InstanceSet.';
+
+            testForError('instanceSet.add()', expectedErrorMessage, () => {
+                instanceSet.add(instance);
+            });
+        });
+
+        it('instanceSet.add() does not change the instance set if no argument given.', () => {
+            const instanceSet = new InstanceSet(SuperClass);
+            instanceSet.add();
+            if (instanceSet.size)
+                throw new Error('Instance.add() added something to the InstanceSet even though argument was undefined.');
+        });
+
+        it('instanceSet.add() does not change the instance set if instance == null.', () => {
+            const instanceSet = new InstanceSet(SuperClass);
+            instanceSet.add(null);
+            if (instanceSet.size)
+                throw new Error('Instance.add() added something to the InstanceSet even though argument was null.');
+        });
+
+        it('instanceSet.add() can add an instance of the ClassModel of the InstanceSet', () => {
+            const instanceSet = new InstanceSet(SuperClass);
+            const instance = new Instance(SuperClass);
+            
+            instanceSet.add(instance);
+
+            if (instanceSet.size != 1) 
+                throw new Error('instanceSet size is not 1.');
+            if (!instanceSet.has(instance)) 
+                throw new Error('instanceSet does not contain instance.');
+        });
+
+        it('instanceSet.add() can add an instance of a subclass of the ClassModel of the InstanceSet', () => {
+            const instanceSet = new InstanceSet(SuperClass);
+            const instance = new Instance(SubClassOfSuperClass);
+            
+            instanceSet.add(instance);
+
+            if (instanceSet.size != 1) 
+                throw new Error('instanceSet size is not 1.');
+            if (!instanceSet.has(instance)) 
+                throw new Error('instanceSet does not contain instance.');
+
+        });
+
+        it('instanceSet.add() can be called multiple times.', () => {
+            const instanceSet = new InstanceSet(SuperClass);
+            const instance1 = new Instance(SubClassOfSuperClass);
+            const instance2 = new Instance(SubClassOfSuperClass);
+            
+            instanceSet.add(instance1);
+
+            if (instanceSet.size != 1) 
+                throw new Error('instanceSet size is not 1.');
+            if (!instanceSet.has(instance1)) 
+                throw new Error('instanceSet does not contain instance.');
+            
+                instanceSet.add(instance2);
+    
+                if (instanceSet.size != 2) 
+                    throw new Error('instanceSet size is not 1.');
+                if (!instanceSet.has(instance2)) 
+                    throw new Error('instanceSet does not contain instance.');
+
+        });
+
+    });
+
 });

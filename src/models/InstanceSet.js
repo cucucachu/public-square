@@ -31,6 +31,35 @@ class InstanceSet extends SuperSet {
         });
     }
 
+    // Adding Instances to Set
+
+    add(instance) {
+        if (!instance)
+            return;
+        
+        // This check is necessary because the Set constructor will call add(), and at that time, 
+        //  this.classModel is undefined.
+        if (this.classModel)
+            InstanceSet.addInstancesValidations(this.classModel, [instance]);
+
+        super.add(instance);
+    }
+
+    addFromIterable(iterable) {
+        this.addInstances(iterable);
+    }
+
+    addInstances(instances) {
+        //Check if iterable is really iterable
+        if (instances == null)
+            return;
+
+        InstanceSet.addInstancesValidations(this.classModel, instances);
+
+        for (const instance of instances)
+            super.add(instance);
+    }
+
     // Set Math
     equals(instanceSet) {
         if (!(instanceSet instanceof InstanceSet))
@@ -75,21 +104,6 @@ class InstanceSet extends SuperSet {
 
     mapToInstanceSet(callback) {
         return new InstanceSet(this.ClassModel, [...this].map(callback));
-    }
-
-    // Adding elements
-    addFromIterable(iterable) {
-        //Check if iterable is really iterable
-        if (iterable == null)
-            return;
-
-        if (!(typeof iterable[Symbol.iterator] === 'function'))
-            throw new Error('InstanceSet.addFromIterable() called with an argument which is not iterable.');
-
-        InstanceSet.addInstanceValidations(this.classModel, iterable);
-
-        for (const instance of iterable)
-            this.add(instance);
     }
 
     getInstanceIds() {
