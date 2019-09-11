@@ -133,6 +133,17 @@ describe('InstanceSet Tests', () => {
                     throw new Error('InstanceSet was created but is not empty.');
             });
 
+            it('new InstanceSet() can accept an InstanceSet as an argument.', () => {
+                const instance1 = new Instance(SubClassOfSuperClass);
+                const instance2 = new Instance(SubClassOfDiscriminatedSubClassOfSuperClass);
+                const instances = [instance1, instance2];
+                const instanceSet1 = new InstanceSet(SuperClass, instances);
+                const instanceSet2 = new InstanceSet(SuperClass, instanceSet1)
+
+                if (!instanceSet2.has(instance1) || !instanceSet2.has(instance2) || !instanceSet2.size == 2)
+                    throw new Error('InstanceSet was created, but it does not contain the instances.');
+            });
+
         });
 
     });
@@ -432,12 +443,146 @@ describe('InstanceSet Tests', () => {
                 instanceSet.add(instance2);
     
                 if (instanceSet.size != 2) 
-                    throw new Error('instanceSet size is not 1.');
+                    throw new Error('instanceSet size is not 2.');
                 if (!instanceSet.has(instance2)) 
                     throw new Error('instanceSet does not contain instance.');
 
         });
 
+        it('instanceSet.add() will not add the same instance twice', () => {
+            const instanceSet = new InstanceSet(SuperClass);
+            const instance = new Instance(SubClassOfSuperClass);
+            
+            instanceSet.add(instance);
+
+            if (instanceSet.size != 1) 
+                throw new Error('instanceSet size is not 1.');
+            if (!instanceSet.has(instance)) 
+                throw new Error('instanceSet does not contain instance.');
+            
+            instanceSet.add(instance);
+
+            if (instanceSet.size != 1) 
+                throw new Error('instanceSet size is not 1.');
+            if (!instanceSet.has(instance)) 
+                throw new Error('instanceSet does not contain instance.');
+
+        });
+
+        it('instanceSet.add() will not add the same instance twice', () => {
+            const instance = new Instance(SubClassOfSuperClass);
+            const instanceSet = new InstanceSet(SuperClass, [instance]);
+            
+            instanceSet.add(instance);
+
+            if (instanceSet.size != 1) 
+                throw new Error('instanceSet size is not 1.');
+            if (!instanceSet.has(instance)) 
+                throw new Error('instanceSet does not contain instance.');
+            
+            instanceSet.add(instance);
+
+            if (instanceSet.size != 1) 
+                throw new Error('instanceSet size is not 1.');
+            if (!instanceSet.has(instance)) 
+                throw new Error('instanceSet does not contain instance.');
+
+        });
+
     });
 
+    describe('InstanceSet.addInstances', () => {
+
+        it('instanceSet.addInstances() throws an error if given instances are not instances.', () => {
+            const instanceSet = new InstanceSet(SuperClass);
+            const expectedErrorMessage = 'Illegal attempt to add something other than Instances to an InstanceSet.';
+
+            testForError('instanceSet.addInstances()', expectedErrorMessage, () => {
+                instanceSet.addInstances([1]);
+            });
+        });
+
+        it('instanceSet.addInstances() throws an error if argument is not iterable.', () => {
+            const instanceSet = new InstanceSet(SuperClass);
+            const instance = new Instance(SuperClass);
+            const expectedErrorMessage = 'instances argument must be iterable.';
+
+            testForError('instanceSet.addInstances()', expectedErrorMessage, () => {
+                instanceSet.addInstances(instance);
+            });
+        });
+
+        it('instanceSet.addInstances() throws an error if given instances are not of the right ClassModel.', () => {
+            const instanceSet = new InstanceSet(SuperClass);
+            const instance = new Instance(TestClassWithBoolean);
+            const expectedErrorMessage = 'Illegal attempt to add instances of a different class to an InstanceSet.';
+
+            testForError('instanceSet.addInstances()', expectedErrorMessage, () => {
+                instanceSet.addInstances([instance]);
+            });
+        });
+
+        it('instanceSet.addInstances() throws an error if any given instance is not of the right ClassModel.', () => {
+            const instanceSet = new InstanceSet(SuperClass);
+            const instance1 = new Instance(SuperClass);
+            const instance2 = new Instance(TestClassWithBoolean);
+            const expectedErrorMessage = 'Illegal attempt to add instances of a different class to an InstanceSet.';
+
+            testForError('instanceSet.addInstances()', expectedErrorMessage, () => {
+                instanceSet.addInstances([instance1, instance2]);
+            });
+        });
+
+        it('instanceSet.addInstances() will be unchanged if passed null.', () => {
+            const instanceSet = new InstanceSet(SuperClass);
+
+            instanceSet.addInstances(null);
+
+            if (instanceSet.size)
+                throw new Error('Something was added to the InstanceSet.')
+        });
+
+        it('instanceSet.addInstances() will be unchanged if passed undefined.', () => {
+            const instanceSet = new InstanceSet(SuperClass);
+
+            instanceSet.addInstances();
+
+            if (instanceSet.size)
+                throw new Error('Something was added to the InstanceSet.')
+        });
+
+        it('instanceSet.addInstances() will add instances to the set.', () => {
+            const instanceSet = new InstanceSet(SuperClass);
+            const instance1 = new Instance(SubClassOfSuperClass);
+            const instance2 = new Instance(SubClassOfSuperClass);
+            
+            instanceSet.addInstances([instance1, instance2]);
+
+            if (instanceSet.size != 2 || !instanceSet.has(instance1) || !instanceSet.has(instance2))
+                throw new Error('Instances were not added to set.')
+        });
+
+        it('instanceSet.addInstances() will add instances when passed another InstanceSet.', () => {
+            const instance1 = new Instance(SubClassOfSuperClass);
+            const instance2 = new Instance(SubClassOfSuperClass);
+            const instanceSet1 = new InstanceSet(SuperClass, [instance1, instance2]);
+            const instanceSet2 = new InstanceSet(SuperClass);
+            
+            instanceSet2.addInstances(instanceSet1);
+
+            if (instanceSet2.size != 2 || !instanceSet2.has(instance1) || !instanceSet2.has(instance2))
+                throw new Error('Instances were not added to set.')
+        });
+
+        it('instanceSet.addInstances() will not add the same instance twice', () => {
+            const instanceSet = new InstanceSet(SuperClass);
+            const instance = new Instance(SubClassOfSuperClass);
+            
+            instanceSet.addInstances([instance, instance]);
+
+            if (instanceSet.size != 1 || !instanceSet.has(instance))
+                throw new Error('Instances were not added to set.')
+        });
+
+    });
 });
