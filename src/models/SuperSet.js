@@ -78,7 +78,7 @@ class SuperSet extends Set {
     // Adding elements
     addFromIterable(iterable) {
         //Check if iterable is really iterable
-        if (iterable == null)
+        if (!iterable)
             return;
 
         if (!(typeof iterable[Symbol.iterator] === 'function'))
@@ -88,17 +88,14 @@ class SuperSet extends Set {
             this.add(instance);
     }
 
-    remove(instance) {
-        if (instance == null)
-            return;
-
-        this.delete(instance);
+    remove(element) {
+        this.delete(element);
     }
 
     // Removing elements
     removeFromIterable(iterable) {
         //Check if iterable is really iterable
-        if (iterable == null)
+        if (!iterable)
             return;
 
         if (!(typeof iterable[Symbol.iterator] === 'function'))

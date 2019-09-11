@@ -60,6 +60,22 @@ class InstanceSet extends SuperSet {
             super.add(instance);
     }
 
+    // Override super method.
+    removeFromIterable(instances) {
+        this.removeInstances(instances);
+    }
+
+    // Removing Instances from Set
+    removeInstances(instances) {
+        if (!instances || !this.size)
+            return;
+
+        if (!(typeof instances[Symbol.iterator] === 'function'))
+            throw new Error('instances argument must be iterable.');
+        
+        instances.forEach(instance => this.remove(instance));
+    }
+
     // Set Math
     equals(instanceSet) {
         if (!(instanceSet instanceof InstanceSet))
@@ -103,13 +119,13 @@ class InstanceSet extends SuperSet {
     }
 
     static setsDifference(setA, setB) {
-        return new InstanceSet(setA.classModel, [...setA].filter(x => !setB.has(x)));
+        throw new Error('InstanceSet.setsDifference() is not implemented.');
     }
 
     // forEach, Map, Reduce
 
     mapToInstanceSet(callback) {
-        return new InstanceSet(this.ClassModel, [...this].map(callback));
+        return new InstanceSet(this.classModel, [...this].map(callback));
     }
 
     getInstanceIds() {

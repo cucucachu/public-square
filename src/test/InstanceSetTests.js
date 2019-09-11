@@ -586,6 +586,74 @@ describe('InstanceSet Tests', () => {
 
     });
 
+    describe('InstanceSet.remove()', () => {
+
+        it('instanceSet.remove() called with null does not affect the InstanceSet.', () => {
+            const instance = new Instance(SuperClass);
+            const instanceSet = new InstanceSet(SuperClass, [instance]);
+            instanceSet.remove(null);
+
+            if(instanceSet.size != 1 || !instanceSet.has(instance))
+                throw new Error('InstanceSet had instance removed.');
+        });
+
+        it('instanceSet.remove() called with undefined does not affect the InstanceSet.', () => {
+            const instance = new Instance(SuperClass);
+            const instanceSet = new InstanceSet(SuperClass, [instance]);
+            instanceSet.remove();
+
+            if(instanceSet.size != 1 || !instanceSet.has(instance))
+                throw new Error('InstanceSet had instance removed.');
+        });
+
+        it('instanceSet.remove() called on an empty InstanceSet does not affect the InstanceSet.', () => {
+            const instance = new Instance(SuperClass);
+            const instanceSet = new InstanceSet(SuperClass);
+            instanceSet.remove(instance);
+
+            if(instanceSet.size != 0 || instanceSet.classModel != SuperClass)
+                throw new Error('Something happened to the InstanceSet.');
+        });
+
+        it('instanceSet.remove() called on an InstanceSet with an Instance not in the InstanceSet does not affect the InstanceSet.', () => {
+            const instance1 = new Instance(SuperClass);
+            const instance2 = new Instance(SuperClass);
+            const instanceSet = new InstanceSet(SuperClass, [instance1]);
+            instanceSet.remove(instance2);
+
+            if(instanceSet.size != 1 || !instanceSet.has(instance1))
+                throw new Error('InstanceSet had instance removed.');
+
+        });
+
+        it('instanceSet.remove() removes the given Instance from the InstanceSet.', () => {
+            const instance = new Instance(SuperClass);
+            const instanceSet = new InstanceSet(SuperClass);
+            instanceSet.add(instance);
+            instanceSet.remove(instance);
+
+            if(instanceSet.size != 0 || instanceSet.has(instance))
+                throw new Error('Instance was not removed from InstanceSet.');
+
+        });
+
+        it('instanceSet.remove() called twice with the same instance removes the given Instance from the InstanceSet.', () => {
+            const instance = new Instance(SuperClass);
+            const instanceSet = new InstanceSet(SuperClass);
+            instanceSet.add(instance);
+            instanceSet.remove(instance);
+            instanceSet.remove(instance);
+
+            if(instanceSet.size != 0 || instanceSet.has(instance))
+                throw new Error('Instance was not removed from InstanceSet.');
+        });
+
+    });
+
+    describe('InstanceSet.removeInstances()', () => {
+
+    });
+
     describe('InstanceSet.union()', () => {
 
         it('instanceSet.union() throws an error if argument is not an InstanceSet.', () => {
@@ -650,6 +718,51 @@ describe('InstanceSet Tests', () => {
 
             if (union.classModel !== SuperClass) 
                 throw new Error('union returned an InstanceSet with an unexpected ClassModel.');
+        });
+
+    });
+
+    describe('InstanceSet.mapToInstanceSet(', () => {
+
+        it('instanceSet.mapToInstanceSet() returns an InstanceSet.', () => {
+            const instanceSet = new InstanceSet(SuperClass);
+            const mapped = instanceSet.mapToInstanceSet(x => x);
+            if (!(mapped instanceof InstanceSet))
+                throw new Error('instanceSet.mapToInstanceSet() returned something other than an InstanceSet.');
+        });
+
+        it('instanceSet.mapToInstanceSet() returns an InstanceSet with the same ClassModel as the InstanceSet it was called on.', () => {
+            const instanceSet = new InstanceSet(SuperClass);
+            const mapped = instanceSet.mapToInstanceSet(x => x);
+            if (mapped.classModel !== SuperClass)
+                throw new Error('instanceSet.mapToInstanceSet() returned an InstanceSet with a different ClassModel.');
+        });
+
+        it('instanceSet.mapToInstanceSet() throws an error if callback returns something that isn\'t an instance.', () => {
+            const instanceSet = new InstanceSet(SuperClass, [new Instance(SuperClass)]);
+            const expectedErrorMessage = 'Illegal attempt to add something other than instances to an InstanceSet.';
+
+            testForError('instanceSet.mapToInstanceSet()', expectedErrorMessage, () => {
+                instanceSet.mapToInstanceSet(x => x.id);
+            });
+        });
+
+        it('instanceSet.mapToInstanceSet() throws an error if callback returns an instance of a different ClassModel.', () => {
+            const instanceSet = new InstanceSet(SuperClass, [new Instance(SuperClass)]);
+            const expectedErrorMessage = 'Illegal attempt to add instances of a different class to an InstanceSet.';
+
+            testForError('instanceSet.mapToInstanceSet()', expectedErrorMessage, () => {
+                instanceSet.mapToInstanceSet(() => {
+                    return new Instance(TestClassWithNumber);
+                });
+            });
+        });
+
+        it('instanceSet.mapToInstanceSet() works properly.', () => {
+            const instanceSet = new InstanceSet(SuperClass, [new Instance(SuperClass), new Instance(SubClassOfSuperClass)]);
+            const mapped = instanceSet.mapToInstanceSet(x => x);
+            if (!mapped.equals(instanceSet))
+                throw new Error('instanceSet.mapToInstanceSet() did not work as expected.');
         });
 
     });
