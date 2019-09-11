@@ -74,7 +74,7 @@ describe('InstanceSet Tests', () => {
             });
             
             it('Constructor throws an error if instances argument is not an iterable of instances.', () => {
-                const expectedErrorMessage = 'Illegal attempt to add something other than Instances to an InstanceSet.'
+                const expectedErrorMessage = 'Illegal attempt to add something other than instances to an InstanceSet.'
                 const instances = ['1', 2];
                 testForError('new InstanceSet()', expectedErrorMessage, () => {
                     const instanceSet = new InstanceSet(TestClassWithNumber, instances);
@@ -372,7 +372,7 @@ describe('InstanceSet Tests', () => {
 
         it('instanceSet.add() throws an error if argument is not an instance.', () => {
             const instanceSet = new InstanceSet(SuperClass);
-            const expectedErrorMessage = 'Illegal attempt to add something other than Instances to an InstanceSet.';
+            const expectedErrorMessage = 'Illegal attempt to add something other than instances to an InstanceSet.';
 
             testForError('instanceSet.add()', expectedErrorMessage, () => {
                 instanceSet.add(1);
@@ -495,7 +495,7 @@ describe('InstanceSet Tests', () => {
 
         it('instanceSet.addInstances() throws an error if given instances are not instances.', () => {
             const instanceSet = new InstanceSet(SuperClass);
-            const expectedErrorMessage = 'Illegal attempt to add something other than Instances to an InstanceSet.';
+            const expectedErrorMessage = 'Illegal attempt to add something other than instances to an InstanceSet.';
 
             testForError('instanceSet.addInstances()', expectedErrorMessage, () => {
                 instanceSet.addInstances([1]);
@@ -582,6 +582,74 @@ describe('InstanceSet Tests', () => {
 
             if (instanceSet.size != 1 || !instanceSet.has(instance))
                 throw new Error('Instances were not added to set.')
+        });
+
+    });
+
+    describe('InstanceSet.union()', () => {
+
+        it('instanceSet.union() throws an error if argument is not an InstanceSet.', () => {
+            const instanceSet = new InstanceSet(SuperClass);
+            const expectedErrorMessage = 'instanceSet.union() called with argument which is not an InstanceSet';
+            testForError('instanceSet.union()', expectedErrorMessage, () => {
+                instanceSet.union(1);
+            });
+        });
+
+        it('Cannot Union two sets if second set constains instances of a ClassModel that is not the first InstanceSet\'s classModel.', () => {
+            const instanceSet1 = new InstanceSet(SuperClass, [new Instance(SuperClass)]);
+            const instanceSet2 = new InstanceSet(TestClassWithNumber, [new Instance(TestClassWithNumber)]);
+            const expectedErrorMessage = 'Illegal attempt to add instances of a different class to an InstanceSet.';
+
+            testForError('instanceSet.union()', expectedErrorMessage, () => {
+                instanceSet1.union(instanceSet2);
+            });
+        });
+
+        it('instanceSet.union() returns an InstanceSet equal to the InstanceSet called with itself.', () => {
+            const instanceSet = new InstanceSet(SuperClass, [new Instance(SuperClass)]);
+            const union = instanceSet.union(instanceSet);
+            if (!union.equals(instanceSet))
+                throw new Error('Union does not equal the original InstanceSet');
+        });
+
+        it('instanceSet.union() returns an InstanceSet equal to the InstanceSet called on if argument is null.', () => {
+            const instanceSet = new InstanceSet(SuperClass, [new Instance(SuperClass)]);
+            const union = instanceSet.union(null);
+            if (!union.equals(instanceSet))
+                throw new Error('Union does not equal the original InstanceSet');
+
+        });
+
+        it('instanceSet.union() returns an InstanceSet equal to the InstanceSet called on if argument is undefined.', () => {
+            const instanceSet = new InstanceSet(SuperClass, [new Instance(SuperClass)]);
+            const union = instanceSet.union();
+            if (!union.equals(instanceSet))
+                throw new Error('Union does not equal the original InstanceSet');
+
+        });
+
+        it('instanceSet.union() returns an InstanceSet.', () => {
+            const instance1 = new Instance(SuperClass);
+            const instance2 = new Instance(SubClassOfSuperClass);
+            const instanceSet1 = new InstanceSet(SuperClass, [instance1]);
+            const instanceSet2 = new InstanceSet(SubClassOfSuperClass, [instance2]);
+            const union = instanceSet1.union(instanceSet2);
+            const expected = new InstanceSet(SuperClass, [instance1, instance2]);
+
+            if (!union.equals(expected))
+                throw new Error('Union does not equal the expected InstanceSet');
+        });
+
+        it('instanceSet.union() returns an InstanceSet with the same classModel as the InstanceSet called on.', () => {
+            const instance1 = new Instance(SuperClass);
+            const instance2 = new Instance(SubClassOfSuperClass);
+            const instanceSet1 = new InstanceSet(SuperClass, [instance1]);
+            const instanceSet2 = new InstanceSet(SubClassOfSuperClass, [instance2]);
+            const union = instanceSet1.union(instanceSet2);
+
+            if (union.classModel !== SuperClass) 
+                throw new Error('union returned an InstanceSet with an unexpected ClassModel.');
         });
 
     });

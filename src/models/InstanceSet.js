@@ -25,7 +25,7 @@ class InstanceSet extends SuperSet {
 
         instances.forEach(instance => {
             if (!(instance instanceof Instance))
-                throw new Error('Illegal attempt to add something other than Instances to an InstanceSet.');
+                throw new Error('Illegal attempt to add something other than instances to an InstanceSet.');
             if (!instance.isInstanceOf(classModel))
                 throw new Error('Illegal attempt to add instances of a different class to an InstanceSet.');
         });
@@ -51,7 +51,7 @@ class InstanceSet extends SuperSet {
 
     addInstances(instances) {
         //Check if iterable is really iterable
-        if (instances == null)
+        if (!instances)
             return;
 
         InstanceSet.addInstancesValidations(this.classModel, instances);
@@ -90,7 +90,13 @@ class InstanceSet extends SuperSet {
     }
 
     union(instanceSet) {
-        let combination = new InstanceSet();
+        if (!instanceSet)
+            return new InstanceSet(this.classModel, this);
+
+        if (!(instanceSet instanceof InstanceSet))
+            throw new Error('instanceSet.union() called with argument which is not an InstanceSet');
+    
+        let combination = new InstanceSet(this.classModel);
 
         [...this, ...instanceSet].forEach(instance => combination.add(instance));
         return combination;
