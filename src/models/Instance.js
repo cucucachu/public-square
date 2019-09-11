@@ -135,14 +135,14 @@ class Instance {
     async delete() {
         if (!this.saved)
             throw new Error('instance.delete(): You cannot delete an instance which hasn\'t been saved yet');
-            
+
         await this.classModel.delete(this[doc]);
         this.deleted = true;
         return true;
     }
 
-    isInstanceOfClass(classModel) {
-        return classModel.isInstanceOfClassOrSubClass(this[doc]);
+    isInstanceOf(classModel) {
+        return classModel.isInstanceOfThisClass(this);
     }
 }
 

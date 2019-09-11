@@ -7,59 +7,40 @@ const database = require('../dist/models/database');
 const ClassModel = require('../dist/models/ClassModel');
 const Instance = require('../dist/models/Instance');
 const TestClassModels = require('./TestClassModels');
+const TestingFunctions = require('./TestingFunctions');
+const testForError = TestingFunctions.testForError;
+const testForErrorAsync = TestingFunctions.testForErrorAsync;
 
 // Load all TestClassModels 
 {
+    // Compare Classes
     var CompareClass1 = TestClassModels.CompareClass1;
     var CompareClass2 = TestClassModels.CompareClass2;
+
+    // Simple Classes
     var TestClassWithNumber = TestClassModels.TestClassWithNumber;
     var TestClassWithBoolean = TestClassModels.TestClassWithBoolean;
     var TestClassWithAllSimpleFields = TestClassModels.TestClassWithAllSimpleFields;
+
+    // Validation Classes
     var AllFieldsRequiredClass = TestClassModels.AllFieldsRequiredClass;
     var AllFieldsInRequiredGroupClass = TestClassModels.AllFieldsInRequiredGroupClass;
     var AbstractClass = TestClassModels.AbstractClass;
-}
 
-function testForError(functionName, expectedErrorMessage, functionToCall) {
-    let errorThrown = false;
-
-    try {
-        functionToCall();
-    }
-    catch (error) {
-        if (error.message != expectedErrorMessage) {
-            throw new Error(
-                functionName + ' threw an error, but not the expected one.\n' + 
-                'expected: ' + expectedErrorMessage + '\n' + 
-                'actual:   ' + error.message
-            )
-        }
-        errorThrown = true;
-    }
-
-    if (!errorThrown)
-        throw new Error(functionName + ' did not throw an error when it should have.');
-}
-
-async function testForErrorAsync(functionName, expectedErrorMessage, functionToCall) {
-    let errorThrown = false;
-
-    try {
-        await functionToCall();
-    }
-    catch (error) {
-        if (error.message != expectedErrorMessage) {
-            throw new Error(
-                functionName + ' threw an error, but not the expected one.\n' + 
-                'expected: ' + expectedErrorMessage + '\n' + 
-                'actual:   ' + error.message
-            )
-        }
-        errorThrown = true;
-    }
-
-    if (!errorThrown)
-        throw new Error(functionName + ' did not throw an error when it should have.');
+    // Inheritance Classes
+    var SuperClass = TestClassModels.SuperClass;
+    var AbstractSuperClass = TestClassModels.AbstractSuperClass;
+    var DiscriminatedSuperClass = TestClassModels.DiscriminatedSuperClass;
+    var AbstractDiscriminatedSuperClass = TestClassModels.AbstractDiscriminatedSuperClass;
+    var SubClassOfSuperClass = TestClassModels.SubClassOfSuperClass;
+    var SubClassOfAbstractSuperClass = TestClassModels.SubClassOfAbstractSuperClass;
+    var AbstractSubClassOfSuperClass = TestClassModels.AbstractSubClassOfSuperClass;
+    var SubClassOfMultipleSuperClasses = TestClassModels.SubClassOfMultipleSuperClasses;
+    var SubClassOfDiscriminatorSuperClass = TestClassModels.SubClassOfDiscriminatorSuperClass;
+    var DiscriminatedSubClassOfSuperClass = TestClassModels.DiscriminatedSubClassOfSuperClass;
+    var SubClassOfDiscriminatedSubClassOfSuperClass = TestClassModels.SubClassOfDiscriminatedSubClassOfSuperClass;
+    var SubClassOfSubClassOfSuperClass = TestClassModels.SubClassOfSubClassOfSuperClass;
+    var SubClassOfAbstractSubClassOfSuperClass = TestClassModels.SubClassOfAbstractSubClassOfSuperClass;
 }
 
 
@@ -80,6 +61,10 @@ describe('Instance Tests', () => {
 
     before(async () => {
         await database.connect();
+    });
+
+    after(() => {
+        database.close();
     });
 
     describe('Instance.constructor Tests', () => {
@@ -852,8 +837,50 @@ describe('Instance Tests', () => {
 
     });
 
-    after(() => {
-        database.close();
+    describe('instance.isInstanceOf()', () => {
+        
+        it('When called with it\'s own class, returns true', () => {
+            const instance = new Instance(TestClassWithNumber);
+            if (!instance.isInstanceOf(TestClassWithNumber))
+                throw new Error('isInstanceOf() returned false.');
+        });
+        
+        it('When called with a super class, returns true', () => {
+            const instance = new Instance(SubClassOfSuperClass);
+            if (!instance.isInstanceOf(SuperClass))
+                throw new Error('isInstanceOf() returned false.');
+        });
+        
+        it('When called with a discriminated super class, returns true', () => {
+            const instance = new Instance(SubClassOfDiscriminatorSuperClass);
+            if (!instance.isInstanceOf(DiscriminatedSuperClass))
+                throw new Error('isInstanceOf() returned false.');
+        });
+        
+        it('When called with a sub class of a discriminated sub class of a super class, returns true', () => {
+            const instance = new Instance(SubClassOfDiscriminatedSubClassOfSuperClass);
+            if (!instance.isInstanceOf(SuperClass))
+                throw new Error('isInstanceOf() returned false.');
+        });
+        
+        it('When called with a abstract super class, returns true', () => {
+            const instance = new Instance(SubClassOfAbstractSuperClass);
+            if (!instance.isInstanceOf(AbstractSuperClass))
+                throw new Error('isInstanceOf() returned false.');
+        });
+        
+        it('When called with an unrelated class, throws an error.', () => {
+            const instance = new Instance(TestClassWithBoolean);
+            if (instance.isInstanceOf(TestClassWithNumber))
+                throw new Error('isInstanceOf returned true.');
+        });
+        
+        it('When called with a subclass of the class of instance, throws an error.', () => {
+            const instance = new Instance(SuperClass);
+            if (instance.isInstanceOf(SubClassOfSuperClass))
+                throw new Error('isInstanceOf returned true.');
+        });
+
     });
 
 

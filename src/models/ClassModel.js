@@ -70,6 +70,7 @@ class ClassModel {
 
         this.className = parameters.className;
         this.subClasses = [];
+        this.discriminatedSubClasses = [];
         this.abstract = parameters.abstract;
         this.discriminated = parameters.discriminated;
         this.accessControlled = parameters.accessControlled;
@@ -163,6 +164,7 @@ class ClassModel {
         // If discriminatorSuperClass is set, create the Model as a discriminator of that class. Otherwise create a stand-alone Model.
         if (this.discriminatorSuperClass) {
             this.Model = this.discriminatorSuperClass.Model.discriminator(this.className, schemaObject);
+            this.discriminatorSuperClass.discriminatedSubClasses.push(this);
         }
         else {
             if (!this.abstract || (this.abstract && this.discriminated))
@@ -195,6 +197,23 @@ class ClassModel {
         for (let index in this.subClasses)
             if (this.subClasses[index].isInstanceOfClassOrSubClass(instance)) 
                 return true;
+
+        return false;
+    }
+
+    isInstanceOfThisClass(instance) {
+        if (instance.classModel === this)
+            return true;
+        
+        for (const subClass of this.subClasses) {
+            if (subClass.isInstanceOfThisClass(instance))
+                return true;
+        }
+
+        for (const subClass of this.discriminatedSubClasses) {
+            if (subClass.isInstanceOfThisClass(instance))
+                return true;
+        }
 
         return false;
     }

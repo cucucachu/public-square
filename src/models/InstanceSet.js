@@ -5,24 +5,28 @@ const Instance = require('./Instance');
 const SuperSet = require('./SuperSet');
 
 class InstanceSet extends SuperSet {
+
     constructor(classModel, instances) {
-        constructorValidations(classModel, instances);
+        InstanceSet.constructorValidations(classModel, instances);
         super(instances);
     }
 
     static constructorValidations(classModel, instances) {
         if (!(classModel instanceof ClassModel))
             throw new Error('InstanceSet.constructor() first argument must be an instance of ClassModel.');
-        InstanceSet.addInstanceValidations(classModel, instances);
+        InstanceSet.addInstancesValidations(classModel, instances);
     }
 
-    static addInstanceValidations(classModel, instances) {
+    static addInstancesValidations(classModel, instances) {
+        if (!(typeof instances[Symbol.iterator] === 'function'))
+            throw new Error('instances argument must be iterable.');
+
         instances.forEach(instance => {
             if (!(instance instanceof Instance))
                 throw new Error('Illegal attempt to add something other than Instances to an InstanceSet.');
-            if (instance.isInstanceOfClass(classModel))
+            if (!instance.isInstanceOf(classModel))
                 throw new Error('Illegal attempt to add instances of a different class to an InstanceSet.');
-        })
+        });
     }
 
     // Set Math
