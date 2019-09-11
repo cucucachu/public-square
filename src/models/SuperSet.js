@@ -34,6 +34,13 @@ class SuperSet extends Set {
         return new SuperSet([...this].filter(x => !superSet.has(x)));
     }
 
+    intersection(superSet) {
+        if (!(superSet instanceof SuperSet))
+            throw new Error('SuperSet.difference() argument is not an SuperSet.');
+
+        return new SuperSet([...this].filter(x => superSet.has(x)));
+    }
+
     union(superSet) {
         let combination = new SuperSet();
 

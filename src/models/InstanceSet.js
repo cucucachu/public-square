@@ -118,6 +118,19 @@ class InstanceSet extends SuperSet {
         return combination;
     }
 
+    intersection(instanceSet) {
+        if (!instanceSet)
+            return new InstanceSet(this.classModel);
+
+        if (!(instanceSet instanceof InstanceSet))
+            throw new Error('InstanceSet.intersection() argument is not an InstanceSet.');
+            
+        if (instanceSet.size == 0 || this.size == 0)
+            return new InstanceSet(this.classModel);
+        
+        return new InstanceSet(this.classModel, [...this].filter(x => instanceSet.has(x)));
+    }
+
     static setsDifference(setA, setB) {
         throw new Error('InstanceSet.setsDifference() is not implemented.');
     }

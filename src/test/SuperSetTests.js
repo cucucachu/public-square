@@ -125,6 +125,21 @@ describe('SuperSet Tests', () => {
         
             });
 
+            describe('SuperSet.instersection()', () => {
+
+                it('Set Intersection works as expected.', () => {
+                    const setA = new SuperSet([1, 2, 3]);
+                    const setB = new SuperSet([3, 4, 5]);
+                    const expected = new SuperSet([3]);
+        
+                    const setsDifference = setA.intersection(setB);
+        
+                    if (setsDifference.equals(expected))
+                        return false;
+                });              
+
+            });
+
         });
 
         describe('Static set math functions', () => {
