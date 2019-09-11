@@ -61,11 +61,11 @@ class SuperSet extends Set {
         [...this].forEach(callback);
     }
 
-    map(callback) {
+    mapToSuperSet(callback) {
         return new SuperSet([...this].map(callback));
     }
 
-    mapToArray(callback) {
+    map(callback) {
         return [...this].map(callback);
     }
 

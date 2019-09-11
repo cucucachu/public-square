@@ -95,6 +95,13 @@ class Instance {
 
     }
 
+    toString() {
+        return 'Instance of ' + this.classModel.className + '\n' + 
+        'saved:   ' + this.saved + '\n' + 
+        'deleted: ' + this.deleted + '\n' + 
+        'doc:     ' + this[doc]
+    }
+
     assign(object) {
         const documentProperties = Object.keys(this.classModel.schema);
         for (const key in object) {
@@ -143,6 +150,16 @@ class Instance {
 
     isInstanceOf(classModel) {
         return classModel.isInstanceOfThisClass(this);
+    }
+
+    equals(instance) {
+        if (!(instance instanceof Instance))
+            throw new Error('instance.equals called with something that is not an instance.');
+        if (instance.classModel !== this.classmodel)
+            return false;
+        if (instance.id != this.id)
+            return false;
+        return true;
     }
 }
 

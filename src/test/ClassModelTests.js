@@ -4906,7 +4906,7 @@ describe('Class Model Tests', function() {
                 it('Update Control Check called on Class with only direct instances of Class.', async () => {
                     const instances = [instanceOfUpdateControlledSuperClassPasses, instanceOfUpdateControlledSuperClassFailsRelationship];
                     const instancesExpectedToFail = new SuperSet([instanceOfUpdateControlledSuperClassFailsRelationship]);
-                    const expectedInstanceIds = instancesExpectedToFail.mapToArray(instance => instance.id);
+                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
                     let passed = false;
 
@@ -4942,7 +4942,7 @@ describe('Class Model Tests', function() {
                         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
                         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship
                     ]);
-                    const expectedInstanceIds = instancesExpectedToFail.mapToArray(instance => instance.id);
+                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
                     let passed = false;
 
@@ -4995,7 +4995,7 @@ describe('Class Model Tests', function() {
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
 
                     ]);
-                    const expectedInstanceIds = instancesExpectedToFail.mapToArray(instance => instance.id);
+                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
                     let passed = false;
 
@@ -5033,7 +5033,7 @@ describe('Class Model Tests', function() {
                         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
 
                     ]);
-                    const expectedInstanceIds = instancesExpectedToFail.mapToArray(instance => instance.id);
+                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
                     let passed = false;
 
@@ -5073,7 +5073,7 @@ describe('Class Model Tests', function() {
                         instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
                         instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship
                     ]);
-                    const expectedInstanceIds = instancesExpectedToFail.mapToArray(instance => instance.id);
+                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
                     let passed = false;
 
@@ -5122,7 +5122,7 @@ describe('Class Model Tests', function() {
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
                     ]);
-                    const expectedInstanceIds = instancesExpectedToFail.mapToArray(instance => instance.id);
+                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
                     let passed = false;
 
@@ -5161,7 +5161,7 @@ describe('Class Model Tests', function() {
                         instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
                         instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship
                     ]);
-                    const expectedInstanceIds = instancesExpectedToFail.mapToArray(instance => instance.id);
+                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
                     let passed = false;
 
@@ -5205,7 +5205,7 @@ describe('Class Model Tests', function() {
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
                     ]);
-                    const expectedInstanceIds = instancesExpectedToFail.mapToArray(instance => instance.id);
+                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
                     let passed = false;
 
@@ -5246,7 +5246,7 @@ describe('Class Model Tests', function() {
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
                     ]);
-                    const expectedInstanceIds = instancesExpectedToFail.mapToArray(instance => instance.id);
+                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
                     let passed = false;
 
@@ -5284,7 +5284,7 @@ describe('Class Model Tests', function() {
                 it('Instance fails update control check because of Numbers.', async () => {
                     const instances = [instanceOfUpdateControlledClassUpdateControlledByParameters];
                     const instancesExpectedToFail = new SuperSet([instanceOfUpdateControlledClassUpdateControlledByParameters]);
-                    const expectedInstanceIds = instancesExpectedToFail.mapToArray(instance => instance.id);
+                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
                     let passed = false;
 
@@ -5310,7 +5310,7 @@ describe('Class Model Tests', function() {
                 it('Instance fails update control check because of Boolean.', async () => {
                     const instances = [instanceOfUpdateControlledClassUpdateControlledByParameters];
                     const instancesExpectedToFail = new SuperSet([instanceOfUpdateControlledClassUpdateControlledByParameters]);
-                    const expectedInstanceIds = instancesExpectedToFail.mapToArray(instance => instance.id);
+                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
                     let passed = false;
 

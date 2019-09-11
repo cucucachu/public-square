@@ -942,7 +942,7 @@ class ClassModel {
         if (rejectedInstances.isEmpty())
             return true;
         else {
-            const rejectedInstanceIds = rejectedInstances.mapToArray(instance => instance.id);
+            const rejectedInstanceIds = rejectedInstances.map(instance => instance.id);
             throw new Error('Illegal attempt to update instances: ' + rejectedInstanceIds);
         }
     }

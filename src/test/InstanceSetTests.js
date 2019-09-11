@@ -119,6 +119,240 @@ describe('InstanceSet Tests', () => {
                     throw new Error('InstanceSet was created, but it does not contain the instances.');
             });
 
+            it('new InstanceSet() sets the classModel property.', () => {
+                const instanceSet = new InstanceSet(SuperClass);
+
+                if (instanceSet.classModel !== SuperClass)
+                    throw new Error('InstanceSet was created it\'s classModel property is not set.');
+            });
+
+            it('new InstanceSet() can create an empty InstanceSet.', () => {
+                const instanceSet = new InstanceSet(SuperClass);
+
+                if (instanceSet.size)
+                    throw new Error('InstanceSet was created but is not empty.');
+            });
+
+        });
+
+    });
+
+    describe('InstanceSet.getInstanceIds()', () => {
+
+        it('getInstanceIds returns an array of string object ids.', () => {
+            const instance1 = new Instance(SubClassOfSuperClass);
+            const instance2 = new Instance(SubClassOfDiscriminatedSubClassOfSuperClass);
+            const instances = [instance1, instance2];
+            const instanceSet = new InstanceSet(SuperClass, instances);
+            const expected = instances.map(instance => instance.id);
+            const ids = instanceSet.getInstanceIds();
+            if (ids.length != expected.length)
+                throw new Error('Wrong number of ids returned.');
+            
+            for (const id of expected) {
+                if (!ids.includes(id))
+                    throw new Error('Array of ids is missing ' + id + '.');
+            }
+        });
+
+        it('getInstanceIds called on an empty set returns an empty array.', () => {
+            const instanceSet = new InstanceSet(SuperClass,);
+            const ids = instanceSet.getInstanceIds();
+
+            if (!Array.isArray(ids))
+                throw new Error('getInstanceIds() returned a non array.');
+            
+            if (ids.length)
+                throw new Error('getInstanceIds() returned a non empty array. ' + ids);
+        });
+
+    });
+
+    describe('InstanceSet.equals()', () => {
+
+        it('Two InstanceSets with the same instances are equal.', () => {
+            const instance1 = new Instance(SubClassOfSuperClass);
+            const instance2 = new Instance(SubClassOfDiscriminatedSubClassOfSuperClass);
+            const instances = [instance1, instance2];
+            const instanceSet1 = new InstanceSet(SuperClass, instances);
+            const instanceSet2 = new InstanceSet(SuperClass, instances);
+
+            if (!instanceSet1.equals(instanceSet2))
+                throw new Error('InstanceSets are not equal.\n' + 
+                    'setA: ' + instanceSet1 + '\n' + 
+                    'setB: ' + instanceSet2
+                );
+        });
+
+        it('Two InstanceSets with the same instances are equal even if they are different classes.', () => {
+            const instance1 = new Instance(DiscriminatedSubClassOfSuperClass);
+            const instance2 = new Instance(SubClassOfDiscriminatedSubClassOfSuperClass);
+            const instances = [instance1, instance2];
+            const instanceSet1 = new InstanceSet(SuperClass, instances);
+            const instanceSet2 = new InstanceSet(DiscriminatedSubClassOfSuperClass, instances);
+
+            if (!instanceSet1.equals(instanceSet2))
+                throw new Error('InstanceSets are not equal.\n' + 
+                    'setA: ' + instanceSet1 + '\n' + 
+                    'setB: ' + instanceSet2
+                );
+        });
+
+        it('Empty Sets are equal.', () => {
+            const instanceSet1 = new InstanceSet(SuperClass);
+            const instanceSet2 = new InstanceSet(SuperClass);
+
+            if (!instanceSet1.equals(instanceSet2))
+                throw new Error('InstanceSets are not equal.\n' + 
+                    'setA: ' + instanceSet1 + '\n' + 
+                    'setB: ' + instanceSet2
+                );
+        });
+
+        it('Two InstanceSets with the different instances of the same class are not equal.', () => {
+            const instance1 = new Instance(SubClassOfSuperClass);
+            const instance2 = new Instance(SubClassOfSuperClass);
+            const instance3 = new Instance(SubClassOfSuperClass);
+            const instance4 = new Instance(SubClassOfSuperClass);
+            const instances1 = [instance1, instance2];
+            const instances2 = [instance3, instance4];
+            const instanceSet1 = new InstanceSet(SuperClass, instances1);
+            const instanceSet2 = new InstanceSet(SuperClass, instances2);
+
+            if (instanceSet1.equals(instanceSet2))
+                throw new Error('InstanceSets are equal.\n' + 
+                    'setA: ' + instanceSet1 + '\n' + 
+                    'setB: ' + instanceSet2
+                );
+        });
+
+        it('Two InstanceSets with the are not equal if one is a subset of the other.', () => {
+            const instance1 = new Instance(SubClassOfSuperClass);
+            const instance2 = new Instance(SubClassOfSuperClass);
+            const instance3 = new Instance(SubClassOfSuperClass);
+            const instances1 = [instance1, instance2, instance3];
+            const instances2 = [instance1, instance2];
+            const instanceSet1 = new InstanceSet(SuperClass, instances1);
+            const instanceSet2 = new InstanceSet(SuperClass, instances2);
+
+            if (instanceSet1.equals(instanceSet2))
+                throw new Error('InstanceSets are equal.\n' + 
+                    'setA: ' + instanceSet1 + '\n' + 
+                    'setB: ' + instanceSet2
+                );
+        });
+
+        it('Two InstanceSets with the are not equal if one is a subset of the other.', () => {
+            const instance1 = new Instance(SubClassOfSuperClass);
+            const instance2 = new Instance(SubClassOfSuperClass);
+            const instance3 = new Instance(SubClassOfSuperClass);
+            const instances1 = [instance1, instance2, instance3];
+            const instances2 = [instance1, instance2];
+            const instanceSet1 = new InstanceSet(SuperClass, instances2);
+            const instanceSet2 = new InstanceSet(SuperClass, instances1);
+
+            if (instanceSet1.equals(instanceSet2))
+                throw new Error('InstanceSets are equal.\n' + 
+                    'setA: ' + instanceSet1 + '\n' + 
+                    'setB: ' + instanceSet2
+                );
+        });
+
+    });
+
+    describe('InstanceSet.difference()', () => {
+
+        it('InstanceSet.difference() throws an error if passed something other than an instance set.', () => {
+            const instance1 = new Instance(SubClassOfSuperClass);
+            const instance2 = new Instance(SubClassOfDiscriminatedSubClassOfSuperClass);
+            const instances = [instance1, instance2];
+            const instanceSet = new InstanceSet(SuperClass, instances);
+            const expectedErrorMessage = 'InstanceSet.difference() argument is not an InstanceSet.';
+
+            testForError('instanceSet.difference()', expectedErrorMessage, () => {
+                instanceSet.difference(2);
+            });
+        });
+
+        it('InstanceSet.difference() returns a new InstanceSet', () => {
+            const instance1 = new Instance(SubClassOfSuperClass);
+            const instance2 = new Instance(SubClassOfSuperClass);
+            const instances = [instance1, instance2];
+            const instanceSet1 = new InstanceSet(SuperClass, instances);
+            const instanceSet2 = new InstanceSet(SuperClass, instances);
+            const difference = instanceSet1.difference(instanceSet2);
+
+            if (!(difference instanceof InstanceSet))
+                throw new Error('difference did not return an InstanceSet.');
+        });
+
+        it('InstanceSet.difference() returns an empty InstanceSet when called with the same InstanceSet.', () => {
+            const instance1 = new Instance(SubClassOfSuperClass);
+            const instance2 = new Instance(SubClassOfSuperClass);
+            const instances = [instance1, instance2];
+            const instanceSet = new InstanceSet(SuperClass, instances);
+
+            const difference = instanceSet.difference(instanceSet);
+
+            if (difference.size)
+                throw new Error('difference returned an InstanceSet with instances in it.');
+        });
+
+        it('InstanceSet.difference() returns an empty InstanceSet when both InstanceSets are equal.', () => {
+            const instance1 = new Instance(SubClassOfSuperClass);
+            const instance2 = new Instance(SubClassOfSuperClass);
+            const instances = [instance1, instance2];
+            const instanceSet1 = new InstanceSet(SuperClass, instances);
+            const instanceSet2 = new InstanceSet(SuperClass, instances);
+            const difference = instanceSet1.difference(instanceSet2);
+            
+            if (difference.size)
+                throw new Error('difference returned an InstanceSet with instances in it.');
+        });
+
+        it('InstanceSet.difference() returns an InstanceSet Equal to the first InstanceSet when InstanceSets do not overlap.', () => {
+            const instance1 = new Instance(SubClassOfSuperClass);
+            const instance2 = new Instance(SubClassOfSuperClass);
+            const instance3 = new Instance(SubClassOfSuperClass);
+            const instance4 = new Instance(SubClassOfSuperClass);
+            const instances1 = [instance1, instance2];
+            const instances2 = [instance3, instance4];
+            const instanceSet1 = new InstanceSet(SuperClass, instances1);
+            const instanceSet2 = new InstanceSet(SuperClass, instances2);
+            const difference = instanceSet1.difference(instanceSet2);
+
+            if (!difference.equals(instanceSet1))
+                throw new Error('difference does not equal the first InstanceSet.');
+        });
+
+        it('InstanceSet.difference() returns an InstanceSet that is the difference of the two InstanceSets.', () => {
+            const instance1 = new Instance(SubClassOfSuperClass);
+            const instance2 = new Instance(SubClassOfSuperClass);
+            const instance3 = new Instance(SubClassOfSuperClass);
+            const instances1 = [instance1, instance2];
+            const instances2 = [instance2, instance3];
+            const instanceSet1 = new InstanceSet(SuperClass, instances1);
+            const instanceSet2 = new InstanceSet(SuperClass, instances2);
+            const difference = instanceSet1.difference(instanceSet2);
+            const expected = new InstanceSet(SuperClass, [instance1]);
+
+            if (!difference.equals(expected))
+                throw new Error('difference is not what is expected.');
+        });
+
+        it('InstanceSet.difference() works even when InstanceSets are for different ClassModels', () => {
+            const instance1 = new Instance(SubClassOfSuperClass);
+            const instance2 = new Instance(SubClassOfSuperClass);
+            const instance3 = new Instance(SubClassOfSuperClass);
+            const instances1 = [instance1, instance2];
+            const instances2 = [instance2, instance3];
+            const instanceSet1 = new InstanceSet(SuperClass, instances1);
+            const instanceSet2 = new InstanceSet(SubClassOfSuperClass, instances2);
+            const difference = instanceSet1.difference(instanceSet2);
+            const expected = new InstanceSet(SubClassOfSuperClass, [instance1]);
+
+            if (!difference.equals(expected))
+                throw new Error('difference is not what is expected.');
         });
 
     });

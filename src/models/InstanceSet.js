@@ -9,12 +9,14 @@ class InstanceSet extends SuperSet {
     constructor(classModel, instances) {
         InstanceSet.constructorValidations(classModel, instances);
         super(instances);
+        this.classModel = classModel;
     }
 
     static constructorValidations(classModel, instances) {
         if (!(classModel instanceof ClassModel))
             throw new Error('InstanceSet.constructor() first argument must be an instance of ClassModel.');
-        InstanceSet.addInstancesValidations(classModel, instances);
+        if (instances)
+            InstanceSet.addInstancesValidations(classModel, instances);
     }
 
     static addInstancesValidations(classModel, instances) {
@@ -34,14 +36,28 @@ class InstanceSet extends SuperSet {
         if (!(instanceSet instanceof InstanceSet))
             throw new Error('InstanceSet.equals() argument is not an InstanceSet.');
         
-        return super.equals(instanceSet);
+        if (instanceSet.size != this.size)
+            return false;
+
+        if (this.size == 0 && instanceSet.size == 0)
+            return true;
+
+        const myIds = this.getInstanceIds();
+        const otherIds = instanceSet.getInstanceIds();
+
+        for (const id of otherIds) {
+            if (!(myIds.includes(id)))
+                return false;
+        }
+
+        return true;
     }
 
     difference(instanceSet) {
         if (!(instanceSet instanceof InstanceSet))
             throw new Error('InstanceSet.difference() argument is not an InstanceSet.');
 
-        return new InstanceSet([...this].filter(x => !instanceSet.has(x)));
+        return new InstanceSet(this.classModel, [...this].filter(x => !instanceSet.has(x)));
     }
 
     union(instanceSet) {
@@ -52,13 +68,13 @@ class InstanceSet extends SuperSet {
     }
 
     static setsDifference(setA, setB) {
-        return new InstanceSet([...setA].filter(x => !setB.has(x)));
+        return new InstanceSet(setA.classModel, [...setA].filter(x => !setB.has(x)));
     }
 
     // forEach, Map, Reduce
 
-    map(callback) {
-        return new InstanceSet([...this].map(callback));
+    mapToInstanceSet(callback) {
+        return new InstanceSet(this.ClassModel, [...this].map(callback));
     }
 
     // Adding elements
@@ -74,6 +90,10 @@ class InstanceSet extends SuperSet {
 
         for (const instance of iterable)
             this.add(instance);
+    }
+
+    getInstanceIds() {
+        return this.map(instance => instance.id);
     }
 
 }
