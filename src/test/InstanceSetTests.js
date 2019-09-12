@@ -984,9 +984,63 @@ describe('InstanceSet Tests', () => {
 
     });
 
-    describe('ForEach, Map, and Reduce', () => {
+    describe('ForEach, Map, Reduce, Filter', () => {
 
         describe('InstanceSet.forEach()', () => {
+
+            it('forEach() used to build a new InstanceSet.', () => {
+                const instance1 = new Instance(SuperClass);
+                const instance2 = new Instance(SuperClass);
+                const instances = [instance1, instance2];
+                const instanceSet = new InstanceSet(SuperClass, instances);
+                const newInstanceSet = new InstanceSet(SuperClass);
+
+                instanceSet.forEach((instance) => {
+                    newInstanceSet.add(instance);
+                });
+
+                if (!instanceSet.equals(newInstanceSet))
+                    throw new Error('forEach did not work properly.');
+                
+            });
+
+            it('forEach() used to filter an InstanceSet in place.', () => {
+                const instance1 = new Instance(TestClassWithNumber);
+                const instance2 = new Instance(TestClassWithNumber);
+                instance1.number = 1;
+                instance2.number = 2;
+                const instances = [instance1, instance2];
+                const instanceSet = new InstanceSet(TestClassWithNumber, instances);
+                const expected = new InstanceSet(TestClassWithNumber, [instance1]);
+
+                instanceSet.forEach((instance) => {
+                    if (instance.number != 1)
+                        instanceSet.remove(instance);
+                });
+
+                if (!instanceSet.equals(expected))
+                    throw new Error('forEach did not work properly.');
+                
+            });
+
+            it('forEach() used to set a property on each Instance in an InstanceSet.', () => {
+                const instance1 = new Instance(TestClassWithNumber);
+                const instance2 = new Instance(TestClassWithNumber);
+                instance1.number = 1;
+                instance2.number = 2;
+                const instances = [instance1, instance2];
+                const instanceSet = new InstanceSet(TestClassWithNumber, instances);
+
+                instanceSet.forEach((instance) => {
+                    instance.number = 3;
+                });
+
+                for (const instance of instanceSet) {
+                    if (instance.number != 3)
+                        throw new Error('properties were not changed.')
+                }
+                
+            });
 
         });
 
@@ -1036,6 +1090,10 @@ describe('InstanceSet Tests', () => {
         });
 
         describe('InstanceSet.reduce()', () => {
+
+        });
+
+        describe('InstanceSet.filter()', () => {
 
         });
 
