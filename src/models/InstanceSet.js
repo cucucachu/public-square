@@ -131,7 +131,6 @@ class InstanceSet extends SuperSet {
         return new InstanceSet(this.classModel, [...this].filter(x => instanceSet.has(x)));
     }
 
-    // Needs tests
     symmetricDifference(instanceSet) {
         if (!instanceSet)
             return new InstanceSet(this.classModel, this);
@@ -148,10 +147,14 @@ class InstanceSet extends SuperSet {
         throw new Error('InstanceSet.setsDifference() is not implemented.');
     }
 
-    // forEach, Map, Reduce
+    // forEach, Map, Reduce, Filter
 
     mapToInstanceSet(callback) {
         return new InstanceSet(this.classModel, [...this].map(callback));
+    }
+
+    filterToInstanceSet(callback) {
+        return new InstanceSet(this.classModel, [...this].filter(callback));
     }
 
     getInstanceIds() {

@@ -82,6 +82,10 @@ class SuperSet extends Set {
         return [...this].reduce(callback);
     }
 
+    filter(callback) {
+        return [...this].filter(callback);
+    }
+
     // Adding elements
     addFromIterable(iterable) {
         //Check if iterable is really iterable

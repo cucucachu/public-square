@@ -1044,7 +1044,29 @@ describe('InstanceSet Tests', () => {
 
         });
 
-        describe('InstanceSet.mapToInstanceSet(', () => {
+        describe('InstanceSet.map()', () => {
+
+            it('map() can return an array of some property of the instances in the set.', () => {
+                const instance1 = new Instance(TestClassWithNumber);
+                const instance2 = new Instance(TestClassWithNumber);
+                instance1.number = 1;
+                instance2.number = 2;
+                const instances = [instance1, instance2];
+                const instanceSet = new InstanceSet(TestClassWithNumber, instances);
+
+                const numbers = instanceSet.map(instance => instance.number);
+
+
+                for (const instance of instanceSet) {
+                    if (!numbers.includes(instance.number))
+                        throw new Error('Not all numbers returned.');
+                }
+
+            });
+
+        });
+
+        describe('InstanceSet.mapToInstanceSet()', () => {
     
             it('instanceSet.mapToInstanceSet() returns an InstanceSet.', () => {
                 const instanceSet = new InstanceSet(SuperClass);
@@ -1091,9 +1113,79 @@ describe('InstanceSet Tests', () => {
 
         describe('InstanceSet.reduce()', () => {
 
+            it('reduce() can return the sum of some property of the instances in the set.', () => {
+                const instance1 = new Instance(TestClassWithNumber);
+                const instance2 = new Instance(TestClassWithNumber);
+                instance1.number = 1;
+                instance2.number = 2;
+                const instances = [instance1, instance2];
+                const instanceSet = new InstanceSet(TestClassWithNumber, instances);
+
+                const sum = instanceSet.reduce((acc, instance) => acc + instance.number, 0);
+
+
+                if (sum != 3) 
+                    throw new Error('reduce did not produce the correct sum. Expected: 3, Actual ' + sum);
+            });
         });
 
         describe('InstanceSet.filter()', () => {
+
+            it('filter() can return an array of all the numbers in a set.', () => {
+                const instance1 = new Instance(TestClassWithNumber);
+                const instance2 = new Instance(TestClassWithNumber);
+                instance1.number = 1;
+                instance2.number = 2;
+                const instances = [instance1, instance2];
+                const instanceSet = new InstanceSet(TestClassWithNumber, instances);
+
+                const filteredArray = instanceSet.filter((instance) => {
+                    return instance.number == 1;
+                });
+
+                if (filteredArray.length != 1 || !(filteredArray[0].equals(instance1)))
+                    throw new Error('Array returned is not what is expected. Actual array: ' + filteredArray);
+
+            });
+
+        });
+
+        describe('InstanceSet.filterToInstanceSet()', () => {
+
+            it('filterToInstanceSet() can return an array of all the numbers in a set.', () => {
+                const instance1 = new Instance(TestClassWithNumber);
+                const instance2 = new Instance(TestClassWithNumber);
+                instance1.number = 1;
+                instance2.number = 2;
+                const instances = [instance1, instance2];
+                const instanceSet = new InstanceSet(TestClassWithNumber, instances);
+                const expected = new InstanceSet(TestClassWithNumber, [instance1]);
+
+                const filtered = instanceSet.filterToInstanceSet((instance) => {
+                    return instance.number == 1;
+                });
+
+                if (!filtered.equals(expected))
+                    throw new Error('filterToInstanceSet() did not filter as expected.');
+
+            });
+
+            it('filterToInstanceSet() returns an InstanceSet with the same ClassModel as the original InstanceSet', () => {
+                const instance1 = new Instance(TestClassWithNumber);
+                const instance2 = new Instance(TestClassWithNumber);
+                instance1.number = 1;
+                instance2.number = 2;
+                const instances = [instance1, instance2];
+                const instanceSet = new InstanceSet(TestClassWithNumber, instances);
+
+                const filtered = instanceSet.filterToInstanceSet((instance) => {
+                    return instance.number == 1;
+                });
+
+                if (filtered.classModel !== instanceSet.classModel)
+                    throw new Error('filterToInstanceSet() returned an InstanceSet with a difference ClassModel.');
+
+            });
 
         });
 

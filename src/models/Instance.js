@@ -155,7 +155,7 @@ class Instance {
     equals(instance) {
         if (!(instance instanceof Instance))
             throw new Error('instance.equals called with something that is not an instance.');
-        if (instance.classModel !== this.classmodel)
+        if (instance.classModel !== this.classModel)
             return false;
         if (instance.id != this.id)
             return false;
