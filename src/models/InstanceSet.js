@@ -131,6 +131,19 @@ class InstanceSet extends SuperSet {
         return new InstanceSet(this.classModel, [...this].filter(x => instanceSet.has(x)));
     }
 
+    // Needs tests
+    symmetricDifference(instanceSet) {
+        if (!instanceSet)
+            return new InstanceSet(this.classModel, this);
+
+        if (!(instanceSet instanceof InstanceSet))
+            throw new Error('InstanceSet.symmetricDifference() argument is not an InstanceSet.');
+
+        const union = this.union(instanceSet);
+        const intersection = this.intersection(instanceSet);
+        return union.difference(intersection);
+    }
+
     static setsDifference(setA, setB) {
         throw new Error('InstanceSet.setsDifference() is not implemented.');
     }

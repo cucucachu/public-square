@@ -883,6 +883,102 @@ describe('InstanceSet Tests', () => {
         });
 
         describe('InstanceSet.symmetricDifference()', () => {
+    
+            it('InstanceSet.symmetricDifference() throws an error if passed something other than an instance set.', () => {
+                const instance1 = new Instance(SubClassOfSuperClass);
+                const instance2 = new Instance(SubClassOfDiscriminatedSubClassOfSuperClass);
+                const instances = [instance1, instance2];
+                const instanceSet = new InstanceSet(SuperClass, instances);
+                const expectedErrorMessage = 'InstanceSet.symmetricDifference() argument is not an InstanceSet.';
+    
+                testForError('instanceSet.symmetricDifference()', expectedErrorMessage, () => {
+                    instanceSet.symmetricDifference(2);
+                });
+            });
+    
+            it('InstanceSet.symmetricDifference() returns a new InstanceSet', () => {
+                const instance1 = new Instance(SubClassOfSuperClass);
+                const instance2 = new Instance(SubClassOfSuperClass);
+                const instances = [instance1, instance2];
+                const instanceSet1 = new InstanceSet(SuperClass, instances);
+                const instanceSet2 = new InstanceSet(SuperClass, instances);
+                const symmetricDifference = instanceSet1.symmetricDifference(instanceSet2);
+    
+                if (!(symmetricDifference instanceof InstanceSet))
+                    throw new Error('symmetricDifference did not return an InstanceSet.');
+            });
+    
+            it('InstanceSet.symmetricDifference() returns an empty InstanceSet when called with the same InstanceSet.', () => {
+                const instance1 = new Instance(SubClassOfSuperClass);
+                const instance2 = new Instance(SubClassOfSuperClass);
+                const instances = [instance1, instance2];
+                const instanceSet = new InstanceSet(SuperClass, instances);
+                const expected = new InstanceSet(SuperClass);
+    
+                const symmetricDifference = instanceSet.symmetricDifference(instanceSet);
+    
+                if (!symmetricDifference.equals(expected))
+                    throw new Error('symmetricDifference returned an InstanceSet which is not empty.');
+            });
+    
+            it('InstanceSet.symmetricDifference() returns an empty InstanceSet when both InstanceSets are equal.', () => {
+                const instance1 = new Instance(SubClassOfSuperClass);
+                const instance2 = new Instance(SubClassOfSuperClass);
+                const instances = [instance1, instance2];
+                const instanceSet1 = new InstanceSet(SuperClass, instances);
+                const instanceSet2 = new InstanceSet(SuperClass, instances);
+                const expected = new InstanceSet(SuperClass);
+                const symmetricDifference = instanceSet1.symmetricDifference(instanceSet2);
+    
+                if (!symmetricDifference.equals(expected))
+                    throw new Error('symmetricDifference returned an InstanceSet which is not empty.');
+            });
+    
+            it('InstanceSet.symmetricDifference() returns the union of the two InstanceSets when InstanceSets do not overlap.', () => {
+                const instance1 = new Instance(SubClassOfSuperClass);
+                const instance2 = new Instance(SubClassOfSuperClass);
+                const instance3 = new Instance(SubClassOfSuperClass);
+                const instance4 = new Instance(SubClassOfSuperClass);
+                const instances1 = [instance1, instance2];
+                const instances2 = [instance3, instance4];
+                const instanceSet1 = new InstanceSet(SuperClass, instances1);
+                const instanceSet2 = new InstanceSet(SuperClass, instances2);
+                const expected = instanceSet1.union(instanceSet2);
+                const symmetricDifference = instanceSet1.symmetricDifference(instanceSet2);
+
+                if (!symmetricDifference.equals(expected))
+                    throw new Error('symmetricDifference returned an InstanceSet which is not the union of the two sets.');
+            });
+    
+            it('InstanceSet.symmetricDifference() returns an InstanceSet that is the symmetricDifference of the two InstanceSets.', () => {
+                const instance1 = new Instance(SubClassOfSuperClass);
+                const instance2 = new Instance(SubClassOfSuperClass);
+                const instance3 = new Instance(SubClassOfSuperClass);
+                const instances1 = [instance1, instance2];
+                const instances2 = [instance2, instance3];
+                const instanceSet1 = new InstanceSet(SuperClass, instances1);
+                const instanceSet2 = new InstanceSet(SuperClass, instances2);
+                const symmetricDifference = instanceSet1.symmetricDifference(instanceSet2);
+                const expected = new InstanceSet(SuperClass, [instance1, instance3]);
+    
+                if (!symmetricDifference.equals(expected))
+                    throw new Error('symmetricDifference is not what is expected.');
+            });
+    
+            it('InstanceSet.symmetricDifference() works even when InstanceSets are for different ClassModels', () => {
+                const instance1 = new Instance(SubClassOfSuperClass);
+                const instance2 = new Instance(SubClassOfSuperClass);
+                const instance3 = new Instance(SubClassOfSuperClass);
+                const instances1 = [instance1, instance2];
+                const instances2 = [instance2, instance3];
+                const instanceSet1 = new InstanceSet(SuperClass, instances1);
+                const instanceSet2 = new InstanceSet(SubClassOfSuperClass, instances2);
+                const symmetricDifference = instanceSet1.symmetricDifference(instanceSet2);
+                const expected = new InstanceSet(SuperClass, [instance1, instance3]);
+    
+                if (!symmetricDifference.equals(expected))
+                    throw new Error('symmetricDifference is not what is expected.');
+            });
 
         });
 
