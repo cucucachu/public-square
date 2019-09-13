@@ -3895,7 +3895,7 @@ describe('Class Model Tests', () => {
 
     });
 
-    describe.only('ClassModel.walkInstance()', () => {
+    describe('ClassModel.walkInstance()', () => {
 
         // Create instances for tests.
         {
@@ -4011,119 +4011,50 @@ describe('Class Model Tests', () => {
 
         });
 
-        describe.skip('Test walking the relationships.', () => {
+        describe('Test walking the relationships.', () => {
 
-            it('Walking a singular relationship.', function(done) {
-                let expectedInstance = instanceOfNonSingularRelationshipClass;
-                let error;
+            it('Walking a singular relationship.', async () => {
+                const expectedInstance = instanceOfNonSingularRelationshipClass;
+                const instance = await SingularRelationshipClass.walkInstance(instanceOfSingularRelationshipClassA, 'singularRelationship');
 
-                SingularRelationshipClass.walkInstance(instanceOfSingularRelationshipClassA, 'singularRelationship').then(
-                    (instance) => {
-                        if (instance == null) 
-                            error = new Error('walkInstance() did not return an instance.');
-                        if (!(instance._id.equals(expectedInstance._id)))
-                            error = new Error('walkInstance() returned an instance, but it is not the right one.');
-                    },
-                    (walkError) => {
-                        error = walkError;
-                    }
-                ).finally(() => {
-                    if (error)
-                        done(error);
-                    else   
-                        done();
-                });
+                if (!instance)
+                    throw new Error('walkInstance() did not return anything.');
 
+                if (!expectedInstance.equals(instance))
+                    throw new Error('walkInstance() did not return the correct instance.');
             });
 
-            it('Walking a nonsingular relationship.', function(done) {
-                let expectedInstances = [instanceOfSingularRelationshipClassA, instanceOfSingularRelationshipClassB];
-                let error;
+            it('Walking a nonsingular relationship.', async () => {
+                let expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
+                    instanceOfSingularRelationshipClassA,
+                    instanceOfSingularRelationshipClassB
+                ]);
+                const instanceSet = await NonSingularRelationshipClass.walkInstance(instanceOfNonSingularRelationshipClass, 'nonSingularRelationship');
 
-                NonSingularRelationshipClass.walkInstance(instanceOfNonSingularRelationshipClass, 'nonSingularRelationship').then(
-                    (instances) => {
-                        if (instances == null) 
-                            error = new Error('walkInstance() returned null. It should have at least returned an empty array.');
-                        if (instances.length == 0) 
-                            error = new Error('walkInstance() returned an empty array.');
-                        if (instances.length == 1) 
-                            error = new Error('walkInstance() only returned a single instance, it should have returned 2 instances.');
-                        expectedInstances.forEach((expectedInstance) => {
-                            let expectedInstanceFound = false;
-                            instances.forEach((instance) => {
-                                if (instance._id.equals(expectedInstance._id))
-                                    expectedInstanceFound = true;
-                            });
-                            if (!expectedInstanceFound) {
-                                error = new Error('One of the expected instances was not returned.');
-                            }
-                        });
-                    },
-                    (walkError) => {
-                        error = walkError;
-                    }
-                ).finally(() => {
-                    if (error)
-                        done(error);
-                    else   
-                        done();
-                });
+                if (!expectedInstanceSet.equals(instanceSet))
+                    throw new Error('walkInstance() did not return the correct instances.');
             });
 
-            it('Walking a singular relationship by calling walkInstance() from the super class.', function(done) {
-                let expectedInstance = instanceOfSubClassOfNonSingularRelationshipClass;
-                let error;
+            it.skip('Walking a singular relationship by calling walkInstance() from the super class.', async () => {
+                const expectedInstance = instanceOfSubClassOfNonSingularRelationshipClass;
+                const instance = await SingularRelationshipClass.walkInstance(instanceOfSubClassOfSingularRelationshipClassA, 'singularRelationship');
 
-                SingularRelationshipClass.walkInstance(instanceOfSubClassOfSingularRelationshipClassA, 'singularRelationship').then(
-                    (instance) => {
-                        if (instance == null) 
-                            error = new Error('walkInstance() did not return an instance.');
-                        if (!(instance._id.equals(expectedInstance._id)))
-                            error = new Error('walkInstance() returned an instance, but it is not the right one.');
-                    },
-                    (walkError) => {
-                        error = walkError;
-                    }
-                ).finally(() => {
-                    if (error)
-                        done(error);
-                    else   
-                        done();
-                });
+                if (!instance)
+                    throw new Error('walkInstance() did not return anything.');
+
+                if (!expectedInstance.equals(instance))
+                    throw new Error('walkInstance() did not return the correct instance.');
             });
 
-            it('Walking a nonsingular relationship by calling walkInstance() from the super class.', function(done) {
-                let expectedInstances = [instanceOfSubClassOfSingularRelationshipClassA._id, instanceOfSubClassOfSingularRelationshipClassB._id];
-                let error;
+            it('Walking a nonsingular relationship by calling walkInstance() from the super class.', async () => {
+                let expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
+                    instanceOfSubClassOfSingularRelationshipClassA,
+                    instanceOfSubClassOfSingularRelationshipClassB
+                ]);
+                const instanceSet = await NonSingularRelationshipClass.walkInstance(instanceOfSubClassOfNonSingularRelationshipClass, 'nonSingularRelationship');
 
-                NonSingularRelationshipClass.walkInstance(instanceOfSubClassOfNonSingularRelationshipClass, 'nonSingularRelationship').then(
-                    (instances) => {
-                        if (instances == null) 
-                            error = new Error('walkInstance() returned null. It should have at least returned an empty array.');
-                        if (instances.length == 0) 
-                            error = new Error('walkInstance() returned an empty array.');
-                        if (instances.length == 1) 
-                            error = new Error('walkInstance() only returned a single instance, it should have returned 2 instances.');
-                        expectedInstances.forEach((expectedInstance) => {
-                            let expectedInstanceFound = false;
-                            instances.forEach((instance) => {
-                                if (instance._id.equals(expectedInstance._id))
-                                    expectedInstanceFound = true;
-                            });
-                            if (!expectedInstanceFound) {
-                                error = new Error('One of the expected instances was not returned.');
-                            }
-                        });
-                    },
-                    (walkError) => {
-                        error = walkError;
-                    }
-                ).finally(() => {
-                    if (error)
-                        done(error);
-                    else   
-                        done();
-                });
+                if (!expectedInstanceSet.equals(instanceSet))
+                    throw new Error('walkInstance() did not return the correct instances.');
             });
 
         });

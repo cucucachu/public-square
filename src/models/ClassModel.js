@@ -867,7 +867,7 @@ class ClassModel {
         const singular = this.schema[relationship].type == Schema.Types.ObjectId;
         filter = filter ? filter : {}
 
-            // If relationship is to a singular instance, use findOne()
+            // If relationship is to a singular instance, use findOneInstance()
         if (singular) {
             if (instance[relationship] == null) {
                 return null;
@@ -879,7 +879,7 @@ class ClassModel {
                 return relatedClass.findOneInstance(filter);
             }
         }
-        // If nonsingular, use find()
+        // If nonsingular, use findInstanceSet()
         else {
             if (instance[relationship] == null || instance[relationship].length == 0) {
                 return [];
