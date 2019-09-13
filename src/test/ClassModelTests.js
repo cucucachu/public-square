@@ -67,6 +67,10 @@ describe('Class Model Tests', () => {
         await database.connect();
     });
 
+    after(() => {
+        database.close();
+    });
+
     describe('Class Model Constructor', () => {
 
         describe('Required constructor parameters', () => {
@@ -3551,14 +3555,18 @@ describe('Class Model Tests', () => {
             instanceOfSubClassOfNonSingularRelationshipClass.nonSingularRelationship = [instanceOfSubClassOfSingularRelationshipClassA._id, instanceOfSubClassOfSingularRelationshipClassB._id];
         }
 
-        before(function(done) {
-            SingularRelationshipClass.saveAll([instanceOfSingularRelationshipClassA, instanceOfSingularRelationshipClassB]).then(() => {
-                NonSingularRelationshipClass.save(instanceOfNonSingularRelationshipClass).then(() => {
-                    SubClassOfSingularRelationshipClass.saveAll([instanceOfSubClassOfSingularRelationshipClassA, instanceOfSubClassOfSingularRelationshipClassB]).then(() => {
-                        SubClassOfNonSingularRelationshipClass.save(instanceOfSubClassOfNonSingularRelationshipClass).finally(done);
-                    });
-                });
-            });
+        before(async () => {
+            await SingularRelationshipClass.saveAll([instanceOfSingularRelationshipClassA, instanceOfSingularRelationshipClassB]);
+            await NonSingularRelationshipClass.save(instanceOfNonSingularRelationshipClass);
+            await SubClassOfSingularRelationshipClass.saveAll([instanceOfSubClassOfSingularRelationshipClassA, instanceOfSubClassOfSingularRelationshipClassB]);
+            await SubClassOfNonSingularRelationshipClass.save(instanceOfSubClassOfNonSingularRelationshipClass);
+        });
+
+        after(async () => {
+            await SingularRelationshipClass.clear();
+            await NonSingularRelationshipClass.clear();
+            await SubClassOfSingularRelationshipClass.clear();
+            await SubClassOfNonSingularRelationshipClass.clear();
         });
 
         describe('Tests for invalid arguments.', () => {
@@ -3617,7 +3625,7 @@ describe('Class Model Tests', () => {
                 let expectedErrorMessage = 'SingularRelationshipClass.walk(): First argument needs to be an instance of SingularRelationshipClass\'s classModel or one of its sub classes.';
                 let error;
 
-                SingularRelationshipClass.walk(NonSingularRelationshipClass, '').then(
+                SingularRelationshipClass.walk(instanceOfNonSingularRelationshipClass, 'some_relationship').then(
                     () => {
                         error = new Error('ClassModel.walk() promise resolved when it should have rejected with an error.');
                     },
@@ -3880,16 +3888,6 @@ describe('Class Model Tests', () => {
                 });
             });
 
-        });
-
-        after(function(done) {
-            SingularRelationshipClass.clear().then(() => {
-                NonSingularRelationshipClass.clear().then(() => {
-                    SubClassOfSingularRelationshipClass.clear().then(() => {
-                        SubClassOfNonSingularRelationshipClass.clear().finally(done);
-                    });
-                });
-            });
         });
 
     });
@@ -5914,11 +5912,11 @@ describe('Class Model Tests', () => {
 
         });
 
-        describe.skip('Test Update Control Check throws error when an instance doesn\'t pass check.', () => {
+        describe('Test Update Control Check throws error when an instance doesn\'t pass check.', () => {
 
             describe('UpdateControlledSuperClass.updateControlCheckInstanceSet()', () => {
 
-                it('Update Control Check called on Class with only direct instances of Class.', async () => {
+                it.skip('Update Control Check called on Class with only direct instances of Class.', async () => {
                     const instanceSet = new InstanceSet(UpdateControlledSuperClass, [
                         instanceOfUpdateControlledSuperClassPasses,
                         instanceOfUpdateControlledSuperClassFailsRelationship
@@ -5947,686 +5945,682 @@ describe('Class Model Tests', () => {
                     }
                 });
 
-                // it('Update Control Check called on Class with instances of class and sub class.', async () => {
-                //     const instances = [
-                //         instanceOfUpdateControlledSuperClassPasses,
-                //         instanceOfUpdateControlledSuperClassFailsRelationship,
-                //         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
-                //         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
-                //         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship
-                //     ];
-                //     const instancesExpectedToFail = new SuperSet([
-                //         instanceOfUpdateControlledSuperClassFailsRelationship,
-                //         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
-                //         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship
-                //     ]);
-                //     const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-                //     const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-                //     let passed = false;
+                it.skip('Update Control Check called on Class with instances of class and sub class.', async () => {
+                    const instances = [
+                        instanceOfUpdateControlledSuperClassPasses,
+                        instanceOfUpdateControlledSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship
+                    ];
+                    const instancesExpectedToFail = new SuperSet([
+                        instanceOfUpdateControlledSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship
+                    ]);
+                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+                    let passed = false;
 
-                //     try {
-                //         await UpdateControlledSuperClass.updateControlCheckInstanceSet(instances);
-                //     }
-                //     catch (error) {
-                //         if (error.message != expectedErrorMessage) {
-                //             throw new Error(
-                //                 'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
-                //                 'expected: ' + expectedErrorMessage + '\n' + 
-                //                 'actual:   ' + error.message
-                //             );
-                //         }
-                //         passed = true;
-                //     }
+                    try {
+                        await UpdateControlledSuperClass.updateControlCheckInstanceSet(instances);
+                    }
+                    catch (error) {
+                        if (error.message != expectedErrorMessage) {
+                            throw new Error(
+                                'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
+                                'expected: ' + expectedErrorMessage + '\n' + 
+                                'actual:   ' + error.message
+                            );
+                        }
+                        passed = true;
+                    }
 
-                //     if (!passed) {
-                //         throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
-                //     }
-                // });
+                    if (!passed) {
+                        throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
+                    }
+                });
 
-                // it('Update Control Check called on Class with instances of class and 3 layers of sub classes', async () => {
-                //     const instances = [
-                //         instanceOfUpdateControlledSuperClassPasses,
-                //         instanceOfUpdateControlledSuperClassFailsRelationship,
-                //         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
-                //         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
-                //         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
-                //         instanceOfUpdateControlledDiscriminatedSuperClassPasses,
-                //         instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
-                //         instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-                //         instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
-                //         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses,
-                //         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
-                //         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
-                //         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-                //         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
-                //     ];
-                //     const instancesExpectedToFail = new SuperSet([                
-                //         instanceOfUpdateControlledSuperClassFailsRelationship,
-                //         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
-                //         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
-                //         instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
-                //         instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-                //         instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
-                //         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
-                //         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
-                //         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-                //         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
+                it.skip('Update Control Check called on Class with instances of class and 3 layers of sub classes', async () => {
+                    const instances = [
+                        instanceOfUpdateControlledSuperClassPasses,
+                        instanceOfUpdateControlledSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
+                        instanceOfUpdateControlledDiscriminatedSuperClassPasses,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
+                    ];
+                    const instancesExpectedToFail = new SuperSet([                
+                        instanceOfUpdateControlledSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
 
-                //     ]);
-                //     const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-                //     const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-                //     let passed = false;
+                    ]);
+                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+                    let passed = false;
 
-                //     try {
-                //         await UpdateControlledSuperClass.updateControlCheckInstanceSet(instances);
-                //     }
-                //     catch (error) {
-                //         if (error.message != expectedErrorMessage) {
-                //             throw new Error(
-                //                 'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
-                //                 'expected: ' + expectedErrorMessage + '\n' + 
-                //                 'actual:   ' + error.message
-                //             );
-                //         }
-                //         passed = true;
-                //     }
+                    try {
+                        await UpdateControlledSuperClass.updateControlCheckInstanceSet(instances);
+                    }
+                    catch (error) {
+                        if (error.message != expectedErrorMessage) {
+                            throw new Error(
+                                'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
+                                'expected: ' + expectedErrorMessage + '\n' + 
+                                'actual:   ' + error.message
+                            );
+                        }
+                        passed = true;
+                    }
 
-                //     if (!passed) {
-                //         throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
-                //     }
-                // });
+                    if (!passed) {
+                        throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
+                    }
+                });
 
             });
 
-        //     describe('UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckInstanceSet()', () => {
+            describe.skip('UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckInstanceSet()', () => {
 
-        //         it('Update Control Check called on Class with only direct instances of Class.', async () => {
-        //             const instances = [
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship
-        //             ];
-        //             const instancesExpectedToFail = new SuperSet([                
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
+                it('Update Control Check called on Class with only direct instances of Class.', async () => {
+                    const instances = [
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship
+                    ];
+                    const instancesExpectedToFail = new SuperSet([                
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
 
-        //             ]);
-        //             const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-        //             const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-        //             let passed = false;
+                    ]);
+                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+                    let passed = false;
 
-        //             try {
-        //                 await UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckInstanceSet(instances);
-        //             }
-        //             catch (error) {
-        //                 if (error.message != expectedErrorMessage) {
-        //                     throw new Error(
-        //                         'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
-        //                         'expected: ' + expectedErrorMessage + '\n' + 
-        //                         'actual:   ' + error.message
-        //                     );
-        //                 }
-        //                 passed = true;
-        //             }
+                    try {
+                        await UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckInstanceSet(instances);
+                    }
+                    catch (error) {
+                        if (error.message != expectedErrorMessage) {
+                            throw new Error(
+                                'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
+                                'expected: ' + expectedErrorMessage + '\n' + 
+                                'actual:   ' + error.message
+                            );
+                        }
+                        passed = true;
+                    }
 
-        //             if (!passed) {
-        //                 throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
-        //             }
-        //         });
+                    if (!passed) {
+                        throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
+                    }
+                });
 
-        //         it('Update Control Check called on Class with instances of class and 1 layers of sub classes', async () => {
-        //             const instances = [
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
-        //                 instanceOfUpdateControlledDiscriminatedSuperClassPasses,
-        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
-        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship
-        //             ];
-        //             const instancesExpectedToFail = new SuperSet([                
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
-        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
-        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship
-        //             ]);
-        //             const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-        //             const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-        //             let passed = false;
+                it('Update Control Check called on Class with instances of class and 1 layers of sub classes', async () => {
+                    const instances = [
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
+                        instanceOfUpdateControlledDiscriminatedSuperClassPasses,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship
+                    ];
+                    const instancesExpectedToFail = new SuperSet([                
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship
+                    ]);
+                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+                    let passed = false;
 
-        //             try {
-        //                 await UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckInstanceSet(instances);
-        //             }
-        //             catch (error) {
-        //                 if (error.message != expectedErrorMessage) {
-        //                     throw new Error(
-        //                         'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
-        //                         'expected: ' + expectedErrorMessage + '\n' + 
-        //                         'actual:   ' + error.message
-        //                     );
-        //                 }
-        //                 passed = true;
-        //             }
+                    try {
+                        await UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckInstanceSet(instances);
+                    }
+                    catch (error) {
+                        if (error.message != expectedErrorMessage) {
+                            throw new Error(
+                                'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
+                                'expected: ' + expectedErrorMessage + '\n' + 
+                                'actual:   ' + error.message
+                            );
+                        }
+                        passed = true;
+                    }
 
-        //             if (!passed) {
-        //                 throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
-        //             }
-        //         });
+                    if (!passed) {
+                        throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
+                    }
+                });
 
-        //         it('Update Control Check called on Class with instances of 2 layers of sub classes', async () => {
-        //             const instances = [
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
-        //                 instanceOfUpdateControlledDiscriminatedSuperClassPasses,
-        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
-        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
-        //             ];
-        //             const instancesExpectedToFail = new SuperSet([                
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
-        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
-        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
-        //             ]);
-        //             const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-        //             const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-        //             let passed = false;
+                it('Update Control Check called on Class with instances of 2 layers of sub classes', async () => {
+                    const instances = [
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
+                        instanceOfUpdateControlledDiscriminatedSuperClassPasses,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
+                    ];
+                    const instancesExpectedToFail = new SuperSet([                
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
+                    ]);
+                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+                    let passed = false;
 
-        //             try {
-        //                 await UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckInstanceSet(instances);
-        //             }
-        //             catch (error) {
-        //                 if (error.message != expectedErrorMessage) {
-        //                     throw new Error(
-        //                         'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
-        //                         'expected: ' + expectedErrorMessage + '\n' + 
-        //                         'actual:   ' + error.message
-        //                     );
-        //                 }
-        //                 passed = true;
-        //             }
+                    try {
+                        await UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckInstanceSet(instances);
+                    }
+                    catch (error) {
+                        if (error.message != expectedErrorMessage) {
+                            throw new Error(
+                                'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
+                                'expected: ' + expectedErrorMessage + '\n' + 
+                                'actual:   ' + error.message
+                            );
+                        }
+                        passed = true;
+                    }
 
-        //             if (!passed) {
-        //                 throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
-        //             }
-        //         });
+                    if (!passed) {
+                        throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
+                    }
+                });
 
-        //     });
+            });
 
-        //     describe('UpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet()', () => {
+            describe.skip('UpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet()', () => {
 
-        //         it('Update Control Check called on Class with only direct instances of Class.', async () => {
-        //             const instances = [
-        //                 instanceOfUpdateControlledDiscriminatedSuperClassPasses,
-        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
-        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship
-        //             ];
-        //             const instancesExpectedToFail = new SuperSet([
-        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
-        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship
-        //             ]);
-        //             const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-        //             const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-        //             let passed = false;
+                it('Update Control Check called on Class with only direct instances of Class.', async () => {
+                    const instances = [
+                        instanceOfUpdateControlledDiscriminatedSuperClassPasses,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship
+                    ];
+                    const instancesExpectedToFail = new SuperSet([
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship
+                    ]);
+                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+                    let passed = false;
 
-        //             try {
-        //                 await UpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet(instances);
-        //             }
-        //             catch (error) {
-        //                 if (error.message != expectedErrorMessage) {
-        //                     throw new Error(
-        //                         'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
-        //                         'expected: ' + expectedErrorMessage + '\n' + 
-        //                         'actual:   ' + error.message
-        //                     );
-        //                 }
-        //                 passed = true;
-        //             }
+                    try {
+                        await UpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet(instances);
+                    }
+                    catch (error) {
+                        if (error.message != expectedErrorMessage) {
+                            throw new Error(
+                                'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
+                                'expected: ' + expectedErrorMessage + '\n' + 
+                                'actual:   ' + error.message
+                            );
+                        }
+                        passed = true;
+                    }
 
-        //             if (!passed) {
-        //                 throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
-        //             }
-        //         });
+                    if (!passed) {
+                        throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
+                    }
+                });
 
-        //         it('Update Control Check called on Class with instances of 1 layers of sub classes', async () => {
-        //             const instances = [
-        //                 instanceOfUpdateControlledDiscriminatedSuperClassPasses,
-        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
-        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
-        //             ];
-        //             const instancesExpectedToFail = new SuperSet([
-        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
-        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
-        //             ]);
-        //             const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-        //             const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-        //             let passed = false;
+                it('Update Control Check called on Class with instances of 1 layers of sub classes', async () => {
+                    const instances = [
+                        instanceOfUpdateControlledDiscriminatedSuperClassPasses,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
+                    ];
+                    const instancesExpectedToFail = new SuperSet([
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
+                    ]);
+                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+                    let passed = false;
 
-        //             try {
-        //                 await UpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet(instances);
-        //             }
-        //             catch (error) {
-        //                 if (error.message != expectedErrorMessage) {
-        //                     throw new Error(
-        //                         'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
-        //                         'expected: ' + expectedErrorMessage + '\n' + 
-        //                         'actual:   ' + error.message
-        //                     );
-        //                 }
-        //                 passed = true;
-        //             }
+                    try {
+                        await UpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet(instances);
+                    }
+                    catch (error) {
+                        if (error.message != expectedErrorMessage) {
+                            throw new Error(
+                                'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
+                                'expected: ' + expectedErrorMessage + '\n' + 
+                                'actual:   ' + error.message
+                            );
+                        }
+                        passed = true;
+                    }
 
-        //             if (!passed) {
-        //                 throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
-        //             }
-        //         });
+                    if (!passed) {
+                        throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
+                    }
+                });
 
-        //     });
+            });
 
-        //     describe('UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet()', () => {
+            describe.skip('UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet()', () => {
 
-        //         it('Update Control Check called on Class with only direct instances of Class.', async () => {
-        //             const instances = [
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
-        //             ];
-        //             const instancesExpectedToFail = new SuperSet([
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
-        //             ]);
-        //             const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-        //             const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-        //             let passed = false;
+                it('Update Control Check called on Class with only direct instances of Class.', async () => {
+                    const instances = [
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
+                    ];
+                    const instancesExpectedToFail = new SuperSet([
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
+                    ]);
+                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+                    let passed = false;
 
-        //             try {
-        //                 await UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet(instances);
-        //             }
-        //             catch (error) {
-        //                 if (error.message != expectedErrorMessage) {
-        //                     throw new Error(
-        //                         'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
-        //                         'expected: ' + expectedErrorMessage + '\n' + 
-        //                         'actual:   ' + error.message
-        //                     );
-        //                 }
-        //                 passed = true;
-        //             }
+                    try {
+                        await UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet(instances);
+                    }
+                    catch (error) {
+                        if (error.message != expectedErrorMessage) {
+                            throw new Error(
+                                'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
+                                'expected: ' + expectedErrorMessage + '\n' + 
+                                'actual:   ' + error.message
+                            );
+                        }
+                        passed = true;
+                    }
 
-        //             if (!passed) {
-        //                 throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
-        //             }
-        //         });
+                    if (!passed) {
+                        throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
+                    }
+                });
 
-        //     });
+            });
 
-        //     describe('UpdateControlledClassUpdateControlledByParameters.updateControlCheckInstanceSet()', () => {
+            describe.skip('UpdateControlledClassUpdateControlledByParameters.updateControlCheckInstanceSet()', () => {
 
-        //         it('Update Control Check passes', async () => {
-        //             const updateAllowed = await UpdateControlledClassUpdateControlledByParameters.updateControlCheckInstanceSet([instanceOfUpdateControlledClassUpdateControlledByParameters], 1, 1, true);
+                it('Update Control Check passes', async () => {
+                    const updateAllowed = await UpdateControlledClassUpdateControlledByParameters.updateControlCheckInstanceSet([instanceOfUpdateControlledClassUpdateControlledByParameters], 1, 1, true);
                     
-        //             if (!updateAllowed) {
-        //                 throw new Error('Update check passed when it should have thrown an error.');
-        //             }
-        //         });
+                    if (!updateAllowed) {
+                        throw new Error('Update check passed when it should have thrown an error.');
+                    }
+                });
 
-        //         it('Instance fails update control check because of Numbers.', async () => {
-        //             const instances = [instanceOfUpdateControlledClassUpdateControlledByParameters];
-        //             const instancesExpectedToFail = new SuperSet([instanceOfUpdateControlledClassUpdateControlledByParameters]);
-        //             const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-        //             const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-        //             let passed = false;
+                it('Instance fails update control check because of Numbers.', async () => {
+                    const instances = [instanceOfUpdateControlledClassUpdateControlledByParameters];
+                    const instancesExpectedToFail = new SuperSet([instanceOfUpdateControlledClassUpdateControlledByParameters]);
+                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+                    let passed = false;
 
-        //             try {
-        //                 await UpdateControlledClassUpdateControlledByParameters.updateControlCheckInstanceSet(instances, -2, 1, true);
-        //             }
-        //             catch (error) {
-        //                 if (error.message != expectedErrorMessage) {
-        //                     throw new Error(
-        //                         'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
-        //                         'expected: ' + expectedErrorMessage + '\n' + 
-        //                         'actual:   ' + error.message
-        //                     );
-        //                 }
-        //                 passed = true;
-        //             }
+                    try {
+                        await UpdateControlledClassUpdateControlledByParameters.updateControlCheckInstanceSet(instances, -2, 1, true);
+                    }
+                    catch (error) {
+                        if (error.message != expectedErrorMessage) {
+                            throw new Error(
+                                'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
+                                'expected: ' + expectedErrorMessage + '\n' + 
+                                'actual:   ' + error.message
+                            );
+                        }
+                        passed = true;
+                    }
 
-        //             if (!passed) {
-        //                 throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
-        //             }
-        //         });
+                    if (!passed) {
+                        throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
+                    }
+                });
 
-        //         it('Instance fails update control check because of Boolean.', async () => {
-        //             const instances = [instanceOfUpdateControlledClassUpdateControlledByParameters];
-        //             const instancesExpectedToFail = new SuperSet([instanceOfUpdateControlledClassUpdateControlledByParameters]);
-        //             const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-        //             const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-        //             let passed = false;
+                it('Instance fails update control check because of Boolean.', async () => {
+                    const instances = [instanceOfUpdateControlledClassUpdateControlledByParameters];
+                    const instancesExpectedToFail = new SuperSet([instanceOfUpdateControlledClassUpdateControlledByParameters]);
+                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+                    let passed = false;
 
-        //             try {
-        //                 await UpdateControlledClassUpdateControlledByParameters.updateControlCheckInstanceSet(instances, 1, 1, false);
-        //             }
-        //             catch (error) {
-        //                 if (error.message != expectedErrorMessage) {
-        //                     throw new Error(
-        //                         'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
-        //                         'expected: ' + expectedErrorMessage + '\n' + 
-        //                         'actual:   ' + error.message
-        //                     );
-        //                 }
-        //                 passed = true;
-        //             }
+                    try {
+                        await UpdateControlledClassUpdateControlledByParameters.updateControlCheckInstanceSet(instances, 1, 1, false);
+                    }
+                    catch (error) {
+                        if (error.message != expectedErrorMessage) {
+                            throw new Error(
+                                'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
+                                'expected: ' + expectedErrorMessage + '\n' + 
+                                'actual:   ' + error.message
+                            );
+                        }
+                        passed = true;
+                    }
 
-        //             if (!passed) {
-        //                 throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
-        //             }
-        //         });
+                    if (!passed) {
+                        throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
+                    }
+                });
 
-        //     });
-
-        // });
-
-        // describe('Test save methods for update control checks.', () => {
-
-        //     describe('Test save() with update control checks', () => {
-
-        //         describe('Without updateControlMethodParameters.', () => {
-
-        //             it('Call save() on an instance of an update controlled class. Instance saved.', async () => {
-        //                 const classToCallSaveOn = UpdateControlledSuperClass;
-        //                 const instanceToSave = UpdateControlledSuperClass.create();
-        //                 instanceToSave.name = 'instanceOfUpdateControlledSuperClassPasses-save';
-        //                 instanceToSave.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
-    
-        //                 await classToCallSaveOn.save(instanceToSave);
-        //                 const instanceSaved = await classToCallSaveOn.findById(instanceToSave._id);
-    
-        //                 if (!instanceSaved)
-        //                     throw new Error('.save() returned without error, but instance could not be found in the database.');
-                        
-        //                 await classToCallSaveOn.delete(instanceToSave);
-        //             });
-    
-        //             it('Call save() on an instance of an update controlled class. Save fails due to update control check.', async () => {
-        //                 const classToCallSaveOn = UpdateControlledSuperClass;
-        //                 const instanceToSave = instanceOfUpdateControlledSuperClassFailsRelationship;
-        //                 const expectedErrorMessage = 'Error in ' + classToCallSaveOn.className + '.save(): Illegal attempt to update instances: ' + instanceToSave.id;
-        //                 let errorThrown = false;
-    
-        //                 try {
-        //                     await classToCallSaveOn.save(instanceToSave);
-        //                 }
-        //                 catch (error) {
-        //                     if (error.message != expectedErrorMessage) {
-        //                         throw new Error(
-        //                             '.save() threw an error, but not the expected one.\n' +
-        //                             'expected: ' + expectedErrorMessage + '\n' + 
-        //                             'actual:   ' + error.message
-        //                         );
-        //                     }
-        //                     errorThrown = true;
-        //                 }
-    
-        //                 if (!errorThrown)
-        //                     throw new Error('.save() returned when it should have returned an error.');
-                        
-        //                 const instanceFound = await classToCallSaveOn.findById(instanceToSave._id);
-
-        //                 if (instanceFound) 
-        //                     throw new Error('.save() threw an error, but the instance was saved anyway.');
-        //             });
-
-        //         });
-
-        //         describe('Calling save with updateControlMethodParameters', () => {
-    
-        //             it('Call save() on an instance of an update controlled class with updateControlMethodParameters. Save fails due to update control check.', async () => {
-        //                 const classToCallSaveOn = UpdateControlledClassUpdateControlledByParameters;
-        //                 const instanceToSave = instanceOfUpdateControlledClassUpdateControlledByParameters;
-        //                 const expectedErrorMessage = 'Error in ' + classToCallSaveOn.className + '.save(): Illegal attempt to update instances: ' + instanceToSave.id;
-        //                 const updateControlMethodParameters = [-2, 1, true];
-        //                 let errorThrown = false;
-    
-        //                 try {
-        //                     await classToCallSaveOn.save(instanceToSave, ...updateControlMethodParameters);
-        //                 }
-        //                 catch (error) {
-        //                     if (error.message != expectedErrorMessage) {
-        //                         throw new Error(
-        //                             '.save() threw an error, but not the expected one.\n' +
-        //                             'expected: ' + expectedErrorMessage + '\n' + 
-        //                             'actual:   ' + error.message
-        //                         );
-        //                     }
-        //                     errorThrown = true;
-        //                 }
-    
-        //                 if (!errorThrown)
-        //                     throw new Error('.save() returned when it should have returned an error.');
-                        
-        //                 const instanceFound = await classToCallSaveOn.findById(instanceToSave._id);
-
-        //                 if (instanceFound) 
-        //                     throw new Error('.save() threw an error, but the instance was saved anyway.')
-        //             });
-    
-        //             it('Call save() on an instance of an update controlled class with updateControlMethodParameters. Save fails due to update control check.', async () => {
-        //                 const classToCallSaveOn = UpdateControlledClassUpdateControlledByParameters;
-        //                 const instanceToSave = instanceOfUpdateControlledClassUpdateControlledByParameters;
-        //                 const expectedErrorMessage = 'Error in ' + classToCallSaveOn.className + '.save(): Illegal attempt to update instances: ' + instanceToSave.id;
-        //                 const updateControlMethodParameters = [1, 1, false];
-        //                 let errorThrown = false;
-                        
-        //                 try {
-        //                     await classToCallSaveOn.save(instanceToSave, ...updateControlMethodParameters);
-        //                 }
-        //                 catch (error) {
-        //                     if (error.message != expectedErrorMessage) {
-        //                         throw new Error(
-        //                             '.save() threw an error, but not the expected one.\n' +
-        //                             'expected: ' + expectedErrorMessage + '\n' + 
-        //                             'actual:   ' + error.message
-        //                         );
-        //                     }
-        //                     errorThrown = true;
-        //                 }
-    
-        //                 if (!errorThrown)
-        //                     throw new Error('.save() returned when it should have returned an error.');
-
-        //                 const instanceFound = await classToCallSaveOn.findById(instanceToSave._id);
-
-        //                 if (instanceFound) 
-        //                     throw new Error('.save() threw an error, but the instance was saved anyway.')
-        //             });
-
-        //             it('Call save() on an instance of an update controlled class with updateControlMethodParameters. Instance saved.', async () => {
-        //                 const classToCallSaveOn = UpdateControlledClassUpdateControlledByParameters;
-        //                 const instanceToSave = UpdateControlledClassUpdateControlledByParameters.create();
-        //                 const updateControlMethodParameters = [1, 1, true];
-    
-        //                 await classToCallSaveOn.save(instanceToSave, ...updateControlMethodParameters);
-        //                 const instanceSaved = await classToCallSaveOn.findById(instanceToSave._id);
-    
-        //                 if (!instanceSaved)
-        //                     throw new Error('.save() returned without error, but instance could not be found in the database.');
-        //             });
-
-        //         });
-
-        //     });
-
-        //     describe('Test saveAll() with update control check', () => {
-
-        //         describe('Without updateControlMethodParameters.', () => {
-
-        //             it('Call saveAll() on an instances of an update controlled class. Instances saved.', async () => {
-        //                 const classToCallSaveAllOn = UpdateControlledSuperClass;
-        //                 const instanceToSave = UpdateControlledSuperClass.create();
-        //                 instanceToSave.name = 'instanceOfUpdateControlledSuperClassPasses-saveAll';
-        //                 instanceToSave.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
-    
-        //                 await classToCallSaveAllOn.saveAll([instanceToSave]);
-        //                 const instanceSaved = await classToCallSaveAllOn.findById(instanceToSave._id);
-    
-        //                 if (!instanceSaved)
-        //                     throw new Error('.saveAll() returned without error, but instance could not be found in the database.');
-                        
-        //                 await classToCallSaveAllOn.delete(instanceToSave);
-        //             });
-    
-        //             it('Call saveAll() on instances of an update controlled class. Save fails due to update control check.', async () => {
-        //                 const classToCallSaveAllOn = UpdateControlledSuperClass;
-        //                 const instancesToSave = [
-        //                     instanceOfUpdateControlledSuperClassPasses,
-        //                     instanceOfUpdateControlledSuperClassFailsRelationship,
-        //                 ];
-        //                 const expectedErrorMessage = 'Error in ' + classToCallSaveAllOn.className + '.saveAll(): Illegal attempt to update instances: ' + instancesToSave[1].id;
-        //                 let errorThrown = false;
-    
-        //                 try {
-        //                     await classToCallSaveAllOn.saveAll(instancesToSave);
-        //                 }
-        //                 catch (error) {
-        //                     if (error.message != expectedErrorMessage) {
-        //                         throw new Error(
-        //                             '.saveAll() threw an error, but not the expected one.\n' +
-        //                             'expected: ' + expectedErrorMessage + '\n' + 
-        //                             'actual:   ' + error.message
-        //                         );
-        //                     }
-        //                     errorThrown = true;
-        //                 }
-    
-        //                 if (!errorThrown)
-        //                     throw new Error('.saveAll() returned when it should have returned an error.');
-                        
-        //                 const instancesFound = await classToCallSaveAllOn.find({
-        //                     _id: {$in: instancesToSave.map(instance => instance.id)}
-        //                 });
-
-        //                 if (instancesFound && instancesFound.length) 
-        //                     throw new Error('.saveAll() threw an error, but the instance was saved anyway.');
-        //             });
-
-        //         });
-
-        //         describe('Calling save with updateControlMethodParameters', () => {
-
-        //             it('Call saveAll() on an instance of an update controlled class with updateControlMethodParameters. Instance saved.', async () => {
-        //                 const classToCallSaveAllOn = UpdateControlledClassUpdateControlledByParameters;
-        //                 const instanceToSave = UpdateControlledClassUpdateControlledByParameters.create();
-        //                 const updateControlMethodParameters = [1, 1, true];
-    
-        //                 await classToCallSaveAllOn.saveAll([instanceToSave], ...updateControlMethodParameters);
-        //                 const instanceSaved = await classToCallSaveAllOn.findById(instanceToSave._id);
-    
-        //                 if (!instanceSaved)
-        //                     throw new Error('.saveAll() returned without error, but instance could not be found in the database.');
-                        
-                            
-        //                 await classToCallSaveAllOn.delete(instanceToSave);
-        //             });
-    
-        //             it('Call saveAll() on an instance of an update controlled class with updateControlMethodParameters. Save fails due to update control check.', async () => {
-        //                 const classToCallSaveAllOn = UpdateControlledClassUpdateControlledByParameters;
-        //                 const instanceToSave = UpdateControlledClassUpdateControlledByParameters.create();
-        //                 const expectedErrorMessage = 'Error in ' + classToCallSaveAllOn.className + '.saveAll(): Illegal attempt to update instances: ' + instanceToSave.id;
-        //                 const updateControlMethodParameters = [-2, 1, true];
-        //                 let errorThrown = false;
-    
-        //                 try {
-        //                     await classToCallSaveAllOn.saveAll([instanceToSave], ...updateControlMethodParameters);
-        //                 }
-        //                 catch (error) {
-        //                     if (error.message != expectedErrorMessage) {
-        //                         throw new Error(
-        //                             '.saveAll() threw an error, but not the expected one.\n' +
-        //                             'expected: ' + expectedErrorMessage + '\n' + 
-        //                             'actual:   ' + error.message
-        //                         );
-        //                     }
-        //                     errorThrown = true;
-        //                 }
-    
-        //                 if (!errorThrown)
-        //                     throw new Error('.saveAll() returned when it should have returned an error.');
-                        
-        //                 const instanceFound = await classToCallSaveAllOn.findById(instanceToSave._id);
-
-        //                 if (instanceFound) 
-        //                     throw new Error('.saveAll() threw an error, but the instance was saved anyway.')
-        //             });
-    
-        //             it('Call save() on an instance of an update controlled class with updateControlMethodParameters. Save fails due to update control check.', async () => {
-        //                 const classToCallSaveAllOn = UpdateControlledClassUpdateControlledByParameters;
-        //                 const instanceToSave = UpdateControlledClassUpdateControlledByParameters.create();
-        //                 const expectedErrorMessage = 'Error in ' + classToCallSaveAllOn.className + '.saveAll(): Illegal attempt to update instances: ' + instanceToSave.id;
-        //                 const updateControlMethodParameters = [1, 1, false];
-        //                 let errorThrown = false;
-                        
-        //                 try {
-        //                     await classToCallSaveAllOn.saveAll([instanceToSave], ...updateControlMethodParameters);
-        //                 }
-        //                 catch (error) {
-        //                     if (error.message != expectedErrorMessage) {
-        //                         throw new Error(
-        //                             '.saveAll() threw an error, but not the expected one.\n' +
-        //                             'expected: ' + expectedErrorMessage + '\n' + 
-        //                             'actual:   ' + error.message
-        //                         );
-        //                     }
-        //                     errorThrown = true;
-        //                 }
-    
-        //                 if (!errorThrown)
-        //                     throw new Error('.saveAll() returned when it should have returned an error.');
-
-        //                 const instanceFound = await classToCallSaveAllOn.findById(instanceToSave._id);
-
-        //                 if (instanceFound) 
-        //                     throw new Error('.saveAll() threw an error, but the instance was saved anyway.')
-        //             });
-
-        //         });
-
-        //     });
+            });
 
         });
 
-    });
+        describe.skip('Test save methods for update control checks.', () => {
 
-    after(() => {
-        database.close();
+            describe('Test save() with update control checks', () => {
+
+                describe('Without updateControlMethodParameters.', () => {
+
+                    it('Call save() on an instance of an update controlled class. Instance saved.', async () => {
+                        const classToCallSaveOn = UpdateControlledSuperClass;
+                        const instanceToSave = UpdateControlledSuperClass.create();
+                        instanceToSave.name = 'instanceOfUpdateControlledSuperClassPasses-save';
+                        instanceToSave.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
+    
+                        await classToCallSaveOn.save(instanceToSave);
+                        const instanceSaved = await classToCallSaveOn.findById(instanceToSave._id);
+    
+                        if (!instanceSaved)
+                            throw new Error('.save() returned without error, but instance could not be found in the database.');
+                        
+                        await classToCallSaveOn.delete(instanceToSave);
+                    });
+    
+                    it('Call save() on an instance of an update controlled class. Save fails due to update control check.', async () => {
+                        const classToCallSaveOn = UpdateControlledSuperClass;
+                        const instanceToSave = instanceOfUpdateControlledSuperClassFailsRelationship;
+                        const expectedErrorMessage = 'Error in ' + classToCallSaveOn.className + '.save(): Illegal attempt to update instances: ' + instanceToSave.id;
+                        let errorThrown = false;
+    
+                        try {
+                            await classToCallSaveOn.save(instanceToSave);
+                        }
+                        catch (error) {
+                            if (error.message != expectedErrorMessage) {
+                                throw new Error(
+                                    '.save() threw an error, but not the expected one.\n' +
+                                    'expected: ' + expectedErrorMessage + '\n' + 
+                                    'actual:   ' + error.message
+                                );
+                            }
+                            errorThrown = true;
+                        }
+    
+                        if (!errorThrown)
+                            throw new Error('.save() returned when it should have returned an error.');
+                        
+                        const instanceFound = await classToCallSaveOn.findById(instanceToSave._id);
+
+                        if (instanceFound) 
+                            throw new Error('.save() threw an error, but the instance was saved anyway.');
+                    });
+
+                });
+
+                describe('Calling save with updateControlMethodParameters', () => {
+    
+                    it('Call save() on an instance of an update controlled class with updateControlMethodParameters. Save fails due to update control check.', async () => {
+                        const classToCallSaveOn = UpdateControlledClassUpdateControlledByParameters;
+                        const instanceToSave = instanceOfUpdateControlledClassUpdateControlledByParameters;
+                        const expectedErrorMessage = 'Error in ' + classToCallSaveOn.className + '.save(): Illegal attempt to update instances: ' + instanceToSave.id;
+                        const updateControlMethodParameters = [-2, 1, true];
+                        let errorThrown = false;
+    
+                        try {
+                            await classToCallSaveOn.save(instanceToSave, ...updateControlMethodParameters);
+                        }
+                        catch (error) {
+                            if (error.message != expectedErrorMessage) {
+                                throw new Error(
+                                    '.save() threw an error, but not the expected one.\n' +
+                                    'expected: ' + expectedErrorMessage + '\n' + 
+                                    'actual:   ' + error.message
+                                );
+                            }
+                            errorThrown = true;
+                        }
+    
+                        if (!errorThrown)
+                            throw new Error('.save() returned when it should have returned an error.');
+                        
+                        const instanceFound = await classToCallSaveOn.findById(instanceToSave._id);
+
+                        if (instanceFound) 
+                            throw new Error('.save() threw an error, but the instance was saved anyway.')
+                    });
+    
+                    it('Call save() on an instance of an update controlled class with updateControlMethodParameters. Save fails due to update control check.', async () => {
+                        const classToCallSaveOn = UpdateControlledClassUpdateControlledByParameters;
+                        const instanceToSave = instanceOfUpdateControlledClassUpdateControlledByParameters;
+                        const expectedErrorMessage = 'Error in ' + classToCallSaveOn.className + '.save(): Illegal attempt to update instances: ' + instanceToSave.id;
+                        const updateControlMethodParameters = [1, 1, false];
+                        let errorThrown = false;
+                        
+                        try {
+                            await classToCallSaveOn.save(instanceToSave, ...updateControlMethodParameters);
+                        }
+                        catch (error) {
+                            if (error.message != expectedErrorMessage) {
+                                throw new Error(
+                                    '.save() threw an error, but not the expected one.\n' +
+                                    'expected: ' + expectedErrorMessage + '\n' + 
+                                    'actual:   ' + error.message
+                                );
+                            }
+                            errorThrown = true;
+                        }
+    
+                        if (!errorThrown)
+                            throw new Error('.save() returned when it should have returned an error.');
+
+                        const instanceFound = await classToCallSaveOn.findById(instanceToSave._id);
+
+                        if (instanceFound) 
+                            throw new Error('.save() threw an error, but the instance was saved anyway.')
+                    });
+
+                    it('Call save() on an instance of an update controlled class with updateControlMethodParameters. Instance saved.', async () => {
+                        const classToCallSaveOn = UpdateControlledClassUpdateControlledByParameters;
+                        const instanceToSave = UpdateControlledClassUpdateControlledByParameters.create();
+                        const updateControlMethodParameters = [1, 1, true];
+    
+                        await classToCallSaveOn.save(instanceToSave, ...updateControlMethodParameters);
+                        const instanceSaved = await classToCallSaveOn.findById(instanceToSave._id);
+    
+                        if (!instanceSaved)
+                            throw new Error('.save() returned without error, but instance could not be found in the database.');
+                    });
+
+                });
+
+            });
+
+            describe('Test saveAll() with update control check', () => {
+
+                describe('Without updateControlMethodParameters.', () => {
+
+                    it('Call saveAll() on an instances of an update controlled class. Instances saved.', async () => {
+                        const classToCallSaveAllOn = UpdateControlledSuperClass;
+                        const instanceToSave = UpdateControlledSuperClass.create();
+                        instanceToSave.name = 'instanceOfUpdateControlledSuperClassPasses-saveAll';
+                        instanceToSave.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
+    
+                        await classToCallSaveAllOn.saveAll([instanceToSave]);
+                        const instanceSaved = await classToCallSaveAllOn.findById(instanceToSave._id);
+    
+                        if (!instanceSaved)
+                            throw new Error('.saveAll() returned without error, but instance could not be found in the database.');
+                        
+                        await classToCallSaveAllOn.delete(instanceToSave);
+                    });
+    
+                    it('Call saveAll() on instances of an update controlled class. Save fails due to update control check.', async () => {
+                        const classToCallSaveAllOn = UpdateControlledSuperClass;
+                        const instancesToSave = [
+                            instanceOfUpdateControlledSuperClassPasses,
+                            instanceOfUpdateControlledSuperClassFailsRelationship,
+                        ];
+                        const expectedErrorMessage = 'Error in ' + classToCallSaveAllOn.className + '.saveAll(): Illegal attempt to update instances: ' + instancesToSave[1].id;
+                        let errorThrown = false;
+    
+                        try {
+                            await classToCallSaveAllOn.saveAll(instancesToSave);
+                        }
+                        catch (error) {
+                            if (error.message != expectedErrorMessage) {
+                                throw new Error(
+                                    '.saveAll() threw an error, but not the expected one.\n' +
+                                    'expected: ' + expectedErrorMessage + '\n' + 
+                                    'actual:   ' + error.message
+                                );
+                            }
+                            errorThrown = true;
+                        }
+    
+                        if (!errorThrown)
+                            throw new Error('.saveAll() returned when it should have returned an error.');
+                        
+                        const instancesFound = await classToCallSaveAllOn.find({
+                            _id: {$in: instancesToSave.map(instance => instance.id)}
+                        });
+
+                        if (instancesFound && instancesFound.length) 
+                            throw new Error('.saveAll() threw an error, but the instance was saved anyway.');
+                    });
+
+                });
+
+                describe('Calling save with updateControlMethodParameters', () => {
+
+                    it('Call saveAll() on an instance of an update controlled class with updateControlMethodParameters. Instance saved.', async () => {
+                        const classToCallSaveAllOn = UpdateControlledClassUpdateControlledByParameters;
+                        const instanceToSave = UpdateControlledClassUpdateControlledByParameters.create();
+                        const updateControlMethodParameters = [1, 1, true];
+    
+                        await classToCallSaveAllOn.saveAll([instanceToSave], ...updateControlMethodParameters);
+                        const instanceSaved = await classToCallSaveAllOn.findById(instanceToSave._id);
+    
+                        if (!instanceSaved)
+                            throw new Error('.saveAll() returned without error, but instance could not be found in the database.');
+                        
+                            
+                        await classToCallSaveAllOn.delete(instanceToSave);
+                    });
+    
+                    it('Call saveAll() on an instance of an update controlled class with updateControlMethodParameters. Save fails due to update control check.', async () => {
+                        const classToCallSaveAllOn = UpdateControlledClassUpdateControlledByParameters;
+                        const instanceToSave = UpdateControlledClassUpdateControlledByParameters.create();
+                        const expectedErrorMessage = 'Error in ' + classToCallSaveAllOn.className + '.saveAll(): Illegal attempt to update instances: ' + instanceToSave.id;
+                        const updateControlMethodParameters = [-2, 1, true];
+                        let errorThrown = false;
+    
+                        try {
+                            await classToCallSaveAllOn.saveAll([instanceToSave], ...updateControlMethodParameters);
+                        }
+                        catch (error) {
+                            if (error.message != expectedErrorMessage) {
+                                throw new Error(
+                                    '.saveAll() threw an error, but not the expected one.\n' +
+                                    'expected: ' + expectedErrorMessage + '\n' + 
+                                    'actual:   ' + error.message
+                                );
+                            }
+                            errorThrown = true;
+                        }
+    
+                        if (!errorThrown)
+                            throw new Error('.saveAll() returned when it should have returned an error.');
+                        
+                        const instanceFound = await classToCallSaveAllOn.findById(instanceToSave._id);
+
+                        if (instanceFound) 
+                            throw new Error('.saveAll() threw an error, but the instance was saved anyway.')
+                    });
+    
+                    it('Call save() on an instance of an update controlled class with updateControlMethodParameters. Save fails due to update control check.', async () => {
+                        const classToCallSaveAllOn = UpdateControlledClassUpdateControlledByParameters;
+                        const instanceToSave = UpdateControlledClassUpdateControlledByParameters.create();
+                        const expectedErrorMessage = 'Error in ' + classToCallSaveAllOn.className + '.saveAll(): Illegal attempt to update instances: ' + instanceToSave.id;
+                        const updateControlMethodParameters = [1, 1, false];
+                        let errorThrown = false;
+                        
+                        try {
+                            await classToCallSaveAllOn.saveAll([instanceToSave], ...updateControlMethodParameters);
+                        }
+                        catch (error) {
+                            if (error.message != expectedErrorMessage) {
+                                throw new Error(
+                                    '.saveAll() threw an error, but not the expected one.\n' +
+                                    'expected: ' + expectedErrorMessage + '\n' + 
+                                    'actual:   ' + error.message
+                                );
+                            }
+                            errorThrown = true;
+                        }
+    
+                        if (!errorThrown)
+                            throw new Error('.saveAll() returned when it should have returned an error.');
+
+                        const instanceFound = await classToCallSaveAllOn.findById(instanceToSave._id);
+
+                        if (instanceFound) 
+                            throw new Error('.saveAll() threw an error, but the instance was saved anyway.')
+                    });
+
+                });
+
+            });
+
+        });
+
     });
 
 });

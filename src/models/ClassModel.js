@@ -783,74 +783,57 @@ class ClassModel {
      * @return Promise which when resolved returns the related instance if relationship is singular, or an Array of the related 
      *           instances if the relationship is non-singular.
      */ 
-    walk() {
+    async walk(instance, relationship, filter=null) {
         let schema = this.schema;
-        let className = this.className;
+        let className = this.className;   
 
-        return new Promise((resolve, reject) => {            
-            if (arguments.length < 2) {
-                reject(new Error(className + '.walk() called with insufficient arguments. Should be walk(instance, relationship, <optional>filter).'));
-            }
-            else if (!this.isInstanceOfClassOrSubClass(arguments[0])) {
-                reject(new Error(className + '.walk(): First argument needs to be an instance of ' + className + '\'s classModel or one of its sub classes.'));
-            }
-            else if (typeof(arguments[1]) != 'string') {
-                reject(new Error(className + '.walk(): Second argument needs to be a String.'));
-            }
-            else if (!(arguments[1] in schema)) {
-                reject(new Error(className + '.walk(): Second argument needs to be a field in ' + className + '\'s schema.'));
-            }
-            else if (!ClassModel.fieldIsARelationship(schema[arguments[1]])) {
-                reject(new Error(className + '.walk(): field "' + arguments[1] + '" is not a relationship.'));
-            }
-            else if (arguments.length > 2 && typeof(arguments[2] != "object")) {
-                reject(new Error(className + '.walk(): Third argument needs to be an object.'));
+        if (!instance || !relationship)
+            throw new Error(this.className + '.walk() called with insufficient arguments. Should be walk(instance, relationship, <optional>filter).');
+
+        if (!this.isInstanceOfClassOrSubClass(instance))
+            throw new Error(this.className + '.walk(): First argument needs to be an instance of ' + this.className + '\'s classModel or one of its sub classes.');
+        
+        if (typeof(relationship) != 'string')
+            throw new Error(this.className + '.walk(): Second argument needs to be a String.');
+        
+        if (!(relationship in this.schema))
+            throw new Error(this.className + '.walk(): Second argument needs to be a field in ' + this.className + '\'s schema.');
+        
+        if (!ClassModel.fieldIsARelationship(this.schema[relationship]))
+            throw new Error(this.className + '.walk(): field "' + relationship + '" is not a relationship.');
+        
+        if (filter && typeof(filter != "object"))
+            throw new Error(this.className + '.walk(): Third argument needs to be an object.');
+        
+        const relatedClass = AllClassModels[schema[relationship].ref];
+        const singular = schema[relationship].type == Schema.Types.ObjectId;
+        filter = filter ? filter : {}
+
+            // If relationship is to a singular instance, use findOne()
+        if (singular) {
+            if (instance[relationship] == null) {
+                return null;
             }
             else {
-                let instance = arguments[0];
-                let relationship = arguments[1];
-                let filter = (arguments.length > 2) ? arguments[2] : {};
-                let relatedClass = AllClassModels[schema[relationship].ref];
-                let singular = schema[relationship].type == Schema.Types.ObjectId;
-
-                // If relationship is to a singular instance, use findOne()
-                if (singular) {
-                    if (instance[relationship] == null) {
-                        resolve(null);
-                    }
-                    else {
-                        Object.assign(filter, {
-                            _id: instance[relationship],
-                        });
-                        relatedClass.findOne(filter).then(
-                            (relatedInstance) => {
-                                resolve(relatedInstance);
-                            },
-                            (findError) => {
-                                reject(findError);
-                            }
-                        );
-                    }
-                }
-                // If nonsingular, use find()
-                else {
-                    if (instance[relationship] == null || instance[relationship].length == 0) {
-                        resolve([]);
-                    }
-                    else {
-                        Object.assign(filter, {
-                            _id: {$in: instance[relationship]}
-                        });
-    
-                        relatedClass.find(filter).then(
-                            (relatedInstances) => {
-                                resolve(relatedInstances);
-                            }
-                        );
-                    }
-                }
+                Object.assign(filter, {
+                    _id: instance[relationship],
+                });
+                return relatedClass.findOne(filter);
             }
-        });
+        }
+        // If nonsingular, use find()
+        else {
+            if (instance[relationship] == null || instance[relationship].length == 0) {
+                return [];
+            }
+            else {
+                Object.assign(filter, {
+                    _id: {$in: instance[relationship]}
+                });
+
+                return relatedClass.find(filter);
+            }
+        }
     }
 
     // Security Methods

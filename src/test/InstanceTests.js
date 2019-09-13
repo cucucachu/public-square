@@ -26,7 +26,6 @@ const testForErrorAsync = TestingFunctions.testForErrorAsync;
     var AllFieldsRequiredClass = TestClassModels.AllFieldsRequiredClass;
     var AllFieldsInRequiredGroupClass = TestClassModels.AllFieldsInRequiredGroupClass;
     var AbstractClass = TestClassModels.AbstractClass;
-    var MutexClassA = MutexClassA;
 
     // Inheritance Classes
     var SuperClass = TestClassModels.SuperClass;
