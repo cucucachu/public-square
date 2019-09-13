@@ -255,6 +255,58 @@ const ClassModel = require('../dist/models/ClassModel');
             }
         });
 
+        var MutexClassA = new ClassModel({
+            accessControlled: false,
+            updateControlled: false,
+            className: 'MutexClassA', 
+            schema: {
+                boolean: {
+                    type: Boolean,
+                    mutex: 'a'
+                },
+                date: {
+                    type: Date,
+                    mutex: 'a'
+                }
+            }
+        });
+
+        var MutexClassB = new ClassModel({
+            accessControlled: false,
+            updateControlled: false,
+            className: 'MutexClassB', 
+            schema: {
+                class1: {
+                    type: Schema.Types.ObjectId,
+                    ref: 'CompareClass1',
+                    mutex: 'a'
+                },
+                class2: {
+                    type: Schema.Types.ObjectId,
+                    ref: 'CompareClass2',
+                    mutex: 'a'
+                }
+            }
+        });
+
+        var MutexClassC = new ClassModel({
+            accessControlled: false,
+            updateControlled: false,
+            className: 'MutexClassC', 
+            schema: {
+                class1s: {
+                    type: [Schema.Types.ObjectId],
+                    ref: 'CompareClass1',
+                    mutex: 'a'
+                },
+                class2s: {
+                    type: [Schema.Types.ObjectId],
+                    ref: 'CompareClass2',
+                    mutex: 'a'
+                }
+            }
+        });
+
     }
 
     // Inheritance Classes
@@ -715,6 +767,9 @@ module.exports = {
     AllFieldsRequiredClass,
     AllFieldsMutexClass,
     AllFieldsInRequiredGroupClass,
+    MutexClassA,
+    MutexClassB,
+    MutexClassC,
     SuperClass,
     AbstractSuperClass,
     DiscriminatedSuperClass, 

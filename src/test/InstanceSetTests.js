@@ -27,6 +27,9 @@ const testForErrorAsync = TestingFunctions.testForErrorAsync;
     var AllFieldsRequiredClass = TestClassModels.AllFieldsRequiredClass;
     var AllFieldsInRequiredGroupClass = TestClassModels.AllFieldsInRequiredGroupClass;
     var AbstractClass = TestClassModels.AbstractClass;    var SuperClass = TestClassModels.SuperClass;
+    var MutexClassA = TestClassModels.MutexClassA;
+    var MutexClassB = TestClassModels.MutexClassB;
+    var MutexClassC = TestClassModels.MutexClassC;
 
     // Inheritance Classes
     var SuperClass = TestClassModels.SuperClass;
@@ -1189,15 +1192,520 @@ describe('InstanceSet Tests', () => {
 
         });
 
+        describe('InstanceSet.filterForClassModel.', () => {
+            
+            it('Throws an error if argument is empty.', () => {
+                const expectedErrorMessage = 'instanceSet.filterForClassModel(): argument must be a ClassModel.';
+                const instanceSet = new InstanceSet(SuperClass);
+                testForError('instanceSet.filterForClassModel()', expectedErrorMessage, () => {
+                    instanceSet.filterForClassModel();
+                });
+            });
+            
+            it('Throws an error if argument is not a ClassModel.', () => {
+                const expectedErrorMessage = 'instanceSet.filterForClassModel(): argument must be a ClassModel.';
+                const instanceSet = new InstanceSet(SuperClass);
+                testForError('instanceSet.filterForClassModel()', expectedErrorMessage, () => {
+                    instanceSet.filterForClassModel(1);
+                });
+            });
+            
+            it('Returned InstanceSet.classModel is the given ClassModel.', () => {
+                const instanceSet = new InstanceSet(SuperClass);
+                const filtered = instanceSet.filterForClassModel(SubClassOfSuperClass);
+                if (filtered.classModel !== SubClassOfSuperClass)
+                    throw new Error('Filtered InstanceSet has an unexpected ClassModel.');
+            });
+
+            it('Filtering for same ClassModel as the InstanceSet returns the same InstanceSet.', () => {
+                const instance1 = new Instance(SuperClass);
+                const instance2 = new Instance(SubClassOfSuperClass);
+                const instance3 = new Instance(DiscriminatedSubClassOfSuperClass);
+                const instance4 = new Instance(SubClassOfDiscriminatedSubClassOfSuperClass);
+                const instances = [instance1, instance2, instance3, instance4];
+                const instanceSet = new InstanceSet(SuperClass, instances);
+                const filtered = instanceSet.filterForClassModel(SuperClass);
+
+                if (!filtered.equals(instanceSet))
+                    throw new Error('Filtered InstanceSet does not equal original InstanceSet.');
+            });
+
+            it('Filtering for subclass works as expected.', () => {
+                const instance1 = new Instance(SuperClass);
+                const instance2 = new Instance(SubClassOfSuperClass);
+                const instance3 = new Instance(DiscriminatedSubClassOfSuperClass);
+                const instance4 = new Instance(SubClassOfDiscriminatedSubClassOfSuperClass);
+                const instances = [instance1, instance2, instance3, instance4];
+                const instanceSet = new InstanceSet(SuperClass, instances);
+                const expected = new InstanceSet(SubClassOfSuperClass, [instance2]);
+                const filtered = instanceSet.filterForClassModel(SubClassOfSuperClass);
+
+                if (!filtered.equals(expected))
+                    throw new Error('Filtered InstanceSet does not equal original InstanceSet.');
+
+            });
+
+            it('Filtering for discriminated subclass works as expected.', () => {
+                const instance1 = new Instance(DiscriminatedSubClassOfSuperClass);
+                const instance2 = new Instance(SubClassOfDiscriminatedSubClassOfSuperClass);
+                const instances = [instance1, instance2];
+                const instanceSet = new InstanceSet(DiscriminatedSubClassOfSuperClass, instances);
+                const expected = new InstanceSet(SubClassOfDiscriminatedSubClassOfSuperClass, [instance2]);
+                const filtered = instanceSet.filterForClassModel(SubClassOfDiscriminatedSubClassOfSuperClass);
+
+                if (!filtered.equals(expected))
+                    throw new Error('Filtered InstanceSet does not equal original InstanceSet.');
+
+            });
+
+            it('Filtering for discriminated subclass works as expected.', () => {
+                const instance1 = new Instance(SuperClass);
+                const instance2 = new Instance(SubClassOfSuperClass);
+                const instance3 = new Instance(DiscriminatedSubClassOfSuperClass);
+                const instance4 = new Instance(SubClassOfDiscriminatedSubClassOfSuperClass);
+                const instances = [instance1, instance2, instance3, instance4];
+                const instanceSet = new InstanceSet(SuperClass, instances);
+                const expected = new InstanceSet(DiscriminatedSubClassOfSuperClass, [instance3, instance4]);
+                const filtered = instanceSet.filterForClassModel(DiscriminatedSubClassOfSuperClass);
+
+                if (!filtered.equals(expected))
+                    throw new Error('Filtered InstanceSet does not equal original InstanceSet.');
+
+            });
+
+        });
+
     });
 
     describe('ClassModel Methods', () => {
 
+        describe('InstanceSet.validate()', () => {
+
+            describe('Required Validation', () => {
+    
+                it('All fields are required. All are set. No error thrown.', () => {
+                    const instance1 = new Instance(AllFieldsRequiredClass);
+                    instance1.assign({
+                        string: 'String',
+                        strings: ['String'],
+                        date: new Date(),
+                        boolean: true,
+                        booleans: [true],
+                        number: 1,
+                        numbers: [1],
+                        class1: CompareClass1.create(),
+                        class2s: CompareClass2.create()
+                    });
+                    const instance2 = new Instance(AllFieldsRequiredClass);
+                    instance2.assign({
+                        string: 'String',
+                        strings: ['String'],
+                        date: new Date(),
+                        boolean: true,
+                        booleans: [true],
+                        number: 1,
+                        numbers: [1],
+                        class1: CompareClass1.create(),
+                        class2s: CompareClass2.create()
+                    });
+                    const instanceSet = new InstanceSet(AllFieldsRequiredClass, [instance1, instance2]);
+                        
+                    instanceSet.validate();
+    
+                    return true;
+    
+                });
+    
+                it('All fields are required. All but string are set. Error thrown.', () => {
+                    const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: string: Path `string` is required.';
+                    const instance = new Instance(AllFieldsRequiredClass);
+                    instance.assign({
+                        strings: ['String'],
+                        date: new Date(),
+                        boolean: true,
+                        booleans: [true],
+                        number: 1,
+                        numbers: [1],
+                        class1: CompareClass1.create(),
+                        class2s: CompareClass2.create()
+                    });
+                    const instanceSet = new InstanceSet(AllFieldsRequiredClass, [instance]);
+    
+                    testForError('instanceSet.validate()', expectedErrorMessage, () => {
+                        instanceSet.validate();
+                    });    
+                });
+    
+                it('All fields are required. One instance is valid, the other is not. Error thrown.', () => {
+                    const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: string: Path `string` is required.';
+                    const instance1 = new Instance(AllFieldsRequiredClass);
+                    instance1.assign({
+                        strings: ['String'],
+                        date: new Date(),
+                        boolean: true,
+                        booleans: [true],
+                        number: 1,
+                        numbers: [1],
+                        class1: CompareClass1.create(),
+                        class2s: CompareClass2.create()
+                    });
+                    const instance2 = new Instance(AllFieldsRequiredClass);
+                    instance2.assign({
+                        string: 'String',
+                        strings: ['String'],
+                        date: new Date(),
+                        boolean: true,
+                        booleans: [true],
+                        number: 1,
+                        numbers: [1],
+                        class1: CompareClass1.create(),
+                        class2s: CompareClass2.create()
+                    });
+                    const instanceSet = new InstanceSet(AllFieldsRequiredClass, [instance1, instance2]);
+    
+                    testForError('instanceSet.validate()', expectedErrorMessage, () => {
+                        instanceSet.validate();
+                    });    
+                });
+    
+            });
+    
+            describe('Required Group Validation', () => {
+                    
+                it('Multiple fields (one of each type) share a required group no fields are set. Error thrown.', () => {
+                    const expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
+                    const instance = new Instance(AllFieldsInRequiredGroupClass);
+                    const instanceSet = new InstanceSet(AllFieldsInRequiredGroupClass, [instance]);
+        
+                    try {
+                        instanceSet.validate();
+                    }
+                    catch (error) {
+                        if (error.message == expectedErrorMessage) {
+                            return true;
+                        }
+                        else {
+                            throw new Error(
+                                'instanceSet.validate returned the wrong error message.\n' + 
+                                'Expected: ' + expectedErrorMessage + '\n' +
+                                'Actual:   ' + error.message
+                            );
+                        }
+                    }
+        
+                    throw new Error('instanceSet.validate did not throw an error when it should have.');
+                });
+                    
+                it('Multiple fields (one of each type) share a required group boolean is set to false. Error thrown.', () => {
+                    const expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
+                    const instance = new Instance(AllFieldsInRequiredGroupClass);
+                    const instanceSet = new InstanceSet(AllFieldsInRequiredGroupClass, [instance]);
+    
+                    instanceSet.boolean = false;
+        
+                    try {
+                        instance.validate();
+                    }
+                    catch (error) {
+                        if (error.message == expectedErrorMessage) {
+                            return true;
+                        }
+                        else {
+                            throw new Error(
+                                'instanceSet.validate returned the wrong error message.\n' + 
+                                'Expected: ' + expectedErrorMessage + '\n' +
+                                'Actual:   ' + error.message
+                            );
+                        }
+                    }
+        
+                    throw new Error('instanceSet.validate did not throw an error when it should have.');
+                });
+                    
+                it('Multiple fields (one of each type) share a required group string is set to "". Error thrown.', () => {
+                    const expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
+                    const instance = new Instance(AllFieldsInRequiredGroupClass);
+                    instance.string = '';
+                    const instanceSet = new InstanceSet(AllFieldsInRequiredGroupClass, [instance]);
+        
+                    try {
+                        instanceSet.validate();
+                    }
+                    catch (error) {
+                        if (error.message == expectedErrorMessage) {
+                            return true;
+                        }
+                        else {
+                            throw new Error(
+                                'instanceSet.validate returned the wrong error message.\n' + 
+                                'Expected: ' + expectedErrorMessage + '\n' +
+                                'Actual:   ' + error.message
+                            );
+                        }
+                    }
+        
+                    throw new Error('instanceSet.validate did not throw an error when it should have.');
+                });
+                
+                it('Multiple fields (one of each type) share a required group and strings is set. No error thrown.', () => {
+                    const instance = new Instance(AllFieldsInRequiredGroupClass);
+                    instance.strings = ['String'];
+                    const instanceSet = new InstanceSet(AllFieldsInRequiredGroupClass, [instance]);
+    
+                    try {
+                        instanceSet.validate();
+                    }
+                    catch (error) {
+                        throw new Error(
+                            'instanceSet.validate threw an error when it shouldn\'t have.\n' + 
+                            'Error: ' + error.message
+                        );
+                    }
+    
+                    return true;
+                });
+                
+                it('Multiple fields (one of each type) share a required group and boolean is set. No error thrown.', () => {
+                    const instance = new Instance(AllFieldsInRequiredGroupClass);
+                    instance.boolean = true;
+                    const instanceSet = new InstanceSet(AllFieldsInRequiredGroupClass, [instance]);
+    
+                    try {
+                        instanceSet.validate();
+                    }
+                    catch (error) {
+                        throw new Error(
+                            'instanceSet.validate threw an error when it shouldn\'t have.\n' + 
+                            'Error: ' + error.message
+                        );
+                    }
+    
+                    return true;
+                });
+                
+            });
+    
+            describe('Mutex Validation', () => {
+                
+                it('2 attribute fields (boolean, date) have a mutex and both are set. Error thrown.', () => {
+                    const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field boolean with mutex \'a\'. Field date with mutex \'a\'.';
+                    let expectedErrorMutex = /^Mutex violations found for instance .* Field boolean with mutex \'a\'. Field date with mutex \'a\'.$/;
+                    const instance = new Instance(MutexClassA);
+;
+                    instance.assign({
+                        boolean: true,
+                        date: new Date(),
+                    });
+                    const instanceSet = new InstanceSet(MutexClassA, [instance]);
+    
+                    try {
+                        instanceSet.validate();
+                    }
+                    catch (error) {
+                        if (expectedErrorMutex.test(error.message)) {
+                            return true;
+                        }
+                        else {
+                            throw new Error(
+                                'instanceSet.validate returned the wrong error message.\n' + 
+                                'Expected: ' + expectedErrorMessage + '\n' +
+                                'Actual:   ' + error.message
+                            );
+                        }
+                    }
+    
+                    throw new Error('instanceSet.validate did not throw an error when it should have.');
+                });
+                
+                it('2 attribute fields (boolean, date) have a mutex and one (boolean) is set. No error thrown.', () => {    
+                    const instance = new Instance(MutexClassA);
+                    instance.boolean = true;
+                    const instanceSet = new InstanceSet(MutexClassA, [instance]);
+    
+                    try {
+                        instanceSet.validate();
+                    }
+                    catch (error) {
+                        throw new Error(
+                            'instanceSet.validate threw an error when it shouldn\'t have.\n' + 
+                            'Error: ' + error.message
+                        );
+                    }
+                    
+                    return true;
+                });
+                
+                it('2 singular relationship fields have a mutex and both are set. Error thrown.', () => {
+                    const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field class1 with mutex \'a\'. Field class2 with mutex \'a\'.';
+                    let expectedErrorMutex = /^Mutex violations found for instance .* Field class1 with mutex \'a\'. Field class2 with mutex \'a\'.$/;  
+                    const instance = new Instance(MutexClassB);
+    
+                    instance.class1 = CompareClass1.create()._id;
+                    instance.class2 = CompareClass2.create()._id;
+                    const instanceSet = new InstanceSet(MutexClassB, [instance]);
+    
+                    try {
+                        instanceSet.validate();
+                    }
+                    catch (error) {
+                        if (expectedErrorMutex.test(error.message)) {
+                            return true;
+                        }
+                        else {
+                            throw new Error(
+                                'instanceSet.validate returned the wrong error message.\n' + 
+                                'Expected: ' + expectedErrorMessage + '\n' +
+                                'Actual:   ' + error.message
+                            );
+                        }
+                    }
+    
+                    throw new Error('instanceSet.validate did not throw an error when it should have.');
+                });
+                
+                it('2 singular relationship fields have a mutex and one is set. No error thrown.', () => {    
+                    const instance = new Instance(MutexClassB);
+                    instance.class1 = CompareClass1.create()._id;
+                    const instanceSet = new InstanceSet(MutexClassB, [instance]);
+    
+                    try {
+                        instanceSet.validate();
+                    }
+                    catch (error) {
+                        throw new Error(
+                            'instanceSet.validate threw an error when it shouldn\'t have.\n' + 
+                            'Error: ' + error.message
+                        );
+                    }
+    
+                    return true;
+                });
+                
+                it('2 non-singular relationship fields have a mutex and both are set. Error thrown.', () => {
+                    const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field class1s with mutex \'a\'. Field class2s with mutex \'a\'.';
+                    let expectedErrorMutex = /^Mutex violations found for instance .* Field class1s with mutex \'a\'. Field class2s with mutex \'a\'.$/;
+    
+                    const instance = new Instance(MutexClassC);
+    
+                    instance.class1s = [CompareClass1.create()._id, CompareClass1.create()._id];
+                    instance.class2s = [CompareClass2.create()._id, CompareClass2.create()._id];
+                    const instanceSet = new InstanceSet(MutexClassC, [instance]);
+    
+                    try {
+                        instanceSet.validate();
+                    }
+                    catch (error) {
+                        if (expectedErrorMutex.test(error.message)) {
+                            return true;
+                        }
+                        else {
+                            throw new Error(
+                                'instanceSet.validate returned the wrong error message.\n' + 
+                                'Expected: ' + expectedErrorMessage + '\n' +
+                                'Actual:   ' + error.message
+                            );
+                        }
+                    }
+    
+                    throw new Error('instanceSet.validate did not throw an error when it should have.');
+                });
+    
+            });
+
+        });
+
         describe('InstanceSet.save()', () => {
+
+            after(async() => {
+                await AllFieldsRequiredClass.clear();
+            });
+
+            it('InstanceSet will not save any of the instances if any are invalid.', async () => {
+                const expectedErrorMessage = 'Caught validation error when attempting to save InstanceSet: AllFieldsRequiredClass validation failed: string: Path `string` is required.';
+                let instanceA = new Instance(AllFieldsRequiredClass);
+                let instanceB = new Instance(AllFieldsRequiredClass);    
+                instanceA.assign({
+                    string: 'instanceA',
+                    strings: ['instanceA'],
+                    date: new Date(),
+                    boolean: true,
+                    booleans: [true],
+                    number: 1,
+                    numbers: [1],
+                    class1: CompareClass1.create()._id,
+                    class2s: [CompareClass2.create()._id],
+                });
+                instanceB.assign({
+                    strings: ['instanceB'],
+                    date: new Date(),
+                    boolean: true,
+                    booleans: [true],
+                    number: 2,
+                    numbers: [2],
+                    class1: CompareClass1.create()._id,
+                    class2s: [CompareClass2.create()._id],
+                });
+                let instanceSet = new InstanceSet(AllFieldsRequiredClass, [instanceA, instanceB]);
+
+                await testForErrorAsync('instanceSet.save()', expectedErrorMessage, async() => {
+                    return instanceSet.save();
+                });
+
+                const foundInstanceA = await AllFieldsRequiredClass.findInstanceById(instanceA.id);
+                const foundInstanceB = await AllFieldsRequiredClass.findInstanceById(instanceB.id);
+
+                if (foundInstanceA || foundInstanceB) 
+                    throw new Error('Save threw an error, but one or more instances were saved anyway.');
+            });
+
+            it('InstanceSet saved properly.', async () => {
+                let instanceA = new Instance(AllFieldsRequiredClass);
+                let instanceB = new Instance(AllFieldsRequiredClass);    
+                instanceA.assign({
+                    string: 'instanceA',
+                    strings: ['instanceA'],
+                    date: new Date(),
+                    boolean: true,
+                    booleans: [true],
+                    number: 1,
+                    numbers: [1],
+                    class1: CompareClass1.create()._id,
+                    class2s: [CompareClass2.create()._id],
+                });
+                instanceB.assign({
+                    string: 'instanceB',
+                    strings: ['instanceB'],
+                    date: new Date(),
+                    boolean: true,
+                    booleans: [true],
+                    number: 2,
+                    numbers: [2],
+                    class1: CompareClass1.create()._id,
+                    class2s: [CompareClass2.create()._id],
+                });
+                let instanceSet = new InstanceSet(AllFieldsRequiredClass, [instanceA, instanceB]);
+
+                await instanceSet.save();
+                const foundInstanceA = await AllFieldsRequiredClass.findInstanceById(instanceA.id);
+                const foundInstanceB = await AllFieldsRequiredClass.findInstanceById(instanceB.id);
+
+                if (!(foundInstanceA.equals(instanceA) && foundInstanceB.equals(instanceB))) 
+                    throw new Error('Could not find the instances after save().');
+
+                if (instanceA.saved != true || instanceB.saved != true)
+                    throw new Error('Instances\'s saved properties were not set to true.' );
+
+                if (foundInstanceA.saved != true || foundInstanceB.saved != true)
+                    throw new Error('Found instances\'s saved properties were not set to true.' );
+            });
 
         });
 
         describe('InstanceSet.walk()', () => {
+
+        });
+
+        describe('InstanceSet.delete()', () => {
 
         });
 

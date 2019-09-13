@@ -1,6 +1,5 @@
 require('@babel/polyfill');
 
-const ClassModel = require('./ClassModel');
 const Instance = require('./Instance');
 const SuperSet = require('./SuperSet');
 
@@ -13,7 +12,7 @@ class InstanceSet extends SuperSet {
     }
 
     static constructorValidations(classModel, instances) {
-        if (!(classModel instanceof ClassModel))
+        if (!classModel || !classModel.className)
             throw new Error('InstanceSet.constructor() first argument must be an instance of ClassModel.');
         if (instances)
             InstanceSet.addInstancesValidations(classModel, instances);
@@ -155,6 +154,39 @@ class InstanceSet extends SuperSet {
 
     filterToInstanceSet(callback) {
         return new InstanceSet(this.classModel, [...this].filter(callback));
+    }
+
+    filterForClassModel(classModel) {
+        if (!classModel || !classModel.className) 
+            throw new Error('instanceSet.filterForClassModel(): argument must be a ClassModel.');
+        
+        const filtered = this.filter((instance) => {
+            return instance.isInstanceOf(classModel);
+        });
+
+        return new InstanceSet(classModel, filtered);
+    }
+
+    // Validate, Save, Walk, Delete
+
+    validate() {
+        this.forEach(instance => instance.validate());
+    }
+    
+    async save(...updateControlMethodParameters) {
+        try {
+            this.validate();
+            //await this.classModel.updateControlCheckInstanceSet([...this], ...updateControlMethodParameters);
+        }
+        catch (error) {
+            throw new Error('Caught validation error when attempting to save InstanceSet: ' + error.message);
+        }
+
+
+
+        let promises = this.map(instance => instance.saveWithoutValidation())
+        await Promise.all(promises);
+        return;
     }
 
     getInstanceIds() {

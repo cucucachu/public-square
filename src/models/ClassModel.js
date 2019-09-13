@@ -2,13 +2,14 @@
   Description: Defines an application class model using Mongoose to handle database interactions, and adding extra functionallity that mongoose
     does not provide.
 */
-
+require('@babel/polyfill');
+require('./database');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-require('./database');
-require('@babel/polyfill');
 
 const SuperSet = require('./SuperSet');
+const InstanceSet = require('./InstanceSet');
+const Instance = require('./Instance');
 
 const AllClassModels = [];
 
@@ -253,6 +254,21 @@ class ClassModel {
             let singleResult = await promises[index];
             if (singleResult.length)
                 results = results.concat(await promises[index]);
+        }
+
+        return results;
+    }
+    /*
+     * Helper function for find
+     * Loops through promises one at a time and pushes the results to the results array.
+     */
+    async allPromiseResoltionsInstanceSets(promises) {
+        let results = new InstanceSet(this);
+
+        for (var promise of promises) {
+            let singleResult = await promise;
+            if (!singleResult.isEmpty())
+                results.addInstances(singleResult);
         }
 
         return results;
@@ -575,6 +591,14 @@ class ClassModel {
             ...accessControlMethodParameters
         );
     }
+    /* Finds an instance of this ClassModel with the given id in the database. 
+     * If called on a superclass, will recursively check this ClassModel's collection, and then it's subclasses collections.
+     * Parameter id - the Object ID of the instance to find.
+     * Returns a promise, which will resolve with the instance with the given id if it can be found, otherwise null.
+     */
+    async findInstanceById(id, ...accessControlMethodParameters) {
+        return this.findOneInstance({_id: id}, ...accessControlMethodParameters);
+    }
 
 
     /* Finds an instance of this ClassModel using the given query filter in the database. 
@@ -619,6 +643,21 @@ class ClassModel {
 
             return ClassModel.firstNonNullPromiseResolution(promises);
         }
+    }
+
+    /* Finds an instance of this ClassModel using the given query filter in the database. 
+     * If called on a superclass, will recursively check this ClassModel's collection, and then it's subclasses collections.
+     * Required Parameter queryFilter - An object identifying filtering according to mongoose's definitions.
+     * Rest Parameter accessControlMethodParameters - Optional parameters used by this ClassModels access control method. 
+     * Returns a promise, which will resolve with the instance with the given query filter if it can be found, otherwise null.
+     */
+    async findOneInstance(queryFilter, ...accessControlMethodParameters) {
+        const foundDocument = await this.findOne(queryFilter, ...accessControlMethodParameters);
+
+        if (!foundDocument)
+            return null;
+
+        return new Instance(this, foundDocument, true);
     }
 
     /* Finds instances of this ClassModel using the given query filter in the database. 
@@ -666,6 +705,71 @@ class ClassModel {
 
             let foundInstances = await ClassModel.allPromiseResultionsTrimmed(promises);
             return foundInstances.concat(foundInstancesOfThisClass);
+        }
+    }
+
+    /* Finds instances of this ClassModel using the given query filter in the database. 
+     * If called on a superclass, will recursively check this ClassModel's collection, and then it's subclasses collections.
+     * Required Parameter queryFilter - An object identifying filtering according to mongoose's definitions.
+     * Rest Parameter accessControlMethodParameters - Optional parameters used by this ClassModels access control method. 
+     * Returns a promise, which will resolve with the instance with the given query filter if it can be found, otherwise null.
+     */
+    async findInstanceSet(queryFilter, ...accessControlMethodParameters) {
+        const concrete = !this.abstract;
+        const abstract = this.abstract;
+        const discriminated = this.discriminated;
+        const isSuperClass = (this.subClasses.length > 0 || this.discriminated);
+        const subClasses = this.subClasses;
+        const className = this.className;
+        const Model = this.Model;
+
+        //console.log(this.className + '.findInstanceSet() start');
+
+        // If this class is a non-discriminated abstract class and it doesn't have any sub classes, throw an error.
+        if (abstract && !isSuperClass)
+            throw new Error('Error in ' + className + '.findInstanceSet(). This class is abstract and non-discriminated, but it has no sub-classes.');
+
+        // If this is a discriminated class, or it is a concrete class with no subclasses, findInstanceSet the instance in this ClassModel's collection.
+        if ((concrete && !isSuperClass) || discriminated) {
+            //console.log(this.className + '.findInstanceSet() no subs');
+            const foundDocuments = await Model.find(queryFilter).exec();
+            const filteredDocuments = await this.accessControlFilter(foundDocuments, ...accessControlMethodParameters);
+            const filteredInstances = filteredDocuments.map(instance => { return new Instance(this, instance) });
+            const toReturn = new InstanceSet(this, filteredInstances);
+            //console.log(this.className + '.findInstanceSet() end');
+            return toReturn;
+        }
+
+        // If this is a non-discriminated super class, we may need to check this classmodel's collection as well,
+        //  as well as the subclasses collections.
+        if (isSuperClass && !discriminated) {
+            //console.log(this.className + '.findInstanceSet() starting with my part');
+            let promises = [];
+            let foundInstancesOfThisClass = new InstanceSet(this, undefined);
+
+            // If this is a concrete super class, we need to check this ClassModel's own collection.
+            if (concrete) {
+                let foundDocumentsOfThisClass = await Model.find(queryFilter).exec();
+                //console.log(this.className + '.findInstanceSet() here');
+
+                if (foundDocumentsOfThisClass.length) {
+                    const filteredDocumentsOfThisClass = await this.accessControlFilter(foundDocumentsOfThisClass, ...accessControlMethodParameters);
+                    const filteredInstances = filteredDocumentsOfThisClass.map(instance => { return new Instance(this, instance)});
+                    foundInstancesOfThisClass.addInstances(filteredInstances)
+                }
+            }
+
+            //console.log(this.className + '.findInstanceSet() done with my part');
+
+            // Call findInstanceSet on our subclasses as well.
+            for (let subClass of subClasses)
+                promises.push(subClass.findInstanceSet(queryFilter, ...accessControlMethodParameters));
+
+            let foundInstances = await this.allPromiseResoltionsInstanceSets(promises);
+            
+            //console.log(this.className + '.findInstanceSet() end');
+            foundInstances.addInstances(foundInstancesOfThisClass)
+            return foundInstances;
         }
     }
 
@@ -947,6 +1051,21 @@ class ClassModel {
         }
     }
 
+    async updateControlCheckInstanceSet(instanceSet, ...updateControlParameters) {
+        if (!(instanceSet instanceof InstanceSet))
+            throw new Error('Incorrect parameters. ' + this.className + '.updateControlCheckInstanceSet(InstanceSet instanceSet, ...updateControlMethodParameters)');
+
+        if (instanceSet.isEmpty() || !this.updateControlled)
+            return true;
+
+        const rejectedInstances = await this.updateControlCheckInstanceSetRecursive(instanceSet, ...updateControlParameters);
+
+        if (rejectedInstances.isEmpty())
+            return true;
+        else
+            throw new Error('Illegal attempt to update instances: ' + rejectedInstances.getInstanceIds());
+    }
+
     /* Recursive method to be called by updateControlCheck()
      * Required Parameter instances - Array<instance> : An array of instances of this Class Model to run update control method on.
      * Returns an SuperSet containing instances which do not pass update control check.
@@ -1008,6 +1127,78 @@ class ClassModel {
                 }
             }
         }
+
+        return rejectedInstances;
+    }
+
+    /* Recursive method to be called by updateControlCheck()
+     * Required Parameter instances - Array<instance> : An array of instances of this Class Model to run update control method on.
+     * Returns an InstanceSet containing instances which do not pass update control check.
+     * }
+     */
+    async updateControlCheckInstanceSetRecursive(instanceSet, ...updateControlMethodParameters) {
+        console.log(this.className + ' start...');
+        const updateControlMethods = this.allUpdateControlMethodsforClassModel();
+        let rejectedInstances = new InstanceSet(this);
+
+        const instancesOfThisClass = instanceSet.filterToInstanceSet(instance => {
+            return instance.classModel === this;
+        });
+
+        let updatableInstancesOfThisClass = [...instancesOfThisClass];
+        console.log(updatableInstancesOfThisClass);
+
+        for (const updateControlMethod of updateControlMethods) {
+            updatableInstancesOfThisClass = await ClassModel.asyncFilter(updatableInstancesOfThisClass, async (instance) => {
+                return updateControlMethod(instance, ...updateControlMethodParameters);
+            });
+        }
+
+        updatableInstancesOfThisClass = new InstanceSet(this, updatableInstancesOfThisClass);
+        rejectedInstances = instancesOfThisClass.difference(updatableInstancesOfThisClass);
+
+        console.log('Found these instances that were rejected ' + rejectedInstances.getInstanceIds());
+        console.log(this.className + ' now on to my subclasses...');
+
+        if (this.isSuperClass()) {
+            if (this.discriminated) {
+                let instancesByClass = {};
+                instancesByClass[this.className] = [];
+    
+                for (let instance of instanceSet)
+                    if (instance.__t)
+                        if (!instancesByClass[instance.__t])
+                            instancesByClass[instance.__t] = [instance];
+                        else
+                            instancesByClass[instance.__t].push(instance);
+                    else 
+                        instancesByClass[this.className].push(instance);
+    
+                for (let className in instancesByClass) {
+                    if (className != this.className) {
+                        const subClassModel = AllClassModels[className];
+                        console.log('calling my subclass ' + subClassModel.className);
+                        const rejectedSubClassInstances = await subClassModel.updateControlCheckInstanceSetRecursive(new InstanceSet(subClassModel, instancesByClass[className]), ...updateControlMethodParameters);
+                        rejectedInstances.addInstances(rejectedSubClassInstances);
+                    }
+                }
+            }
+            else if (this.subClasses.length) {
+                console.log('Checking for subclasses..');
+                for (let subClass of this.subClasses) {
+                    console.log('here is a subclass ' + subClass.className);
+                    let instancesOfSubClass = instanceSet.filterForClassModel(subClass);
+    
+                    if (!instancesOfSubClass.isEmpty()) {
+                        console.log('calling my subclass ' + subClass.className);
+                        const rejectedSubClassInstances = await subClass.updateControlCheckInstanceSetRecursive(instancesOfSubClass, ...updateControlMethodParameters);
+                        rejectedInstances.addFromIterable(rejectedSubClassInstances);
+                    }
+                }
+            }
+        }
+
+        console.log('done');
 
         return rejectedInstances;
     }

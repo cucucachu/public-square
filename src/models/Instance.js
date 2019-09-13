@@ -1,9 +1,6 @@
 
 require('@babel/polyfill');
 const mongoose = require('mongoose');
-
-const ClassModel = require('./ClassModel');
-
 const doc = Symbol('document');
 
 /*
@@ -26,8 +23,8 @@ class Instance {
         this.saved = saved;
         this.deleted = false;
 
-        const documentProperties = Object.keys(this.classModel.schema).concat(['id', '_id']);
-        const unSettableInstanceProperties = ['classModel', doc, 'id', '_id'];     
+        const documentProperties = Object.keys(this.classModel.schema).concat(['id', '_id', '__t']);
+        const unSettableInstanceProperties = ['classModel', doc, 'id', '_id', '__t']; 
         const instanceMethods = Object.getOwnPropertyNames(Object.getPrototypeOf(this)); 
 
         return new Proxy(this, {
@@ -81,7 +78,7 @@ class Instance {
         if (!classModel) 
             throw new Error('Instance.constructor(), parameter classModel is required.');
 
-        if (!(classModel instanceof ClassModel))
+        if (!(classModel.className))
             throw new Error('Instance.constructor(), first parameter classModel must be an instance of ClassModel.');
         
         if (classModel.abstract) 
@@ -134,6 +131,14 @@ class Instance {
         if (this.deleted) 
             throw new Error('instance.save(): You cannot save an instance which has been deleted.');
         this.validate();
+        await this[doc].save({validateBeforeSave: false});
+        this.saved = true;
+        return this;
+    }
+
+    async saveWithoutValidation() {
+        if (this.deleted) 
+            throw new Error('instance.save(): You cannot save an instance which has been deleted.');
         await this[doc].save({validateBeforeSave: false});
         this.saved = true;
         return this;

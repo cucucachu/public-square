@@ -4,16 +4,26 @@ const Schema = mongoose.Schema;
 
 const ClassModel = require('../dist/models/ClassModel');
 const SuperSet = require('../dist/models/SuperSet');
+const InstanceSet = require('../dist/models/InstanceSet');
+const Instance = require('../dist/models/Instance');
 const database = require('../dist/models/database');
 const TestClassModels = require('./TestClassModels');
 
 // Load all TestClassModels 
 {
+    // Compare Classes
     var CompareClass1 = TestClassModels.CompareClass1;
     var CompareClass2 = TestClassModels.CompareClass2;
+
+    // Validation Classes
     var AllFieldsRequiredClass = TestClassModels.AllFieldsRequiredClass;
     var AllFieldsMutexClass = TestClassModels.AllFieldsMutexClass;
     var AllFieldsInRequiredGroupClass = TestClassModels.AllFieldsInRequiredGroupClass;
+    var MutexClassA = TestClassModels.MutexClassA;
+    var MutexClassB = TestClassModels.MutexClassB;
+    var MutexClassC = TestClassModels.MutexClassC;
+
+    // Inheritance Classes
     var SuperClass = TestClassModels.SuperClass;
     var AbstractSuperClass = TestClassModels.AbstractSuperClass;
     var DiscriminatedSuperClass = TestClassModels.DiscriminatedSuperClass;
@@ -27,16 +37,22 @@ const TestClassModels = require('./TestClassModels');
     var SubClassOfDiscriminatedSubClassOfSuperClass = TestClassModels.SubClassOfDiscriminatedSubClassOfSuperClass;
     var SubClassOfSubClassOfSuperClass = TestClassModels.SubClassOfSubClassOfSuperClass;
     var SubClassOfAbstractSubClassOfSuperClass = TestClassModels.SubClassOfAbstractSubClassOfSuperClass;
+
+    // Relationship Classes
     var SingularRelationshipClass = TestClassModels.SingularRelationshipClass;
     var NonSingularRelationshipClass = TestClassModels.NonSingularRelationshipClass;
     var SubClassOfSingularRelationshipClass = TestClassModels.SubClassOfSingularRelationshipClass;
     var SubClassOfNonSingularRelationshipClass = TestClassModels.SubClassOfNonSingularRelationshipClass;
+
+    // AccessControlled Classes
     var AccessControlledSuperClass = TestClassModels.AccessControlledSuperClass;
     var AccessControlledSubClassOfAccessControlledSuperClass = TestClassModels.AccessControlledSubClassOfAccessControlledSuperClass;
     var AccessControlledDiscriminatedSuperClass = TestClassModels.AccessControlledDiscriminatedSuperClass;
     var AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass = TestClassModels.AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass;
     var ClassControlsAccessControlledSuperClass = TestClassModels.ClassControlsAccessControlledSuperClass;
     var AccessControlledClassAccessControlledByParameters = TestClassModels.AccessControlledClassAccessControlledByParameters;
+
+    // UpdateControlled Classes
     var UpdateControlledSuperClass = TestClassModels.UpdateControlledSuperClass;
     var UpdateControlledSubClassOfUpdateControlledSuperClass = TestClassModels.UpdateControlledSubClassOfUpdateControlledSuperClass;
     var UpdateControlledDiscriminatedSuperClass = TestClassModels.UpdateControlledDiscriminatedSuperClass;
@@ -45,17 +61,17 @@ const TestClassModels = require('./TestClassModels');
     var UpdateControlledClassUpdateControlledByParameters = TestClassModels.UpdateControlledClassUpdateControlledByParameters;
 }
 
-describe('Class Model Tests', function() {
+describe('Class Model Tests', () => {
 
     before(async () => {
         await database.connect();
     });
 
-    describe('Class Model Constructor', function() {
+    describe('Class Model Constructor', () => {
 
         describe('Required constructor parameters', () => {
 
-            it('ClassName is required.', function() {
+            it('ClassName is required.', () => {
                 var schema = {
                     text: {
                         type: String,
@@ -89,7 +105,7 @@ describe('Class Model Tests', function() {
                 throw new Error('Constructor should have thrown an error: className is required.');
             });
     
-            it('Schema is required.', function() {
+            it('Schema is required.', () => {
                 try {
                     new ClassModel({
                         accessControlled: false,
@@ -145,7 +161,7 @@ describe('Class Model Tests', function() {
 
         describe('Inheritence Requirements', () => {
 
-            it('If superClasses is set, it must be an Array.', function() {
+            it('If superClasses is set, it must be an Array.', () => {
                 try {
                     new ClassModel({
                         accessControlled: false,
@@ -167,7 +183,7 @@ describe('Class Model Tests', function() {
                 throw new Error('Constructor should have thrown an error: If superClasses is set, it must be an Array.');
             });
     
-            it('If superClasses is set, it cannot be an empty Array.', function() {
+            it('If superClasses is set, it cannot be an empty Array.', () => {
                 try {
                     new ClassModel({
                         accessControlled: false,
@@ -189,7 +205,7 @@ describe('Class Model Tests', function() {
                 throw new Error('Constructor should have thrown an error: If superClasses is set, it cannot be an empty Array.');
             });
     
-            it('If discriminatorSuperClass is set, it can only be a single class.', function() {
+            it('If discriminatorSuperClass is set, it can only be a single class.', () => {
                 try {
                     new ClassModel({
                         accessControlled: false,
@@ -211,7 +227,7 @@ describe('Class Model Tests', function() {
                 throw new Error('Constructor should have thrown an error: If discriminatorSuperClass is set, it can only be a single class.');
             });
     
-            it('A ClassModel cannot have both superClasses and discriminatorSuperClass.', function() {
+            it('A ClassModel cannot have both superClasses and discriminatorSuperClass.', () => {
                 try {
                     new ClassModel({
                         accessControlled: false,
@@ -234,7 +250,7 @@ describe('Class Model Tests', function() {
                 throw new Error('Constructor should have thrown an error: A ClassModel cannot have both superClasses and discriminatorSuperClass.');
             });
     
-            it('A ClassModel cannot have both superClasses and discriminatorSuperClass.', function() {
+            it('A ClassModel cannot have both superClasses and discriminatorSuperClass.', () => {
                 try {
                     new ClassModel({
                         accessControlled: false,
@@ -257,7 +273,7 @@ describe('Class Model Tests', function() {
                 throw new Error('Constructor should have thrown an error: A ClassModel cannot have both superClasses and discriminatorSuperClass.');
             });
     
-            it('If a class is used as a discriminatedSuperClass, that class must have its "discriminated" field set to true.', function() {
+            it('If a class is used as a discriminatedSuperClass, that class must have its "discriminated" field set to true.', () => {
                 try {
                     new ClassModel({
                         accessControlled: false,
@@ -277,7 +293,7 @@ describe('Class Model Tests', function() {
                 throw new Error('Constructor should have thrown an error: If a class is used as a discriminatedSuperClass, that class must have its "discriminated" field set to true.');
             });
     
-            it('If a class is set as a superClass, that class cannot have its "discriminated" field set to true.', function() {
+            it('If a class is set as a superClass, that class cannot have its "discriminated" field set to true.', () => {
                 try {
                     new ClassModel({
                         accessControlled: false,
@@ -297,7 +313,7 @@ describe('Class Model Tests', function() {
                 throw new Error('Constructor should have thrown an error: If a class is set as a superClass, that class cannot have its "discriminated" field set to true.');
             });  
     
-            it('A discriminator sub class cannot be abstract.', function() {
+            it('A discriminator sub class cannot be abstract.', () => {
                 try {
                     new ClassModel({
                         accessControlled: false,
@@ -318,7 +334,7 @@ describe('Class Model Tests', function() {
                 throw new Error('Constructor should have thrown an error: A discriminator sub class cannot be abstract.');
             });  
     
-            it('A sub class of a discriminated super class cannot be discriminated.', function() {
+            it('A sub class of a discriminated super class cannot be discriminated.', () => {
                 try {
                     new ClassModel({
                         accessControlled: false,
@@ -339,7 +355,7 @@ describe('Class Model Tests', function() {
                 throw new Error('A sub class of a discriminated super class cannot be discriminated.');
             });  
     
-            it('Sub class schema cannot contain the same field names as a super class schema.', function() {
+            it('Sub class schema cannot contain the same field names as a super class schema.', () => {
                 try {
                     new ClassModel({
                         accessControlled: false,
@@ -363,7 +379,7 @@ describe('Class Model Tests', function() {
                 throw new Error('Constructor should have thrown an error: Sub class schema cannot contain the same field names as a super class schema.');
             });  
     
-            it('If a sub class is created, it is pushed to the super class\'s "subClasses" array.', function() {
+            it('If a sub class is created, it is pushed to the super class\'s "subClasses" array.', () => {
     
                 if (SuperClass.subClasses.length == 0)
                     throw new Error('SuperClass.subClasses array has no entries in it.');
@@ -373,7 +389,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
     
-            it('A subclass schema is the combination of its direct schema with the schema of a super class.', function() {
+            it('A subclass schema is the combination of its direct schema with the schema of a super class.', () => {
                 if(Object.keys(SubClassOfSuperClass.schema).includes('boolean') == false) {
                     throw new Error('Sub Class is missing the field "boolean".');
                 }
@@ -397,7 +413,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
     
-            it('A subclass schema is the combination of its direct schema with the schema the whole chane of Super Classes.', function() {
+            it('A subclass schema is the combination of its direct schema with the schema the whole chane of Super Classes.', () => {
                 if(Object.keys(SubClassOfSubClassOfSuperClass.schema).includes('boolean') == false) {
                     throw new Error('Sub Class is missing the field "boolean".');
                 }
@@ -429,7 +445,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
     
-            it('A subclass schema is the combination of its direct schema with the schema of each of its super classes.', function() {
+            it('A subclass schema is the combination of its direct schema with the schema of each of its super classes.', () => {
                 if(Object.keys(SubClassOfMultipleSuperClasses.schema).includes('boolean') == false) {
                     throw new Error('Sub Class is missing the field "boolean".');
                 }
@@ -461,7 +477,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
     
-            it('A class cannot be a sub class of a sub class of a discriminated class.', function() {
+            it('A class cannot be a sub class of a sub class of a discriminated class.', () => {
                 try {
                     new ClassModel({
                         accessControlled: false,
@@ -480,7 +496,7 @@ describe('Class Model Tests', function() {
                 throw new Error('Constructor should have thrown an error: A class cannot be a sub class of a sub class of a discriminated class.');
             });
     
-            it('An abstract, non-discriminated class should have no Model.', function() {
+            it('An abstract, non-discriminated class should have no Model.', () => {
                 if (AbstractSuperClass.Model)
                     throw new Error('An abstract, non-discriminated class should have no Model.');
             });
@@ -647,7 +663,7 @@ describe('Class Model Tests', function() {
 
         describe('Happy Path', () => {
 
-            it('Constructor excepts and sets parameters.', function() {
+            it('Constructor excepts and sets parameters.', () => {
                 var schema = {
                     text: {
                         type: String,
@@ -682,9 +698,9 @@ describe('Class Model Tests', function() {
         
     });
 
-    describe('ClassModel.create()', function() {
+    describe('ClassModel.create()', () => {
 
-        it('You cannot created an instance of an abstract class.', function() {
+        it('You cannot created an instance of an abstract class.', () => {
             let expectedErrorMessage = 'You cannot create an instance of an abstract class.';
 
             try {
@@ -705,7 +721,7 @@ describe('Class Model Tests', function() {
             throw new Error('ClassModel.create() should have thrown the error: ' + expectedErrorMessage);
         });
 
-        it('You cannot created an instance of an abstract discriminated class.', function() {
+        it('You cannot created an instance of an abstract discriminated class.', () => {
             let expectedErrorMessage = 'You cannot create an instance of an abstract class.';
 
             try {
@@ -728,9 +744,9 @@ describe('Class Model Tests', function() {
 
     });
 
-    describe('ClassModel.compare()', function() {
+    describe('ClassModel.compare()', () => {
 
-        it('ClassModel.compare() returns true if instances are the same instance.', function() {
+        it('ClassModel.compare() returns true if instances are the same instance.', () => {
             var instance1 = CompareClass1.create();
             var compareResult;
 
@@ -744,7 +760,7 @@ describe('Class Model Tests', function() {
             }
         });
 
-        it('ClassModel.compare() returns true if both instances are null.', function() {
+        it('ClassModel.compare() returns true if both instances are null.', () => {
             var compareResult = CompareClass1.compare(null, null);
 
             if (compareResult.match == false) {
@@ -756,7 +772,7 @@ describe('Class Model Tests', function() {
             }
         });
 
-        it('ClassModel.compare() returns false if first instance is null.', function() {
+        it('ClassModel.compare() returns false if first instance is null.', () => {
             var instance2 = CompareClass1.create();
             var compareResult;
             var expectedCompareMessage = 'First instance is null.';
@@ -777,7 +793,7 @@ describe('Class Model Tests', function() {
             }
         });
 
-        it('ClassModel.compare() returns false if second instance is null.', function() {
+        it('ClassModel.compare() returns false if second instance is null.', () => {
             var instance1 = CompareClass1.create();
             var compareResult;
             var expectedCompareMessage = 'Second instance is null.';
@@ -798,7 +814,7 @@ describe('Class Model Tests', function() {
             }
         });
 
-        it('ClassModel.compare() returns true if all fields are the same.', function() {
+        it('ClassModel.compare() returns true if all fields are the same.', () => {
             var instance1 = CompareClass1.create();
             var instance2 = CompareClass1.create();
             var compareResult;
@@ -818,7 +834,7 @@ describe('Class Model Tests', function() {
             }
         });
 
-        it('ClassModel.compare() returns false if an attribute is different.', function() {
+        it('ClassModel.compare() returns false if an attribute is different.', () => {
             var instance1 = CompareClass1.create();
             var instance2 = CompareClass1.create();
             var compareResult;
@@ -846,7 +862,7 @@ describe('Class Model Tests', function() {
             }
         });
 
-        it('ClassModel.compare() returns false if an attribute in an array is different.', function() {
+        it('ClassModel.compare() returns false if an attribute in an array is different.', () => {
             var instance1 = CompareClass1.create();
             var instance2 = CompareClass1.create();
             var compareResult;
@@ -876,7 +892,7 @@ describe('Class Model Tests', function() {
             }
         });
 
-        it('ClassModel.compare() returns false if singular relationship is different.', function() {
+        it('ClassModel.compare() returns false if singular relationship is different.', () => {
             var instance1 = CompareClass1.create();
             var instance2 = CompareClass1.create();
             var compareResult;
@@ -902,7 +918,7 @@ describe('Class Model Tests', function() {
             }
         });
 
-        it('ClassModel.compare() returns false one of the singular relationships is empty.', function() {
+        it('ClassModel.compare() returns false one of the singular relationships is empty.', () => {
             var instance1 = CompareClass1.create();
             var instance2 = CompareClass1.create();
             var compareResult;
@@ -927,7 +943,7 @@ describe('Class Model Tests', function() {
             }
         });
 
-        it('ClassModel.compare() returns false if one instance in a non-singular relationship is different.', function() {
+        it('ClassModel.compare() returns false if one instance in a non-singular relationship is different.', () => {
             var instance1 = CompareClass2.create();
             var instance2 = CompareClass2.create();
             var compareResult;
@@ -955,7 +971,7 @@ describe('Class Model Tests', function() {
             }
         });
 
-        it('ClassModel.compare() returns false if all instances in a non-singular relationship is different.', function() {
+        it('ClassModel.compare() returns false if all instances in a non-singular relationship is different.', () => {
             var instance1 = CompareClass2.create();
             var instance2 = CompareClass2.create();
             var compareResult;
@@ -981,7 +997,7 @@ describe('Class Model Tests', function() {
             }
         });
 
-        it('ClassModel.compare() returns false if non-singular relationship is different (one not set).', function() {
+        it('ClassModel.compare() returns false if non-singular relationship is different (one not set).', () => {
             var instance1 = CompareClass2.create();
             var instance2 = CompareClass2.create();
             var compareResult;
@@ -1007,7 +1023,7 @@ describe('Class Model Tests', function() {
             }
         });
 
-        it('ClassModel.compare() returns false if non-singular relationship have different lengths.', function() {
+        it('ClassModel.compare() returns false if non-singular relationship have different lengths.', () => {
             var instance1 = CompareClass2.create();
             var instance2 = CompareClass2.create();
             var compareResult;
@@ -1038,11 +1054,11 @@ describe('Class Model Tests', function() {
 
     });
 
-    describe('ClassModel.validate()', function() {
+    describe('ClassModel.validate()', () => {
 
-        describe('Required Validation', function() {
+        describe('Required Validation', () => {
 
-            it('All fields are required. All are set. No error thrown.', function() {
+            it('All fields are required. All are set. No error thrown.', () => {
                 let instance = AllFieldsRequiredClass.create();
 
                 instance.string = 'String';
@@ -1069,7 +1085,7 @@ describe('Class Model Tests', function() {
 
             });
                 
-            it('All fields are required. All but string are set. Error thrown.', function() {
+            it('All fields are required. All but string are set. Error thrown.', () => {
                 let expectedErrorMessage = 'AllFieldsRequiredClass validation failed: string: Path `string` is required.';
                 let instance = AllFieldsRequiredClass.create();
 
@@ -1101,7 +1117,7 @@ describe('Class Model Tests', function() {
                 throw new Error('ClassModel.validate did not throw an error when it should have.');
             });
                 
-            it('All fields are required. All are set, but string is set to empty string. Error thrown.', function() {
+            it('All fields are required. All are set, but string is set to empty string. Error thrown.', () => {
                 let expectedErrorMessage = 'AllFieldsRequiredClass validation failed: string: Path `string` is required.';
                 let instance = AllFieldsRequiredClass.create();
 
@@ -1134,7 +1150,7 @@ describe('Class Model Tests', function() {
                 throw new Error('ClassModel.validate did not throw an error when it should have.');
             });
                 
-            it('All fields are required. All but strings are set. Error thrown.', function() {
+            it('All fields are required. All but strings are set. Error thrown.', () => {
                 let expectedErrorMessage = 'AllFieldsRequiredClass validation failed: strings: Path `strings` is required.';
                 let instance = AllFieldsRequiredClass.create();
 
@@ -1167,7 +1183,7 @@ describe('Class Model Tests', function() {
                 throw new Error('ClassModel.validate did not throw an error when it should have.');
             });
                 
-            it('All fields are required. All but date are set. Error thrown.', function() {
+            it('All fields are required. All but date are set. Error thrown.', () => {
                 let expectedErrorMessage = 'AllFieldsRequiredClass validation failed: date: Path `date` is required.';
                 let instance = AllFieldsRequiredClass.create();
 
@@ -1200,7 +1216,7 @@ describe('Class Model Tests', function() {
                 throw new Error('ClassModel.validate did not throw an error when it should have.');
             });
                 
-            it('All fields are required. All but boolean are set. Error thrown.', function() {
+            it('All fields are required. All but boolean are set. Error thrown.', () => {
                 let expectedErrorMessage = 'AllFieldsRequiredClass validation failed: boolean: Path `boolean` is required.';
                 let instance = AllFieldsRequiredClass.create();
 
@@ -1233,7 +1249,7 @@ describe('Class Model Tests', function() {
                 throw new Error('ClassModel.validate did not throw an error when it should have.');
             });
                 
-            it('All fields are required. All are set, but boolean is set to false. Error thrown.', function() {
+            it('All fields are required. All are set, but boolean is set to false. Error thrown.', () => {
                 let expectedErrorMessage = 'AllFieldsRequiredClass validation failed: boolean: Path `boolean` is required.';
                 let instance = AllFieldsRequiredClass.create();
 
@@ -1267,7 +1283,7 @@ describe('Class Model Tests', function() {
                 throw new Error('ClassModel.validate did not throw an error when it should have.');
             });
                 
-            it('All fields are required. All but booleans are set. Error thrown.', function() {
+            it('All fields are required. All but booleans are set. Error thrown.', () => {
                 let expectedErrorMessage = 'AllFieldsRequiredClass validation failed: booleans: Path `booleans` is required.';
                 let instance = AllFieldsRequiredClass.create();
 
@@ -1300,7 +1316,7 @@ describe('Class Model Tests', function() {
                 throw new Error('ClassModel.validate did not throw an error when it should have.');
             });
                 
-            it('All fields are required. All but number are set. Error thrown.', function() {
+            it('All fields are required. All but number are set. Error thrown.', () => {
                 let expectedErrorMessage = 'AllFieldsRequiredClass validation failed: number: Path `number` is required.';
                 let instance = AllFieldsRequiredClass.create();
 
@@ -1333,7 +1349,7 @@ describe('Class Model Tests', function() {
                 throw new Error('ClassModel.validate did not throw an error when it should have.');
             });
                 
-            it('All fields are required. All but numbers are set. Error thrown.', function() {
+            it('All fields are required. All but numbers are set. Error thrown.', () => {
                 let expectedErrorMessage = 'AllFieldsRequiredClass validation failed: numbers: Path `numbers` is required.';
                 let instance = AllFieldsRequiredClass.create();
 
@@ -1366,7 +1382,7 @@ describe('Class Model Tests', function() {
                 throw new Error('ClassModel.validate did not throw an error when it should have.');
             });
                 
-            it('All fields are required. All but class1 are set. Error thrown.', function() {
+            it('All fields are required. All but class1 are set. Error thrown.', () => {
                 let expectedErrorMessage = 'AllFieldsRequiredClass validation failed: class1: Path `class1` is required.';
                 let instance = AllFieldsRequiredClass.create();
 
@@ -1399,7 +1415,7 @@ describe('Class Model Tests', function() {
                 throw new Error('ClassModel.validate did not throw an error when it should have.');
             });
                 
-            it('All fields are required. All but class2s are set. Error thrown.', function() {
+            it('All fields are required. All but class2s are set. Error thrown.', () => {
                 let expectedErrorMessage = 'AllFieldsRequiredClass validation failed: class2s: Path `class2s` is required.';
                 let instance = AllFieldsRequiredClass.create();
 
@@ -1434,9 +1450,9 @@ describe('Class Model Tests', function() {
 
         });
 
-        describe('Required Group Validation', function() {
+        describe('Required Group Validation', () => {
                 
-            it('multiple fields (one of each type) share a required group no fields are set. Error thrown.', function() {
+            it('multiple fields (one of each type) share a required group no fields are set. Error thrown.', () => {
                 let expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
             
                 let instance = AllFieldsInRequiredGroupClass.create();
@@ -1460,7 +1476,7 @@ describe('Class Model Tests', function() {
                 throw new Error('ClassModel.validate did not throw an error when it should have.');
             });
                 
-            it('multiple fields (one of each type) share a required group boolean is set to false. Error thrown.', function() {
+            it('multiple fields (one of each type) share a required group boolean is set to false. Error thrown.', () => {
                 let expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
             
                 let instance = AllFieldsInRequiredGroupClass.create();
@@ -1486,7 +1502,7 @@ describe('Class Model Tests', function() {
                 throw new Error('ClassModel.validate did not throw an error when it should have.');
             });
                 
-            it('multiple fields (one of each type) share a required group string is set to "". Error thrown.', function() {
+            it('multiple fields (one of each type) share a required group string is set to "". Error thrown.', () => {
                 let expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
             
                 let instance = AllFieldsInRequiredGroupClass.create();
@@ -1512,7 +1528,7 @@ describe('Class Model Tests', function() {
                 throw new Error('ClassModel.validate did not throw an error when it should have.');
             });
                 
-            it('multiple fields (one of each type) share a required group class2s is set to empty array. Error thrown.', function() {
+            it('multiple fields (one of each type) share a required group class2s is set to empty array. Error thrown.', () => {
                 let expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
             
                 let instance = AllFieldsInRequiredGroupClass.create();
@@ -1538,7 +1554,7 @@ describe('Class Model Tests', function() {
                 throw new Error('ClassModel.validate did not throw an error when it should have.');
             });
             
-            it('multiple fields (one of each type) share a required group and string is set. No error thrown.', function() {
+            it('multiple fields (one of each type) share a required group and string is set. No error thrown.', () => {
 
                 let instance = AllFieldsInRequiredGroupClass.create();
 
@@ -1557,7 +1573,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields (one of each type) share a required group and strings is set. No error thrown.', function() {
+            it('multiple fields (one of each type) share a required group and strings is set. No error thrown.', () => {
 
                 let instance = AllFieldsInRequiredGroupClass.create();
 
@@ -1576,7 +1592,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields (one of each type) share a required group and boolean is set. No error thrown.', function() {
+            it('multiple fields (one of each type) share a required group and boolean is set. No error thrown.', () => {
 
                 let instance = AllFieldsInRequiredGroupClass.create();
 
@@ -1595,7 +1611,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields (one of each type) share a required group and booleans is set. No error thrown.', function() {
+            it('multiple fields (one of each type) share a required group and booleans is set. No error thrown.', () => {
 
                 let instance = AllFieldsInRequiredGroupClass.create();
 
@@ -1614,7 +1630,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields (one of each type) share a required group and date is set. No error thrown.', function() {
+            it('multiple fields (one of each type) share a required group and date is set. No error thrown.', () => {
 
                 let instance = AllFieldsInRequiredGroupClass.create();
 
@@ -1633,7 +1649,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields (one of each type) share a required group and number is set. No error thrown.', function() {
+            it('multiple fields (one of each type) share a required group and number is set. No error thrown.', () => {
 
                 let instance = AllFieldsInRequiredGroupClass.create();
 
@@ -1652,7 +1668,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields (one of each type) share a required group and number is set to 0. No error thrown.', function() {
+            it('multiple fields (one of each type) share a required group and number is set to 0. No error thrown.', () => {
 
                 let instance = AllFieldsInRequiredGroupClass.create();
 
@@ -1671,7 +1687,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields (one of each type) share a required group and numbers is set. No error thrown.', function() {
+            it('multiple fields (one of each type) share a required group and numbers is set. No error thrown.', () => {
 
                 let instance = AllFieldsInRequiredGroupClass.create();
 
@@ -1690,7 +1706,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields (one of each type) share a required group and class1 is set. No error thrown.', function() {
+            it('multiple fields (one of each type) share a required group and class1 is set. No error thrown.', () => {
 
                 let instance = AllFieldsInRequiredGroupClass.create();
 
@@ -1709,7 +1725,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields (one of each type) share a required group and class2s is set. No error thrown.', function() {
+            it('multiple fields (one of each type) share a required group and class2s is set. No error thrown.', () => {
 
                 let instance = AllFieldsInRequiredGroupClass.create();
 
@@ -1731,30 +1747,11 @@ describe('Class Model Tests', function() {
 
         });
 
-        describe('Mutex Validation', function() {
+        describe('Mutex Validation', () => {
             
-            it('2 attribute fields (boolean, date) have a mutex and both are set. Error thrown.', function() {
+            it('2 attribute fields (boolean, date) have a mutex and both are set. Error thrown.', () => {
                 let expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field boolean with mutex \'a\'. Field date with mutex \'a\'.';
                 let expectedErrorMutex = /^Mutex violations found for instance .* Field boolean with mutex \'a\'. Field date with mutex \'a\'.$/;
-                
-                let schema = {
-                    boolean: {
-                        type: Boolean,
-                        mutex: 'a'
-                    },
-                    date: {
-                        type: Date,
-                        mutex: 'a'
-                    }
-                };
-
-                let MutexClassA = new ClassModel({
-                    accessControlled: false,
-                    updateControlled: false,
-                    className: 'MutexClassA', 
-                    schema: schema
-                });
-
                 let instance = MutexClassA.create();
 
                 instance.boolean = true;
@@ -1779,31 +1776,13 @@ describe('Class Model Tests', function() {
                 throw new Error('ClassModel.validate did not throw an error when it should have.');
             });
             
-            it('2 attribute fields (boolean, date) have a mutex and one (boolean) is set. No error thrown.', function() {
-                let schema = {
-                    boolean: {
-                        type: Boolean,
-                        mutex: 'a'
-                    },
-                    date: {
-                        type: Date,
-                        mutex: 'a'
-                    }
-                };
-
-                let MutexClassAA = new ClassModel({
-                    accessControlled: false,
-                    updateControlled: false,
-                    className: 'MutexClassAA', 
-                    schema: schema
-                });
-
-                let instance = MutexClassAA.create();
+            it('2 attribute fields (boolean, date) have a mutex and one (boolean) is set. No error thrown.', () => {
+                let instance = MutexClassA.create();
 
                 instance.boolean = true;
 
                 try {
-                    MutexClassAA.validate(instance);
+                    MutexClassA.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1815,30 +1794,9 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('2 singular relationship fields have a mutex and both are set. Error thrown.', function() {
+            it('2 singular relationship fields have a mutex and both are set. Error thrown.', () => {
                 let expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field class1 with mutex \'a\'. Field class2 with mutex \'a\'.';
                 let expectedErrorMutex = /^Mutex violations found for instance .* Field class1 with mutex \'a\'. Field class2 with mutex \'a\'.$/;
-            
-                let schema = {
-                    class1: {
-                        type: Schema.Types.ObjectId,
-                        ref: 'CompareClass1',
-                        mutex: 'a'
-                    },
-                    class2: {
-                        type: Schema.Types.ObjectId,
-                        ref: 'CompareClass2',
-                        mutex: 'a'
-                    }
-                };
-
-                let MutexClassB = new ClassModel({
-                    accessControlled: false,
-                    updateControlled: false,
-                    className: 'MutexClassB', 
-                    schema: schema
-                });
-
                 let instance = MutexClassB.create();
 
                 instance.class1 = CompareClass1.create()._id;
@@ -1863,33 +1821,13 @@ describe('Class Model Tests', function() {
                 throw new Error('ClassModel.validate did not throw an error when it should have.');
             });
             
-            it('2 singular relationship fields have a mutex and one is set. No error thrown.', function() {
-                let schema = {
-                    class1: {
-                        type: Schema.Types.ObjectId,
-                        ref: 'CompareClass1',
-                        mutex: 'a'
-                    },
-                    class2: {
-                        type: Schema.Types.ObjectId,
-                        ref: 'CompareClass2',
-                        mutex: 'a'
-                    }
-                };
-
-                let MutexClassBB = new ClassModel({
-                    accessControlled: false,
-                    updateControlled: false,
-                    className: 'MutexClassBB', 
-                    schema: schema
-                });
-
-                let instance = MutexClassBB.create();
+            it('2 singular relationship fields have a mutex and one is set. No error thrown.', () => {
+                let instance = MutexClassB.create();
 
                 instance.class1 = CompareClass1.create()._id;
 
                 try {
-                    MutexClassBB.validate(instance);
+                    MutexClassB.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1901,30 +1839,9 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('2 non-singular relationship fields have a mutex and both are set. Error thrown.', function() {
+            it('2 non-singular relationship fields have a mutex and both are set. Error thrown.', () => {
                 let expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field class1s with mutex \'a\'. Field class2s with mutex \'a\'.';
                 let expectedErrorMutex = /^Mutex violations found for instance .* Field class1s with mutex \'a\'. Field class2s with mutex \'a\'.$/;
-            
-                let schema = {
-                    class1s: {
-                        type: [Schema.Types.ObjectId],
-                        ref: 'CompareClass1',
-                        mutex: 'a'
-                    },
-                    class2s: {
-                        type: [Schema.Types.ObjectId],
-                        ref: 'CompareClass2',
-                        mutex: 'a'
-                    }
-                };
-
-                let MutexClassC = new ClassModel({
-                    accessControlled: false,
-                    updateControlled: false,
-                    className: 'MutexClassC', 
-                    schema: schema
-                });
-
                 let instance = MutexClassC.create();
 
                 instance.class1s = [CompareClass1.create()._id, CompareClass1.create()._id];
@@ -1949,33 +1866,13 @@ describe('Class Model Tests', function() {
                 throw new Error('ClassModel.validate did not throw an error when it should have.');
             });
             
-            it('2 non-singular relationship fields have a mutex and one is set. No error thrown.', function() {
-                let schema = {
-                    class1s: {
-                        type: [Schema.Types.ObjectId],
-                        ref: 'CompareClass1',
-                        mutex: 'a'
-                    },
-                    class2s: {
-                        type: [Schema.Types.ObjectId],
-                        ref: 'CompareClass2',
-                        mutex: 'a'
-                    }
-                };
-
-                let MutexClassCC = new ClassModel({
-                    accessControlled: false,
-                    updateControlled: false,
-                    className: 'MutexClassCC', 
-                    schema: schema
-                });
-
-                let instance = MutexClassCC.create();
+            it('2 non-singular relationship fields have a mutex and one is set. No error thrown.', () => {
+                let instance = MutexClassC.create();
 
                 instance.class1s = [CompareClass1.create()._id, CompareClass1.create()._id];
 
                 try {
-                    MutexClassCC.validate(instance);
+                    MutexClassC.validate(instance);
                 }
                 catch (validationError) {
                     throw new Error(
@@ -1987,7 +1884,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields (one of each type) have a mutex and string is set. No error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and string is set. No error thrown.', () => {
 
                 let instance = AllFieldsMutexClass.create();
 
@@ -2006,7 +1903,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields (one of each type) have a mutex and date is set. No error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and date is set. No error thrown.', () => {
 
                 let instance = AllFieldsMutexClass.create();
 
@@ -2025,7 +1922,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields (one of each type) have a mutex and boolean is set to false. No error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and boolean is set to false. No error thrown.', () => {
 
                 let instance = AllFieldsMutexClass.create();
 
@@ -2044,7 +1941,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields (one of each type) have a mutex and boolean is set to true. No error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and boolean is set to true. No error thrown.', () => {
 
                 let instance = AllFieldsMutexClass.create();
 
@@ -2063,7 +1960,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields (one of each type) have a mutex and number is set to 0. No error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and number is set to 0. No error thrown.', () => {
 
                 let instance = AllFieldsMutexClass.create();
 
@@ -2082,7 +1979,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields (one of each type) have a mutex and number is set to 1. No error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and number is set to 1. No error thrown.', () => {
 
                 let instance = AllFieldsMutexClass.create();
 
@@ -2101,7 +1998,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields (one of each type) have a mutex and numbers is set to empty array. No error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and numbers is set to empty array. No error thrown.', () => {
 
                 let instance = AllFieldsMutexClass.create();
 
@@ -2120,7 +2017,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields (one of each type) have a mutex and numbers is set to an array of 0s. No error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and numbers is set to an array of 0s. No error thrown.', () => {
 
                 let instance = AllFieldsMutexClass.create();
 
@@ -2139,7 +2036,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields (one of each type) have a mutex and numbers is set to an array of 1s. No error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and numbers is set to an array of 1s. No error thrown.', () => {
 
                 let instance = AllFieldsMutexClass.create();
 
@@ -2158,7 +2055,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields (one of each type) have a mutex and class1 is set. No error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and class1 is set. No error thrown.', () => {
 
                 let instance = AllFieldsMutexClass.create();
 
@@ -2177,7 +2074,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields (one of each type) have a mutex and class2s are set to a single instance. No error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and class2s are set to a single instance. No error thrown.', () => {
 
                 let instance = AllFieldsMutexClass.create();
 
@@ -2196,7 +2093,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields (one of each type) have a mutex and class2s are set to multiple instances. No error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and class2s are set to multiple instances. No error thrown.', () => {
 
                 let instance = AllFieldsMutexClass.create();
 
@@ -2215,7 +2112,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields (one of each type) have a mutex and none are set. No error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and none are set. No error thrown.', () => {
 
                 let instance = AllFieldsMutexClass.create();
 
@@ -2232,7 +2129,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields (one of each type) have a mutex and number is set to 1 and numbers, strings, booleans, and class2s are set to empty array. No error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and number is set to 1 and numbers, strings, booleans, and class2s are set to empty array. No error thrown.', () => {
 
                 let instance = AllFieldsMutexClass.create();
 
@@ -2255,7 +2152,7 @@ describe('Class Model Tests', function() {
                 return true;
             });
             
-            it('multiple fields (one of each type) have a mutex and number is set to 0 and numbers are set to an array of 0s. Error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and number is set to 0 and numbers are set to an array of 0s. Error thrown.', () => {
                 let expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field number with mutex \'a\'. Field numbers with mutex \'a\'.';
                 let expectedErrorMutex = /^Mutex violations found for instance .* Field number with mutex \'a\'. Field numbers with mutex \'a\'.$/;
             
@@ -2283,7 +2180,7 @@ describe('Class Model Tests', function() {
                 throw new Error('ClassModel.validate did not throw an error when it should have.');
             });
                 
-            it('multiple fields (one of each type) have a mutex and number is set to 1 and booleans is set to [false]. Error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and number is set to 1 and booleans is set to [false]. Error thrown.', () => {
                 let expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field booleans with mutex \'a\'. Field number with mutex \'a\'.';
                 let expectedErrorMutex = /^Mutex violations found for instance .* Field booleans with mutex \'a\'. Field number with mutex \'a\'.$/;
             
@@ -2311,7 +2208,7 @@ describe('Class Model Tests', function() {
                 throw new Error('ClassModel.validate did not throw an error when it should have.');
             });
                 
-            it('multiple fields (one of each type) have a mutex and number is set to 1 and strings is set to [\"\"]. Error thrown.', function() {
+            it('multiple fields (one of each type) have a mutex and number is set to 1 and strings is set to [\"\"]. Error thrown.', () => {
                 let expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field strings with mutex \'a\'. Field number with mutex \'a\'.';
                 let expectedErrorMutex = /^Mutex violations found for instance .* Field strings with mutex \'a\'. Field number with mutex \'a\'.$/;
             
@@ -2343,7 +2240,7 @@ describe('Class Model Tests', function() {
 
     });
 
-    describe('ClassModel.save()', function() {    
+    describe('ClassModel.save()', () => {    
 
         it('ClassModel.save() throws an error when called on an instance of a different ClassModel.', async () => {
             const expectedErrorMessage = 'AllFieldsRequiredClass.save() called on an instance of a different class.'; 
@@ -2392,7 +2289,7 @@ describe('Class Model Tests', function() {
 
     });
 
-    describe('ClassModel.saveAll()', function() {
+    describe('ClassModel.saveAll()', () => {
 
         it('Throws an error if no arguments passed.', function(done) {
             let expectedErrorMessage = 'AllFieldsRequiredClass.saveAll(instances): instances cannot be null.';
@@ -2400,12 +2297,12 @@ describe('Class Model Tests', function() {
 
             
             AllFieldsRequiredClass.saveAll().then(
-                function() {
+                () => {
                 },
                 function(saveError) {
                     error = saveError;
                 }
-            ).finally(function() {
+            ).finally(() => {
                 if (!error) {
                     done(new Error('ClassModel.saveAll() did not throw an error when it should have.'));
                 }
@@ -2431,12 +2328,12 @@ describe('Class Model Tests', function() {
 
             
             AllFieldsRequiredClass.saveAll(instance).then(
-                function() {
+                () => {
                 },
                 function(saveError) {
                     error = saveError;
                 }
-            ).finally(function() {
+            ).finally(() => {
                 if (!error) {
                     done(new Error('ClassModel.saveAll() did not throw an error when it should have.'));
                 }
@@ -2505,7 +2402,7 @@ describe('Class Model Tests', function() {
             instanceB.class2s = [CompareClass2.create()._id];
 
             AllFieldsRequiredClass.saveAll(instances).then(    
-                function() {
+                () => {
                     AllFieldsRequiredClass.find({_id: {$in: [instanceA._id, instanceB._id]}}).then(
                         function(foundInstances) {
                             instances.forEach(function(desiredInstance) {
@@ -2536,7 +2433,7 @@ describe('Class Model Tests', function() {
                 function(saveErr) {
                     error = saveErr;
                 }
-            ).finally(function() {
+            ).finally(() => {
                 if (error)
                     done(error);
                 else
@@ -2546,19 +2443,19 @@ describe('Class Model Tests', function() {
 
     })
 
-    describe('ClassModel Query Methods', function() {
+    describe('ClassModel Query Methods', () => {
 
         // Create Instances for tests.
         {
-            var instanceOfAllFieldsMutexClass = AllFieldsMutexClass.create();
-            var instanceOfDiscriminatedSuperClass = DiscriminatedSuperClass.create();
-            var instanceOfSuperClass = SuperClass.create();
-            var instanceOfSubClassOfSuperClass = SubClassOfSuperClass.create();
-            var instanceOfSubClassOfAbstractSuperClass = SubClassOfAbstractSuperClass.create();
-            var instanceOfSubClassOfDiscriminatorSuperClass = SubClassOfDiscriminatorSuperClass.create();
-            var instanceOfSubClassOfDiscriminatedSubClassOfSuperClass = SubClassOfDiscriminatedSubClassOfSuperClass.create();
-            var instanceOfSubClassOfSubClassOfSuperClass = SubClassOfSubClassOfSuperClass.create();
-            var instanceOfSubClassOfAbstractSubClassOfSuperClass = SubClassOfAbstractSubClassOfSuperClass.create();
+            var instanceOfAllFieldsMutexClass = new Instance(AllFieldsMutexClass);
+            var instanceOfDiscriminatedSuperClass = new Instance(DiscriminatedSuperClass);
+            var instanceOfSuperClass = new Instance(SuperClass);
+            var instanceOfSubClassOfSuperClass = new Instance(SubClassOfSuperClass);
+            var instanceOfSubClassOfAbstractSuperClass = new Instance(SubClassOfAbstractSuperClass);
+            var instanceOfSubClassOfDiscriminatorSuperClass = new Instance(SubClassOfDiscriminatorSuperClass);
+            var instanceOfSubClassOfDiscriminatedSubClassOfSuperClass = new Instance(SubClassOfDiscriminatedSubClassOfSuperClass);
+            var instanceOfSubClassOfSubClassOfSuperClass = new Instance(SubClassOfSubClassOfSuperClass);
+            var instanceOfSubClassOfAbstractSubClassOfSuperClass = new Instance(SubClassOfAbstractSubClassOfSuperClass);
     
             instanceOfAllFieldsMutexClass.string = 'instanceOfAllFieldsMutexClass';
             instanceOfDiscriminatedSuperClass.name = 'instanceOfDiscriminatedSuperClass';
@@ -2569,29 +2466,75 @@ describe('Class Model Tests', function() {
             instanceOfSubClassOfDiscriminatedSubClassOfSuperClass.name = 'instanceOfSubClassOfDiscriminatedSubClassOfSuperClass';
             instanceOfSubClassOfSubClassOfSuperClass.name = 'instanceOfSubClassOfSubClassOfSuperClass';
             instanceOfSubClassOfAbstractSubClassOfSuperClass.name = 'instanceOfSubClassOfAbstractSubClassOfSuperClass';
+
+            var documentOfAllFieldsMutexClass = AllFieldsMutexClass.create();
+            var documentOfDiscriminatedSuperClass = DiscriminatedSuperClass.create();
+            var documentOfSuperClass = SuperClass.create();
+            var documentOfSubClassOfSuperClass = SubClassOfSuperClass.create();
+            var documentOfSubClassOfAbstractSuperClass = SubClassOfAbstractSuperClass.create();
+            var documentOfSubClassOfDiscriminatorSuperClass = SubClassOfDiscriminatorSuperClass.create();
+            var documentOfSubClassOfDiscriminatedSubClassOfSuperClass = SubClassOfDiscriminatedSubClassOfSuperClass.create();
+            var documentOfSubClassOfSubClassOfSuperClass = SubClassOfSubClassOfSuperClass.create();
+            var documentOfSubClassOfAbstractSubClassOfSuperClass = SubClassOfAbstractSubClassOfSuperClass.create();
+    
+            documentOfAllFieldsMutexClass.string = 'documentOfAllFieldsMutexClass';
+            documentOfDiscriminatedSuperClass.name = 'documentOfDiscriminatedSuperClass';
+            documentOfSuperClass.name = 'documentOfSuperClass';
+            documentOfSubClassOfSuperClass.name = 'documentOfSubClassOfSuperClass';
+            documentOfSubClassOfAbstractSuperClass.name = 'documentOfSubClassOfAbstractSuperClass';
+            documentOfSubClassOfDiscriminatorSuperClass.name = 'documentOfSubClassOfDiscriminatorSuperClass';
+            documentOfSubClassOfDiscriminatedSubClassOfSuperClass.name = 'documentOfSubClassOfDiscriminatedSubClassOfSuperClass';
+            documentOfSubClassOfSubClassOfSuperClass.name = 'documentOfSubClassOfSubClassOfSuperClass';
+            documentOfSubClassOfAbstractSubClassOfSuperClass.name = 'documentOfSubClassOfAbstractSubClassOfSuperClass';
         }
 
         before(async () => {
             await Promise.all([
-                AllFieldsMutexClass.save(instanceOfAllFieldsMutexClass),
-                DiscriminatedSuperClass.save(instanceOfDiscriminatedSuperClass),
-                SuperClass.save(instanceOfSuperClass),
-                SubClassOfSuperClass.save(instanceOfSubClassOfSuperClass),
-                SubClassOfDiscriminatorSuperClass.save(instanceOfSubClassOfDiscriminatorSuperClass),
-                SubClassOfAbstractSuperClass.save(instanceOfSubClassOfAbstractSuperClass),
-                SubClassOfDiscriminatedSubClassOfSuperClass.save(instanceOfSubClassOfDiscriminatedSubClassOfSuperClass),
-                SubClassOfSubClassOfSuperClass.save(instanceOfSubClassOfSubClassOfSuperClass),
-                SubClassOfAbstractSubClassOfSuperClass.save(instanceOfSubClassOfAbstractSubClassOfSuperClass),
+                AllFieldsMutexClass.save(documentOfAllFieldsMutexClass),
+                DiscriminatedSuperClass.save(documentOfDiscriminatedSuperClass),
+                SuperClass.save(documentOfSuperClass),
+                SubClassOfSuperClass.save(documentOfSubClassOfSuperClass),
+                SubClassOfDiscriminatorSuperClass.save(documentOfSubClassOfDiscriminatorSuperClass),
+                SubClassOfAbstractSuperClass.save(documentOfSubClassOfAbstractSuperClass),
+                SubClassOfDiscriminatedSubClassOfSuperClass.save(documentOfSubClassOfDiscriminatedSubClassOfSuperClass),
+                SubClassOfSubClassOfSuperClass.save(documentOfSubClassOfSubClassOfSuperClass),
+                SubClassOfAbstractSubClassOfSuperClass.save(documentOfSubClassOfAbstractSubClassOfSuperClass),
+            ]);
+            await Promise.all([
+                instanceOfAllFieldsMutexClass.save(),
+                instanceOfDiscriminatedSuperClass.save(),
+                instanceOfSuperClass.save(),
+                instanceOfSubClassOfSuperClass.save(),
+                instanceOfSubClassOfDiscriminatorSuperClass.save(),
+                instanceOfSubClassOfAbstractSuperClass.save(),
+                instanceOfSubClassOfDiscriminatedSubClassOfSuperClass.save(),
+                instanceOfSubClassOfSubClassOfSuperClass.save(),
+                instanceOfSubClassOfAbstractSubClassOfSuperClass.save(),
             ]);
         });
 
-        describe('ClassModel.findById()', function() {
+        after(async () => {
+            await Promise.all([
+                AllFieldsMutexClass.clear(),
+                DiscriminatedSuperClass.clear(),
+                SuperClass.clear(),
+                SubClassOfSuperClass.clear(),
+                SubClassOfDiscriminatorSuperClass.clear(),
+                SubClassOfAbstractSuperClass.clear(),
+                AllFieldsRequiredClass.clear(),
+                DiscriminatedSubClassOfSuperClass.clear(),
+                SubClassOfAbstractSubClassOfSuperClass.clear(),
+                SubClassOfSubClassOfSuperClass.clear()
+            ]);
+        });
+
+        describe('ClassModel.findById()', () => {
     
-            describe('Calling findById on the Class of the instance you want to find. (Direct)', function() {
+            describe('Calling findById on the Class of the instance you want to find. (Direct)', () => {
 
                 it('An instance of a concrete class with no subclasses can be found by Id.', async () => {
                     const classOfInstance = AllFieldsMutexClass
-                    const instanceToFind = instanceOfAllFieldsMutexClass
+                    const instanceToFind = documentOfAllFieldsMutexClass
                     const instanceFound = await classOfInstance.findById(instanceToFind._id);
 
                     if (!instanceFound) {
@@ -2607,7 +2550,7 @@ describe('Class Model Tests', function() {
         
                 it('An instance of a concrete discriminated class can be found by Id.', async () => {
                     const classOfInstance = SubClassOfDiscriminatorSuperClass;
-                    const instanceToFind = instanceOfSubClassOfDiscriminatorSuperClass
+                    const instanceToFind = documentOfSubClassOfDiscriminatorSuperClass
                     const instanceFound = await classOfInstance.findById(instanceToFind._id);
 
                     if (!instanceFound) {
@@ -2623,7 +2566,7 @@ describe('Class Model Tests', function() {
         
                 it('An instance of a concrete super class can be found by Id.', async () => {
                     const classOfInstance = SuperClass;
-                    const instanceToFind = instanceOfSuperClass
+                    const instanceToFind = documentOfSuperClass
                     const instanceFound = await classOfInstance.findById(instanceToFind._id);
 
                     if (!instanceFound) {
@@ -2639,7 +2582,7 @@ describe('Class Model Tests', function() {
         
                 it('An instance of a concrete discriminated sub-class can be found by Id.', async () => {
                     const classOfInstance = DiscriminatedSuperClass;
-                    const instanceToFind = instanceOfDiscriminatedSuperClass
+                    const instanceToFind = documentOfDiscriminatedSuperClass
                     const instanceFound = await classOfInstance.findById(instanceToFind._id);
 
                     if (!instanceFound) {
@@ -2655,12 +2598,12 @@ describe('Class Model Tests', function() {
     
             });
     
-            describe('Calling findById on a super class of the class of the instance you want to find. (Indirect)', function() {
+            describe('Calling findById on a super class of the class of the instance you want to find. (Indirect)', () => {
         
                 it('An instance of a sub class of a discrimintated super class can be found by Id from the super class.', async () => {
                     const classToCallFindByIdOn = DiscriminatedSuperClass;
                     const classOfInstance = SubClassOfDiscriminatorSuperClass;
-                    const instanceToFind = instanceOfSubClassOfDiscriminatorSuperClass;
+                    const instanceToFind = documentOfSubClassOfDiscriminatorSuperClass;
                     const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
 
                     if (!instanceFound) {
@@ -2677,7 +2620,7 @@ describe('Class Model Tests', function() {
                 it('An instance of a concrete sub class of a non-discriminated super class can be found by Id from the super class.', async () => {
                     const classToCallFindByIdOn = SuperClass;
                     const classOfInstance = SubClassOfSuperClass;
-                    const instanceToFind = instanceOfSubClassOfSuperClass;
+                    const instanceToFind = documentOfSubClassOfSuperClass;
                     const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
 
                     if (!instanceFound) {
@@ -2694,7 +2637,7 @@ describe('Class Model Tests', function() {
                 it('An instance of a concrete sub class of a non-discriminated abstract super class can be found by Id from the super class.', async () => {
                     const classToCallFindByIdOn = AbstractSuperClass;
                     const classOfInstance = SubClassOfAbstractSuperClass;
-                    const instanceToFind = instanceOfSubClassOfAbstractSuperClass;
+                    const instanceToFind = documentOfSubClassOfAbstractSuperClass;
                     const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
 
                     if (!instanceFound) {
@@ -2710,13 +2653,13 @@ describe('Class Model Tests', function() {
     
             });
     
-            describe('Calling findById on a super class of the super class of the instance you want to find. (Recursive)', function() {
+            describe('Calling findById on a super class of the super class of the instance you want to find. (Recursive)', () => {
         
         
                 it('SuperClass -> Discriminated Sub Class -> Sub Sub Class', async () => {
                     const classToCallFindByIdOn = SuperClass;
                     const classOfInstance = SubClassOfDiscriminatedSubClassOfSuperClass;
-                    const instanceToFind = instanceOfSubClassOfDiscriminatedSubClassOfSuperClass;
+                    const instanceToFind = documentOfSubClassOfDiscriminatedSubClassOfSuperClass;
                     const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
 
                     if (!instanceFound) {
@@ -2733,7 +2676,7 @@ describe('Class Model Tests', function() {
                 it('SuperClass -> Sub Class -> Sub Sub Class', async () => {
                     const classToCallFindByIdOn = SuperClass;
                     const classOfInstance = SubClassOfSubClassOfSuperClass;
-                    const instanceToFind = instanceOfSubClassOfSubClassOfSuperClass;
+                    const instanceToFind = documentOfSubClassOfSubClassOfSuperClass;
                     const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
 
                     if (!instanceFound) {
@@ -2750,7 +2693,7 @@ describe('Class Model Tests', function() {
                 it('SuperClass -> Abstract Sub Class -> Sub Sub Class', async () => {
                     const classToCallFindByIdOn = SuperClass;
                     const classOfInstance = SubClassOfAbstractSubClassOfSuperClass;
-                    const instanceToFind = instanceOfSubClassOfAbstractSubClassOfSuperClass;
+                    const instanceToFind = documentOfSubClassOfAbstractSubClassOfSuperClass;
                     const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
 
                     if (!instanceFound) {
@@ -2768,17 +2711,17 @@ describe('Class Model Tests', function() {
     
         });
 
-        describe('ClassModel.findOne()', function() {
+        describe('ClassModel.findOne()', () => {
     
-            describe('Calling findOne on the Class of the instance you want to find. (Direct)', function() {
+            describe('Calling findOne on the Class of the instance you want to find. (Direct)', () => {
 
                 it('An instance of a concrete class with no subclasses can be found.', async () => {
                     const classToCallFindOneOn = AllFieldsMutexClass;
                     const classOfInstance = AllFieldsMutexClass;
-                    const instanceToFind = instanceOfAllFieldsMutexClass;
+                    const instanceToFind = documentOfAllFieldsMutexClass;
 
                     const filter = {
-                        string: 'instanceOfAllFieldsMutexClass'
+                        string: 'documentOfAllFieldsMutexClass'
                     }
 
                     const instanceFound = await classToCallFindOneOn.findOne(filter);
@@ -2797,10 +2740,10 @@ describe('Class Model Tests', function() {
                 it('An instance of a concrete discriminated class can be found.', async () => {
                     const classToCallFindOneOn = SubClassOfDiscriminatorSuperClass;
                     const classOfInstance = SubClassOfDiscriminatorSuperClass;
-                    const instanceToFind = instanceOfSubClassOfDiscriminatorSuperClass;
+                    const instanceToFind = documentOfSubClassOfDiscriminatorSuperClass;
 
                     const filter = {
-                        name: 'instanceOfSubClassOfDiscriminatorSuperClass'
+                        name: 'documentOfSubClassOfDiscriminatorSuperClass'
                     }
 
                     const instanceFound = await classToCallFindOneOn.findOne(filter);
@@ -2819,10 +2762,10 @@ describe('Class Model Tests', function() {
                 it('An instance of a concrete super class can be found.', async () => {
                     const classToCallFindOneOn = SuperClass;
                     const classOfInstance = SuperClass;
-                    const instanceToFind = instanceOfSuperClass;
+                    const instanceToFind = documentOfSuperClass;
 
                     const filter = {
-                        name: 'instanceOfSuperClass'
+                        name: 'documentOfSuperClass'
                     }
 
                     const instanceFound = await classToCallFindOneOn.findOne(filter);
@@ -2841,10 +2784,10 @@ describe('Class Model Tests', function() {
                 it('An instance of a concrete discriminated sub-class can be found.', async () => {
                     const classToCallFindOneOn = DiscriminatedSuperClass;
                     const classOfInstance = DiscriminatedSuperClass;
-                    const instanceToFind = instanceOfDiscriminatedSuperClass;
+                    const instanceToFind = documentOfDiscriminatedSuperClass;
 
                     const filter = {
-                        name: 'instanceOfDiscriminatedSuperClass'
+                        name: 'documentOfDiscriminatedSuperClass'
                     }
 
                     const instanceFound = await classToCallFindOneOn.findOne(filter);
@@ -2862,15 +2805,15 @@ describe('Class Model Tests', function() {
     
             });
     
-            describe('Calling findOne on a super class of the class of the instance you want to find. (Indirect)', function() {
+            describe('Calling findOne on a super class of the class of the instance you want to find. (Indirect)', () => {
 
                 it('An instance of a sub class of a discrimintated super class can be found by Id from the super class.', async () => {
                     const classToCallFindOneOn = DiscriminatedSuperClass;
                     const classOfInstance = SubClassOfDiscriminatorSuperClass;
-                    const instanceToFind = instanceOfSubClassOfDiscriminatorSuperClass;
+                    const instanceToFind = documentOfSubClassOfDiscriminatorSuperClass;
 
                     const filter = {
-                        name: 'instanceOfSubClassOfDiscriminatorSuperClass'
+                        name: 'documentOfSubClassOfDiscriminatorSuperClass'
                     }
 
                     const instanceFound = await classToCallFindOneOn.findOne(filter);
@@ -2889,10 +2832,10 @@ describe('Class Model Tests', function() {
                 it('An instance of a concrete sub class of a non-discriminated super class can be found by Id from the super class.', async () => {
                     const classToCallFindOneOn = SuperClass;
                     const classOfInstance = SubClassOfSuperClass;
-                    const instanceToFind = instanceOfSubClassOfSuperClass;
+                    const instanceToFind = documentOfSubClassOfSuperClass;
 
                     const filter = {
-                        name: 'instanceOfSubClassOfSuperClass'
+                        name: 'documentOfSubClassOfSuperClass'
                     }
 
                     const instanceFound = await classToCallFindOneOn.findOne(filter);
@@ -2911,10 +2854,10 @@ describe('Class Model Tests', function() {
                 it('An instance of a concrete sub class of a non-discriminated abstract super class can be found by Id from the super class.', async () => {
                     const classToCallFindOneOn = AbstractSuperClass;
                     const classOfInstance = SubClassOfAbstractSuperClass;
-                    const instanceToFind = instanceOfSubClassOfAbstractSuperClass;
+                    const instanceToFind = documentOfSubClassOfAbstractSuperClass;
 
                     const filter = {
-                        name: 'instanceOfSubClassOfAbstractSuperClass'
+                        name: 'documentOfSubClassOfAbstractSuperClass'
                     }
 
                     const instanceFound = await classToCallFindOneOn.findOne(filter);
@@ -2932,15 +2875,15 @@ describe('Class Model Tests', function() {
     
             });
     
-            describe('Calling findOne on a super class of the super class of the instance you want to find. (Recursive)', function() {
+            describe('Calling findOne on a super class of the super class of the instance you want to find. (Recursive)', () => {
         
                 it('SuperClass -> Discriminated Sub Class -> Sub Sub Class', async () => {
                     const classToCallFindOneOn = SuperClass;
                     const classOfInstance = SubClassOfDiscriminatedSubClassOfSuperClass;
-                    const instanceToFind = instanceOfSubClassOfDiscriminatedSubClassOfSuperClass;
+                    const instanceToFind = documentOfSubClassOfDiscriminatedSubClassOfSuperClass;
 
                     const filter = {
-                        name: 'instanceOfSubClassOfDiscriminatedSubClassOfSuperClass'
+                        name: 'documentOfSubClassOfDiscriminatedSubClassOfSuperClass'
                     }
 
                     const instanceFound = await classToCallFindOneOn.findOne(filter);
@@ -2959,10 +2902,10 @@ describe('Class Model Tests', function() {
                 it('SuperClass -> Sub Class -> Sub Sub Class', async () => {
                     const classToCallFindOneOn = SuperClass;
                     const classOfInstance = SubClassOfSubClassOfSuperClass;
-                    const instanceToFind = instanceOfSubClassOfSubClassOfSuperClass;
+                    const instanceToFind = documentOfSubClassOfSubClassOfSuperClass;
 
                     const filter = {
-                        name: 'instanceOfSubClassOfSubClassOfSuperClass'
+                        name: 'documentOfSubClassOfSubClassOfSuperClass'
                     }
 
                     const instanceFound = await classToCallFindOneOn.findOne(filter);
@@ -2981,10 +2924,10 @@ describe('Class Model Tests', function() {
                 it('SuperClass -> Abstract Sub Class -> Sub Sub Class', async () => {
                     const classToCallFindOneOn = SuperClass;
                     const classOfInstance = SubClassOfAbstractSubClassOfSuperClass;
-                    const instanceToFind = instanceOfSubClassOfAbstractSubClassOfSuperClass;
+                    const instanceToFind = documentOfSubClassOfAbstractSubClassOfSuperClass;
 
                     const filter = {
-                        name: 'instanceOfSubClassOfAbstractSubClassOfSuperClass'
+                        name: 'documentOfSubClassOfAbstractSubClassOfSuperClass'
                     }
 
                     const instanceFound = await classToCallFindOneOn.findOne(filter);
@@ -3004,19 +2947,19 @@ describe('Class Model Tests', function() {
     
         });
 
-        describe('ClassModel.find()', function() {
+        describe('ClassModel.find()', () => {
 
-            describe('Finding a single instance.', function() {
+            describe('Finding a single instance.', () => {
     
-                describe('Calling find on the Class of the instance you want to find. (Direct)', function() {
+                describe('Calling find on the Class of the instance you want to find. (Direct)', () => {
         
                     it('An instance of a concrete class with no subclasses can be found.', async () => {
                         const classToCallFindOn = AllFieldsMutexClass;
                         const classOfInstance = AllFieldsMutexClass;
-                        const instanceToFind = instanceOfAllFieldsMutexClass;
+                        const instanceToFind = documentOfAllFieldsMutexClass;
     
                         const filter = {
-                            string: 'instanceOfAllFieldsMutexClass'
+                            string: 'documentOfAllFieldsMutexClass'
                         }
     
                         const instancesFound = await classToCallFindOn.find(filter);
@@ -3038,10 +2981,10 @@ describe('Class Model Tests', function() {
                     it('An instance of a concrete discriminated class can be found.', async () => {
                         const classToCallFindOn = SubClassOfDiscriminatorSuperClass;
                         const classOfInstance = SubClassOfDiscriminatorSuperClass;
-                        const instanceToFind = instanceOfSubClassOfDiscriminatorSuperClass;
+                        const instanceToFind = documentOfSubClassOfDiscriminatorSuperClass;
     
                         const filter = {
-                            name: 'instanceOfSubClassOfDiscriminatorSuperClass'
+                            name: 'documentOfSubClassOfDiscriminatorSuperClass'
                         }
     
                         const instancesFound = await classToCallFindOn.find(filter);
@@ -3063,10 +3006,10 @@ describe('Class Model Tests', function() {
                     it('An instance of a concrete super class can be found.', async () => {
                         const classToCallFindOn = SuperClass;
                         const classOfInstance = SuperClass;
-                        const instanceToFind = instanceOfSuperClass;
+                        const instanceToFind = documentOfSuperClass;
     
                         const filter = {
-                            name: 'instanceOfSuperClass'
+                            name: 'documentOfSuperClass'
                         }
     
                         const instancesFound = await classToCallFindOn.find(filter);
@@ -3088,10 +3031,10 @@ describe('Class Model Tests', function() {
                     it('An instance of a concrete discriminated sub-class can be found.', async () => {
                         const classToCallFindOn = DiscriminatedSuperClass;
                         const classOfInstance = DiscriminatedSuperClass;
-                        const instanceToFind = instanceOfDiscriminatedSuperClass;
+                        const instanceToFind = documentOfDiscriminatedSuperClass;
     
                         const filter = {
-                            name: 'instanceOfDiscriminatedSuperClass'
+                            name: 'documentOfDiscriminatedSuperClass'
                         }
     
                         const instancesFound = await classToCallFindOn.find(filter);
@@ -3112,15 +3055,15 @@ describe('Class Model Tests', function() {
         
                 });
         
-                describe('Calling find on a super class of the class of the instance you want to find. (Indirect)', function() {
+                describe('Calling find on a super class of the class of the instance you want to find. (Indirect)', () => {
         
                     it('An instance of a sub class of a discrimintated super class can be found by Id from the super class.', async () => {
                         const classToCallFindOn = DiscriminatedSuperClass;
                         const classOfInstance = SubClassOfDiscriminatorSuperClass;
-                        const instanceToFind = instanceOfSubClassOfDiscriminatorSuperClass;
+                        const instanceToFind = documentOfSubClassOfDiscriminatorSuperClass;
     
                         const filter = {
-                            name: 'instanceOfSubClassOfDiscriminatorSuperClass'
+                            name: 'documentOfSubClassOfDiscriminatorSuperClass'
                         }
     
                         const instancesFound = await classToCallFindOn.find(filter);
@@ -3142,10 +3085,10 @@ describe('Class Model Tests', function() {
                     it('An instance of a concrete sub class of a non-discriminated super class can be found by Id from the super class.', async () => {
                         const classToCallFindOn = SuperClass;
                         const classOfInstance = SubClassOfSuperClass;
-                        const instanceToFind = instanceOfSubClassOfSuperClass;
+                        const instanceToFind = documentOfSubClassOfSuperClass;
     
                         const filter = {
-                            name: 'instanceOfSubClassOfSuperClass'
+                            name: 'documentOfSubClassOfSuperClass'
                         }
     
                         const instancesFound = await classToCallFindOn.find(filter);
@@ -3167,10 +3110,10 @@ describe('Class Model Tests', function() {
                     it('An instance of a concrete sub class of a non-discriminated abstract super class can be found by Id from the super class.', async () => {
                         const classToCallFindOn = AbstractSuperClass;
                         const classOfInstance = SubClassOfAbstractSuperClass;
-                        const instanceToFind = instanceOfSubClassOfAbstractSuperClass;
+                        const instanceToFind = documentOfSubClassOfAbstractSuperClass;
     
                         const filter = {
-                            name: 'instanceOfSubClassOfAbstractSuperClass'
+                            name: 'documentOfSubClassOfAbstractSuperClass'
                         }
     
                         const instancesFound = await classToCallFindOn.find(filter);
@@ -3191,15 +3134,15 @@ describe('Class Model Tests', function() {
         
                 });
         
-                describe('Calling find() on a super class of the super class of the instance you want to find. (Recursive)', function() {
+                describe('Calling find() on a super class of the super class of the instance you want to find. (Recursive)', () => {
         
                     it('SuperClass -> Discriminated Sub Class -> Sub Sub Class', async () => {
                         const classToCallFindOn = SuperClass;
                         const classOfInstance = SubClassOfDiscriminatedSubClassOfSuperClass;
-                        const instanceToFind = instanceOfSubClassOfDiscriminatedSubClassOfSuperClass;
+                        const instanceToFind = documentOfSubClassOfDiscriminatedSubClassOfSuperClass;
     
                         const filter = {
-                            name: 'instanceOfSubClassOfDiscriminatedSubClassOfSuperClass'
+                            name: 'documentOfSubClassOfDiscriminatedSubClassOfSuperClass'
                         }
     
                         const instancesFound = await classToCallFindOn.find(filter);
@@ -3221,10 +3164,10 @@ describe('Class Model Tests', function() {
                     it('SuperClass -> Sub Class -> Sub Sub Class', async () => {
                         const classToCallFindOn = SuperClass;
                         const classOfInstance = SubClassOfSubClassOfSuperClass;
-                        const instanceToFind = instanceOfSubClassOfSubClassOfSuperClass;
+                        const instanceToFind = documentOfSubClassOfSubClassOfSuperClass;
     
                         const filter = {
-                            name: 'instanceOfSubClassOfSubClassOfSuperClass'
+                            name: 'documentOfSubClassOfSubClassOfSuperClass'
                         }
     
                         const instancesFound = await classToCallFindOn.find(filter);
@@ -3246,10 +3189,10 @@ describe('Class Model Tests', function() {
                     it('SuperClass -> Abstract Sub Class -> Sub Sub Class', async () => {
                         const classToCallFindOn = SuperClass;
                         const classOfInstance = SubClassOfAbstractSubClassOfSuperClass;
-                        const instanceToFind = instanceOfSubClassOfAbstractSubClassOfSuperClass;
+                        const instanceToFind = documentOfSubClassOfAbstractSubClassOfSuperClass;
     
                         const filter = {
-                            name: 'instanceOfSubClassOfAbstractSubClassOfSuperClass'
+                            name: 'documentOfSubClassOfAbstractSubClassOfSuperClass'
                         }
     
                         const instancesFound = await classToCallFindOn.find(filter);
@@ -3272,14 +3215,14 @@ describe('Class Model Tests', function() {
         
             });
 
-            describe('Finding Multiple Instances.', function() {
+            describe('Finding Multiple Instances.', () => {
         
                 it('Find two instances of a super class. One is an instance of the super class itself, one is 2 levels deep.', async () => {
                     const classToCallFindOn = SuperClass;
-                    const instancesToFind = [instanceOfSuperClass, instanceOfSubClassOfDiscriminatedSubClassOfSuperClass];
+                    const instancesToFind = [documentOfSuperClass, documentOfSubClassOfDiscriminatedSubClassOfSuperClass];
 
                     const filter = {
-                        name: {$in: ['instanceOfSuperClass', 'instanceOfSubClassOfDiscriminatedSubClassOfSuperClass']}
+                        name: {$in: ['documentOfSuperClass', 'documentOfSubClassOfDiscriminatedSubClassOfSuperClass']}
                     }; 
 
                     const instancesFound = await classToCallFindOn.find(filter);
@@ -3313,20 +3256,20 @@ describe('Class Model Tests', function() {
                 it('Find all the instances of a super class. One is an instance of the super class itself, and the others are the instances of the various sub classes.', async () => {
                     const classToCallFindOn = SuperClass;
                     const instancesToFind = [
-                        instanceOfSuperClass, 
-                        instanceOfSubClassOfSuperClass,
-                        instanceOfSubClassOfDiscriminatedSubClassOfSuperClass,
-                        instanceOfSubClassOfSubClassOfSuperClass,
-                        instanceOfSubClassOfAbstractSubClassOfSuperClass
+                        documentOfSuperClass, 
+                        documentOfSubClassOfSuperClass,
+                        documentOfSubClassOfDiscriminatedSubClassOfSuperClass,
+                        documentOfSubClassOfSubClassOfSuperClass,
+                        documentOfSubClassOfAbstractSubClassOfSuperClass
                     ];
 
                     const filter = {
                         name: {$in: [
-                            'instanceOfSuperClass', 
-                            'instanceOfSubClassOfSuperClass',
-                            'instanceOfSubClassOfDiscriminatedSubClassOfSuperClass',
-                            'instanceOfSubClassOfSubClassOfSuperClass',
-                            'instanceOfSubClassOfAbstractSubClassOfSuperClass'
+                            'documentOfSuperClass', 
+                            'documentOfSubClassOfSuperClass',
+                            'documentOfSubClassOfDiscriminatedSubClassOfSuperClass',
+                            'documentOfSubClassOfSubClassOfSuperClass',
+                            'documentOfSubClassOfAbstractSubClassOfSuperClass'
                         ]}
                     }; 
 
@@ -3362,51 +3305,229 @@ describe('Class Model Tests', function() {
 
         });
 
-        after(function(done) {
+        describe('ClassModel.findInstanceSet()', () => {
 
-            AllFieldsMutexClass.clear(instanceOfAllFieldsMutexClass).then(
-                function() {
-                    DiscriminatedSuperClass.clear(instanceOfDiscriminatedSuperClass).then(
-                        function() {
-                            SuperClass.clear(instanceOfSuperClass).then(
-                                function() {
-                                    SubClassOfSuperClass.clear(instanceOfSubClassOfSuperClass).then(
-                                        function() {
-                                            SubClassOfDiscriminatorSuperClass.clear(instanceOfSubClassOfDiscriminatorSuperClass).then(
-                                                function() {
-                                                    SubClassOfAbstractSuperClass.clear(instanceOfSubClassOfAbstractSuperClass).then(
-                                                        function() {
-                                                            AllFieldsRequiredClass.clear().then(
-                                                                function() {
-                                                                    DiscriminatedSubClassOfSuperClass.clear().then(
-                                                                        function() {
-                                                                            SubClassOfAbstractSubClassOfSuperClass.clear().then(
-                                                                                function() {
-                                                                                    SubClassOfSubClassOfSuperClass.clear().finally(done);
-                                                                                }
-                                                                            );
-                                                                        }
-                                                                    );
-                                                                }
-                                                            );
-                                                        }
-                                                    );
-                                                }
-                                            );
-                                        }
-                                    )
-                                }
-                            )
+            describe('Finding a single instance.', () => {
+    
+                describe('Calling findInstanceSet on the Class of the instance you want to find. (Direct)', () => {
+        
+                    it('An instance of a concrete class with no subclasses can be found.', async () => {
+                        const classToCallFindOn = AllFieldsMutexClass;
+                        const classOfInstance = AllFieldsMutexClass;
+                        const instanceToFind = instanceOfAllFieldsMutexClass;
+                        const expectedInstances = new InstanceSet(classOfInstance, [instanceToFind]);
+    
+                        const filter = {
+                            string: 'instanceOfAllFieldsMutexClass'
                         }
-                    )
-                }
-            );
+    
+                        const instancesFound = await classToCallFindOn.findInstanceSet(filter);
+    
+                        if (!instancesFound.equals(expectedInstances))
+                            throw new Error('Returned instances are not what was expected.');
+                    });
+        
+                    it('An instance of a concrete discriminated class can be found.', async () => {
+                        const classToCallFindOn = SubClassOfDiscriminatorSuperClass;
+                        const classOfInstance = SubClassOfDiscriminatorSuperClass;
+                        const instanceToFind = instanceOfSubClassOfDiscriminatorSuperClass;
+                        const expectedInstances = new InstanceSet(classOfInstance, [instanceToFind]);
+    
+                        const filter = {
+                            name: 'instanceOfSubClassOfDiscriminatorSuperClass'
+                        }
+    
+                        const instancesFound = await classToCallFindOn.findInstanceSet(filter);
+    
+                        if (!instancesFound.equals(expectedInstances))
+                            throw new Error('Returned instances are not what was expected.');
+                    });
+        
+                    it('An instance of a concrete super class can be found.', async () => {
+                        const classToCallFindOn = SuperClass;
+                        const classOfInstance = SuperClass;
+                        const instanceToFind = instanceOfSuperClass;
+                        const expectedInstances = new InstanceSet(classOfInstance, [instanceToFind]);
+    
+                        const filter = {
+                            name: 'instanceOfSuperClass'
+                        }
+    
+                        const instancesFound = await classToCallFindOn.findInstanceSet(filter);
+
+                        if (!instancesFound.equals(expectedInstances))
+                            throw new Error('Returned instances are not what was expected.');
+                    });
+        
+                    it('An instance of a concrete discriminated sub-class can be found.', async () => {
+                        const classToCallFindOn = DiscriminatedSuperClass;
+                        const classOfInstance = DiscriminatedSuperClass;
+                        const instanceToFind = instanceOfDiscriminatedSuperClass;
+                        const expectedInstances = new InstanceSet(classOfInstance, [instanceToFind]);
+    
+                        const filter = {
+                            name: 'instanceOfDiscriminatedSuperClass'
+                        }
+    
+                        const instancesFound = await classToCallFindOn.findInstanceSet(filter);
+
+                        if (!instancesFound.equals(expectedInstances))
+                            throw new Error('Returned instances are not what was expected.');
+                    });
+        
+                });
+        
+                describe('Calling findInstanceSet on a super class of the class of the instance you want to findInstanceSet. (Indirect)', () => {
+        
+                    it('An instance of a sub class of a discrimintated super class can be from the super class.', async () => {
+                        const classToCallFindOn = DiscriminatedSuperClass;
+                        const instanceToFind = instanceOfSubClassOfDiscriminatorSuperClass;
+                        const expectedInstances = new InstanceSet(classToCallFindOn, [instanceToFind]);
+    
+                        const filter = {
+                            name: 'instanceOfSubClassOfDiscriminatorSuperClass'
+                        }
+    
+                        const instancesFound = await classToCallFindOn.findInstanceSet(filter);
+    
+                        if (!instancesFound.equals(expectedInstances))
+                            throw new Error('InstanceSet returned does not match what was expected.');
+                    });
+        
+                    it('An instance of a concrete sub class of a non-discriminated super class can be found from the super class.', async () => {
+                        const classToCallFindOn = SuperClass;
+                        const instanceToFind = instanceOfSubClassOfSuperClass;
+                        const expectedInstances = new InstanceSet(classToCallFindOn, [instanceToFind]);
+    
+                        const filter = {
+                            name: 'instanceOfSubClassOfSuperClass'
+                        }
+    
+                        const instancesFound = await classToCallFindOn.findInstanceSet(filter);
+    
+                        if (!instancesFound.equals(expectedInstances))
+                            throw new Error('InstanceSet returned does not match what was expected.');
+                    });
+        
+                    it('An instance of a concrete sub class of a non-discriminated abstract super class can be found from the super class.', async () => {
+                        const classToCallFindOn = AbstractSuperClass;
+                        const instanceToFind = instanceOfSubClassOfAbstractSuperClass;
+                        const expectedInstances = new InstanceSet(classToCallFindOn, [instanceToFind]);
+    
+                        const filter = {
+                            name: 'instanceOfSubClassOfAbstractSuperClass'
+                        }
+    
+                        const instancesFound = await classToCallFindOn.findInstanceSet(filter);
+    
+                        if (!instancesFound.equals(expectedInstances))
+                            throw new Error('InstanceSet returned does not match what was expected.');
+                    });
+        
+                });
+        
+                describe('Calling findInstanceSet() on a super class of the super class of the instance you want to find. (Recursive)', () => {
+        
+                    it('SuperClass -> Discriminated Sub Class -> Sub Sub Class', async () => {
+                        const classToCallFindOn = SuperClass;
+                        const instanceToFind = instanceOfSubClassOfDiscriminatedSubClassOfSuperClass;
+                        const expectedInstances = new InstanceSet(classToCallFindOn, [instanceToFind]);
+    
+                        const filter = {
+                            name: 'instanceOfSubClassOfDiscriminatedSubClassOfSuperClass'
+                        }
+    
+                        const instancesFound = await classToCallFindOn.findInstanceSet(filter);
+    
+                        if (!instancesFound.equals(expectedInstances))
+                            throw new Error('InstanceSet returned does not match what was expected.');
+                    });
+        
+                    it('SuperClass -> Sub Class -> Sub Sub Class', async () => {
+                        const classToCallFindOn = SuperClass;
+                        const instanceToFind = instanceOfSubClassOfSubClassOfSuperClass;
+                        const expectedInstances = new InstanceSet(classToCallFindOn, [instanceToFind]);
+    
+                        const filter = {
+                            name: 'instanceOfSubClassOfSubClassOfSuperClass'
+                        }
+    
+                        const instancesFound = await classToCallFindOn.findInstanceSet(filter);
+    
+                        if (!instancesFound.equals(expectedInstances))
+                            throw new Error('InstanceSet returned does not match what was expected.');
+                    });
+        
+                    it('SuperClass -> Abstract Sub Class -> Sub Sub Class', async () => {
+                        const classToCallFindOn = SuperClass;
+                        const instanceToFind = instanceOfSubClassOfAbstractSubClassOfSuperClass;
+                        const expectedInstances = new InstanceSet(classToCallFindOn, [instanceToFind]);
+    
+                        const filter = {
+                            name: 'instanceOfSubClassOfAbstractSubClassOfSuperClass'
+                        }
+    
+                        const instancesFound = await classToCallFindOn.findInstanceSet(filter);
+    
+                        if (!instancesFound.equals(expectedInstances))
+                            throw new Error('InstanceSet returned does not match what was expected.');
+                    });
+        
+                });
+        
+            });
+
+            describe('Finding Multiple Instances.', () => {
+        
+                it('Find two instances of a super class. One is an instance of the super class itself, one is 2 levels deep.', async () => {
+                    const classToCallFindOn = SuperClass;
+                    const instancesToFind = [instanceOfSuperClass, instanceOfSubClassOfDiscriminatedSubClassOfSuperClass];
+                    const expectedInstances = new InstanceSet(classToCallFindOn, instancesToFind);
+
+                    const filter = {
+                        name: {$in: ['instanceOfSuperClass', 'instanceOfSubClassOfDiscriminatedSubClassOfSuperClass']}
+                    }; 
+
+                    const instancesFound = await classToCallFindOn.findInstanceSet(filter);
+
+                    if (!instancesFound.equals(expectedInstances))
+                        throw new Error('InstanceSet returned does not match what was expected.');
+                });
+        
+                it('Find all the instances of a super class. One is an instance of the super class itself, and the others are the instances of the various sub classes.', async () => {
+                    const classToCallFindOn = SuperClass;
+                    const instancesToFind = [
+                        instanceOfSuperClass, 
+                        instanceOfSubClassOfSuperClass,
+                        instanceOfSubClassOfDiscriminatedSubClassOfSuperClass,
+                        instanceOfSubClassOfSubClassOfSuperClass,
+                        instanceOfSubClassOfAbstractSubClassOfSuperClass
+                    ];
+                    const expectedInstances = new InstanceSet(classToCallFindOn, instancesToFind);
+
+                    const filter = {
+                        name: {$in: [
+                            'instanceOfSuperClass', 
+                            'instanceOfSubClassOfSuperClass',
+                            'instanceOfSubClassOfDiscriminatedSubClassOfSuperClass',
+                            'instanceOfSubClassOfSubClassOfSuperClass',
+                            'instanceOfSubClassOfAbstractSubClassOfSuperClass'
+                        ]}
+                    }; 
+
+                    const instancesFound = await classToCallFindOn.findInstanceSet(filter);
+
+                    if (!instancesFound.equals(expectedInstances))
+                        throw new Error('InstanceSet returned does not match what was expected.');
+                });
+
+            });
 
         });
 
     });
 
-    describe('ClassModel.walk()', function() {
+    describe('ClassModel.walk()', () => {
 
         // Create instances for tests.
         {
@@ -3431,16 +3552,16 @@ describe('Class Model Tests', function() {
         }
 
         before(function(done) {
-            SingularRelationshipClass.saveAll([instanceOfSingularRelationshipClassA, instanceOfSingularRelationshipClassB]).then(function() {
-                NonSingularRelationshipClass.save(instanceOfNonSingularRelationshipClass).then(function() {
-                    SubClassOfSingularRelationshipClass.saveAll([instanceOfSubClassOfSingularRelationshipClassA, instanceOfSubClassOfSingularRelationshipClassB]).then(function() {
+            SingularRelationshipClass.saveAll([instanceOfSingularRelationshipClassA, instanceOfSingularRelationshipClassB]).then(() => {
+                NonSingularRelationshipClass.save(instanceOfNonSingularRelationshipClass).then(() => {
+                    SubClassOfSingularRelationshipClass.saveAll([instanceOfSubClassOfSingularRelationshipClassA, instanceOfSubClassOfSingularRelationshipClassB]).then(() => {
                         SubClassOfNonSingularRelationshipClass.save(instanceOfSubClassOfNonSingularRelationshipClass).finally(done);
                     });
                 });
             });
         });
 
-        describe('Tests for invalid arguments.', function() {
+        describe('Tests for invalid arguments.', () => {
 
             it('ClassModel.walk() called with no arguments.', function(done) {
                 let expectedErrorMessage = 'SingularRelationshipClass.walk() called with insufficient arguments. Should be walk(instance, relationship, <optional>filter).';
@@ -3644,7 +3765,7 @@ describe('Class Model Tests', function() {
 
         });
 
-        describe('Test walking the relationships.', function() {
+        describe('Test walking the relationships.', () => {
 
             it('Walking a singular relationship.', function(done) {
                 let expectedInstance = instanceOfNonSingularRelationshipClass;
@@ -3762,9 +3883,9 @@ describe('Class Model Tests', function() {
         });
 
         after(function(done) {
-            SingularRelationshipClass.clear().then(function() {
-                NonSingularRelationshipClass.clear().then(function() {
-                    SubClassOfSingularRelationshipClass.clear().then(function() {
+            SingularRelationshipClass.clear().then(() => {
+                NonSingularRelationshipClass.clear().then(() => {
+                    SubClassOfSingularRelationshipClass.clear().then(() => {
                         SubClassOfNonSingularRelationshipClass.clear().finally(done);
                     });
                 });
@@ -3773,7 +3894,7 @@ describe('Class Model Tests', function() {
 
     });
 
-    describe('ClassModel.accessControlFilter()', function() {
+    describe('ClassModel.accessControlFilter()', () => {
 
         // Set up accessControlled Instances
         // For each class, create on instance which will pass all access control filters, and one each that will fail due to one of the access control methods
@@ -3907,7 +4028,7 @@ describe('Class Model Tests', function() {
 
         });
 
-        describe('Tests for invalid arguments.', function() {
+        describe('Tests for invalid arguments.', () => {
 
             it('First Argument must be an Array', (done) => {
                 let error;
@@ -4741,7 +4862,7 @@ describe('Class Model Tests', function() {
 
     });
 
-    describe('ClassModel.updateControlFilter()', function() {
+    describe('ClassModel.updateControlFilter()', () => {
 
         // Set up updateControlled Instances
         // For each class, create on instance which will pass all update control filters, and one each that will fail due to one of the update control methods
@@ -4853,7 +4974,7 @@ describe('Class Model Tests', function() {
 
         });
 
-        describe('Tests for invalid arguments.', function() {
+        describe('Tests for invalid arguments.', () => {
 
             it('First Argument must be an Array', async () => {
                 let updatable;
@@ -5612,6 +5733,894 @@ describe('Class Model Tests', function() {
             await UpdateControlledDiscriminatedSuperClass.clear();
             await UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.clear();
             await UpdateControlledClassUpdateControlledByParameters.clear();
+        });
+
+    });
+
+    describe('ClassModel.updateControlFilterInstanceSet()', () => {
+
+        // Set up updateControlled Instances
+        // For each class, create on instance which will pass all update control filters, and one each that will fail due to one of the update control methods
+        {
+            // ClassControlsUpdateControlledSuperClass Instances
+            var instanceOfClassControlsUpdateControlledSuperClassAllowed = new Instance(ClassControlsUpdateControlledSuperClass);
+            instanceOfClassControlsUpdateControlledSuperClassAllowed.allowed = true;
+            
+            var instanceOfClassControlsUpdateControlledSuperClassNotAllowed = new Instance(ClassControlsUpdateControlledSuperClass);
+            instanceOfClassControlsUpdateControlledSuperClassNotAllowed.allowed = false;
+
+            // UpdateControlledSuperClass Instances
+            var instanceOfUpdateControlledSuperClassPasses = new Instance(UpdateControlledSuperClass);
+            instanceOfUpdateControlledSuperClassPasses.name = 'instanceOfUpdateControlledSuperClassPasses';
+            instanceOfUpdateControlledSuperClassPasses.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
+
+            var instanceOfUpdateControlledSuperClassFailsRelationship = new Instance(UpdateControlledSuperClass);
+            instanceOfUpdateControlledSuperClassFailsRelationship.name = 'instanceOfUpdateControlledSuperClassFailsRelationship';
+            instanceOfUpdateControlledSuperClassFailsRelationship.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassNotAllowed;
+
+            var instancesOfUpdateControlledSuperClass = new InstanceSet(UpdateControlledSuperClass, [
+                instanceOfUpdateControlledSuperClassPasses,
+                instanceOfUpdateControlledSuperClassFailsRelationship
+            ]);
+
+            // UpdateControlledSubClassOfUpdateControlledSuperClass Instances
+            var instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses = new Instance(UpdateControlledSubClassOfUpdateControlledSuperClass);
+            instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses.name = 'instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses';
+            instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
+            instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses.boolean = true;
+
+            var instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship = new Instance(UpdateControlledSubClassOfUpdateControlledSuperClass);
+            instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship.name = 'instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship';
+            instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassNotAllowed;
+            instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship.boolean = true;
+
+            var instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean = new Instance(UpdateControlledSubClassOfUpdateControlledSuperClass);
+            instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean.name = 'instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean'
+            instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
+            instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean.boolean = false;
+            
+            var instancesOfUpdateControlledSubClassOfUpdateControlledSuperClass = new InstanceSet(UpdateControlledSubClassOfUpdateControlledSuperClass, [
+                instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
+                instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
+                instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean
+            ]);
+
+            // UpdateControlledDiscriminatedSuperClass Instances
+            var instanceOfUpdateControlledDiscriminatedSuperClassPasses = new Instance(UpdateControlledDiscriminatedSuperClass);
+            instanceOfUpdateControlledDiscriminatedSuperClassPasses.name = 'instanceOfUpdateControlledDiscriminatedSuperClassPasses';
+            instanceOfUpdateControlledDiscriminatedSuperClassPasses.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
+            instanceOfUpdateControlledDiscriminatedSuperClassPasses.boolean = true;
+            instanceOfUpdateControlledDiscriminatedSuperClassPasses.string = 'updateControlled';
+
+            var instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship = new Instance(UpdateControlledDiscriminatedSuperClass);
+            instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship.name = 'instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship';
+            instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassNotAllowed;
+            instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship.boolean = true;
+            instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship.string = 'updateControlled';
+
+            var instanceOfUpdateControlledDiscriminatedSuperClassFailsString = new Instance(UpdateControlledDiscriminatedSuperClass);
+            instanceOfUpdateControlledDiscriminatedSuperClassFailsString.name = 'instanceOfUpdateControlledDiscriminatedSuperClassFailsString';
+            instanceOfUpdateControlledDiscriminatedSuperClassFailsString.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
+            instanceOfUpdateControlledDiscriminatedSuperClassFailsString.boolean = true;
+            instanceOfUpdateControlledDiscriminatedSuperClassFailsString.string = 'not updateControlled';
+
+            var instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean = new Instance(UpdateControlledDiscriminatedSuperClass);
+            instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean.name = 'instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean';
+            instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
+            instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean.boolean = false;
+            instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean.string = 'updateControlled';
+            
+            var instancesOfUpdateControlledDiscriminatedSuperClass = new InstanceSet(UpdateControlledDiscriminatedSuperClass, [
+                instanceOfUpdateControlledDiscriminatedSuperClassPasses,
+                instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+                instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean
+            ]);
+
+            // UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass Instances
+            var instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses = new Instance(UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass);
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses.name = 'instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses';
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;  
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses.boolean = true;
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses.string = 'updateControlled';         
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses.number = 1;
+
+            var instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship = new Instance(UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass);
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship.name = 'instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship';
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassNotAllowed;             
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship.number = 1;
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship.boolean = true;
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship.string = 'updateControlled';
+
+            var instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean = new Instance(UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass);
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean.name = 'instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean';
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;     
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean.boolean = false;
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean.string = 'updateControlled';
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean.number = 1;
+
+            var instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString = new Instance(UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass);
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString.name = 'instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString';
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;     
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString.boolean = true;
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString.string = 'not updateControlled';            
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString.number = 1;
+
+            var instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber = new Instance(UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass);
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber.name = 'instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber';
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber.boolean = true;
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber.string = 'updateControlled';      
+            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber.number = -1;
+            
+            var instancesOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass = new InstanceSet(UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass, [
+                instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses,
+                instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
+                instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
+            ]);
+
+            var updateControlledInstances = new InstanceSet(UpdateControlledSuperClass);
+            updateControlledInstances.addInstances(instancesOfUpdateControlledSuperClass);
+            updateControlledInstances.addInstances(instancesOfUpdateControlledSubClassOfUpdateControlledSuperClass);
+            updateControlledInstances.addInstances(instancesOfUpdateControlledDiscriminatedSuperClass);
+            updateControlledInstances.addInstances(instancesOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass);
+
+            // UpdateControlledClassUpdateControlledByParameters Instances
+            var instanceOfUpdateControlledClassUpdateControlledByParameters = new Instance(UpdateControlledClassUpdateControlledByParameters);
+
+        }
+
+        // Save all SecurityFilter Test Instances
+        before(async () => {
+            await instanceOfClassControlsUpdateControlledSuperClassAllowed.save();
+            await instanceOfClassControlsUpdateControlledSuperClassNotAllowed.save();
+
+        });
+
+        after(async () => {
+            await ClassControlsUpdateControlledSuperClass.clear();
+            await UpdateControlledSuperClass.clear();
+            await UpdateControlledSubClassOfUpdateControlledSuperClass.clear();
+            await UpdateControlledDiscriminatedSuperClass.clear();
+            await UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.clear();
+            await UpdateControlledClassUpdateControlledByParameters.clear();
+        });
+
+        describe('Tests for invalid arguments.', () => {
+
+            it('First Argument must be an InstanceSet', async () => {
+                let updatable;
+                const expectedErrorMessage = 'Incorrect parameters. ' + UpdateControlledSuperClass.className + '.updateControlCheckInstanceSet(InstanceSet instanceSet, ...updateControlMethodParameters)';
+                const instanceSet = new InstanceSet(UpdateControlledSuperClass, [instanceOfUpdateControlledSuperClassPasses, instanceOfUpdateControlledSuperClassPasses]);
+
+                try {
+                    updatable = await UpdateControlledSuperClass.updateControlCheckInstanceSet(instanceOfUpdateControlledSuperClassPasses);
+                }
+                catch (error) {
+                    if (error.message != expectedErrorMessage) {
+                        throw  new Error(
+                            'updateControlCheckInstanceSet() threw an unexpected error.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' + 
+                            'Actual:   ' + error.message
+                        );
+                    }
+                }
+
+                if (updatable)
+                    throw new Error ('ClassModel.updateControlCheckInstanceSet() returned when it should have thrown an error.');
+            });
+
+        });
+
+        describe.skip('Test Update Control Check throws error when an instance doesn\'t pass check.', () => {
+
+            describe('UpdateControlledSuperClass.updateControlCheckInstanceSet()', () => {
+
+                it('Update Control Check called on Class with only direct instances of Class.', async () => {
+                    const instanceSet = new InstanceSet(UpdateControlledSuperClass, [
+                        instanceOfUpdateControlledSuperClassPasses,
+                        instanceOfUpdateControlledSuperClassFailsRelationship
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(UpdateControlledSuperClass, [instanceOfUpdateControlledSuperClassFailsRelationship]);
+                    const expectedInstanceIds = instancesExpectedToFail.getInstanceIds();
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+                    let passed = false;
+
+                    try {
+                        await UpdateControlledSuperClass.updateControlCheckInstanceSet(instanceSet);
+                    }
+                    catch (error) {
+                        if (error.message != expectedErrorMessage) {
+                            throw new Error(
+                                'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
+                                'expected: ' + expectedErrorMessage + '\n' + 
+                                'actual:   ' + error.message
+                            );
+                        }
+                        passed = true;
+                    }
+
+                    if (!passed) {
+                        throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
+                    }
+                });
+
+                // it('Update Control Check called on Class with instances of class and sub class.', async () => {
+                //     const instances = [
+                //         instanceOfUpdateControlledSuperClassPasses,
+                //         instanceOfUpdateControlledSuperClassFailsRelationship,
+                //         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
+                //         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+                //         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship
+                //     ];
+                //     const instancesExpectedToFail = new SuperSet([
+                //         instanceOfUpdateControlledSuperClassFailsRelationship,
+                //         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+                //         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship
+                //     ]);
+                //     const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
+                //     const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+                //     let passed = false;
+
+                //     try {
+                //         await UpdateControlledSuperClass.updateControlCheckInstanceSet(instances);
+                //     }
+                //     catch (error) {
+                //         if (error.message != expectedErrorMessage) {
+                //             throw new Error(
+                //                 'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
+                //                 'expected: ' + expectedErrorMessage + '\n' + 
+                //                 'actual:   ' + error.message
+                //             );
+                //         }
+                //         passed = true;
+                //     }
+
+                //     if (!passed) {
+                //         throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
+                //     }
+                // });
+
+                // it('Update Control Check called on Class with instances of class and 3 layers of sub classes', async () => {
+                //     const instances = [
+                //         instanceOfUpdateControlledSuperClassPasses,
+                //         instanceOfUpdateControlledSuperClassFailsRelationship,
+                //         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
+                //         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+                //         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
+                //         instanceOfUpdateControlledDiscriminatedSuperClassPasses,
+                //         instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+                //         instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                //         instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                //         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses,
+                //         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                //         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
+                //         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                //         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
+                //     ];
+                //     const instancesExpectedToFail = new SuperSet([                
+                //         instanceOfUpdateControlledSuperClassFailsRelationship,
+                //         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+                //         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
+                //         instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+                //         instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                //         instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                //         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+                //         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
+                //         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+                //         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
+
+                //     ]);
+                //     const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
+                //     const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+                //     let passed = false;
+
+                //     try {
+                //         await UpdateControlledSuperClass.updateControlCheckInstanceSet(instances);
+                //     }
+                //     catch (error) {
+                //         if (error.message != expectedErrorMessage) {
+                //             throw new Error(
+                //                 'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
+                //                 'expected: ' + expectedErrorMessage + '\n' + 
+                //                 'actual:   ' + error.message
+                //             );
+                //         }
+                //         passed = true;
+                //     }
+
+                //     if (!passed) {
+                //         throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
+                //     }
+                // });
+
+            });
+
+        //     describe('UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckInstanceSet()', () => {
+
+        //         it('Update Control Check called on Class with only direct instances of Class.', async () => {
+        //             const instances = [
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship
+        //             ];
+        //             const instancesExpectedToFail = new SuperSet([                
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
+
+        //             ]);
+        //             const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
+        //             const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+        //             let passed = false;
+
+        //             try {
+        //                 await UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckInstanceSet(instances);
+        //             }
+        //             catch (error) {
+        //                 if (error.message != expectedErrorMessage) {
+        //                     throw new Error(
+        //                         'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
+        //                         'expected: ' + expectedErrorMessage + '\n' + 
+        //                         'actual:   ' + error.message
+        //                     );
+        //                 }
+        //                 passed = true;
+        //             }
+
+        //             if (!passed) {
+        //                 throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
+        //             }
+        //         });
+
+        //         it('Update Control Check called on Class with instances of class and 1 layers of sub classes', async () => {
+        //             const instances = [
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
+        //                 instanceOfUpdateControlledDiscriminatedSuperClassPasses,
+        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship
+        //             ];
+        //             const instancesExpectedToFail = new SuperSet([                
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
+        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship
+        //             ]);
+        //             const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
+        //             const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+        //             let passed = false;
+
+        //             try {
+        //                 await UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckInstanceSet(instances);
+        //             }
+        //             catch (error) {
+        //                 if (error.message != expectedErrorMessage) {
+        //                     throw new Error(
+        //                         'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
+        //                         'expected: ' + expectedErrorMessage + '\n' + 
+        //                         'actual:   ' + error.message
+        //                     );
+        //                 }
+        //                 passed = true;
+        //             }
+
+        //             if (!passed) {
+        //                 throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
+        //             }
+        //         });
+
+        //         it('Update Control Check called on Class with instances of 2 layers of sub classes', async () => {
+        //             const instances = [
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
+        //                 instanceOfUpdateControlledDiscriminatedSuperClassPasses,
+        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
+        //             ];
+        //             const instancesExpectedToFail = new SuperSet([                
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
+        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
+        //             ]);
+        //             const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
+        //             const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+        //             let passed = false;
+
+        //             try {
+        //                 await UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckInstanceSet(instances);
+        //             }
+        //             catch (error) {
+        //                 if (error.message != expectedErrorMessage) {
+        //                     throw new Error(
+        //                         'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
+        //                         'expected: ' + expectedErrorMessage + '\n' + 
+        //                         'actual:   ' + error.message
+        //                     );
+        //                 }
+        //                 passed = true;
+        //             }
+
+        //             if (!passed) {
+        //                 throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
+        //             }
+        //         });
+
+        //     });
+
+        //     describe('UpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet()', () => {
+
+        //         it('Update Control Check called on Class with only direct instances of Class.', async () => {
+        //             const instances = [
+        //                 instanceOfUpdateControlledDiscriminatedSuperClassPasses,
+        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship
+        //             ];
+        //             const instancesExpectedToFail = new SuperSet([
+        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship
+        //             ]);
+        //             const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
+        //             const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+        //             let passed = false;
+
+        //             try {
+        //                 await UpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet(instances);
+        //             }
+        //             catch (error) {
+        //                 if (error.message != expectedErrorMessage) {
+        //                     throw new Error(
+        //                         'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
+        //                         'expected: ' + expectedErrorMessage + '\n' + 
+        //                         'actual:   ' + error.message
+        //                     );
+        //                 }
+        //                 passed = true;
+        //             }
+
+        //             if (!passed) {
+        //                 throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
+        //             }
+        //         });
+
+        //         it('Update Control Check called on Class with instances of 1 layers of sub classes', async () => {
+        //             const instances = [
+        //                 instanceOfUpdateControlledDiscriminatedSuperClassPasses,
+        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
+        //             ];
+        //             const instancesExpectedToFail = new SuperSet([
+        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
+        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+        //                 instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
+        //             ]);
+        //             const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
+        //             const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+        //             let passed = false;
+
+        //             try {
+        //                 await UpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet(instances);
+        //             }
+        //             catch (error) {
+        //                 if (error.message != expectedErrorMessage) {
+        //                     throw new Error(
+        //                         'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
+        //                         'expected: ' + expectedErrorMessage + '\n' + 
+        //                         'actual:   ' + error.message
+        //                     );
+        //                 }
+        //                 passed = true;
+        //             }
+
+        //             if (!passed) {
+        //                 throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
+        //             }
+        //         });
+
+        //     });
+
+        //     describe('UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet()', () => {
+
+        //         it('Update Control Check called on Class with only direct instances of Class.', async () => {
+        //             const instances = [
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
+        //             ];
+        //             const instancesExpectedToFail = new SuperSet([
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
+        //                 instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
+        //             ]);
+        //             const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
+        //             const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+        //             let passed = false;
+
+        //             try {
+        //                 await UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet(instances);
+        //             }
+        //             catch (error) {
+        //                 if (error.message != expectedErrorMessage) {
+        //                     throw new Error(
+        //                         'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
+        //                         'expected: ' + expectedErrorMessage + '\n' + 
+        //                         'actual:   ' + error.message
+        //                     );
+        //                 }
+        //                 passed = true;
+        //             }
+
+        //             if (!passed) {
+        //                 throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
+        //             }
+        //         });
+
+        //     });
+
+        //     describe('UpdateControlledClassUpdateControlledByParameters.updateControlCheckInstanceSet()', () => {
+
+        //         it('Update Control Check passes', async () => {
+        //             const updateAllowed = await UpdateControlledClassUpdateControlledByParameters.updateControlCheckInstanceSet([instanceOfUpdateControlledClassUpdateControlledByParameters], 1, 1, true);
+                    
+        //             if (!updateAllowed) {
+        //                 throw new Error('Update check passed when it should have thrown an error.');
+        //             }
+        //         });
+
+        //         it('Instance fails update control check because of Numbers.', async () => {
+        //             const instances = [instanceOfUpdateControlledClassUpdateControlledByParameters];
+        //             const instancesExpectedToFail = new SuperSet([instanceOfUpdateControlledClassUpdateControlledByParameters]);
+        //             const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
+        //             const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+        //             let passed = false;
+
+        //             try {
+        //                 await UpdateControlledClassUpdateControlledByParameters.updateControlCheckInstanceSet(instances, -2, 1, true);
+        //             }
+        //             catch (error) {
+        //                 if (error.message != expectedErrorMessage) {
+        //                     throw new Error(
+        //                         'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
+        //                         'expected: ' + expectedErrorMessage + '\n' + 
+        //                         'actual:   ' + error.message
+        //                     );
+        //                 }
+        //                 passed = true;
+        //             }
+
+        //             if (!passed) {
+        //                 throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
+        //             }
+        //         });
+
+        //         it('Instance fails update control check because of Boolean.', async () => {
+        //             const instances = [instanceOfUpdateControlledClassUpdateControlledByParameters];
+        //             const instancesExpectedToFail = new SuperSet([instanceOfUpdateControlledClassUpdateControlledByParameters]);
+        //             const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
+        //             const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
+        //             let passed = false;
+
+        //             try {
+        //                 await UpdateControlledClassUpdateControlledByParameters.updateControlCheckInstanceSet(instances, 1, 1, false);
+        //             }
+        //             catch (error) {
+        //                 if (error.message != expectedErrorMessage) {
+        //                     throw new Error(
+        //                         'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
+        //                         'expected: ' + expectedErrorMessage + '\n' + 
+        //                         'actual:   ' + error.message
+        //                     );
+        //                 }
+        //                 passed = true;
+        //             }
+
+        //             if (!passed) {
+        //                 throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
+        //             }
+        //         });
+
+        //     });
+
+        // });
+
+        // describe('Test save methods for update control checks.', () => {
+
+        //     describe('Test save() with update control checks', () => {
+
+        //         describe('Without updateControlMethodParameters.', () => {
+
+        //             it('Call save() on an instance of an update controlled class. Instance saved.', async () => {
+        //                 const classToCallSaveOn = UpdateControlledSuperClass;
+        //                 const instanceToSave = UpdateControlledSuperClass.create();
+        //                 instanceToSave.name = 'instanceOfUpdateControlledSuperClassPasses-save';
+        //                 instanceToSave.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
+    
+        //                 await classToCallSaveOn.save(instanceToSave);
+        //                 const instanceSaved = await classToCallSaveOn.findById(instanceToSave._id);
+    
+        //                 if (!instanceSaved)
+        //                     throw new Error('.save() returned without error, but instance could not be found in the database.');
+                        
+        //                 await classToCallSaveOn.delete(instanceToSave);
+        //             });
+    
+        //             it('Call save() on an instance of an update controlled class. Save fails due to update control check.', async () => {
+        //                 const classToCallSaveOn = UpdateControlledSuperClass;
+        //                 const instanceToSave = instanceOfUpdateControlledSuperClassFailsRelationship;
+        //                 const expectedErrorMessage = 'Error in ' + classToCallSaveOn.className + '.save(): Illegal attempt to update instances: ' + instanceToSave.id;
+        //                 let errorThrown = false;
+    
+        //                 try {
+        //                     await classToCallSaveOn.save(instanceToSave);
+        //                 }
+        //                 catch (error) {
+        //                     if (error.message != expectedErrorMessage) {
+        //                         throw new Error(
+        //                             '.save() threw an error, but not the expected one.\n' +
+        //                             'expected: ' + expectedErrorMessage + '\n' + 
+        //                             'actual:   ' + error.message
+        //                         );
+        //                     }
+        //                     errorThrown = true;
+        //                 }
+    
+        //                 if (!errorThrown)
+        //                     throw new Error('.save() returned when it should have returned an error.');
+                        
+        //                 const instanceFound = await classToCallSaveOn.findById(instanceToSave._id);
+
+        //                 if (instanceFound) 
+        //                     throw new Error('.save() threw an error, but the instance was saved anyway.');
+        //             });
+
+        //         });
+
+        //         describe('Calling save with updateControlMethodParameters', () => {
+    
+        //             it('Call save() on an instance of an update controlled class with updateControlMethodParameters. Save fails due to update control check.', async () => {
+        //                 const classToCallSaveOn = UpdateControlledClassUpdateControlledByParameters;
+        //                 const instanceToSave = instanceOfUpdateControlledClassUpdateControlledByParameters;
+        //                 const expectedErrorMessage = 'Error in ' + classToCallSaveOn.className + '.save(): Illegal attempt to update instances: ' + instanceToSave.id;
+        //                 const updateControlMethodParameters = [-2, 1, true];
+        //                 let errorThrown = false;
+    
+        //                 try {
+        //                     await classToCallSaveOn.save(instanceToSave, ...updateControlMethodParameters);
+        //                 }
+        //                 catch (error) {
+        //                     if (error.message != expectedErrorMessage) {
+        //                         throw new Error(
+        //                             '.save() threw an error, but not the expected one.\n' +
+        //                             'expected: ' + expectedErrorMessage + '\n' + 
+        //                             'actual:   ' + error.message
+        //                         );
+        //                     }
+        //                     errorThrown = true;
+        //                 }
+    
+        //                 if (!errorThrown)
+        //                     throw new Error('.save() returned when it should have returned an error.');
+                        
+        //                 const instanceFound = await classToCallSaveOn.findById(instanceToSave._id);
+
+        //                 if (instanceFound) 
+        //                     throw new Error('.save() threw an error, but the instance was saved anyway.')
+        //             });
+    
+        //             it('Call save() on an instance of an update controlled class with updateControlMethodParameters. Save fails due to update control check.', async () => {
+        //                 const classToCallSaveOn = UpdateControlledClassUpdateControlledByParameters;
+        //                 const instanceToSave = instanceOfUpdateControlledClassUpdateControlledByParameters;
+        //                 const expectedErrorMessage = 'Error in ' + classToCallSaveOn.className + '.save(): Illegal attempt to update instances: ' + instanceToSave.id;
+        //                 const updateControlMethodParameters = [1, 1, false];
+        //                 let errorThrown = false;
+                        
+        //                 try {
+        //                     await classToCallSaveOn.save(instanceToSave, ...updateControlMethodParameters);
+        //                 }
+        //                 catch (error) {
+        //                     if (error.message != expectedErrorMessage) {
+        //                         throw new Error(
+        //                             '.save() threw an error, but not the expected one.\n' +
+        //                             'expected: ' + expectedErrorMessage + '\n' + 
+        //                             'actual:   ' + error.message
+        //                         );
+        //                     }
+        //                     errorThrown = true;
+        //                 }
+    
+        //                 if (!errorThrown)
+        //                     throw new Error('.save() returned when it should have returned an error.');
+
+        //                 const instanceFound = await classToCallSaveOn.findById(instanceToSave._id);
+
+        //                 if (instanceFound) 
+        //                     throw new Error('.save() threw an error, but the instance was saved anyway.')
+        //             });
+
+        //             it('Call save() on an instance of an update controlled class with updateControlMethodParameters. Instance saved.', async () => {
+        //                 const classToCallSaveOn = UpdateControlledClassUpdateControlledByParameters;
+        //                 const instanceToSave = UpdateControlledClassUpdateControlledByParameters.create();
+        //                 const updateControlMethodParameters = [1, 1, true];
+    
+        //                 await classToCallSaveOn.save(instanceToSave, ...updateControlMethodParameters);
+        //                 const instanceSaved = await classToCallSaveOn.findById(instanceToSave._id);
+    
+        //                 if (!instanceSaved)
+        //                     throw new Error('.save() returned without error, but instance could not be found in the database.');
+        //             });
+
+        //         });
+
+        //     });
+
+        //     describe('Test saveAll() with update control check', () => {
+
+        //         describe('Without updateControlMethodParameters.', () => {
+
+        //             it('Call saveAll() on an instances of an update controlled class. Instances saved.', async () => {
+        //                 const classToCallSaveAllOn = UpdateControlledSuperClass;
+        //                 const instanceToSave = UpdateControlledSuperClass.create();
+        //                 instanceToSave.name = 'instanceOfUpdateControlledSuperClassPasses-saveAll';
+        //                 instanceToSave.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
+    
+        //                 await classToCallSaveAllOn.saveAll([instanceToSave]);
+        //                 const instanceSaved = await classToCallSaveAllOn.findById(instanceToSave._id);
+    
+        //                 if (!instanceSaved)
+        //                     throw new Error('.saveAll() returned without error, but instance could not be found in the database.');
+                        
+        //                 await classToCallSaveAllOn.delete(instanceToSave);
+        //             });
+    
+        //             it('Call saveAll() on instances of an update controlled class. Save fails due to update control check.', async () => {
+        //                 const classToCallSaveAllOn = UpdateControlledSuperClass;
+        //                 const instancesToSave = [
+        //                     instanceOfUpdateControlledSuperClassPasses,
+        //                     instanceOfUpdateControlledSuperClassFailsRelationship,
+        //                 ];
+        //                 const expectedErrorMessage = 'Error in ' + classToCallSaveAllOn.className + '.saveAll(): Illegal attempt to update instances: ' + instancesToSave[1].id;
+        //                 let errorThrown = false;
+    
+        //                 try {
+        //                     await classToCallSaveAllOn.saveAll(instancesToSave);
+        //                 }
+        //                 catch (error) {
+        //                     if (error.message != expectedErrorMessage) {
+        //                         throw new Error(
+        //                             '.saveAll() threw an error, but not the expected one.\n' +
+        //                             'expected: ' + expectedErrorMessage + '\n' + 
+        //                             'actual:   ' + error.message
+        //                         );
+        //                     }
+        //                     errorThrown = true;
+        //                 }
+    
+        //                 if (!errorThrown)
+        //                     throw new Error('.saveAll() returned when it should have returned an error.');
+                        
+        //                 const instancesFound = await classToCallSaveAllOn.find({
+        //                     _id: {$in: instancesToSave.map(instance => instance.id)}
+        //                 });
+
+        //                 if (instancesFound && instancesFound.length) 
+        //                     throw new Error('.saveAll() threw an error, but the instance was saved anyway.');
+        //             });
+
+        //         });
+
+        //         describe('Calling save with updateControlMethodParameters', () => {
+
+        //             it('Call saveAll() on an instance of an update controlled class with updateControlMethodParameters. Instance saved.', async () => {
+        //                 const classToCallSaveAllOn = UpdateControlledClassUpdateControlledByParameters;
+        //                 const instanceToSave = UpdateControlledClassUpdateControlledByParameters.create();
+        //                 const updateControlMethodParameters = [1, 1, true];
+    
+        //                 await classToCallSaveAllOn.saveAll([instanceToSave], ...updateControlMethodParameters);
+        //                 const instanceSaved = await classToCallSaveAllOn.findById(instanceToSave._id);
+    
+        //                 if (!instanceSaved)
+        //                     throw new Error('.saveAll() returned without error, but instance could not be found in the database.');
+                        
+                            
+        //                 await classToCallSaveAllOn.delete(instanceToSave);
+        //             });
+    
+        //             it('Call saveAll() on an instance of an update controlled class with updateControlMethodParameters. Save fails due to update control check.', async () => {
+        //                 const classToCallSaveAllOn = UpdateControlledClassUpdateControlledByParameters;
+        //                 const instanceToSave = UpdateControlledClassUpdateControlledByParameters.create();
+        //                 const expectedErrorMessage = 'Error in ' + classToCallSaveAllOn.className + '.saveAll(): Illegal attempt to update instances: ' + instanceToSave.id;
+        //                 const updateControlMethodParameters = [-2, 1, true];
+        //                 let errorThrown = false;
+    
+        //                 try {
+        //                     await classToCallSaveAllOn.saveAll([instanceToSave], ...updateControlMethodParameters);
+        //                 }
+        //                 catch (error) {
+        //                     if (error.message != expectedErrorMessage) {
+        //                         throw new Error(
+        //                             '.saveAll() threw an error, but not the expected one.\n' +
+        //                             'expected: ' + expectedErrorMessage + '\n' + 
+        //                             'actual:   ' + error.message
+        //                         );
+        //                     }
+        //                     errorThrown = true;
+        //                 }
+    
+        //                 if (!errorThrown)
+        //                     throw new Error('.saveAll() returned when it should have returned an error.');
+                        
+        //                 const instanceFound = await classToCallSaveAllOn.findById(instanceToSave._id);
+
+        //                 if (instanceFound) 
+        //                     throw new Error('.saveAll() threw an error, but the instance was saved anyway.')
+        //             });
+    
+        //             it('Call save() on an instance of an update controlled class with updateControlMethodParameters. Save fails due to update control check.', async () => {
+        //                 const classToCallSaveAllOn = UpdateControlledClassUpdateControlledByParameters;
+        //                 const instanceToSave = UpdateControlledClassUpdateControlledByParameters.create();
+        //                 const expectedErrorMessage = 'Error in ' + classToCallSaveAllOn.className + '.saveAll(): Illegal attempt to update instances: ' + instanceToSave.id;
+        //                 const updateControlMethodParameters = [1, 1, false];
+        //                 let errorThrown = false;
+                        
+        //                 try {
+        //                     await classToCallSaveAllOn.saveAll([instanceToSave], ...updateControlMethodParameters);
+        //                 }
+        //                 catch (error) {
+        //                     if (error.message != expectedErrorMessage) {
+        //                         throw new Error(
+        //                             '.saveAll() threw an error, but not the expected one.\n' +
+        //                             'expected: ' + expectedErrorMessage + '\n' + 
+        //                             'actual:   ' + error.message
+        //                         );
+        //                     }
+        //                     errorThrown = true;
+        //                 }
+    
+        //                 if (!errorThrown)
+        //                     throw new Error('.saveAll() returned when it should have returned an error.');
+
+        //                 const instanceFound = await classToCallSaveAllOn.findById(instanceToSave._id);
+
+        //                 if (instanceFound) 
+        //                     throw new Error('.saveAll() threw an error, but the instance was saved anyway.')
+        //             });
+
+        //         });
+
+        //     });
+
         });
 
     });

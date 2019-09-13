@@ -26,6 +26,7 @@ const testForErrorAsync = TestingFunctions.testForErrorAsync;
     var AllFieldsRequiredClass = TestClassModels.AllFieldsRequiredClass;
     var AllFieldsInRequiredGroupClass = TestClassModels.AllFieldsInRequiredGroupClass;
     var AbstractClass = TestClassModels.AbstractClass;
+    var MutexClassA = MutexClassA;
 
     // Inheritance Classes
     var SuperClass = TestClassModels.SuperClass;
@@ -45,8 +46,6 @@ const testForErrorAsync = TestingFunctions.testForErrorAsync;
 
 
 describe('Instance Tests', () => {
-
-
 
     // Simple Documents
     {
@@ -360,7 +359,7 @@ describe('Instance Tests', () => {
                 catch (error) {
                     if (error.message != expectedErrorMessage) {
                         throw new Error(
-                            'ClassModel.validate returned the wrong error message.\n' + 
+                            'instance.validate returned the wrong error message.\n' + 
                             'Expected: ' + expectedErrorMessage + '\n' +
                             'Actual:   ' + error.message
                         );
@@ -388,14 +387,14 @@ describe('Instance Tests', () => {
                     }
                     else {
                         throw new Error(
-                            'ClassModel.validate returned the wrong error message.\n' + 
+                            'instance.validate returned the wrong error message.\n' + 
                             'Expected: ' + expectedErrorMessage + '\n' +
                             'Actual:   ' + error.message
                         );
                     }
                 }
     
-                throw new Error('ClassModel.validate did not throw an error when it should have.');
+                throw new Error('instance.validate did not throw an error when it should have.');
             });
                 
             it('Multiple fields (one of each type) share a required group boolean is set to false. Error thrown.', () => {
@@ -413,14 +412,14 @@ describe('Instance Tests', () => {
                     }
                     else {
                         throw new Error(
-                            'ClassModel.validate returned the wrong error message.\n' + 
+                            'instance.validate returned the wrong error message.\n' + 
                             'Expected: ' + expectedErrorMessage + '\n' +
                             'Actual:   ' + error.message
                         );
                     }
                 }
     
-                throw new Error('ClassModel.validate did not throw an error when it should have.');
+                throw new Error('instance.validate did not throw an error when it should have.');
             });
                 
             it('Multiple fields (one of each type) share a required group string is set to "". Error thrown.', () => {
@@ -438,14 +437,14 @@ describe('Instance Tests', () => {
                     }
                     else {
                         throw new Error(
-                            'ClassModel.validate returned the wrong error message.\n' + 
+                            'instance.validate returned the wrong error message.\n' + 
                             'Expected: ' + expectedErrorMessage + '\n' +
                             'Actual:   ' + error.message
                         );
                     }
                 }
     
-                throw new Error('ClassModel.validate did not throw an error when it should have.');
+                throw new Error('instance.validate did not throw an error when it should have.');
             });
             
             it('Multiple fields (one of each type) share a required group and strings is set. No error thrown.', () => {
@@ -457,7 +456,7 @@ describe('Instance Tests', () => {
                 }
                 catch (error) {
                     throw new Error(
-                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'instance.validate threw an error when it shouldn\'t have.\n' + 
                         'Error: ' + error.message
                     );
                 }
@@ -474,7 +473,7 @@ describe('Instance Tests', () => {
                 }
                 catch (error) {
                     throw new Error(
-                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'instance.validate threw an error when it shouldn\'t have.\n' + 
                         'Error: ' + error.message
                     );
                 }
@@ -519,18 +518,18 @@ describe('Instance Tests', () => {
                 }
                 catch (error) {
                     if (expectedErrorMutex.test(error.message)) {
-                        return true;
+                       return true;
                     }
                     else {
                         throw new Error(
-                            'ClassModel.validate returned the wrong error message.\n' + 
+                            'instance.validate returned the wrong error message.\n' + 
                             'Expected: ' + expectedErrorMessage + '\n' +
                             'Actual:   ' + error.message
                         );
                     }
                 }
 
-                throw new Error('ClassModel.validate did not throw an error when it should have.');
+                throw new Error('instance.validate did not throw an error when it should have.');
             });
             
             it('2 attribute fields (boolean, date) have a mutex and one (boolean) is set. No error thrown.', () => {
@@ -561,7 +560,7 @@ describe('Instance Tests', () => {
                 }
                 catch (error) {
                     throw new Error(
-                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'instance.validate threw an error when it shouldn\'t have.\n' + 
                         'Error: ' + error.message
                     );
                 }
@@ -599,7 +598,7 @@ describe('Instance Tests', () => {
                 instance.class2 = CompareClass2.create()._id;
 
                 try {
-                    MutexClassB.validate(instance);
+                    instance.validate();
                 }
                 catch (error) {
                     if (expectedErrorMutex.test(error.message)) {
@@ -607,14 +606,14 @@ describe('Instance Tests', () => {
                     }
                     else {
                         throw new Error(
-                            'ClassModel.validate returned the wrong error message.\n' + 
+                            'instance.validate returned the wrong error message.\n' + 
                             'Expected: ' + expectedErrorMessage + '\n' +
                             'Actual:   ' + error.message
                         );
                     }
                 }
 
-                throw new Error('ClassModel.validate did not throw an error when it should have.');
+                throw new Error('instance.validate did not throw an error when it should have.');
             });
             
             it('2 singular relationship fields have a mutex and one is set. No error thrown.', () => {
@@ -647,7 +646,7 @@ describe('Instance Tests', () => {
                 }
                 catch (error) {
                     throw new Error(
-                        'ClassModel.validate threw an error when it shouldn\'t have.\n' + 
+                        'instance.validate threw an error when it shouldn\'t have.\n' + 
                         'Error: ' + error.message
                     );
                 }
@@ -693,14 +692,14 @@ describe('Instance Tests', () => {
                     }
                     else {
                         throw new Error(
-                            'ClassModel.validate returned the wrong error message.\n' + 
+                            'instance.validate returned the wrong error message.\n' + 
                             'Expected: ' + expectedErrorMessage + '\n' +
                             'Actual:   ' + error.message
                         );
                     }
                 }
 
-                throw new Error('ClassModel.validate did not throw an error when it should have.');
+                throw new Error('instance.validate did not throw an error when it should have.');
             });
 
         });
