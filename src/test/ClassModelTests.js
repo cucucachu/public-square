@@ -6284,73 +6284,41 @@ describe('Class Model Tests', () => {
 
             describe('UpdateControlledSuperClass.updateControlCheckInstanceSet()', () => {
 
-                it.skip('Update Control Check called on Class with only direct instances of Class.', async () => {
+                it('Update Control Check called on Class with only direct instances of Class.', async () => {
                     const instanceSet = new InstanceSet(UpdateControlledSuperClass, [
                         instanceOfUpdateControlledSuperClassPasses,
                         instanceOfUpdateControlledSuperClassFailsRelationship
                     ]);
                     const instancesExpectedToFail = new InstanceSet(UpdateControlledSuperClass, [instanceOfUpdateControlledSuperClassFailsRelationship]);
-                    const expectedInstanceIds = instancesExpectedToFail.getInstanceIds();
-                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-                    let passed = false;
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    try {
-                        await UpdateControlledSuperClass.updateControlCheckInstanceSet(instanceSet);
-                    }
-                    catch (error) {
-                        if (error.message != expectedErrorMessage) {
-                            throw new Error(
-                                'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
-                                'expected: ' + expectedErrorMessage + '\n' + 
-                                'actual:   ' + error.message
-                            );
-                        }
-                        passed = true;
-                    }
-
-                    if (!passed) {
-                        throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
-                    }
+                    await testForErrorAsync('ClassModel.updateControlCheckInstanceSet', expectedErrorMessage, async () => {
+                        return  UpdateControlledSuperClass.updateControlCheckInstanceSet(instanceSet);
+                    });
                 });
 
-                it.skip('Update Control Check called on Class with instances of class and sub class.', async () => {
-                    const instances = [
+                it('Update Control Check called on Class with instances of class and sub class.', async () => {
+                    const instanceSet = new InstanceSet(UpdateControlledSuperClass, [
                         instanceOfUpdateControlledSuperClassPasses,
                         instanceOfUpdateControlledSuperClassFailsRelationship,
                         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
                         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
                         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship
-                    ];
-                    const instancesExpectedToFail = new SuperSet([
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(UpdateControlledSuperClass, [
                         instanceOfUpdateControlledSuperClassFailsRelationship,
                         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
                         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship
                     ]);
-                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-                    let passed = false;
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    try {
-                        await UpdateControlledSuperClass.updateControlCheckInstanceSet(instances);
-                    }
-                    catch (error) {
-                        if (error.message != expectedErrorMessage) {
-                            throw new Error(
-                                'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
-                                'expected: ' + expectedErrorMessage + '\n' + 
-                                'actual:   ' + error.message
-                            );
-                        }
-                        passed = true;
-                    }
-
-                    if (!passed) {
-                        throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
-                    }
+                    await testForErrorAsync('ClassModel.updateControlCheckInstanceSet', expectedErrorMessage, async () => {
+                        return  UpdateControlledSuperClass.updateControlCheckInstanceSet(instanceSet);
+                    });
                 });
 
-                it.skip('Update Control Check called on Class with instances of class and 3 layers of sub classes', async () => {
-                    const instances = [
+                it('Update Control Check called on Class with instances of class and 3 layers of sub classes.', async () => {
+                    const instanceSet = new InstanceSet(UpdateControlledSuperClass, [
                         instanceOfUpdateControlledSuperClassPasses,
                         instanceOfUpdateControlledSuperClassFailsRelationship,
                         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
@@ -6365,8 +6333,8 @@ describe('Class Model Tests', () => {
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
-                    ];
-                    const instancesExpectedToFail = new SuperSet([                
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(UpdateControlledSuperClass, [
                         instanceOfUpdateControlledSuperClassFailsRelationship,
                         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
                         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
@@ -6377,71 +6345,37 @@ describe('Class Model Tests', () => {
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
-
                     ]);
-                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-                    let passed = false;
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    try {
-                        await UpdateControlledSuperClass.updateControlCheckInstanceSet(instances);
-                    }
-                    catch (error) {
-                        if (error.message != expectedErrorMessage) {
-                            throw new Error(
-                                'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
-                                'expected: ' + expectedErrorMessage + '\n' + 
-                                'actual:   ' + error.message
-                            );
-                        }
-                        passed = true;
-                    }
-
-                    if (!passed) {
-                        throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
-                    }
+                    await testForErrorAsync('ClassModel.updateControlCheckInstanceSet', expectedErrorMessage, async () => {
+                        return  UpdateControlledSuperClass.updateControlCheckInstanceSet(instanceSet);
+                    });
                 });
 
             });
 
-            describe.skip('UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckInstanceSet()', () => {
+            describe('UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckInstanceSet()', () => {
 
                 it('Update Control Check called on Class with only direct instances of Class.', async () => {
-                    const instances = [
+                    const instanceSet = new InstanceSet(UpdateControlledSuperClass, [
                         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
                         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
                         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship
-                    ];
-                    const instancesExpectedToFail = new SuperSet([                
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(UpdateControlledSuperClass, [
                         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
                         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
-
                     ]);
-                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-                    let passed = false;
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    try {
-                        await UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckInstanceSet(instances);
-                    }
-                    catch (error) {
-                        if (error.message != expectedErrorMessage) {
-                            throw new Error(
-                                'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
-                                'expected: ' + expectedErrorMessage + '\n' + 
-                                'actual:   ' + error.message
-                            );
-                        }
-                        passed = true;
-                    }
-
-                    if (!passed) {
-                        throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
-                    }
+                    await testForErrorAsync('ClassModel.updateControlCheckInstanceSet', expectedErrorMessage, async () => {
+                        return  UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckInstanceSet(instanceSet);
+                    });
                 });
 
-                it('Update Control Check called on Class with instances of class and 1 layers of sub classes', async () => {
-                    const instances = [
+                it('Update Control Check called on Class with instances of class and 1 layers of sub classes.', async () => {
+                    const instanceSet = new InstanceSet(UpdateControlledSuperClass, [
                         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
                         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
                         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
@@ -6449,39 +6383,23 @@ describe('Class Model Tests', () => {
                         instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
                         instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
                         instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship
-                    ];
-                    const instancesExpectedToFail = new SuperSet([                
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(UpdateControlledSuperClass, [
                         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
                         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
                         instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
                         instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
                         instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship
                     ]);
-                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-                    let passed = false;
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    try {
-                        await UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckInstanceSet(instances);
-                    }
-                    catch (error) {
-                        if (error.message != expectedErrorMessage) {
-                            throw new Error(
-                                'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
-                                'expected: ' + expectedErrorMessage + '\n' + 
-                                'actual:   ' + error.message
-                            );
-                        }
-                        passed = true;
-                    }
-
-                    if (!passed) {
-                        throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
-                    }
+                    await testForErrorAsync('ClassModel.updateControlCheckInstanceSet', expectedErrorMessage, async () => {
+                        return  UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckInstanceSet(instanceSet);
+                    });
                 });
 
-                it('Update Control Check called on Class with instances of 2 layers of sub classes', async () => {
-                    const instances = [
+                it('Update Control Check called on Class with instances of 2 layers of sub classes.', async () => {
+                    const instanceSet = new InstanceSet(UpdateControlledSuperClass, [
                         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
                         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
                         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
@@ -6494,8 +6412,8 @@ describe('Class Model Tests', () => {
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
-                    ];
-                    const instancesExpectedToFail = new SuperSet([                
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(UpdateControlledSuperClass, [
                         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
                         instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
                         instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
@@ -6506,70 +6424,38 @@ describe('Class Model Tests', () => {
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
                     ]);
-                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-                    let passed = false;
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    try {
-                        await UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckInstanceSet(instances);
-                    }
-                    catch (error) {
-                        if (error.message != expectedErrorMessage) {
-                            throw new Error(
-                                'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
-                                'expected: ' + expectedErrorMessage + '\n' + 
-                                'actual:   ' + error.message
-                            );
-                        }
-                        passed = true;
-                    }
-
-                    if (!passed) {
-                        throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
-                    }
+                    await testForErrorAsync('ClassModel.updateControlCheckInstanceSet', expectedErrorMessage, async () => {
+                        return  UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckInstanceSet(instanceSet);
+                    });
                 });
 
             });
 
-            describe.skip('UpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet()', () => {
+            describe('UpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet()', () => {
 
                 it('Update Control Check called on Class with only direct instances of Class.', async () => {
-                    const instances = [
+                    const instanceSet = new InstanceSet(UpdateControlledSuperClass, [
                         instanceOfUpdateControlledDiscriminatedSuperClassPasses,
                         instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
                         instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
                         instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship
-                    ];
-                    const instancesExpectedToFail = new SuperSet([
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(UpdateControlledSuperClass, [
                         instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
                         instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
                         instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship
                     ]);
-                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-                    let passed = false;
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    try {
-                        await UpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet(instances);
-                    }
-                    catch (error) {
-                        if (error.message != expectedErrorMessage) {
-                            throw new Error(
-                                'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
-                                'expected: ' + expectedErrorMessage + '\n' + 
-                                'actual:   ' + error.message
-                            );
-                        }
-                        passed = true;
-                    }
-
-                    if (!passed) {
-                        throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
-                    }
+                    await testForErrorAsync('ClassModel.updateControlCheckInstanceSet', expectedErrorMessage, async () => {
+                        return  UpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet(instanceSet);
+                    });
                 });
 
                 it('Update Control Check called on Class with instances of 1 layers of sub classes', async () => {
-                    const instances = [
+                    const instanceSet = new InstanceSet(UpdateControlledSuperClass, [
                         instanceOfUpdateControlledDiscriminatedSuperClassPasses,
                         instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
                         instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
@@ -6579,8 +6465,8 @@ describe('Class Model Tests', () => {
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
-                    ];
-                    const instancesExpectedToFail = new SuperSet([
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(UpdateControlledSuperClass, [
                         instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
                         instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
                         instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
@@ -6589,76 +6475,45 @@ describe('Class Model Tests', () => {
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
                     ]);
-                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-                    let passed = false;
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    try {
-                        await UpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet(instances);
-                    }
-                    catch (error) {
-                        if (error.message != expectedErrorMessage) {
-                            throw new Error(
-                                'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
-                                'expected: ' + expectedErrorMessage + '\n' + 
-                                'actual:   ' + error.message
-                            );
-                        }
-                        passed = true;
-                    }
-
-                    if (!passed) {
-                        throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
-                    }
+                    await testForErrorAsync('ClassModel.updateControlCheckInstanceSet', expectedErrorMessage, async () => {
+                        return  UpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet(instanceSet);
+                    });
                 });
 
             });
 
-            describe.skip('UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet()', () => {
+            describe('UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet()', () => {
 
                 it('Update Control Check called on Class with only direct instances of Class.', async () => {
-                    const instances = [
+                    const instanceSet = new InstanceSet(UpdateControlledSuperClass, [
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses,
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
-                    ];
-                    const instancesExpectedToFail = new SuperSet([
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(UpdateControlledSuperClass, [
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
                         instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
                     ]);
-                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-                    let passed = false;
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    try {
-                        await UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet(instances);
-                    }
-                    catch (error) {
-                        if (error.message != expectedErrorMessage) {
-                            throw new Error(
-                                'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
-                                'expected: ' + expectedErrorMessage + '\n' + 
-                                'actual:   ' + error.message
-                            );
-                        }
-                        passed = true;
-                    }
-
-                    if (!passed) {
-                        throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
-                    }
+                    await testForErrorAsync('ClassModel.updateControlCheckInstanceSet', expectedErrorMessage, async () => {
+                        return  UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet(instanceSet);
+                    });
                 });
 
             });
 
-            describe.skip('UpdateControlledClassUpdateControlledByParameters.updateControlCheckInstanceSet()', () => {
+            describe('UpdateControlledClassUpdateControlledByParameters.updateControlCheckInstanceSet()', () => {
 
                 it('Update Control Check passes', async () => {
-                    const updateAllowed = await UpdateControlledClassUpdateControlledByParameters.updateControlCheckInstanceSet([instanceOfUpdateControlledClassUpdateControlledByParameters], 1, 1, true);
+                    const instanceSet = new InstanceSet(UpdateControlledClassUpdateControlledByParameters, [instanceOfUpdateControlledClassUpdateControlledByParameters]);
+                    const updateAllowed = await UpdateControlledClassUpdateControlledByParameters.updateControlCheckInstanceSet(instanceSet, 1, 1, true);
                     
                     if (!updateAllowed) {
                         throw new Error('Update check passed when it should have thrown an error.');
@@ -6666,55 +6521,27 @@ describe('Class Model Tests', () => {
                 });
 
                 it('Instance fails update control check because of Numbers.', async () => {
-                    const instances = [instanceOfUpdateControlledClassUpdateControlledByParameters];
-                    const instancesExpectedToFail = new SuperSet([instanceOfUpdateControlledClassUpdateControlledByParameters]);
-                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-                    let passed = false;
+                    const instanceSet = new InstanceSet(UpdateControlledClassUpdateControlledByParameters, [
+                        instanceOfUpdateControlledClassUpdateControlledByParameters,
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(UpdateControlledClassUpdateControlledByParameters, [instanceOfUpdateControlledClassUpdateControlledByParameters]);
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    try {
-                        await UpdateControlledClassUpdateControlledByParameters.updateControlCheckInstanceSet(instances, -2, 1, true);
-                    }
-                    catch (error) {
-                        if (error.message != expectedErrorMessage) {
-                            throw new Error(
-                                'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
-                                'expected: ' + expectedErrorMessage + '\n' + 
-                                'actual:   ' + error.message
-                            );
-                        }
-                        passed = true;
-                    }
-
-                    if (!passed) {
-                        throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
-                    }
+                    await testForErrorAsync('ClassModel.updateControlCheckInstanceSet', expectedErrorMessage, async () => {
+                        return  UpdateControlledClassUpdateControlledByParameters.updateControlCheckInstanceSet(instanceSet, -2, 1, true);
+                    });
                 });
 
                 it('Instance fails update control check because of Boolean.', async () => {
-                    const instances = [instanceOfUpdateControlledClassUpdateControlledByParameters];
-                    const instancesExpectedToFail = new SuperSet([instanceOfUpdateControlledClassUpdateControlledByParameters]);
-                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-                    let passed = false;
+                    const instanceSet = new InstanceSet(UpdateControlledClassUpdateControlledByParameters, [
+                        instanceOfUpdateControlledClassUpdateControlledByParameters,
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(UpdateControlledClassUpdateControlledByParameters, [instanceOfUpdateControlledClassUpdateControlledByParameters]);
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    try {
-                        await UpdateControlledClassUpdateControlledByParameters.updateControlCheckInstanceSet(instances, 1, 1, false);
-                    }
-                    catch (error) {
-                        if (error.message != expectedErrorMessage) {
-                            throw new Error(
-                                'updateControlCheckInstanceSet() threw an error, but not the expected one.\n' + 
-                                'expected: ' + expectedErrorMessage + '\n' + 
-                                'actual:   ' + error.message
-                            );
-                        }
-                        passed = true;
-                    }
-
-                    if (!passed) {
-                        throw new Error('updateControlCheckInstanceSet() returned when it should have thrown an error.');
-                    }
+                    await testForErrorAsync('ClassModel.updateControlCheckInstanceSet', expectedErrorMessage, async () => {
+                        return  UpdateControlledClassUpdateControlledByParameters.updateControlCheckInstanceSet(instanceSet, 1, 1, false);
+                    });
                 });
 
             });

@@ -1225,7 +1225,6 @@ class ClassModel {
      * }
      */
     async updateControlCheckInstanceSetRecursive(instanceSet, ...updateControlMethodParameters) {
-        console.log(this.className + ' start...');
         const updateControlMethods = this.allUpdateControlMethodsforClassModel();
         let rejectedInstances = new InstanceSet(this);
 
@@ -1234,7 +1233,6 @@ class ClassModel {
         });
 
         let updatableInstancesOfThisClass = [...instancesOfThisClass];
-        console.log(updatableInstancesOfThisClass);
 
         for (const updateControlMethod of updateControlMethods) {
             updatableInstancesOfThisClass = await ClassModel.asyncFilter(updatableInstancesOfThisClass, async (instance) => {
@@ -1244,9 +1242,6 @@ class ClassModel {
 
         updatableInstancesOfThisClass = new InstanceSet(this, updatableInstancesOfThisClass);
         rejectedInstances = instancesOfThisClass.difference(updatableInstancesOfThisClass);
-
-        console.log('Found these instances that were rejected ' + rejectedInstances.getInstanceIds());
-        console.log(this.className + ' now on to my subclasses...');
 
         if (this.isSuperClass()) {
             if (this.discriminated) {
@@ -1265,28 +1260,22 @@ class ClassModel {
                 for (let className in instancesByClass) {
                     if (className != this.className) {
                         const subClassModel = AllClassModels[className];
-                        console.log('calling my subclass ' + subClassModel.className);
                         const rejectedSubClassInstances = await subClassModel.updateControlCheckInstanceSetRecursive(new InstanceSet(subClassModel, instancesByClass[className]), ...updateControlMethodParameters);
                         rejectedInstances.addInstances(rejectedSubClassInstances);
                     }
                 }
             }
             else if (this.subClasses.length) {
-                console.log('Checking for subclasses..');
                 for (let subClass of this.subClasses) {
-                    console.log('here is a subclass ' + subClass.className);
                     let instancesOfSubClass = instanceSet.filterForClassModel(subClass);
     
                     if (!instancesOfSubClass.isEmpty()) {
-                        console.log('calling my subclass ' + subClass.className);
                         const rejectedSubClassInstances = await subClass.updateControlCheckInstanceSetRecursive(instancesOfSubClass, ...updateControlMethodParameters);
                         rejectedInstances.addFromIterable(rejectedSubClassInstances);
                     }
                 }
             }
         }
-
-        console.log('done');
 
         return rejectedInstances;
     }

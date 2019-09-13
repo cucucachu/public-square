@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const ClassModel = require('../dist/models/ClassModel');
+const Instance = require('../dist/models/Instance');
 
 
 
@@ -668,8 +669,12 @@ const ClassModel = require('../dist/models/ClassModel');
             className: 'UpdateControlledSuperClass',
             accessControlled: false,
             updateControlled: true,
-            updateControlMethod: async instance => { 
-                let updateControlledByInstance =  await UpdateControlledSuperClass.walk(instance, 'updateControlledBy');
+            updateControlMethod: async instance => {
+                let updateControlledByInstance;
+                if (instance instanceof Instance)
+                    updateControlledByInstance =  await UpdateControlledSuperClass.walkInstance(instance, 'updateControlledBy');
+                else
+                    updateControlledByInstance =  await UpdateControlledSuperClass.walk(instance, 'updateControlledBy');
                 return updateControlledByInstance.allowed;
             },
             schema: {
