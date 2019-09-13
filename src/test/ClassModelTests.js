@@ -8,6 +8,9 @@ const InstanceSet = require('../dist/models/InstanceSet');
 const Instance = require('../dist/models/Instance');
 const database = require('../dist/models/database');
 const TestClassModels = require('./TestClassModels');
+const TestingFunctions = require('./TestingFunctions');
+const testForError = TestingFunctions.testForError;
+const testForErrorAsync = TestingFunctions.testForErrorAsync;
 
 // Load all TestClassModels 
 {
@@ -3866,6 +3869,241 @@ describe('Class Model Tests', () => {
                             error = new Error('walk() returned an empty array.');
                         if (instances.length == 1) 
                             error = new Error('walk() only returned a single instance, it should have returned 2 instances.');
+                        expectedInstances.forEach((expectedInstance) => {
+                            let expectedInstanceFound = false;
+                            instances.forEach((instance) => {
+                                if (instance._id.equals(expectedInstance._id))
+                                    expectedInstanceFound = true;
+                            });
+                            if (!expectedInstanceFound) {
+                                error = new Error('One of the expected instances was not returned.');
+                            }
+                        });
+                    },
+                    (walkError) => {
+                        error = walkError;
+                    }
+                ).finally(() => {
+                    if (error)
+                        done(error);
+                    else   
+                        done();
+                });
+            });
+
+        });
+
+    });
+
+    describe.only('ClassModel.walkInstance()', () => {
+
+        // Create instances for tests.
+        {
+            var instanceOfSingularRelationshipClassA = new Instance (SingularRelationshipClass);
+            var instanceOfSingularRelationshipClassB = new Instance (SingularRelationshipClass);
+            var instanceOfNonSingularRelationshipClass = new Instance (NonSingularRelationshipClass);
+            var instanceOfSubClassOfSingularRelationshipClassA = new Instance (SubClassOfSingularRelationshipClass);
+            var instanceOfSubClassOfSingularRelationshipClassB = new Instance (SubClassOfSingularRelationshipClass);
+            var instanceOfSubClassOfNonSingularRelationshipClass = new Instance (SubClassOfNonSingularRelationshipClass);
+    
+            instanceOfSingularRelationshipClassA.singularRelationship = instanceOfNonSingularRelationshipClass._id;
+            instanceOfSingularRelationshipClassA.boolean = true;
+            instanceOfSingularRelationshipClassB.singularRelationship = instanceOfNonSingularRelationshipClass._id;
+            instanceOfSingularRelationshipClassB.boolean = false;
+            instanceOfNonSingularRelationshipClass.nonSingularRelationship = [instanceOfSingularRelationshipClassA._id, instanceOfSingularRelationshipClassB._id];
+    
+            instanceOfSubClassOfSingularRelationshipClassA.singularRelationship = instanceOfSubClassOfNonSingularRelationshipClass._id;
+            instanceOfSubClassOfSingularRelationshipClassA.boolean = true;
+            instanceOfSubClassOfSingularRelationshipClassB.singularRelationship = instanceOfSubClassOfNonSingularRelationshipClass._id;
+            instanceOfSubClassOfSingularRelationshipClassB.boolean = false;
+            instanceOfSubClassOfNonSingularRelationshipClass.nonSingularRelationship = [instanceOfSubClassOfSingularRelationshipClassA._id, instanceOfSubClassOfSingularRelationshipClassB._id];
+        }
+
+        before(async () => {
+            await instanceOfSingularRelationshipClassA.save();
+            await instanceOfSingularRelationshipClassB.save();
+            await instanceOfNonSingularRelationshipClass.save();
+            await instanceOfSubClassOfSingularRelationshipClassA.save();
+            await instanceOfSubClassOfSingularRelationshipClassB.save();
+            await instanceOfSubClassOfNonSingularRelationshipClass.save();
+        });
+
+        after(async () => {
+            await SingularRelationshipClass.clear();
+            await NonSingularRelationshipClass.clear();
+            await SubClassOfSingularRelationshipClass.clear();
+            await SubClassOfNonSingularRelationshipClass.clear();
+        });
+
+        describe('Tests for invalid arguments.', () => {
+
+            it('ClassModel.walkInstance() called with no arguments.', async () => {
+                let expectedErrorMessage = 'SingularRelationshipClass.walkInstance() called with insufficient arguments. Should be walkInstance(instance, relationship, <optional>filter).';
+
+                await testForErrorAsync('ClassModel.walkInstance()', expectedErrorMessage, async () => {
+                    return SingularRelationshipClass.walkInstance();
+                });
+            });
+
+            it('ClassModel.walkInstance() called with only one argument (instance).', async () => {
+                let expectedErrorMessage = 'SingularRelationshipClass.walkInstance() called with insufficient arguments. Should be walkInstance(instance, relationship, <optional>filter).';
+
+                await testForErrorAsync('ClassModel.walkInstance()', expectedErrorMessage, async () => {
+                    return SingularRelationshipClass.walkInstance(instanceOfSingularRelationshipClassA);
+                });
+            });
+
+            it('ClassModel.walkInstance() called with only one argument (instance).', async () => {
+                let expectedErrorMessage = 'SingularRelationshipClass.walkInstance() called with an argument which is not an instance.';
+
+                await testForErrorAsync('ClassModel.walkInstance()', expectedErrorMessage, async () => {
+                    return SingularRelationshipClass.walkInstance({ this: 'that'}, 'some_relationship');
+                });
+            });
+
+            it('ClassModel.walkInstance() called with first argument that is an instance of a different class model.', async () => {
+                let expectedErrorMessage = 'SingularRelationshipClass.walkInstance(): First argument needs to be an instance of SingularRelationshipClass\'s classModel or one of its sub classes.';
+                
+                await testForErrorAsync('ClassModel.walkInstance()', expectedErrorMessage, async () => {
+                    return SingularRelationshipClass.walkInstance(instanceOfNonSingularRelationshipClass, 'some_relationship');
+                });
+            });
+
+            it('ClassModel.walkInstance() called with second argument that is not a String.', async () => {
+                let expectedErrorMessage = 'SingularRelationshipClass.walkInstance(): Second argument needs to be a String.';
+                
+                await testForErrorAsync('ClassModel.walkInstance()', expectedErrorMessage, async () => {
+                    return SingularRelationshipClass.walkInstance(instanceOfSingularRelationshipClassA, true);
+                });
+            });
+
+            it('ClassModel.walkInstance() called with second argument that is not a field in the schema.', async () => {
+                let expectedErrorMessage = 'SingularRelationshipClass.walkInstance(): Second argument needs to be a field in SingularRelationshipClass\'s schema.';
+                
+                await testForErrorAsync('ClassModel.walkInstance()', expectedErrorMessage, async () => {
+                    return SingularRelationshipClass.walkInstance(instanceOfSingularRelationshipClassA, 'rabbit');
+                });
+            });
+
+            it('ClassModel.walkInstance() called with second argument that is not a relationsihp in the schema. (boolean)', async () => {
+                let expectedErrorMessage = 'SingularRelationshipClass.walkInstance(): field "boolean" is not a relationship.';
+                
+                await testForErrorAsync('ClassModel.walkInstance()', expectedErrorMessage, async () => {
+                    return SingularRelationshipClass.walkInstance(instanceOfSingularRelationshipClassA, 'boolean');
+                });
+            });
+
+            it('ClassModel.walkInstance() called with second argument that is not a relationsihp in the schema. (Array of Booleans)', async () => {
+                let expectedErrorMessage = 'SingularRelationshipClass.walkInstance(): field "booleans" is not a relationship.';
+                
+                await testForErrorAsync('ClassModel.walkInstance()', expectedErrorMessage, async () => {
+                    return SingularRelationshipClass.walkInstance(instanceOfSingularRelationshipClassA, 'booleans');
+                });
+            });
+
+            it('ClassModel.walkInstance() called with third argument that is not an object.', async () => {
+                let expectedErrorMessage = 'SingularRelationshipClass.walkInstance(): Third argument needs to be an object.';
+                
+                await testForErrorAsync('ClassModel.walkInstance()', expectedErrorMessage, async () => {
+                    return SingularRelationshipClass.walkInstance(instanceOfSingularRelationshipClassA, 'singularRelationship', '{type: notAnObject}');
+                });
+            });
+
+        });
+
+        describe.skip('Test walking the relationships.', () => {
+
+            it('Walking a singular relationship.', function(done) {
+                let expectedInstance = instanceOfNonSingularRelationshipClass;
+                let error;
+
+                SingularRelationshipClass.walkInstance(instanceOfSingularRelationshipClassA, 'singularRelationship').then(
+                    (instance) => {
+                        if (instance == null) 
+                            error = new Error('walkInstance() did not return an instance.');
+                        if (!(instance._id.equals(expectedInstance._id)))
+                            error = new Error('walkInstance() returned an instance, but it is not the right one.');
+                    },
+                    (walkError) => {
+                        error = walkError;
+                    }
+                ).finally(() => {
+                    if (error)
+                        done(error);
+                    else   
+                        done();
+                });
+
+            });
+
+            it('Walking a nonsingular relationship.', function(done) {
+                let expectedInstances = [instanceOfSingularRelationshipClassA, instanceOfSingularRelationshipClassB];
+                let error;
+
+                NonSingularRelationshipClass.walkInstance(instanceOfNonSingularRelationshipClass, 'nonSingularRelationship').then(
+                    (instances) => {
+                        if (instances == null) 
+                            error = new Error('walkInstance() returned null. It should have at least returned an empty array.');
+                        if (instances.length == 0) 
+                            error = new Error('walkInstance() returned an empty array.');
+                        if (instances.length == 1) 
+                            error = new Error('walkInstance() only returned a single instance, it should have returned 2 instances.');
+                        expectedInstances.forEach((expectedInstance) => {
+                            let expectedInstanceFound = false;
+                            instances.forEach((instance) => {
+                                if (instance._id.equals(expectedInstance._id))
+                                    expectedInstanceFound = true;
+                            });
+                            if (!expectedInstanceFound) {
+                                error = new Error('One of the expected instances was not returned.');
+                            }
+                        });
+                    },
+                    (walkError) => {
+                        error = walkError;
+                    }
+                ).finally(() => {
+                    if (error)
+                        done(error);
+                    else   
+                        done();
+                });
+            });
+
+            it('Walking a singular relationship by calling walkInstance() from the super class.', function(done) {
+                let expectedInstance = instanceOfSubClassOfNonSingularRelationshipClass;
+                let error;
+
+                SingularRelationshipClass.walkInstance(instanceOfSubClassOfSingularRelationshipClassA, 'singularRelationship').then(
+                    (instance) => {
+                        if (instance == null) 
+                            error = new Error('walkInstance() did not return an instance.');
+                        if (!(instance._id.equals(expectedInstance._id)))
+                            error = new Error('walkInstance() returned an instance, but it is not the right one.');
+                    },
+                    (walkError) => {
+                        error = walkError;
+                    }
+                ).finally(() => {
+                    if (error)
+                        done(error);
+                    else   
+                        done();
+                });
+            });
+
+            it('Walking a nonsingular relationship by calling walkInstance() from the super class.', function(done) {
+                let expectedInstances = [instanceOfSubClassOfSingularRelationshipClassA._id, instanceOfSubClassOfSingularRelationshipClassB._id];
+                let error;
+
+                NonSingularRelationshipClass.walkInstance(instanceOfSubClassOfNonSingularRelationshipClass, 'nonSingularRelationship').then(
+                    (instances) => {
+                        if (instances == null) 
+                            error = new Error('walkInstance() returned null. It should have at least returned an empty array.');
+                        if (instances.length == 0) 
+                            error = new Error('walkInstance() returned an empty array.');
+                        if (instances.length == 1) 
+                            error = new Error('walkInstance() only returned a single instance, it should have returned 2 instances.');
                         expectedInstances.forEach((expectedInstance) => {
                             let expectedInstanceFound = false;
                             instances.forEach((instance) => {

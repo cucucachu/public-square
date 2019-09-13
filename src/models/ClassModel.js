@@ -784,9 +784,6 @@ class ClassModel {
      *           instances if the relationship is non-singular.
      */ 
     async walk(instance, relationship, filter=null) {
-        let schema = this.schema;
-        let className = this.className;   
-
         if (!instance || !relationship)
             throw new Error(this.className + '.walk() called with insufficient arguments. Should be walk(instance, relationship, <optional>filter).');
 
@@ -805,8 +802,8 @@ class ClassModel {
         if (filter && typeof(filter != "object"))
             throw new Error(this.className + '.walk(): Third argument needs to be an object.');
         
-        const relatedClass = AllClassModels[schema[relationship].ref];
-        const singular = schema[relationship].type == Schema.Types.ObjectId;
+        const relatedClass = AllClassModels[this.schema[relationship].ref];
+        const singular = this.schema[relationship].type == Schema.Types.ObjectId;
         filter = filter ? filter : {}
 
             // If relationship is to a singular instance, use findOne()
@@ -832,6 +829,67 @@ class ClassModel {
                 });
 
                 return relatedClass.find(filter);
+            }
+        }
+    }
+    
+    /* 
+     * Walks a relationship from a given instance of this Class Model, returning the related instance or instances. 
+     * @param required Object instance: An instance of this class model
+     * @param required String relationship: the key for the desired relationship
+     * @param optional Object filter: a filter Object used in the query to filter the returned instances.
+     * @return Promise which when resolved returns the related instance if relationship is singular, or an Array of the related 
+     *           instances if the relationship is non-singular.
+     */ 
+    async walkInstance(instance, relationship, filter=null) {
+        if (!instance || !relationship)
+            throw new Error(this.className + '.walkInstance() called with insufficient arguments. Should be walkInstance(instance, relationship, <optional>filter).');
+
+        if (!(instance instanceof Instance))
+            throw new Error(this.className + '.walkInstance() called with an argument which is not an instance.');
+
+        if (!(instance.isInstanceOf(this)))
+            throw new Error(this.className + '.walkInstance(): First argument needs to be an instance of ' + this.className + '\'s classModel or one of its sub classes.');
+        
+        if (typeof(relationship) != 'string')
+            throw new Error(this.className + '.walkInstance(): Second argument needs to be a String.');
+        
+        if (!(relationship in this.schema))
+            throw new Error(this.className + '.walkInstance(): Second argument needs to be a field in ' + this.className + '\'s schema.');
+        
+        if (!ClassModel.fieldIsARelationship(this.schema[relationship]))
+            throw new Error(this.className + '.walkInstance(): field "' + relationship + '" is not a relationship.');
+        
+        if (filter && typeof(filter != "object"))
+            throw new Error(this.className + '.walkInstance(): Third argument needs to be an object.');
+        
+        const relatedClass = AllClassModels[this.schema[relationship].ref];
+        const singular = this.schema[relationship].type == Schema.Types.ObjectId;
+        filter = filter ? filter : {}
+
+            // If relationship is to a singular instance, use findOne()
+        if (singular) {
+            if (instance[relationship] == null) {
+                return null;
+            }
+            else {
+                Object.assign(filter, {
+                    _id: instance[relationship],
+                });
+                return relatedClass.findOneInstance(filter);
+            }
+        }
+        // If nonsingular, use find()
+        else {
+            if (instance[relationship] == null || instance[relationship].length == 0) {
+                return [];
+            }
+            else {
+                Object.assign(filter, {
+                    _id: {$in: instance[relationship]}
+                });
+
+                return relatedClass.findInstanceSet(filter);
             }
         }
     }
