@@ -3312,6 +3312,193 @@ describe('Class Model Tests', () => {
 
         });
 
+        describe('ClassModel.findOneInstance()', () => {
+    
+            describe('Calling findOneInstance on the Class of the instance you want to find. (Direct)', () => {
+
+                it('An instance of a concrete class with no subclasses can be found.', async () => {
+                    const classToCallFindOneOn = AllFieldsMutexClass;
+                    const instanceToFind = instanceOfAllFieldsMutexClass;
+
+                    const filter = {
+                        string: 'instanceOfAllFieldsMutexClass'
+                    }
+
+                    const instanceFound = await classToCallFindOneOn.findOneInstance(filter);
+
+                    if (!instanceFound)
+                        throw new Error('findOneInstance() did not return an instance.');
+                    
+                    if (!instanceToFind.equals(instanceFound))
+                        throw new Error('findOneInstance() returned the wrong instance.');
+                });
+
+                it('An instance of a concrete discriminated class can be found.', async () => {
+                    const classToCallFindOneOn = SubClassOfDiscriminatorSuperClass;
+                    const instanceToFind = instanceOfSubClassOfDiscriminatorSuperClass;
+
+                    const filter = {
+                        name: 'instanceOfSubClassOfDiscriminatorSuperClass'
+                    }
+
+                    const instanceFound = await classToCallFindOneOn.findOneInstance(filter);
+
+                    if (!instanceFound)
+                        throw new Error('findOneInstance() did not return an instance.');
+                    
+                    if (!instanceToFind.equals(instanceFound))
+                        throw new Error('findOneInstance() returned the wrong instance.');
+                });
+
+                it('An instance of a concrete super class can be found.', async () => {
+                    const classToCallFindOneOn = SuperClass;
+                    const instanceToFind = instanceOfSuperClass;
+
+                    const filter = {
+                        name: 'instanceOfSuperClass'
+                    }
+
+                    const instanceFound = await classToCallFindOneOn.findOneInstance(filter);
+
+                    if (!instanceFound)
+                        throw new Error('findOneInstance() did not return an instance.');
+                    
+                    if (!instanceToFind.equals(instanceFound))
+                        throw new Error('findOneInstance() returned the wrong instance.');
+                });
+
+                it('An instance of a concrete discriminated sub-class can be found.', async () => {
+                    const classToCallFindOneOn = DiscriminatedSuperClass;
+                    const instanceToFind = instanceOfDiscriminatedSuperClass;
+
+                    const filter = {
+                        name: 'instanceOfDiscriminatedSuperClass'
+                    }
+
+                    const instanceFound = await classToCallFindOneOn.findOneInstance(filter);
+
+                    if (!instanceFound)
+                        throw new Error('findOneInstance() did not return an instance.');
+                    
+                    if (!instanceToFind.equals(instanceFound))
+                        throw new Error('findOneInstance() returned the wrong instance.');
+                });
+    
+            });
+    
+            describe('Calling findOneInstance on a super class of the class of the instance you want to find. (Indirect)', () => {
+
+                it('An instance of a sub class of a discrimintated super class can be found from the super class.', async () => {
+                    const classToCallFindOneOn = DiscriminatedSuperClass;
+                    const instanceToFind = instanceOfSubClassOfDiscriminatorSuperClass;
+
+                    const filter = {
+                        name: 'instanceOfSubClassOfDiscriminatorSuperClass'
+                    }
+
+                    const instanceFound = await classToCallFindOneOn.findOneInstance(filter);
+
+                    if (!instanceFound) 
+                        throw new Error('findOneInstance() did not return an instance.');
+                    
+                    if (!instanceToFind.equals(instanceFound))
+                        throw new Error('findOneInstance() returned the wrong instance.');
+                });
+
+                it('An instance of a concrete sub class of a non-discriminated super class can be found from the super class.', async () => {
+                    const classToCallFindOneOn = SuperClass;
+                    const instanceToFind = instanceOfSubClassOfSuperClass;
+
+                    const filter = {
+                        name: 'instanceOfSubClassOfSuperClass'
+                    }
+
+
+                    const instanceFound = await classToCallFindOneOn.findOneInstance(filter);
+
+                    if (!instanceFound) 
+                        throw new Error('findOneInstance() did not return an instance.');
+                    
+                    if (!instanceToFind.equals(instanceFound))
+                        throw new Error('findOneInstance() returned the wrong instance.');
+                });
+
+                it('An instance of a concrete sub class of a non-discriminated abstract super class can be found from the super class.', async () => {
+                    const classToCallFindOneOn = AbstractSuperClass;
+                    const instanceToFind = instanceOfSubClassOfAbstractSuperClass;
+
+                    const filter = {
+                        name: 'instanceOfSubClassOfAbstractSuperClass'
+                    }
+
+                    const instanceFound = await classToCallFindOneOn.findOneInstance(filter);
+
+                    if (!instanceFound) 
+                        throw new Error('findOneInstance() did not return an instance.');
+                    
+                    if (!instanceToFind.equals(instanceFound))
+                        throw new Error('findOneInstance() returned the wrong instance.');
+                });
+    
+            });
+    
+            describe('Calling findOneInstance on a super class of the super class of the instance you want to find. (Recursive)', () => {
+
+                it('SuperClass -> Discriminated Sub Class -> Sub Sub Class', async () => {
+                    const classToCallFindOneOn = SuperClass;
+                    const instanceToFind = instanceOfSubClassOfDiscriminatedSubClassOfSuperClass;
+
+                    const filter = {
+                        name: 'instanceOfSubClassOfDiscriminatedSubClassOfSuperClass'
+                    }
+
+                    const instanceFound = await classToCallFindOneOn.findOneInstance(filter);
+
+                    if (!instanceFound) 
+                        throw new Error('findOneInstance() did not return an instance.');
+                    
+                    if (!instanceToFind.equals(instanceFound))
+                        throw new Error('findOneInstance() returned the wrong instance.');
+                });
+
+                it('SuperClass -> Sub Class -> Sub Sub Class', async () => {
+                    const classToCallFindOneOn = SuperClass;
+                    const instanceToFind = instanceOfSubClassOfSubClassOfSuperClass;
+
+                    const filter = {
+                        name: 'instanceOfSubClassOfSubClassOfSuperClass'
+                    }
+
+                    const instanceFound = await classToCallFindOneOn.findOneInstance(filter);
+
+                    if (!instanceFound) 
+                        throw new Error('findOneInstance() did not return an instance.');
+                    
+                    if (!instanceToFind.equals(instanceFound))
+                        throw new Error('findOneInstance() returned the wrong instance.');
+                });
+
+                it('SuperClass -> Abstract Sub Class -> Sub Sub Class', async () => {
+                    const classToCallFindOneOn = SuperClass;
+                    const instanceToFind = instanceOfSubClassOfAbstractSubClassOfSuperClass;
+
+                    const filter = {
+                        name: 'instanceOfSubClassOfAbstractSubClassOfSuperClass'
+                    }
+
+                    const instanceFound = await classToCallFindOneOn.findOneInstance(filter);
+
+                    if (!instanceFound) 
+                        throw new Error('findOneInstance() did not return an instance.');
+                    
+                    if (!instanceToFind.equals(instanceFound))
+                        throw new Error('findOneInstance() returned the wrong instance.');
+                });
+    
+            });
+    
+        });
+
         describe('ClassModel.findInstanceSet()', () => {
 
             describe('Finding a single instance.', () => {
@@ -4025,7 +4212,7 @@ describe('Class Model Tests', () => {
             });
 
             it('Walking a nonsingular relationship.', async () => {
-                let expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
+                const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
                     instanceOfSingularRelationshipClassA,
                     instanceOfSingularRelationshipClassB
                 ]);
@@ -4035,7 +4222,7 @@ describe('Class Model Tests', () => {
                     throw new Error('walkInstance() did not return the correct instances.');
             });
 
-            it.skip('Walking a singular relationship by calling walkInstance() from the super class.', async () => {
+            it('Walking a singular relationship by calling walkInstance() from the super class.', async () => {
                 const expectedInstance = instanceOfSubClassOfNonSingularRelationshipClass;
                 const instance = await SingularRelationshipClass.walkInstance(instanceOfSubClassOfSingularRelationshipClassA, 'singularRelationship');
 
@@ -4047,11 +4234,23 @@ describe('Class Model Tests', () => {
             });
 
             it('Walking a nonsingular relationship by calling walkInstance() from the super class.', async () => {
-                let expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
+                const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
                     instanceOfSubClassOfSingularRelationshipClassA,
                     instanceOfSubClassOfSingularRelationshipClassB
                 ]);
                 const instanceSet = await NonSingularRelationshipClass.walkInstance(instanceOfSubClassOfNonSingularRelationshipClass, 'nonSingularRelationship');
+
+                if (!expectedInstanceSet.equals(instanceSet))
+                    throw new Error('walkInstance() did not return the correct instances.');
+            });
+
+            it('Walking a nonsingular relationship by calling walkInstance() from the super class with a filter.', async () => {
+                const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
+                    instanceOfSubClassOfSingularRelationshipClassA,
+                ]);
+                const filter = { boolean: true };
+
+                const instanceSet = await NonSingularRelationshipClass.walkInstance(instanceOfSubClassOfNonSingularRelationshipClass, 'nonSingularRelationship', filter);
 
                 if (!expectedInstanceSet.equals(instanceSet))
                     throw new Error('walkInstance() did not return the correct instances.');

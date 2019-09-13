@@ -652,12 +652,59 @@ class ClassModel {
      * Returns a promise, which will resolve with the instance with the given query filter if it can be found, otherwise null.
      */
     async findOneInstance(queryFilter, ...accessControlMethodParameters) {
-        const foundDocument = await this.findOne(queryFilter, ...accessControlMethodParameters);
+        const concrete = !this.abstract;
+        const abstract = this.abstract;
+        const discriminated = this.discriminated;
+        const isSuperClass = (this.subClasses.length > 0 || this.discriminated);
+        const subClasses = this.subClasses;
+        const className = this.className;
+        const Model = this.Model;
 
-        if (!foundDocument)
-            return null;
+        // If this class is a non-discriminated abstract class and it doesn't have any sub classes, throw an error.
+        if (abstract && !isSuperClass)
+            throw new Error('Error in ' + className + '.findOneInstance(). This class is abstract and non-discriminated, but it has no sub-classes.');
 
-        return new Instance(this, foundDocument, true);
+        // If this is a discriminated class, or it is a concrete class with no subclasses, find the instance in this ClassModel's collection.
+        if ((concrete && !isSuperClass) || discriminated) {
+            const documentFound = await Model.findOne(queryFilter).exec();
+            const filteredDocument = await this.accessControlFilterOne(documentFound, ...accessControlMethodParameters);
+            if (!filteredDocument)
+                return null;
+            else {
+                if (!discriminated)
+                    return new Instance(this, filteredDocument, true);
+                else {
+                    if (filteredDocument.__t) {
+                        const classModelForInstance = AllClassModels[filteredDocument.__t];
+                        return new Instance(classModelForInstance, filteredDocument, true);
+                    }
+                    else {
+                        return new Instance(this, filteredDocument, true);
+                    }
+                }
+            }
+        }
+        // If this is a non-discriminated super class, we may need to check this classmodel's collection as well,
+        //  as well as the subclasses collections.
+        if (isSuperClass && !discriminated) {
+            let promises = [];
+
+            // If this is a concrete super class, we need to check this ClassModel's own collection.
+            if (concrete){
+                const foundDocument = await Model.findOne(queryFilter).exec();
+                if (foundDocument) {
+                    const filteredDocument = await this.accessControlFilterOne(foundDocument, ...accessControlMethodParameters);
+                    if (filteredDocument)
+                        return new Instance(this, filteredDocument, true);
+                }
+            }
+
+            // Call findOneInstance on our subclasses as well.
+            for (let subClass of subClasses)
+                promises.push(subClass.findOneInstance(queryFilter));
+
+            return ClassModel.firstNonNullPromiseResolution(promises);
+        }
     }
 
     /* Finds instances of this ClassModel using the given query filter in the database. 
@@ -799,9 +846,9 @@ class ClassModel {
         if (!ClassModel.fieldIsARelationship(this.schema[relationship]))
             throw new Error(this.className + '.walk(): field "' + relationship + '" is not a relationship.');
         
-        if (filter && typeof(filter != "object"))
+        if (filter && typeof(filter) !== "object")
             throw new Error(this.className + '.walk(): Third argument needs to be an object.');
-        
+
         const relatedClass = AllClassModels[this.schema[relationship].ref];
         const singular = this.schema[relationship].type == Schema.Types.ObjectId;
         filter = filter ? filter : {}
@@ -860,9 +907,9 @@ class ClassModel {
         if (!ClassModel.fieldIsARelationship(this.schema[relationship]))
             throw new Error(this.className + '.walkInstance(): field "' + relationship + '" is not a relationship.');
         
-        if (filter && typeof(filter != "object"))
+        if (filter && typeof(filter) !== "object")
             throw new Error(this.className + '.walkInstance(): Third argument needs to be an object.');
-        
+    
         const relatedClass = AllClassModels[this.schema[relationship].ref];
         const singular = this.schema[relationship].type == Schema.Types.ObjectId;
         filter = filter ? filter : {}
