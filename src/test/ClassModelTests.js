@@ -4260,7 +4260,7 @@ describe('Class Model Tests', () => {
 
     });
 
-    describe.only('ClassModel.walkInstanceSet()', () => {
+    describe('ClassModel.walkInstanceSet()', () => {
 
         // Create instances for tests.
         {

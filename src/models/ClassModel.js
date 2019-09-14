@@ -983,7 +983,7 @@ class ClassModel {
             _id: {$in : instanceIdsToFind},
         });
 
-        return relatedClass.findInstanceSet(filter);
+        return relatedClass.findInstanceSet(filter, ...accessControlMethodParameters);
     }
 
     // Security Methods
