@@ -187,6 +187,10 @@ class InstanceSet extends SuperSet {
         return;
     }
 
+    async walk(relationship, filter = null, ...accessControlMethodParameters) {
+        return this.classModel.walkInstanceSet(this, relationship, filter, ...accessControlMethodParameters)
+    }
+
     getInstanceIds() {
         return this.map(instance => instance.id);
     }

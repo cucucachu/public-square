@@ -941,6 +941,51 @@ class ClassModel {
         }
     }
 
+    walkValidations(instanceSet, relationship, filter) {
+        if (!relationship) 
+            throw new Error('InstanceSet.walk() called without no relationship.');
+
+        if (typeof(relationship) !== 'string')
+            throw new Error('InstanceSet.walk() relationship argument must be a String.');
+
+        if (!(relationship in this.schema) || !ClassModel.fieldIsARelationship(this.schema[relationship]))
+            throw new Error('InstanceSet.walk() called with an invalid relationship for ClassModel ' + this.className + '.');
+        
+        if (filter && typeof(filter) !== "object")
+            throw new Error('InstanceSet.walk() filter argument must be an object.');
+    }
+
+    async walkInstanceSet(instanceSet, relationship, filter = null, ...accessControlMethodParameters) {
+        this.walkValidations(instanceSet, relationship, filter);
+    
+        const relatedClass = AllClassModels[this.schema[relationship].ref];
+        const singular = this.schema[relationship].type == Schema.Types.ObjectId;
+        filter = filter ? filter : {};
+        let instanceIdsToFind;
+
+        if(instanceSet.isEmpty())
+            return new InstanceSet(relatedClass);
+
+        if (singular) {
+            instanceIdsToFind = instanceSet.map(instance => instance[relationship]).filter(id => { return id != null });
+        }
+        else {
+            instanceIdsToFind = instanceSet
+                .map(instance => instance[relationship])
+                .filter(ids => {
+                     return (ids != null && ids.length); 
+                    })
+                .reduce((acc, cur) => acc.concat(cur));
+        }
+        instanceIdsToFind =  [...(new Set(instanceIdsToFind))];
+        
+        Object.assign(filter, {
+            _id: {$in : instanceIdsToFind},
+        });
+
+        return relatedClass.findInstanceSet(filter);
+    }
+
     // Security Methods
 
     /* A recursive method which retrieves all the access control methods that should be run on instances of a classmodel, including the classes own
