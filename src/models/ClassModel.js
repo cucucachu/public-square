@@ -1139,6 +1139,11 @@ class ClassModel {
         }
     }
 
+    async updateControlCheckInstance(instance, ...updateControlMethodParameters) {
+        const instanceSet = new InstanceSet(instance.classModel, [instance]);
+        return this.updateControlCheckInstanceSet(instanceSet, ...updateControlMethodParameters);
+    }
+
     async updateControlCheckInstanceSet(instanceSet, ...updateControlParameters) {
         if (!(instanceSet instanceof InstanceSet))
             throw new Error('Incorrect parameters. ' + this.className + '.updateControlCheckInstanceSet(InstanceSet instanceSet, ...updateControlMethodParameters)');

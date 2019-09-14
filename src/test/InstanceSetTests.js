@@ -1,10 +1,7 @@
 
 require("@babel/polyfill");
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
 
 const database = require('../dist/models/database');
-const ClassModel = require('../dist/models/ClassModel');
 const Instance = require('../dist/models/Instance');
 const InstanceSet = require('../dist/models/InstanceSet');
 const TestClassModels = require('./TestClassModels');
@@ -21,30 +18,25 @@ const testForErrorAsync = TestingFunctions.testForErrorAsync;
     // Simple Classes
     var TestClassWithNumber = TestClassModels.TestClassWithNumber;
     var TestClassWithBoolean = TestClassModels.TestClassWithBoolean;
-    var TestClassWithAllSimpleFields = TestClassModels.TestClassWithAllSimpleFields;
 
     // Validation Classes
     var AllFieldsRequiredClass = TestClassModels.AllFieldsRequiredClass;
     var AllFieldsInRequiredGroupClass = TestClassModels.AllFieldsInRequiredGroupClass;
-    var AbstractClass = TestClassModels.AbstractClass;    var SuperClass = TestClassModels.SuperClass;
+    var SuperClass = TestClassModels.SuperClass;
     var MutexClassA = TestClassModels.MutexClassA;
     var MutexClassB = TestClassModels.MutexClassB;
     var MutexClassC = TestClassModels.MutexClassC;
 
     // Inheritance Classes
     var SuperClass = TestClassModels.SuperClass;
-    var AbstractSuperClass = TestClassModels.AbstractSuperClass;
-    var DiscriminatedSuperClass = TestClassModels.DiscriminatedSuperClass;
-    var AbstractDiscriminatedSuperClass = TestClassModels.AbstractDiscriminatedSuperClass;
     var SubClassOfSuperClass = TestClassModels.SubClassOfSuperClass;
-    var SubClassOfAbstractSuperClass = TestClassModels.SubClassOfAbstractSuperClass;
-    var AbstractSubClassOfSuperClass = TestClassModels.AbstractSubClassOfSuperClass;
-    var SubClassOfMultipleSuperClasses = TestClassModels.SubClassOfMultipleSuperClasses;
-    var SubClassOfDiscriminatorSuperClass = TestClassModels.SubClassOfDiscriminatorSuperClass;
     var DiscriminatedSubClassOfSuperClass = TestClassModels.DiscriminatedSubClassOfSuperClass;
     var SubClassOfDiscriminatedSubClassOfSuperClass = TestClassModels.SubClassOfDiscriminatedSubClassOfSuperClass;
-    var SubClassOfSubClassOfSuperClass = TestClassModels.SubClassOfSubClassOfSuperClass;
-    var SubClassOfAbstractSubClassOfSuperClass = TestClassModels.SubClassOfAbstractSubClassOfSuperClass;
+
+    // Update Controlled Classes
+    var UpdateControlledSuperClass = TestClassModels.UpdateControlledSuperClass;
+    var ClassControlsUpdateControlledSuperClass = TestClassModels.ClassControlsUpdateControlledSuperClass;
+    var UpdateControlledClassUpdateControlledByParameters = TestClassModels.UpdateControlledClassUpdateControlledByParameters;
 }
 
 describe('InstanceSet Tests', () => {
@@ -1277,7 +1269,7 @@ describe('InstanceSet Tests', () => {
 
     });
 
-    describe('ClassModel Methods', () => {
+    describe('Validate, Save, Walk, Delete', () => {
 
         describe('InstanceSet.validate()', () => {
 
@@ -1616,8 +1608,39 @@ describe('InstanceSet Tests', () => {
 
         describe('InstanceSet.save()', () => {
 
+            // Set up updateControlled Instances
+            {
+                // ClassControlsUpdateControlledSuperClass Instances
+                var instanceOfClassControlsUpdateControlledSuperClassAllowed = new Instance(ClassControlsUpdateControlledSuperClass);
+                instanceOfClassControlsUpdateControlledSuperClassAllowed.allowed = true;
+                
+                var instanceOfClassControlsUpdateControlledSuperClassNotAllowed = new Instance(ClassControlsUpdateControlledSuperClass);
+                instanceOfClassControlsUpdateControlledSuperClassNotAllowed.allowed = false;
+    
+                // UpdateControlledSuperClass Instances
+                var instanceOfUpdateControlledSuperClassPasses = new Instance(UpdateControlledSuperClass);
+                instanceOfUpdateControlledSuperClassPasses.name = 'instanceOfUpdateControlledSuperClassPasses';
+                instanceOfUpdateControlledSuperClassPasses.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
+    
+                var instanceOfUpdateControlledSuperClassFailsRelationship = new Instance(UpdateControlledSuperClass);
+                instanceOfUpdateControlledSuperClassFailsRelationship.name = 'instanceOfUpdateControlledSuperClassFailsRelationship';
+                instanceOfUpdateControlledSuperClassFailsRelationship.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassNotAllowed;
+    
+                
+            }
+    
+            // Save all SecurityFilter Test Instances
+            before(async () => {
+                await instanceOfClassControlsUpdateControlledSuperClassAllowed.save();
+                await instanceOfClassControlsUpdateControlledSuperClassNotAllowed.save();
+    
+            });
+
             after(async() => {
                 await AllFieldsRequiredClass.clear();
+                await ClassControlsUpdateControlledSuperClass.clear();
+                await UpdateControlledSuperClass.clear();
+                await UpdateControlledClassUpdateControlledByParameters.clear();
             });
 
             it('InstanceSet will not save any of the instances if any are invalid.', async () => {
@@ -1697,6 +1720,71 @@ describe('InstanceSet Tests', () => {
 
                 if (foundInstanceA.saved != true || foundInstanceB.saved != true)
                     throw new Error('Found instances\'s saved properties were not set to true.' );
+            });
+
+            it('Call save() on an InstanceSet of an update controlled class. InstanceSet saved.', async () => {
+                const instance = new Instance(UpdateControlledSuperClass);
+                instance.name = 'instanceOfUpdateControlledSuperClassPasses-saveAll';
+                instance.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
+
+                const instanceSet = new InstanceSet(UpdateControlledSuperClass, [instance]);
+                await instanceSet.save();
+
+                const instanceSaved = await UpdateControlledSuperClass.findInstanceById(instance._id);
+                
+                if (!instanceSaved)
+                    throw new Error('Instance was not saved.');
+
+                await instance.delete(instance);
+            });
+
+            it('Save fails due to update control check.', async () => {
+                const instanceSet = new InstanceSet(UpdateControlledSuperClass, [
+                    instanceOfUpdateControlledSuperClassPasses,
+                    instanceOfUpdateControlledSuperClassFailsRelationship,
+                ]);
+                const expectedErrorMessage = 'Caught validation error when attempting to save InstanceSet: Illegal attempt to update instances: ' + instanceOfUpdateControlledSuperClassFailsRelationship.id;
+                
+                await testForErrorAsync('InstanceSet.save()', expectedErrorMessage, async () => {
+                    return instanceSet.save();
+                });
+                
+                const instancesFound = await UpdateControlledSuperClass.findInstanceSet({
+                    _id: {$in: instanceSet.getInstanceIds()}
+                });
+
+                if (!instancesFound.isEmpty()) 
+                    throw new Error('.save() threw an error, but the instance was saved anyway.');
+            });
+
+            it('Call save() on an InstanceSet of an update controlled class with updateControlMethodParameters. InstanceSet saved.', async () => {
+                const instance = new Instance(UpdateControlledClassUpdateControlledByParameters);
+                const updateControlMethodParameters = [1, 1, true];
+                const instanceSet = new InstanceSet(UpdateControlledClassUpdateControlledByParameters, [instance]);
+                
+                await instanceSet.save(...updateControlMethodParameters);
+                const instanceSaved = UpdateControlledClassUpdateControlledByParameters.findInstanceById(instance.id);
+                
+                if (!instanceSaved)
+                    throw new Error('Instance was not saved.');
+
+                await instance.delete();
+            });
+
+            it('Call save() on an InstanceSet of an update controlled class with updateControlMethodParameters. Save fails due to update control check.', async () => {
+                const instance = new Instance(UpdateControlledClassUpdateControlledByParameters);
+                const expectedErrorMessage = 'Caught validation error when attempting to save InstanceSet: Illegal attempt to update instances: ' + instance.id;
+                const updateControlMethodParameters = [-2, 1, true];
+                const instanceSet = new InstanceSet(UpdateControlledClassUpdateControlledByParameters, [instance]);
+
+                await testForErrorAsync('InstanceSet.save()', expectedErrorMessage, async () => {
+                    return instanceSet.save(...updateControlMethodParameters);
+                })
+                
+                const instanceFound = await UpdateControlledClassUpdateControlledByParameters.findInstanceById(instance._id);
+
+                if (instanceFound) 
+                    throw new Error('.save() threw an error, but the instance was saved anyway.')
             });
 
         });

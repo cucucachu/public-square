@@ -26,6 +26,9 @@ const testForErrorAsync = TestingFunctions.testForErrorAsync;
     var AllFieldsRequiredClass = TestClassModels.AllFieldsRequiredClass;
     var AllFieldsInRequiredGroupClass = TestClassModels.AllFieldsInRequiredGroupClass;
     var AbstractClass = TestClassModels.AbstractClass;
+    var MutexClassA = TestClassModels.MutexClassA;
+    var MutexClassB = TestClassModels.MutexClassB;
+    var MutexClassC = TestClassModels.MutexClassC;
 
     // Inheritance Classes
     var SuperClass = TestClassModels.SuperClass;
@@ -41,6 +44,11 @@ const testForErrorAsync = TestingFunctions.testForErrorAsync;
     var SubClassOfDiscriminatedSubClassOfSuperClass = TestClassModels.SubClassOfDiscriminatedSubClassOfSuperClass;
     var SubClassOfSubClassOfSuperClass = TestClassModels.SubClassOfSubClassOfSuperClass;
     var SubClassOfAbstractSubClassOfSuperClass = TestClassModels.SubClassOfAbstractSubClassOfSuperClass;
+
+    // Update Controlled Classes
+    var UpdateControlledSuperClass = TestClassModels.UpdateControlledSuperClass;
+    var ClassControlsUpdateControlledSuperClass = TestClassModels.ClassControlsUpdateControlledSuperClass;
+    var UpdateControlledClassUpdateControlledByParameters = TestClassModels.UpdateControlledClassUpdateControlledByParameters;
 }
 
 
@@ -487,25 +495,6 @@ describe('Instance Tests', () => {
             it('2 attribute fields (boolean, date) have a mutex and both are set. Error thrown.', () => {
                 let expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field boolean with mutex \'a\'. Field date with mutex \'a\'.';
                 let expectedErrorMutex = /^Mutex violations found for instance .* Field boolean with mutex \'a\'. Field date with mutex \'a\'.$/;
-                
-                let schema = {
-                    boolean: {
-                        type: Boolean,
-                        mutex: 'a'
-                    },
-                    date: {
-                        type: Date,
-                        mutex: 'a'
-                    }
-                };
-
-                let MutexClassA = new ClassModel({
-                    accessControlled: false,
-                    updateControlled: false,
-                    className: 'MutexClassA', 
-                    schema: schema
-                });
-
                 const instance = new Instance(MutexClassA);
                 instance.assign({
                     boolean: true,
@@ -532,25 +521,7 @@ describe('Instance Tests', () => {
             });
             
             it('2 attribute fields (boolean, date) have a mutex and one (boolean) is set. No error thrown.', () => {
-                let schema = {
-                    boolean: {
-                        type: Boolean,
-                        mutex: 'a'
-                    },
-                    date: {
-                        type: Date,
-                        mutex: 'a'
-                    }
-                };
-
-                let MutexClassAA = new ClassModel({
-                    accessControlled: false,
-                    updateControlled: false,
-                    className: 'MutexClassAA', 
-                    schema: schema
-                });
-
-                const instance = new Instance(MutexClassAA);
+                const instance = new Instance(MutexClassA);
 
                 instance.boolean = true;
 
@@ -570,27 +541,6 @@ describe('Instance Tests', () => {
             it('2 singular relationship fields have a mutex and both are set. Error thrown.', () => {
                 let expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field class1 with mutex \'a\'. Field class2 with mutex \'a\'.';
                 let expectedErrorMutex = /^Mutex violations found for instance .* Field class1 with mutex \'a\'. Field class2 with mutex \'a\'.$/;
-            
-                let schema = {
-                    class1: {
-                        type: Schema.Types.ObjectId,
-                        ref: 'CompareClass1',
-                        mutex: 'a'
-                    },
-                    class2: {
-                        type: Schema.Types.ObjectId,
-                        ref: 'CompareClass2',
-                        mutex: 'a'
-                    }
-                };
-
-                let MutexClassB = new ClassModel({
-                    accessControlled: false,
-                    updateControlled: false,
-                    className: 'MutexClassB', 
-                    schema: schema
-                });
-
                 const instance = new Instance(MutexClassB);
 
                 instance.class1 = CompareClass1.create()._id;
@@ -616,27 +566,7 @@ describe('Instance Tests', () => {
             });
             
             it('2 singular relationship fields have a mutex and one is set. No error thrown.', () => {
-                let schema = {
-                    class1: {
-                        type: Schema.Types.ObjectId,
-                        ref: 'CompareClass1',
-                        mutex: 'a'
-                    },
-                    class2: {
-                        type: Schema.Types.ObjectId,
-                        ref: 'CompareClass2',
-                        mutex: 'a'
-                    }
-                };
-
-                let MutexClassBB = new ClassModel({
-                    accessControlled: false,
-                    updateControlled: false,
-                    className: 'MutexClassBB', 
-                    schema: schema
-                });
-
-                const instance = new Instance(MutexClassBB);
+                const instance = new Instance(MutexClassB);
 
                 instance.class1 = CompareClass1.create()._id;
 
@@ -656,27 +586,6 @@ describe('Instance Tests', () => {
             it('2 non-singular relationship fields have a mutex and both are set. Error thrown.', () => {
                 let expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field class1s with mutex \'a\'. Field class2s with mutex \'a\'.';
                 let expectedErrorMutex = /^Mutex violations found for instance .* Field class1s with mutex \'a\'. Field class2s with mutex \'a\'.$/;
-            
-                let schema = {
-                    class1s: {
-                        type: [Schema.Types.ObjectId],
-                        ref: 'CompareClass1',
-                        mutex: 'a'
-                    },
-                    class2s: {
-                        type: [Schema.Types.ObjectId],
-                        ref: 'CompareClass2',
-                        mutex: 'a'
-                    }
-                };
-
-                let MutexClassC = new ClassModel({
-                    accessControlled: false,
-                    updateControlled: false,
-                    className: 'MutexClassC', 
-                    schema: schema
-                });
-
                 const instance = new Instance(MutexClassC);
 
                 instance.class1s = [CompareClass1.create()._id, CompareClass1.create()._id];
@@ -707,6 +616,38 @@ describe('Instance Tests', () => {
 
     describe('instance.save()', () => {
 
+        // Set up updateControlled Instances
+        {
+            // ClassControlsUpdateControlledSuperClass Instances
+            var instanceOfClassControlsUpdateControlledSuperClassAllowed = new Instance(ClassControlsUpdateControlledSuperClass);
+            instanceOfClassControlsUpdateControlledSuperClassAllowed.allowed = true;
+            
+            var instanceOfClassControlsUpdateControlledSuperClassNotAllowed = new Instance(ClassControlsUpdateControlledSuperClass);
+            instanceOfClassControlsUpdateControlledSuperClassNotAllowed.allowed = false;
+
+            // UpdateControlledSuperClass Instances
+            var instanceOfUpdateControlledSuperClassPasses = new Instance(UpdateControlledSuperClass);
+            instanceOfUpdateControlledSuperClassPasses.name = 'instanceOfUpdateControlledSuperClassPasses';
+            instanceOfUpdateControlledSuperClassPasses.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
+
+            var instanceOfUpdateControlledSuperClassFailsRelationship = new Instance(UpdateControlledSuperClass);
+            instanceOfUpdateControlledSuperClassFailsRelationship.name = 'instanceOfUpdateControlledSuperClassFailsRelationship';
+            instanceOfUpdateControlledSuperClassFailsRelationship.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassNotAllowed;
+
+            
+        }
+
+        before(async () => {
+            await instanceOfClassControlsUpdateControlledSuperClassAllowed.save();
+            await instanceOfClassControlsUpdateControlledSuperClassNotAllowed.save();
+        });
+
+        after(async () => {
+            await AllFieldsRequiredClass.clear();
+            await UpdateControlledSuperClass.clear();
+            await UpdateControlledClassUpdateControlledByParameters.clear();
+        });
+
         it('instance.save() works properly.', async () => {
             const instance = new Instance(AllFieldsRequiredClass);
             instance.assign({
@@ -734,7 +675,7 @@ describe('Instance Tests', () => {
         });
 
         it('instance.save() throws an error when instance is invalid. Instance not saved.', async () => {
-            let expectedErrorMessage = 'AllFieldsRequiredClass validation failed: string: Path `string` is required.';
+            let expectedErrorMessage = 'Caught validation error when attempting to save Instance: AllFieldsRequiredClass validation failed: string: Path `string` is required.';
             const instance = new Instance(AllFieldsRequiredClass);
             instance.assign({
                 strings: ['String'],
@@ -779,8 +720,61 @@ describe('Instance Tests', () => {
             });
         });
 
-        after(async () => {
-            await AllFieldsRequiredClass.clear();
+        it('instance.save() called on an instance of an update controlled class. Instance saved.', async () => {
+            const instance = new Instance(UpdateControlledSuperClass);
+            instance.name = 'instanceOfUpdateControlledSuperClassPasses-saveAll';
+            instance.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
+
+            await instance.save();
+
+            const instanceSaved = await UpdateControlledSuperClass.findInstanceById(instance._id);
+            
+            if (!instanceSaved)
+                throw new Error('Instance was not saved.');
+
+            await instance.delete(instance);
+        });
+
+        it('instance.save() fails due to update control check.', async () => {
+            const instance = instanceOfUpdateControlledSuperClassFailsRelationship;
+            const expectedErrorMessage = 'Caught validation error when attempting to save Instance: Illegal attempt to update instances: ' + instance.id;
+            
+            await testForErrorAsync('Instance.save()', expectedErrorMessage, async () => {
+                return instance.save();
+            });
+            
+            const instanceFound = await UpdateControlledSuperClass.findInstanceById(instance.id);
+
+            if (instanceFound) 
+                throw new Error('.save() threw an error, but the instance was saved anyway.');
+        });
+
+        it('instance.save() called on an instance of an update controlled class with updateControlMethodParameters. Instance saved.', async () => {
+            const instance = new Instance(UpdateControlledClassUpdateControlledByParameters);
+            const updateControlMethodParameters = [1, 1, true];
+            
+            await instance.save(...updateControlMethodParameters);
+            const instanceSaved = UpdateControlledClassUpdateControlledByParameters.findInstanceById(instance.id);
+            
+            if (!instanceSaved)
+                throw new Error('Instance was not saved.');
+
+            await instance.delete();
+        });
+
+        it('instance.save() called on an instance of an update controlled class with updateControlMethodParameters. Save fails due to update control check.', async () => {
+            const instance = new Instance(UpdateControlledClassUpdateControlledByParameters);
+            const expectedErrorMessage = 'Caught validation error when attempting to save Instance: Illegal attempt to update instances: ' + instance.id;
+            const updateControlMethodParameters = [-2, 1, true];
+
+            await testForErrorAsync('InstanceSet.save()', expectedErrorMessage, async () => {
+                return instance.save(...updateControlMethodParameters);
+            })
+            
+            const instanceFound = await UpdateControlledClassUpdateControlledByParameters.findInstanceById(instance._id);
+
+            if (instanceFound) 
+                throw new Error('.save() threw an error, but the instance was saved anyway.')
         });
 
     });
