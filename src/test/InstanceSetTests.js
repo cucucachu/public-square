@@ -38,6 +38,8 @@ const testForErrorAsync = TestingFunctions.testForErrorAsync;
     var SubClassOfSuperClass = TestClassModels.SubClassOfSuperClass;
     var DiscriminatedSubClassOfSuperClass = TestClassModels.DiscriminatedSubClassOfSuperClass;
     var SubClassOfDiscriminatedSubClassOfSuperClass = TestClassModels.SubClassOfDiscriminatedSubClassOfSuperClass;
+    var SubClassOfSubClassOfSuperClass = TestClassModels.SubClassOfSubClassOfSuperClass;
+    var SubClassOfAbstractSubClassOfSuperClass = TestClassModels.SubClassOfAbstractSubClassOfSuperClass;
 
     // Update Controlled Classes
     var UpdateControlledSuperClass = TestClassModels.UpdateControlledSuperClass;
@@ -2024,6 +2026,70 @@ describe('InstanceSet Tests', () => {
         });
 
         describe('InstanceSet.delete()', () => {
+
+            after(async() => {
+                SuperClass.clear();
+            });
+
+            it('InstanceSet.delete() throws an error if any instance in the InstanceSet has not been saved. No Instances deleted.', async () => {
+                const instance1 = new Instance(SuperClass);
+                const instance2 = new Instance(SuperClass);
+                const instanceSet = new InstanceSet(SuperClass, [instance1, instance2]);
+                const expectedErrorMessage = 'Attempt to delete an InstanceSet containing unsaved Instances.';
+
+                await instance1.save();
+
+                await testForErrorAsync('instanceSet.delete()', expectedErrorMessage, async () => {
+                    return instanceSet.delete();
+                });
+
+                const instanceFound = await SuperClass.findInstanceById(instance1.id);
+
+                if (!instanceFound) 
+                    throw new Error('instanceSet.delete() threw an error, but the instance was deleted anyway.');
+
+            });
+
+            it('InstanceSet.delete() deletes all the instances in an InstanceSet.', async () => {
+                const instance1 = new Instance(SuperClass);
+                const instance2 = new Instance(SuperClass);
+                const instanceSet = new InstanceSet(SuperClass, [instance1, instance2]);
+                await instanceSet.save();
+                await instanceSet.delete();
+
+                const instancesFound = await SuperClass.findInstanceSet({ _id: { $in: instanceSet.getInstanceIds() } });
+
+                if (!instancesFound.isEmpty())
+                    throw new Error('instanceSet.delete() did not throw an error, but the instances were not deleted.');
+
+                instanceSet.forEach(instance => {
+                    if (instance.deleted == false)
+                        throw new Error('Not all of the instances were marked deleted.');
+                });
+            });
+
+            it('InstanceSet.delete() deletes all the instances in a set containing sub class and discriminated instances.', async () => {
+                const instance1 = new Instance(SuperClass);
+                const instance2 = new Instance(SubClassOfSuperClass);
+                const instance3 = new Instance(DiscriminatedSubClassOfSuperClass);
+                const instance4 = new Instance(SubClassOfDiscriminatedSubClassOfSuperClass);
+                const instance5 = new Instance(SubClassOfSubClassOfSuperClass);
+                const instance6 = new Instance(SubClassOfAbstractSubClassOfSuperClass);
+                const instances = [instance1, instance2, instance3, instance4, instance5, instance6];
+                const instanceSet = new InstanceSet(SuperClass, instances);
+                await instanceSet.save();                
+                await instanceSet.delete();
+
+                const instancesFound = await SuperClass.findInstanceSet({ _id: { $in: instanceSet.getInstanceIds() } });
+
+                if (!instancesFound.isEmpty())
+                    throw new Error('instanceSet.delete() did not throw an error, but the instances were not deleted.');
+
+                instanceSet.forEach(instance => {
+                    if (instance.deleted == false)
+                        throw new Error('Not all of the instances were marked deleted.');
+                });
+            });
 
         });
 

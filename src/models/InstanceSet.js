@@ -167,6 +167,16 @@ class InstanceSet extends SuperSet {
         return new InstanceSet(classModel, filtered);
     }
 
+    filterForInstancesInThisCollection() {
+        if (this.classModel.abstract && !this.classModel.discriminated)
+            return new InstanceSet(this.classModel);
+
+        return this.filterToInstanceSet(instance => 
+                instance.classModel === this.classModel || instance.classModel.discriminatorSuperClass == this.classModel
+            );
+
+    }
+
     // Validate, Save, Walk, Delete
 
     validate() {
@@ -189,6 +199,35 @@ class InstanceSet extends SuperSet {
 
     async walk(relationship, filter = null, ...accessControlMethodParameters) {
         return this.classModel.walkInstanceSet(this, relationship, filter, ...accessControlMethodParameters)
+    }
+
+    async delete() {
+        const unsavedInstances = this.filter(instance => instance.saved == false)
+
+        if (unsavedInstances.length) 
+            throw new Error('Attempt to delete an InstanceSet containing unsaved Instances.');
+
+        await this.deleteRecursive();
+    }
+
+    async deleteRecursive() {
+        let deletePromises = [];
+        const isntancesOfThisCollection = this.filterForInstancesInThisCollection();
+
+        for (const subClass of this.classModel.subClasses) {
+            const instancesOfSubClass = this.filterForClassModel(subClass);
+            deletePromises.push(instancesOfSubClass.deleteRecursive());
+        }
+
+        if (!isntancesOfThisCollection.isEmpty()) {
+            await this.classModel.Model.deleteMany({
+                _id: { $in: isntancesOfThisCollection.getInstanceIds() }
+            });
+            isntancesOfThisCollection.forEach(instance => instance.deleted = true);
+        }
+        
+        if (deletePromises.length)
+            return Promise.all(deletePromises);
     }
 
     getInstanceIds() {

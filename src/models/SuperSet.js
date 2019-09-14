@@ -100,7 +100,7 @@ class SuperSet extends Set {
     }
 
     remove(element) {
-        this.delete(element);
+        super.delete(element);
     }
 
     // Removing elements
