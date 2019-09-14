@@ -115,6 +115,10 @@ class Instance {
         return this[doc][propertyName];
     }
 
+    async walk(relationship, filter = null) {
+        return this.classModel.walkInstance(this, relationship, filter);
+    }
+
     // Validation Methods
 
     validate() {
@@ -141,7 +145,7 @@ class Instance {
 
         await this[doc].save({validateBeforeSave: false});
         this.saved = true;
-        
+
         return this;
     }
 

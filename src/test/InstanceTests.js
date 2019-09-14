@@ -6,6 +6,7 @@ const Schema = mongoose.Schema;
 const database = require('../dist/models/database');
 const ClassModel = require('../dist/models/ClassModel');
 const Instance = require('../dist/models/Instance');
+const InstanceSet = require('../dist/models/InstanceSet');
 const TestClassModels = require('./TestClassModels');
 const TestingFunctions = require('./TestingFunctions');
 const testForError = TestingFunctions.testForError;
@@ -44,6 +45,12 @@ const testForErrorAsync = TestingFunctions.testForErrorAsync;
     var SubClassOfDiscriminatedSubClassOfSuperClass = TestClassModels.SubClassOfDiscriminatedSubClassOfSuperClass;
     var SubClassOfSubClassOfSuperClass = TestClassModels.SubClassOfSubClassOfSuperClass;
     var SubClassOfAbstractSubClassOfSuperClass = TestClassModels.SubClassOfAbstractSubClassOfSuperClass;
+
+    // Relationship Classes
+    var SingularRelationshipClass = TestClassModels.SingularRelationshipClass;
+    var NonSingularRelationshipClass = TestClassModels.NonSingularRelationshipClass;
+    var SubClassOfSingularRelationshipClass = TestClassModels.SubClassOfSingularRelationshipClass;
+    var SubClassOfNonSingularRelationshipClass = TestClassModels.SubClassOfNonSingularRelationshipClass;
 
     // Update Controlled Classes
     var UpdateControlledSuperClass = TestClassModels.UpdateControlledSuperClass;
@@ -825,6 +832,109 @@ describe('Instance Tests', () => {
             await testForErrorAsync('instance.delete()', expectedErrorMessage, async() => {
                 return instance.delete();
             });
+        });
+
+    });
+
+    describe('ClassModel.walkInstance()', () => {
+
+        // Create instances for tests.
+        {
+            var instanceOfSingularRelationshipClassA = new Instance (SingularRelationshipClass);
+            var instanceOfSingularRelationshipClassB = new Instance (SingularRelationshipClass);
+            var instanceOfNonSingularRelationshipClass = new Instance (NonSingularRelationshipClass);
+            var instanceOfSubClassOfSingularRelationshipClassA = new Instance (SubClassOfSingularRelationshipClass);
+            var instanceOfSubClassOfSingularRelationshipClassB = new Instance (SubClassOfSingularRelationshipClass);
+            var instanceOfSubClassOfNonSingularRelationshipClass = new Instance (SubClassOfNonSingularRelationshipClass);
+    
+            instanceOfSingularRelationshipClassA.singularRelationship = instanceOfNonSingularRelationshipClass._id;
+            instanceOfSingularRelationshipClassA.boolean = true;
+            instanceOfSingularRelationshipClassB.singularRelationship = instanceOfNonSingularRelationshipClass._id;
+            instanceOfSingularRelationshipClassB.boolean = false;
+            instanceOfNonSingularRelationshipClass.nonSingularRelationship = [instanceOfSingularRelationshipClassA._id, instanceOfSingularRelationshipClassB._id];
+    
+            instanceOfSubClassOfSingularRelationshipClassA.singularRelationship = instanceOfSubClassOfNonSingularRelationshipClass._id;
+            instanceOfSubClassOfSingularRelationshipClassA.boolean = true;
+            instanceOfSubClassOfSingularRelationshipClassB.singularRelationship = instanceOfSubClassOfNonSingularRelationshipClass._id;
+            instanceOfSubClassOfSingularRelationshipClassB.boolean = false;
+            instanceOfSubClassOfNonSingularRelationshipClass.nonSingularRelationship = [instanceOfSubClassOfSingularRelationshipClassA._id, instanceOfSubClassOfSingularRelationshipClassB._id];
+        }
+
+        before(async () => {
+            await instanceOfSingularRelationshipClassA.save();
+            await instanceOfSingularRelationshipClassB.save();
+            await instanceOfNonSingularRelationshipClass.save();
+            await instanceOfSubClassOfSingularRelationshipClassA.save();
+            await instanceOfSubClassOfSingularRelationshipClassB.save();
+            await instanceOfSubClassOfNonSingularRelationshipClass.save();
+        });
+
+        after(async () => {
+            await SingularRelationshipClass.clear();
+            await NonSingularRelationshipClass.clear();
+            await SubClassOfSingularRelationshipClass.clear();
+            await SubClassOfNonSingularRelationshipClass.clear();
+        });
+
+        describe('Test walking the relationships.', () => {
+
+            it('Walking a singular relationship.', async () => {
+                const expectedInstance = instanceOfNonSingularRelationshipClass;
+                const instance = await instanceOfSingularRelationshipClassA.walk('singularRelationship');
+
+                if (!instance)
+                    throw new Error('walkInstance() did not return anything.');
+
+                if (!expectedInstance.equals(instance))
+                    throw new Error('walkInstance() did not return the correct instance.');
+            });
+
+            it('Walking a nonsingular relationship.', async () => {
+                const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
+                    instanceOfSingularRelationshipClassA,
+                    instanceOfSingularRelationshipClassB
+                ]);
+                const instanceSet = await instanceOfNonSingularRelationshipClass.walk('nonSingularRelationship');
+
+                if (!expectedInstanceSet.equals(instanceSet))
+                    throw new Error('walkInstance() did not return the correct instances.');
+            });
+
+            it('Walking a singular relationship by calling walkInstance() from the super class.', async () => {
+                const expectedInstance = instanceOfSubClassOfNonSingularRelationshipClass;
+                const instance = await instanceOfSubClassOfSingularRelationshipClassA.walk('singularRelationship');
+
+                if (!instance)
+                    throw new Error('walkInstance() did not return anything.');
+
+                if (!expectedInstance.equals(instance))
+                    throw new Error('walkInstance() did not return the correct instance.');
+            });
+
+            it('Walking a nonsingular relationship by calling walkInstance() from the super class.', async () => {
+                const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
+                    instanceOfSubClassOfSingularRelationshipClassA,
+                    instanceOfSubClassOfSingularRelationshipClassB
+                ]);
+                const instanceSet = await instanceOfSubClassOfNonSingularRelationshipClass.walk('nonSingularRelationship');
+
+                if (!expectedInstanceSet.equals(instanceSet))
+                    throw new Error('walkInstance() did not return the correct instances.');
+            });
+
+            it('Walking a nonsingular relationship by calling walkInstance() from the super class with a filter.', async () => {
+                const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
+                    instanceOfSubClassOfSingularRelationshipClassA,
+                ]);
+
+                const filter = { boolean: true };
+
+                const instanceSet = await instanceOfSubClassOfNonSingularRelationshipClass.walk('nonSingularRelationship', filter);
+
+                if (!expectedInstanceSet.equals(instanceSet))
+                    throw new Error('walkInstance() did not return the correct instances.');
+            });
+
         });
 
     });
