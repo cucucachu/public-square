@@ -122,7 +122,7 @@ class Instance {
     // Validation Methods
 
     validate() {
-        this.classModel.validate(this[doc]);
+        this.classModel.validate(this);
     }
 
     validateSync() {

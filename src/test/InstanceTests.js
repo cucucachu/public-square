@@ -10,6 +10,7 @@ const InstanceSet = require('../dist/models/InstanceSet');
 const TestClassModels = require('./TestClassModels');
 const TestingFunctions = require('./TestingFunctions');
 const testForError = TestingFunctions.testForError;
+const testForErrorMutex = TestingFunctions.testForErrorMutex;
 const testForErrorAsync = TestingFunctions.testForErrorAsync;
 
 // Load all TestClassModels 
@@ -26,6 +27,7 @@ const testForErrorAsync = TestingFunctions.testForErrorAsync;
     // Validation Classes
     var AllFieldsRequiredClass = TestClassModels.AllFieldsRequiredClass;
     var AllFieldsInRequiredGroupClass = TestClassModels.AllFieldsInRequiredGroupClass;
+    var AllFieldsMutexClass = TestClassModels.AllFieldsMutexClass;
     var AbstractClass = TestClassModels.AbstractClass;
     var MutexClassA = TestClassModels.MutexClassA;
     var MutexClassB = TestClassModels.MutexClassB;
@@ -344,17 +346,14 @@ describe('Instance Tests', () => {
                     number: 1,
                     numbers: [1],
                     class1: CompareClass1.create(),
-                    class2s: CompareClass2.create()
+                    class2s: [CompareClass2.create()]
                 });
                     
                 instance.validate();
-
-                return true;
-
             });
 
             it('All fields are required. All but string are set. Error thrown.', () => {
-                let expectedErrorMessage = 'AllFieldsRequiredClass validation failed: string: Path `string` is required.';
+                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: string: Path `string` is required.';
                 const instance = new Instance(AllFieldsRequiredClass);
                 instance.assign({
                     strings: ['String'],
@@ -364,23 +363,277 @@ describe('Instance Tests', () => {
                     number: 1,
                     numbers: [1],
                     class1: CompareClass1.create(),
-                    class2s: CompareClass2.create()
+                    class2s: [CompareClass2.create()]
                 });
 
-                try {
+                testForError('instance.validate()', expectedErrorMessage, () => {
                     instance.validate();
-                }
-                catch (error) {
-                    if (error.message != expectedErrorMessage) {
-                        throw new Error(
-                            'instance.validate returned the wrong error message.\n' + 
-                            'Expected: ' + expectedErrorMessage + '\n' +
-                            'Actual:   ' + error.message
-                        );
-                    }
-                }
+                });
 
-                return true;
+            });
+
+            it('All fields are required. String is set to empty string. Error thrown.', () => {
+                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: string: Path `string` is required.';
+                const instance = new Instance(AllFieldsRequiredClass);
+                instance.assign({
+                    string: '',
+                    strings: ['String'],
+                    date: new Date(),
+                    boolean: true,
+                    booleans: [true],
+                    number: 1,
+                    numbers: [1],
+                    class1: CompareClass1.create(),
+                    class2s: [CompareClass2.create()]
+                });
+
+                testForError('instance.validate()', expectedErrorMessage, () => {
+                    instance.validate();
+                });
+
+            });
+
+            it('All fields are required. All but Stings are set. Error thrown.', () => {
+                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: strings: Path `strings` is required.';
+                const instance = new Instance(AllFieldsRequiredClass);
+                instance.assign({
+                    string: 'String',
+                    date: new Date(),
+                    boolean: true,
+                    booleans: [true],
+                    number: 1,
+                    numbers: [1],
+                    class1: CompareClass1.create(),
+                    class2s: [CompareClass2.create()]
+                });
+
+                testForError('instance.validate()', expectedErrorMessage, () => {
+                    instance.validate();
+                });
+
+            });
+
+            it('All fields are required. Strings is set to empty array. Error thrown.', () => {
+                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: strings: Path `strings` is required.';
+                const instance = new Instance(AllFieldsRequiredClass);
+                instance.assign({
+                    string: 'String',
+                    strings: [],
+                    date: new Date(),
+                    boolean: true,
+                    booleans: [true],
+                    number: 1,
+                    numbers: [1],
+                    class1: CompareClass1.create(),
+                    class2s: [CompareClass2.create()]
+                });
+
+                testForError('instance.validate()', expectedErrorMessage, () => {
+                    instance.validate();
+                });
+
+            });
+
+            it('All fields are required. All but date are set. Error thrown.', () => {
+                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: date: Path `date` is required.';
+                const instance = new Instance(AllFieldsRequiredClass);
+                instance.assign({
+                    string: 'String',
+                    strings: ['String'],
+                    boolean: true,
+                    booleans: [true],
+                    number: 1,
+                    numbers: [1],
+                    class1: CompareClass1.create(),
+                    class2s: [CompareClass2.create()]
+                });
+
+                testForError('instance.validate()', expectedErrorMessage, () => {
+                    instance.validate();
+                });
+
+            });
+
+            it('All fields are required. All but boolean are set. Error thrown.', () => {
+                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: boolean: Path `boolean` is required.';
+                const instance = new Instance(AllFieldsRequiredClass);
+                instance.assign({
+                    string: 'String',
+                    strings: ['String'],
+                    date: new Date(),
+                    booleans: [true],
+                    number: 1,
+                    numbers: [1],
+                    class1: CompareClass1.create(),
+                    class2s: [CompareClass2.create()]
+                });
+
+                testForError('instance.validate()', expectedErrorMessage, () => {
+                    instance.validate();
+                });
+
+            });
+
+            it('All fields are required. All but booleans are set. Error thrown.', () => {
+                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: booleans: Path `booleans` is required.';
+                const instance = new Instance(AllFieldsRequiredClass);
+                instance.assign({
+                    string: 'String',
+                    strings: ['String'],
+                    date: new Date(),
+                    boolean: true,
+                    number: 1,
+                    numbers: [1],
+                    class1: CompareClass1.create(),
+                    class2s: [CompareClass2.create()]
+                });
+
+                testForError('instance.validate()', expectedErrorMessage, () => {
+                    instance.validate();
+                });
+
+            });
+
+            it('All fields are required. Booleans set to empty array. Error thrown.', () => {
+                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: booleans: Path `booleans` is required.';
+                const instance = new Instance(AllFieldsRequiredClass);
+                instance.assign({
+                    string: 'String',
+                    strings: ['String'],
+                    date: new Date(),
+                    boolean: true,
+                    booleans: [],
+                    number: 1,
+                    numbers: [1],
+                    class1: CompareClass1.create(),
+                    class2s: [CompareClass2.create()]
+                });
+
+                testForError('instance.validate()', expectedErrorMessage, () => {
+                    instance.validate();
+                });
+
+            });
+
+            it('All fields are required. All but number are set. Error thrown.', () => {
+                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: number: Path `number` is required.';
+                const instance = new Instance(AllFieldsRequiredClass);
+                instance.assign({
+                    string: 'String',
+                    strings: ['String'],
+                    date: new Date(),
+                    boolean: true,
+                    booleans: [true],
+                    numbers: [1],
+                    class1: CompareClass1.create(),
+                    class2s: [CompareClass2.create()]
+                });
+
+                testForError('instance.validate()', expectedErrorMessage, () => {
+                    instance.validate();
+                });
+
+            });
+
+            it('All fields are required. All but numbers are set. Error thrown.', () => {
+                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: numbers: Path `numbers` is required.';
+                const instance = new Instance(AllFieldsRequiredClass);
+                instance.assign({
+                    string: 'String',
+                    strings: ['String'],
+                    date: new Date(),
+                    boolean: true,
+                    booleans: [true],
+                    number: 1,
+                    class1: CompareClass1.create(),
+                    class2s: [CompareClass2.create()]
+                });
+
+                testForError('instance.validate()', expectedErrorMessage, () => {
+                    instance.validate();
+                });
+
+            });
+
+            it('All fields are required. Numbers is set to an empty array. Error thrown.', () => {
+                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: numbers: Path `numbers` is required.';
+                const instance = new Instance(AllFieldsRequiredClass);
+                instance.assign({
+                    string: 'String',
+                    strings: ['String'],
+                    date: new Date(),
+                    boolean: true,
+                    booleans: [true],
+                    number: 1,
+                    numbers: [],
+                    class1: CompareClass1.create(),
+                    class2s: [CompareClass2.create()]
+                });
+
+                testForError('instance.validate()', expectedErrorMessage, () => {
+                    instance.validate();
+                });
+
+            });
+
+            it('All fields are required. All but class1 are set. Error thrown.', () => {
+                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: class1: Path `class1` is required.';
+                const instance = new Instance(AllFieldsRequiredClass);
+                instance.assign({
+                    string: 'String',
+                    strings: ['String'],
+                    date: new Date(),
+                    boolean: true,
+                    booleans: [true],
+                    number: 1,
+                    numbers: [1],
+                    class2s: [CompareClass2.create()]
+                });
+
+                testForError('instance.validate()', expectedErrorMessage, () => {
+                    instance.validate();
+                });
+
+            });
+
+            it('All fields are required. All but class2s are set. Error thrown.', () => {
+                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: class2s: Path `class2s` is required.';
+                const instance = new Instance(AllFieldsRequiredClass);
+                instance.assign({
+                    string: 'String',
+                    strings: ['String'],
+                    date: new Date(),
+                    boolean: true,
+                    booleans: [true],
+                    number: 1,
+                    numbers: [1],
+                    class1: CompareClass1.create(),
+                });
+
+                testForError('instance.validate()', expectedErrorMessage, () => {
+                    instance.validate();
+                });
+
+            });
+
+            it('All fields are required. Class2s is set to empty array. Error thrown.', () => {
+                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: class2s: Path `class2s` is required.';
+                const instance = new Instance(AllFieldsRequiredClass);
+                instance.assign({
+                    string: 'String',
+                    strings: ['String'],
+                    date: new Date(),
+                    boolean: true,
+                    booleans: [true],
+                    number: 1,
+                    numbers: [1],
+                    class1: CompareClass1.create(),
+                    class2s: []
+                });
+
+                testForError('instance.validate()', expectedErrorMessage, () => {
+                    instance.validate();
+                });
 
             });
 
@@ -392,107 +645,109 @@ describe('Instance Tests', () => {
                 const expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
                 const instance = new Instance(AllFieldsInRequiredGroupClass);
     
-                try {
+                testForError('instance.validate()', expectedErrorMessage, () => {
                     instance.validate();
-                }
-                catch (error) {
-                    if (error.message == expectedErrorMessage) {
-                        return true;
-                    }
-                    else {
-                        throw new Error(
-                            'instance.validate returned the wrong error message.\n' + 
-                            'Expected: ' + expectedErrorMessage + '\n' +
-                            'Actual:   ' + error.message
-                        );
-                    }
-                }
-    
-                throw new Error('instance.validate did not throw an error when it should have.');
+                });
             });
                 
             it('Multiple fields (one of each type) share a required group boolean is set to false. Error thrown.', () => {
-                let expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
+                const expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
                 const instance = new Instance(AllFieldsInRequiredGroupClass);
-
                 instance.boolean = false;
     
-                try {
+                testForError('instance.validate()', expectedErrorMessage, () => {
                     instance.validate();
-                }
-                catch (error) {
-                    if (error.message == expectedErrorMessage) {
-                        return true;
-                    }
-                    else {
-                        throw new Error(
-                            'instance.validate returned the wrong error message.\n' + 
-                            'Expected: ' + expectedErrorMessage + '\n' +
-                            'Actual:   ' + error.message
-                        );
-                    }
-                }
-    
-                throw new Error('instance.validate did not throw an error when it should have.');
+                });
             });
                 
             it('Multiple fields (one of each type) share a required group string is set to "". Error thrown.', () => {
-                let expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
+                const expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
                 const instance = new Instance(AllFieldsInRequiredGroupClass);
-    
                 instance.string = '';
-
-                try {
-                    instance.validate();
-                }
-                catch (error) {
-                    if (error.message == expectedErrorMessage) {
-                        return true;
-                    }
-                    else {
-                        throw new Error(
-                            'instance.validate returned the wrong error message.\n' + 
-                            'Expected: ' + expectedErrorMessage + '\n' +
-                            'Actual:   ' + error.message
-                        );
-                    }
-                }
     
-                throw new Error('instance.validate did not throw an error when it should have.');
+                testForError('instance.validate()', expectedErrorMessage, () => {
+                    instance.validate();
+                });
+            });
+                
+            it('Multiple fields (one of each type) share a required group class2s is set to empty array. Error thrown.', () => {
+                const expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
+                const instance = new Instance(AllFieldsInRequiredGroupClass);
+                instance.class2s = [];
+    
+                testForError('instance.validate()', expectedErrorMessage, () => {
+                    instance.validate();
+                });
+            });
+            
+            it('Multiple fields (one of each type) share a required group and string is set. No error thrown.', () => {
+                const instance = new Instance(AllFieldsInRequiredGroupClass);
+                instance.string = 'String';
+
+                instance.validate();
             });
             
             it('Multiple fields (one of each type) share a required group and strings is set. No error thrown.', () => {
                 const instance = new Instance(AllFieldsInRequiredGroupClass);
                 instance.strings = ['String'];
 
-                try {
-                    instance.validate();
-                }
-                catch (error) {
-                    throw new Error(
-                        'instance.validate threw an error when it shouldn\'t have.\n' + 
-                        'Error: ' + error.message
-                    );
-                }
-
-                return true;
+                instance.validate();
             });
             
             it('Multiple fields (one of each type) share a required group and boolean is set. No error thrown.', () => {
                 const instance = new Instance(AllFieldsInRequiredGroupClass);
                 instance.boolean = true;
 
-                try {
-                    instance.validate();
-                }
-                catch (error) {
-                    throw new Error(
-                        'instance.validate threw an error when it shouldn\'t have.\n' + 
-                        'Error: ' + error.message
-                    );
-                }
+                instance.validate();
+            });
+            
+            it('Multiple fields (one of each type) share a required group and booleans is set. No error thrown.', () => {
+                const instance = new Instance(AllFieldsInRequiredGroupClass);
+                instance.booleans = [true];
 
-                return true;
+                instance.validate();
+            });
+            
+            it('Multiple fields (one of each type) share a required group and date is set. No error thrown.', () => {
+                const instance = new Instance(AllFieldsInRequiredGroupClass);
+                instance.date = new Date();
+
+                instance.validate();
+            });
+            
+            it('Multiple fields (one of each type) share a required group and number is set. No error thrown.', () => {
+                const instance = new Instance(AllFieldsInRequiredGroupClass);
+                instance.number = 1;
+
+                instance.validate();
+            });
+            
+            it('Multiple fields (one of each type) share a required group and number is set to 0. No error thrown.', () => {
+                const instance = new Instance(AllFieldsInRequiredGroupClass);
+                instance.number = 0;
+
+                instance.validate();
+            });
+            
+            it('Multiple fields (one of each type) share a required group and numbers is set. No error thrown.', () => {
+                const instance = new Instance(AllFieldsInRequiredGroupClass);
+                instance.numbers = [1];
+
+                instance.validate();
+            });
+            
+            it('Multiple fields (one of each type) share a required group and class1 is set. No error thrown.', () => {
+                const instance = new Instance(AllFieldsInRequiredGroupClass);
+                instance.class1 = (new Instance(CompareClass1)).id;
+
+                instance.validate();
+            });
+            
+            it('Multiple fields (one of each type) share a required group and class2s is set. No error thrown.', () => {
+                const instance = new Instance(AllFieldsInRequiredGroupClass);
+                instance.class2s = [(new Instance(CompareClass2)).id];
+
+                instance.validate();
             });
             
         });
@@ -500,121 +755,199 @@ describe('Instance Tests', () => {
         describe('Mutex Validation', () => {
             
             it('2 attribute fields (boolean, date) have a mutex and both are set. Error thrown.', () => {
-                let expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field boolean with mutex \'a\'. Field date with mutex \'a\'.';
-                let expectedErrorMutex = /^Mutex violations found for instance .* Field boolean with mutex \'a\'. Field date with mutex \'a\'.$/;
+                const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field boolean with mutex \'a\'. Field date with mutex \'a\'.';
+                const expectedErrorMutex = /^Mutex violations found for instance .* Field boolean with mutex \'a\'. Field date with mutex \'a\'.$/;
                 const instance = new Instance(MutexClassA);
-                instance.assign({
-                    boolean: true,
-                    date: new Date(),
-                });
+                instance.boolean = true;
+                instance.date = new Date();
 
-                try {
+                testForErrorMutex('instance.validate()', expectedErrorMessage, expectedErrorMutex, () => {
                     instance.validate();
-                }
-                catch (error) {
-                    if (expectedErrorMutex.test(error.message)) {
-                       return true;
-                    }
-                    else {
-                        throw new Error(
-                            'instance.validate returned the wrong error message.\n' + 
-                            'Expected: ' + expectedErrorMessage + '\n' +
-                            'Actual:   ' + error.message
-                        );
-                    }
-                }
-
-                throw new Error('instance.validate did not throw an error when it should have.');
+                });
             });
             
             it('2 attribute fields (boolean, date) have a mutex and one (boolean) is set. No error thrown.', () => {
                 const instance = new Instance(MutexClassA);
-
                 instance.boolean = true;
 
-                try {
-                    instance.validate();
-                }
-                catch (error) {
-                    throw new Error(
-                        'instance.validate threw an error when it shouldn\'t have.\n' + 
-                        'Error: ' + error.message
-                    );
-                }
-                
-                return true;
+                instance.validate();
             });
             
             it('2 singular relationship fields have a mutex and both are set. Error thrown.', () => {
-                let expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field class1 with mutex \'a\'. Field class2 with mutex \'a\'.';
-                let expectedErrorMutex = /^Mutex violations found for instance .* Field class1 with mutex \'a\'. Field class2 with mutex \'a\'.$/;
+                const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field class1 with mutex \'a\'. Field class2 with mutex \'a\'.';
+                const expectedErrorMutex = /^Mutex violations found for instance .* Field class1 with mutex \'a\'. Field class2 with mutex \'a\'.$/;
                 const instance = new Instance(MutexClassB);
 
-                instance.class1 = CompareClass1.create()._id;
-                instance.class2 = CompareClass2.create()._id;
+                instance.class1 = (new Instance(CompareClass1)).id;
+                instance.class2 = (new Instance(CompareClass2)).id;
 
-                try {
+                testForErrorMutex('instance.validate()', expectedErrorMessage, expectedErrorMutex, () => {
                     instance.validate();
-                }
-                catch (error) {
-                    if (expectedErrorMutex.test(error.message)) {
-                        return true;
-                    }
-                    else {
-                        throw new Error(
-                            'instance.validate returned the wrong error message.\n' + 
-                            'Expected: ' + expectedErrorMessage + '\n' +
-                            'Actual:   ' + error.message
-                        );
-                    }
-                }
-
-                throw new Error('instance.validate did not throw an error when it should have.');
+                });
             });
             
             it('2 singular relationship fields have a mutex and one is set. No error thrown.', () => {
                 const instance = new Instance(MutexClassB);
+                instance.class1 = (new Instance(CompareClass1)).id;
 
-                instance.class1 = CompareClass1.create()._id;
-
-                try {
-                    instance.validate();
-                }
-                catch (error) {
-                    throw new Error(
-                        'instance.validate threw an error when it shouldn\'t have.\n' + 
-                        'Error: ' + error.message
-                    );
-                }
-
-                return true;
+                instance.validate();
             });
             
             it('2 non-singular relationship fields have a mutex and both are set. Error thrown.', () => {
-                let expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field class1s with mutex \'a\'. Field class2s with mutex \'a\'.';
-                let expectedErrorMutex = /^Mutex violations found for instance .* Field class1s with mutex \'a\'. Field class2s with mutex \'a\'.$/;
+                const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field class1s with mutex \'a\'. Field class2s with mutex \'a\'.';
+                const expectedErrorMutex = /^Mutex violations found for instance .* Field class1s with mutex \'a\'. Field class2s with mutex \'a\'.$/;
                 const instance = new Instance(MutexClassC);
 
-                instance.class1s = [CompareClass1.create()._id, CompareClass1.create()._id];
-                instance.class2s = [CompareClass2.create()._id, CompareClass2.create()._id];
+                instance.class1s = [(new Instance(CompareClass1)).id, (new Instance(CompareClass1)).id];
+                instance.class2s = [(new Instance(CompareClass2)).id, (new Instance(CompareClass2)).id];
 
-                try {
+                testForErrorMutex('instance.validate()', expectedErrorMessage, expectedErrorMutex, () => {
                     instance.validate();
-                }
-                catch (error) {
-                    if (expectedErrorMutex.test(error.message)) {
-                        return true;
-                    }
-                    else {
-                        throw new Error(
-                            'instance.validate returned the wrong error message.\n' + 
-                            'Expected: ' + expectedErrorMessage + '\n' +
-                            'Actual:   ' + error.message
-                        );
-                    }
-                }
+                });
+            });
+            
+            it('2 non-singular relationship fields have a mutex and one is set. No error thrown.', () => {
+                const instance = new Instance(MutexClassC);
+                instance.class1s = [(new Instance(CompareClass1)).id, (new Instance(CompareClass1)).id];
 
-                throw new Error('instance.validate did not throw an error when it should have.');
+                instance.validate();
+            });
+            
+            it('Multiple fields (one of each type) have a mutex and string is set. No error thrown.', () => {
+                const instance = new Instance(AllFieldsMutexClass);
+                instance.string = 'String';
+
+                instance.validate();
+            });
+            
+            it('Multiple fields (one of each type) have a mutex and date is set. No error thrown.', () => {
+                const instance = new Instance(AllFieldsMutexClass);
+                instance.date = new Date();
+
+                instance.validate();
+            });
+            
+            it('Multiple fields (one of each type) have a mutex and boolean is set to false. No error thrown.', () => {
+                const instance = new Instance(AllFieldsMutexClass);
+                instance.boolean = false;
+
+                instance.validate();
+            });
+            
+            it('Multiple fields (one of each type) have a mutex and boolean is set to true. No error thrown.', () => {
+                const instance = new Instance(AllFieldsMutexClass);
+                instance.boolean = true;
+
+                instance.validate();
+            });
+            
+            it('Multiple fields (one of each type) have a mutex and number is set to 0. No error thrown.', () => {
+                const instance = new Instance(AllFieldsMutexClass);
+                instance.number = 0;
+
+                instance.validate();
+            });
+            
+            it('Multiple fields (one of each type) have a mutex and number is set to 1. No error thrown.', () => {
+                const instance = new Instance(AllFieldsMutexClass);
+                instance.number = 1;
+
+                instance.validate();
+            });
+            
+            it('Multiple fields (one of each type) have a mutex and numbers is set to empty array. No error thrown.', () => {
+                const instance = new Instance(AllFieldsMutexClass);
+                instance.numbers = [];
+
+                instance.validate();
+            });
+            
+            it('Multiple fields (one of each type) have a mutex and numbers is set to an array of 0s. No error thrown.', () => {
+                const instance = new Instance(AllFieldsMutexClass);
+                instance.numbers = [0, 0, 0];
+
+                instance.validate();
+            });
+            
+            it('Multiple fields (one of each type) have a mutex and numbers is set to an array of 1s. No error thrown.', () => {
+                const instance = new Instance(AllFieldsMutexClass);
+                instance.numbers = [1, 1, 1];
+
+                instance.validate();
+            });
+            
+            it('Multiple fields (one of each type) have a mutex and class1 is set. No error thrown.', () => {
+                const instance = new Instance(AllFieldsMutexClass);
+                instance.class1 = (new Instance(CompareClass1)).id;
+
+                instance.validate();
+            });
+            
+            it('Multiple fields (one of each type) have a mutex and class2s are set to a single instance. No error thrown.', () => {
+                const instance = new Instance(AllFieldsMutexClass);
+                instance.class2s = (new Instance(CompareClass2)).id;
+
+                instance.validate();
+            });
+            
+            it('Multiple fields (one of each type) have a mutex and class2s are set to multiple instances. No error thrown.', () => {
+                const instance = new Instance(AllFieldsMutexClass);
+                instance.class2s = [(new Instance(CompareClass2)).id, (new Instance(CompareClass2)).id];
+
+                instance.validate();
+            });
+            
+            it('Multiple fields (one of each type) have a mutex and none are set. No error thrown.', () => {
+                const instance = new Instance(AllFieldsMutexClass);
+
+                instance.validate();
+            });
+            
+            it('Multiple fields (one of each type) have a mutex and number is set to 1 and numbers, strings, booleans, and class2s are set to empty array. No error thrown.', () => {
+                const instance = new Instance(AllFieldsMutexClass);
+                instance.number = 1;
+                instance.numbers = [];
+                instance.booleans = [];
+                instance.strings = [];
+                instance.class2s = [];
+
+                instance.validate();
+            });
+            
+            it('Multiple fields (one of each type) have a mutex and number is set to 0 and numbers are set to an array of 0s. Error thrown.', () => {
+                const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field number with mutex \'a\'. Field numbers with mutex \'a\'.';
+                const expectedErrorMutex = /^Mutex violations found for instance .* Field number with mutex \'a\'. Field numbers with mutex \'a\'.$/;
+                const instance = new Instance(AllFieldsMutexClass);
+                instance.number = 0;
+                instance.numbers = [0, 0, 0];
+
+                testForErrorMutex('instance.validate()', expectedErrorMessage, expectedErrorMutex, () => {
+                    instance.validate();
+                });
+            });
+                
+            it('Multiple fields (one of each type) have a mutex and number is set to 1 and booleans is set to [false]. Error thrown.', () => {
+                const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field booleans with mutex \'a\'. Field number with mutex \'a\'.';
+                const expectedErrorMutex = /^Mutex violations found for instance .* Field booleans with mutex \'a\'. Field number with mutex \'a\'.$/;
+                const instance = new Instance(AllFieldsMutexClass);
+                instance.number = 1;
+                instance.booleans = [false];
+
+                testForErrorMutex('instance.validate()', expectedErrorMessage, expectedErrorMutex, () => {
+                    instance.validate();
+                });
+            });
+                
+            it('Multiple fields (one of each type) have a mutex and number is set to 1 and strings is set to [\"\"]. Error thrown.', () => {
+                const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field strings with mutex \'a\'. Field number with mutex \'a\'.';
+                const expectedErrorMutex = /^Mutex violations found for instance .* Field strings with mutex \'a\'. Field number with mutex \'a\'.$/;
+                const instance = new Instance(AllFieldsMutexClass);
+                instance.number = 1;
+                instance.strings = [''];
+
+                testForErrorMutex('instance.validate()', expectedErrorMessage, expectedErrorMutex, () => {
+                    instance.validate();
+                });
             });
 
         });
@@ -682,7 +1015,7 @@ describe('Instance Tests', () => {
         });
 
         it('instance.save() throws an error when instance is invalid. Instance not saved.', async () => {
-            let expectedErrorMessage = 'Caught validation error when attempting to save Instance: AllFieldsRequiredClass validation failed: string: Path `string` is required.';
+            const expectedErrorMessage = 'Caught validation error when attempting to save Instance: AllFieldsRequiredClass validation failed: string: Path `string` is required.';
             const instance = new Instance(AllFieldsRequiredClass);
             instance.assign({
                 strings: ['String'],
@@ -706,7 +1039,7 @@ describe('Instance Tests', () => {
         });
 
         it('instance.save() throws an error if instance has already been deleted. Instance not saved.', async () => {
-            let expectedErrorMessage = 'instance.save(): You cannot save an instance which has been deleted.';
+            const expectedErrorMessage = 'instance.save(): You cannot save an instance which has been deleted.';
             const instance = new Instance(AllFieldsRequiredClass);
             instance.assign({
                 string: 'String',
