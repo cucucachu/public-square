@@ -3,12 +3,11 @@ require("@babel/polyfill");
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const database = require('../dist/models/database');
-const ClassModel = require('../dist/models/ClassModel');
-const Instance = require('../dist/models/Instance');
-const InstanceSet = require('../dist/models/InstanceSet');
-const TestClassModels = require('./TestClassModels');
-const TestingFunctions = require('./TestingFunctions');
+const database = require('../../dist/noomman/database');
+const Instance = require('../../dist/noomman/Instance');
+const InstanceSet = require('../../dist/noomman/InstanceSet');
+const TestClassModels = require('./helpers/TestClassModels');
+const TestingFunctions = require('./helpers/TestingFunctions');
 const testForError = TestingFunctions.testForError;
 const testForErrorMutex = TestingFunctions.testForErrorMutex;
 const testForErrorAsync = TestingFunctions.testForErrorAsync;

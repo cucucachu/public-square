@@ -3,7 +3,6 @@
     does not provide.
 */
 require('@babel/polyfill');
-require('./database');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 

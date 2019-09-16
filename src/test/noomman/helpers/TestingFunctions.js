@@ -1,5 +1,4 @@
 
-
 function testForError(functionName, expectedErrorMessage, functionToCall) {
     let errorThrown = false;
 
