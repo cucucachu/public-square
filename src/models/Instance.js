@@ -123,7 +123,7 @@ class Instance {
      * @return Promise which when resolved returns the related instance if relationship is singular, or an Array of the related 
      *           instances if the relationship is non-singular.
      */ 
-    async walk(relationship, filter=null) {
+    async walk(relationship, filter=null, ...accessControlMethodParameters) {
         if (!relationship)
             throw new Error('instance.walk() called with insufficient arguments. Should be walk(relationship, <optional>filter).');
         
@@ -152,7 +152,7 @@ class Instance {
                 Object.assign(filter, {
                     _id: this[relationship],
                 });
-                return relatedClass.findOne(filter);
+                return relatedClass.findOne(filter, ...accessControlMethodParameters);
             }
         }
         // If nonsingular, use find()
@@ -165,7 +165,7 @@ class Instance {
                     _id: {$in: this[relationship]}
                 });
 
-                return relatedClass.find(filter);
+                return relatedClass.find(filter, ...accessControlMethodParameters);
             }
         }
     }

@@ -1841,7 +1841,7 @@ describe('InstanceSet Tests', () => {
     
                 it('Relationship is required.', async () => {
                     const instanceSet = new InstanceSet(SingularRelationshipClass);
-                    const expectedErrorMessage = 'InstanceSet.walk() called without no relationship.';
+                    const expectedErrorMessage = 'InstanceSet.walk() called without relationship.';
     
                     await testForErrorAsync('InstanceSet.walk())', expectedErrorMessage, async () => {
                         return instanceSet.walk();
@@ -2128,6 +2128,6 @@ describe('InstanceSet Tests', () => {
     
         });
 
-    })
+    });
 
 });

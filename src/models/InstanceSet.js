@@ -1,4 +1,5 @@
 require('@babel/polyfill');
+const mongoose = require('mongoose');
 
 const Instance = require('./Instance');
 const SuperSet = require('./SuperSet');
@@ -197,7 +198,52 @@ class InstanceSet extends SuperSet {
     }
 
     async walk(relationship, filter = null, ...accessControlMethodParameters) {
-        return this.classModel.walkInstanceSet(this, relationship, filter, ...accessControlMethodParameters)
+        return this.walkInstanceSet(relationship, filter, ...accessControlMethodParameters)
+    }
+
+    walkValidations(relationship, filter) {
+        if (!relationship) 
+            throw new Error('InstanceSet.walk() called without relationship.');
+
+        if (typeof(relationship) !== 'string')
+            throw new Error('InstanceSet.walk() relationship argument must be a String.');
+
+        if (!(relationship in this.classModel.schema) || !this.classModel.propertyIsARelationship(relationship))
+            throw new Error('InstanceSet.walk() called with an invalid relationship for ClassModel ' + this.classModel.className + '.');
+        
+        if (filter && typeof(filter) !== "object")
+            throw new Error('InstanceSet.walk() filter argument must be an object.');
+    }
+
+    async walkInstanceSet(relationship, filter = null, ...accessControlMethodParameters) {
+        this.walkValidations(relationship, filter);
+    
+        const relatedClass = this.classModel.getRelatedClassModel(relationship);
+        const singular = this.classModel.schema[relationship].type == mongoose.Schema.Types.ObjectId;
+        filter = filter ? filter : {};
+        let instanceIdsToFind;
+
+        if(this.isEmpty())
+            return new InstanceSet(relatedClass);
+
+        if (singular) {
+            instanceIdsToFind = this.map(instance => instance[relationship]).filter(id => { return id != null });
+        }
+        else {
+            instanceIdsToFind = this
+                .map(instance => instance[relationship])
+                .filter(ids => {
+                     return (ids != null && ids.length); 
+                    })
+                .reduce((acc, cur) => acc.concat(cur));
+        }
+        instanceIdsToFind =  [...(new Set(instanceIdsToFind))];
+        
+        Object.assign(filter, {
+            _id: {$in : instanceIdsToFind},
+        });
+
+        return relatedClass.find(filter, ...accessControlMethodParameters);
     }
 
     async delete() {
