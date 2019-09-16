@@ -1135,9 +1135,9 @@ describe('Class Model Tests', () => {
             ]);
         });
 
-        describe('ClassModel.findOneInstance()', () => {
+        describe('ClassModel.findOne()', () => {
     
-            describe('Calling findOneInstance on the Class of the instance you want to find. (Direct)', () => {
+            describe('Calling findOne on the Class of the instance you want to find. (Direct)', () => {
 
                 it('An instance of a concrete class with no subclasses can be found.', async () => {
                     const classToCallFindOneOn = AllFieldsMutexClass;
@@ -1147,13 +1147,13 @@ describe('Class Model Tests', () => {
                         string: 'instanceOfAllFieldsMutexClass'
                     }
 
-                    const instanceFound = await classToCallFindOneOn.findOneInstance(filter);
+                    const instanceFound = await classToCallFindOneOn.findOne(filter);
 
                     if (!instanceFound)
-                        throw new Error('findOneInstance() did not return an instance.');
+                        throw new Error('findOne() did not return an instance.');
                     
                     if (!instanceToFind.equals(instanceFound))
-                        throw new Error('findOneInstance() returned the wrong instance.');
+                        throw new Error('findOne() returned the wrong instance.');
                 });
 
                 it('An instance of a concrete discriminated class can be found.', async () => {
@@ -1164,13 +1164,13 @@ describe('Class Model Tests', () => {
                         name: 'instanceOfSubClassOfDiscriminatorSuperClass'
                     }
 
-                    const instanceFound = await classToCallFindOneOn.findOneInstance(filter);
+                    const instanceFound = await classToCallFindOneOn.findOne(filter);
 
                     if (!instanceFound)
-                        throw new Error('findOneInstance() did not return an instance.');
+                        throw new Error('findOne() did not return an instance.');
                     
                     if (!instanceToFind.equals(instanceFound))
-                        throw new Error('findOneInstance() returned the wrong instance.');
+                        throw new Error('findOne() returned the wrong instance.');
                 });
 
                 it('An instance of a concrete super class can be found.', async () => {
@@ -1181,13 +1181,13 @@ describe('Class Model Tests', () => {
                         name: 'instanceOfSuperClass'
                     }
 
-                    const instanceFound = await classToCallFindOneOn.findOneInstance(filter);
+                    const instanceFound = await classToCallFindOneOn.findOne(filter);
 
                     if (!instanceFound)
-                        throw new Error('findOneInstance() did not return an instance.');
+                        throw new Error('findOne() did not return an instance.');
                     
                     if (!instanceToFind.equals(instanceFound))
-                        throw new Error('findOneInstance() returned the wrong instance.');
+                        throw new Error('findOne() returned the wrong instance.');
                 });
 
                 it('An instance of a concrete discriminated sub-class can be found.', async () => {
@@ -1198,18 +1198,18 @@ describe('Class Model Tests', () => {
                         name: 'instanceOfDiscriminatedSuperClass'
                     }
 
-                    const instanceFound = await classToCallFindOneOn.findOneInstance(filter);
+                    const instanceFound = await classToCallFindOneOn.findOne(filter);
 
                     if (!instanceFound)
-                        throw new Error('findOneInstance() did not return an instance.');
+                        throw new Error('findOne() did not return an instance.');
                     
                     if (!instanceToFind.equals(instanceFound))
-                        throw new Error('findOneInstance() returned the wrong instance.');
+                        throw new Error('findOne() returned the wrong instance.');
                 });
     
             });
     
-            describe('Calling findOneInstance on a super class of the class of the instance you want to find. (Indirect)', () => {
+            describe('Calling findOne on a super class of the class of the instance you want to find. (Indirect)', () => {
 
                 it('An instance of a sub class of a discrimintated super class can be found from the super class.', async () => {
                     const classToCallFindOneOn = DiscriminatedSuperClass;
@@ -1219,13 +1219,13 @@ describe('Class Model Tests', () => {
                         name: 'instanceOfSubClassOfDiscriminatorSuperClass'
                     }
 
-                    const instanceFound = await classToCallFindOneOn.findOneInstance(filter);
+                    const instanceFound = await classToCallFindOneOn.findOne(filter);
 
                     if (!instanceFound) 
-                        throw new Error('findOneInstance() did not return an instance.');
+                        throw new Error('findOne() did not return an instance.');
                     
                     if (!instanceToFind.equals(instanceFound))
-                        throw new Error('findOneInstance() returned the wrong instance.');
+                        throw new Error('findOne() returned the wrong instance.');
                 });
 
                 it('An instance of a concrete sub class of a non-discriminated super class can be found from the super class.', async () => {
@@ -1237,13 +1237,13 @@ describe('Class Model Tests', () => {
                     }
 
 
-                    const instanceFound = await classToCallFindOneOn.findOneInstance(filter);
+                    const instanceFound = await classToCallFindOneOn.findOne(filter);
 
                     if (!instanceFound) 
-                        throw new Error('findOneInstance() did not return an instance.');
+                        throw new Error('findOne() did not return an instance.');
                     
                     if (!instanceToFind.equals(instanceFound))
-                        throw new Error('findOneInstance() returned the wrong instance.');
+                        throw new Error('findOne() returned the wrong instance.');
                 });
 
                 it('An instance of a concrete sub class of a non-discriminated abstract super class can be found from the super class.', async () => {
@@ -1254,18 +1254,18 @@ describe('Class Model Tests', () => {
                         name: 'instanceOfSubClassOfAbstractSuperClass'
                     }
 
-                    const instanceFound = await classToCallFindOneOn.findOneInstance(filter);
+                    const instanceFound = await classToCallFindOneOn.findOne(filter);
 
                     if (!instanceFound) 
-                        throw new Error('findOneInstance() did not return an instance.');
+                        throw new Error('findOne() did not return an instance.');
                     
                     if (!instanceToFind.equals(instanceFound))
-                        throw new Error('findOneInstance() returned the wrong instance.');
+                        throw new Error('findOne() returned the wrong instance.');
                 });
     
             });
     
-            describe('Calling findOneInstance on a super class of the super class of the instance you want to find. (Recursive)', () => {
+            describe('Calling findOne on a super class of the super class of the instance you want to find. (Recursive)', () => {
 
                 it('SuperClass -> Discriminated Sub Class -> Sub Sub Class', async () => {
                     const classToCallFindOneOn = SuperClass;
@@ -1275,13 +1275,13 @@ describe('Class Model Tests', () => {
                         name: 'instanceOfSubClassOfDiscriminatedSubClassOfSuperClass'
                     }
 
-                    const instanceFound = await classToCallFindOneOn.findOneInstance(filter);
+                    const instanceFound = await classToCallFindOneOn.findOne(filter);
 
                     if (!instanceFound) 
-                        throw new Error('findOneInstance() did not return an instance.');
+                        throw new Error('findOne() did not return an instance.');
                     
                     if (!instanceToFind.equals(instanceFound))
-                        throw new Error('findOneInstance() returned the wrong instance.');
+                        throw new Error('findOne() returned the wrong instance.');
                 });
 
                 it('SuperClass -> Sub Class -> Sub Sub Class', async () => {
@@ -1292,13 +1292,13 @@ describe('Class Model Tests', () => {
                         name: 'instanceOfSubClassOfSubClassOfSuperClass'
                     }
 
-                    const instanceFound = await classToCallFindOneOn.findOneInstance(filter);
+                    const instanceFound = await classToCallFindOneOn.findOne(filter);
 
                     if (!instanceFound) 
-                        throw new Error('findOneInstance() did not return an instance.');
+                        throw new Error('findOne() did not return an instance.');
                     
                     if (!instanceToFind.equals(instanceFound))
-                        throw new Error('findOneInstance() returned the wrong instance.');
+                        throw new Error('findOne() returned the wrong instance.');
                 });
 
                 it('SuperClass -> Abstract Sub Class -> Sub Sub Class', async () => {
@@ -1309,170 +1309,170 @@ describe('Class Model Tests', () => {
                         name: 'instanceOfSubClassOfAbstractSubClassOfSuperClass'
                     }
 
-                    const instanceFound = await classToCallFindOneOn.findOneInstance(filter);
+                    const instanceFound = await classToCallFindOneOn.findOne(filter);
 
                     if (!instanceFound) 
-                        throw new Error('findOneInstance() did not return an instance.');
+                        throw new Error('findOne() did not return an instance.');
                     
                     if (!instanceToFind.equals(instanceFound))
-                        throw new Error('findOneInstance() returned the wrong instance.');
+                        throw new Error('findOne() returned the wrong instance.');
                 });
     
             });
     
         });
 
-        describe('ClassModel.findInstanceById()', () => {
+        describe('ClassModel.findById()', () => {
     
-            describe('Calling findInstanceById on the Class of the instance you want to find. (Direct)', () => {
+            describe('Calling findById on the Class of the instance you want to find. (Direct)', () => {
 
                 it('An instance of a concrete class with no subclasses can be found.', async () => {
                     const classToCallFindOneOn = AllFieldsMutexClass;
                     const instanceToFind = instanceOfAllFieldsMutexClass;
 
-                    const instanceFound = await classToCallFindOneOn.findInstanceById(instanceToFind.id);
+                    const instanceFound = await classToCallFindOneOn.findById(instanceToFind.id);
 
                     if (!instanceFound)
-                        throw new Error('findInstanceById() did not return an instance.');
+                        throw new Error('findById() did not return an instance.');
                     
                     if (!instanceToFind.equals(instanceFound))
-                        throw new Error('findInstanceById() returned the wrong instance.');
+                        throw new Error('findById() returned the wrong instance.');
                 });
 
                 it('An instance of a concrete discriminated class can be found.', async () => {
                     const classToCallFindInstanceByIdOn = SubClassOfDiscriminatorSuperClass;
                     const instanceToFind = instanceOfSubClassOfDiscriminatorSuperClass;
 
-                    const instanceFound = await classToCallFindInstanceByIdOn.findInstanceById(instanceToFind.id);
+                    const instanceFound = await classToCallFindInstanceByIdOn.findById(instanceToFind.id);
 
                     if (!instanceFound)
-                        throw new Error('findInstanceById() did not return an instance.');
+                        throw new Error('findById() did not return an instance.');
                     
                     if (!instanceToFind.equals(instanceFound))
-                        throw new Error('findInstanceById() returned the wrong instance.');
+                        throw new Error('findById() returned the wrong instance.');
                 });
 
                 it('An instance of a concrete super class can be found.', async () => {
                     const classToCallFindInstanceByIdOn = SuperClass;
                     const instanceToFind = instanceOfSuperClass;
 
-                    const instanceFound = await classToCallFindInstanceByIdOn.findInstanceById(instanceToFind.id);
+                    const instanceFound = await classToCallFindInstanceByIdOn.findById(instanceToFind.id);
 
                     if (!instanceFound)
-                        throw new Error('findInstanceById() did not return an instance.');
+                        throw new Error('findById() did not return an instance.');
                     
                     if (!instanceToFind.equals(instanceFound))
-                        throw new Error('findInstanceById() returned the wrong instance.');
+                        throw new Error('findById() returned the wrong instance.');
                 });
 
                 it('An instance of a concrete discriminated sub-class can be found.', async () => {
                     const classToCallFindInstanceByIdOn = DiscriminatedSuperClass;
                     const instanceToFind = instanceOfDiscriminatedSuperClass;
 
-                    const instanceFound = await classToCallFindInstanceByIdOn.findInstanceById(instanceToFind.id);
+                    const instanceFound = await classToCallFindInstanceByIdOn.findById(instanceToFind.id);
 
                     if (!instanceFound)
-                        throw new Error('findInstanceById() did not return an instance.');
+                        throw new Error('findById() did not return an instance.');
                     
                     if (!instanceToFind.equals(instanceFound))
-                        throw new Error('findInstanceById() returned the wrong instance.');
+                        throw new Error('findById() returned the wrong instance.');
                 });
     
             });
     
-            describe('Calling findInstanceById on a super class of the class of the instance you want to find. (Indirect)', () => {
+            describe('Calling findById on a super class of the class of the instance you want to find. (Indirect)', () => {
 
                 it('An instance of a sub class of a discrimintated super class can be found from the super class.', async () => {
                     const classToCallFindInstanceByIdOn = DiscriminatedSuperClass;
                     const instanceToFind = instanceOfSubClassOfDiscriminatorSuperClass;
 
-                    const instanceFound = await classToCallFindInstanceByIdOn.findInstanceById(instanceToFind.id);
+                    const instanceFound = await classToCallFindInstanceByIdOn.findById(instanceToFind.id);
 
                     if (!instanceFound) 
-                        throw new Error('findInstanceById() did not return an instance.');
+                        throw new Error('findById() did not return an instance.');
                     
                     if (!instanceToFind.equals(instanceFound))
-                        throw new Error('findInstanceById() returned the wrong instance.');
+                        throw new Error('findById() returned the wrong instance.');
                 });
 
                 it('An instance of a concrete sub class of a non-discriminated super class can be found from the super class.', async () => {
                     const classToCallFindInstanceByIdOn = SuperClass;
                     const instanceToFind = instanceOfSubClassOfSuperClass;
 
-                    const instanceFound = await classToCallFindInstanceByIdOn.findInstanceById(instanceToFind.id);
+                    const instanceFound = await classToCallFindInstanceByIdOn.findById(instanceToFind.id);
 
                     if (!instanceFound) 
-                        throw new Error('findInstanceById() did not return an instance.');
+                        throw new Error('findById() did not return an instance.');
                     
                     if (!instanceToFind.equals(instanceFound))
-                        throw new Error('findInstanceById() returned the wrong instance.');
+                        throw new Error('findById() returned the wrong instance.');
                 });
 
                 it('An instance of a concrete sub class of a non-discriminated abstract super class can be found from the super class.', async () => {
                     const classToCallFindInstanceByIdOn = AbstractSuperClass;
                     const instanceToFind = instanceOfSubClassOfAbstractSuperClass;
 
-                    const instanceFound = await classToCallFindInstanceByIdOn.findInstanceById(instanceToFind.id);
+                    const instanceFound = await classToCallFindInstanceByIdOn.findById(instanceToFind.id);
 
                     if (!instanceFound) 
-                        throw new Error('findInstanceById() did not return an instance.');
+                        throw new Error('findById() did not return an instance.');
                     
                     if (!instanceToFind.equals(instanceFound))
-                        throw new Error('findInstanceById() returned the wrong instance.');
+                        throw new Error('findById() returned the wrong instance.');
                 });
     
             });
     
-            describe('Calling findInstanceById on a super class of the super class of the instance you want to find. (Recursive)', () => {
+            describe('Calling findById on a super class of the super class of the instance you want to find. (Recursive)', () => {
 
                 it('SuperClass -> Discriminated Sub Class -> Sub Sub Class', async () => {
                     const classToCallFindInstanceByIdOn = SuperClass;
                     const instanceToFind = instanceOfSubClassOfDiscriminatedSubClassOfSuperClass;
 
-                    const instanceFound = await classToCallFindInstanceByIdOn.findInstanceById(instanceToFind.id);
+                    const instanceFound = await classToCallFindInstanceByIdOn.findById(instanceToFind.id);
 
                     if (!instanceFound) 
-                        throw new Error('findInstanceById() did not return an instance.');
+                        throw new Error('findById() did not return an instance.');
                     
                     if (!instanceToFind.equals(instanceFound))
-                        throw new Error('findInstanceById() returned the wrong instance.');
+                        throw new Error('findById() returned the wrong instance.');
                 });
 
                 it('SuperClass -> Sub Class -> Sub Sub Class', async () => {
                     const classToCallFindInstanceByIdOn = SuperClass;
                     const instanceToFind = instanceOfSubClassOfSubClassOfSuperClass;
 
-                    const instanceFound = await classToCallFindInstanceByIdOn.findInstanceById(instanceToFind.id);
+                    const instanceFound = await classToCallFindInstanceByIdOn.findById(instanceToFind.id);
 
                     if (!instanceFound) 
-                        throw new Error('findInstanceById() did not return an instance.');
+                        throw new Error('findById() did not return an instance.');
                     
                     if (!instanceToFind.equals(instanceFound))
-                        throw new Error('findInstanceById() returned the wrong instance.');
+                        throw new Error('findById() returned the wrong instance.');
                 });
 
                 it('SuperClass -> Abstract Sub Class -> Sub Sub Class', async () => {
                     const classToCallFindInstanceByIdOn = SuperClass;
                     const instanceToFind = instanceOfSubClassOfAbstractSubClassOfSuperClass;
 
-                    const instanceFound = await classToCallFindInstanceByIdOn.findInstanceById(instanceToFind.id);
+                    const instanceFound = await classToCallFindInstanceByIdOn.findById(instanceToFind.id);
 
                     if (!instanceFound) 
-                        throw new Error('findInstanceById() did not return an instance.');
+                        throw new Error('findById() did not return an instance.');
                     
                     if (!instanceToFind.equals(instanceFound))
-                        throw new Error('findInstanceById() returned the wrong instance.');
+                        throw new Error('findById() returned the wrong instance.');
                 });
     
             });
     
         });
 
-        describe('ClassModel.findInstanceSet()', () => {
+        describe('ClassModel.find()', () => {
 
             describe('Finding a single instance.', () => {
     
-                describe('Calling findInstanceSet on the Class of the instance you want to find. (Direct)', () => {
+                describe('Calling find on the Class of the instance you want to find. (Direct)', () => {
         
                     it('An instance of a concrete class with no subclasses can be found.', async () => {
                         const classToCallFindOn = AllFieldsMutexClass;
@@ -1484,7 +1484,7 @@ describe('Class Model Tests', () => {
                             string: 'instanceOfAllFieldsMutexClass'
                         }
     
-                        const instancesFound = await classToCallFindOn.findInstanceSet(filter);
+                        const instancesFound = await classToCallFindOn.find(filter);
     
                         if (!instancesFound.equals(expectedInstances))
                             throw new Error('Returned instances are not what was expected.');
@@ -1500,7 +1500,7 @@ describe('Class Model Tests', () => {
                             name: 'instanceOfSubClassOfDiscriminatorSuperClass'
                         }
     
-                        const instancesFound = await classToCallFindOn.findInstanceSet(filter);
+                        const instancesFound = await classToCallFindOn.find(filter);
     
                         if (!instancesFound.equals(expectedInstances))
                             throw new Error('Returned instances are not what was expected.');
@@ -1516,7 +1516,7 @@ describe('Class Model Tests', () => {
                             name: 'instanceOfSuperClass'
                         }
     
-                        const instancesFound = await classToCallFindOn.findInstanceSet(filter);
+                        const instancesFound = await classToCallFindOn.find(filter);
 
                         if (!instancesFound.equals(expectedInstances))
                             throw new Error('Returned instances are not what was expected.');
@@ -1532,7 +1532,7 @@ describe('Class Model Tests', () => {
                             name: 'instanceOfDiscriminatedSuperClass'
                         }
     
-                        const instancesFound = await classToCallFindOn.findInstanceSet(filter);
+                        const instancesFound = await classToCallFindOn.find(filter);
 
                         if (!instancesFound.equals(expectedInstances))
                             throw new Error('Returned instances are not what was expected.');
@@ -1540,7 +1540,7 @@ describe('Class Model Tests', () => {
         
                 });
         
-                describe('Calling findInstanceSet on a super class of the class of the instance you want to findInstanceSet. (Indirect)', () => {
+                describe('Calling find on a super class of the class of the instance you want to find. (Indirect)', () => {
         
                     it('An instance of a sub class of a discrimintated super class can be from the super class.', async () => {
                         const classToCallFindOn = DiscriminatedSuperClass;
@@ -1551,7 +1551,7 @@ describe('Class Model Tests', () => {
                             name: 'instanceOfSubClassOfDiscriminatorSuperClass'
                         }
     
-                        const instancesFound = await classToCallFindOn.findInstanceSet(filter);
+                        const instancesFound = await classToCallFindOn.find(filter);
     
                         if (!instancesFound.equals(expectedInstances))
                             throw new Error('InstanceSet returned does not match what was expected.');
@@ -1566,7 +1566,7 @@ describe('Class Model Tests', () => {
                             name: 'instanceOfSubClassOfSuperClass'
                         }
     
-                        const instancesFound = await classToCallFindOn.findInstanceSet(filter);
+                        const instancesFound = await classToCallFindOn.find(filter);
     
                         if (!instancesFound.equals(expectedInstances))
                             throw new Error('InstanceSet returned does not match what was expected.');
@@ -1581,7 +1581,7 @@ describe('Class Model Tests', () => {
                             name: 'instanceOfSubClassOfAbstractSuperClass'
                         }
     
-                        const instancesFound = await classToCallFindOn.findInstanceSet(filter);
+                        const instancesFound = await classToCallFindOn.find(filter);
     
                         if (!instancesFound.equals(expectedInstances))
                             throw new Error('InstanceSet returned does not match what was expected.');
@@ -1589,7 +1589,7 @@ describe('Class Model Tests', () => {
         
                 });
         
-                describe('Calling findInstanceSet() on a super class of the super class of the instance you want to find. (Recursive)', () => {
+                describe('Calling find() on a super class of the super class of the instance you want to find. (Recursive)', () => {
         
                     it('SuperClass -> Discriminated Sub Class -> Sub Sub Class', async () => {
                         const classToCallFindOn = SuperClass;
@@ -1600,7 +1600,7 @@ describe('Class Model Tests', () => {
                             name: 'instanceOfSubClassOfDiscriminatedSubClassOfSuperClass'
                         }
     
-                        const instancesFound = await classToCallFindOn.findInstanceSet(filter);
+                        const instancesFound = await classToCallFindOn.find(filter);
     
                         if (!instancesFound.equals(expectedInstances))
                             throw new Error('InstanceSet returned does not match what was expected.');
@@ -1615,7 +1615,7 @@ describe('Class Model Tests', () => {
                             name: 'instanceOfSubClassOfSubClassOfSuperClass'
                         }
     
-                        const instancesFound = await classToCallFindOn.findInstanceSet(filter);
+                        const instancesFound = await classToCallFindOn.find(filter);
     
                         if (!instancesFound.equals(expectedInstances))
                             throw new Error('InstanceSet returned does not match what was expected.');
@@ -1630,7 +1630,7 @@ describe('Class Model Tests', () => {
                             name: 'instanceOfSubClassOfAbstractSubClassOfSuperClass'
                         }
     
-                        const instancesFound = await classToCallFindOn.findInstanceSet(filter);
+                        const instancesFound = await classToCallFindOn.find(filter);
     
                         if (!instancesFound.equals(expectedInstances))
                             throw new Error('InstanceSet returned does not match what was expected.');
@@ -1651,7 +1651,7 @@ describe('Class Model Tests', () => {
                         name: {$in: ['instanceOfSuperClass', 'instanceOfSubClassOfDiscriminatedSubClassOfSuperClass']}
                     }; 
 
-                    const instancesFound = await classToCallFindOn.findInstanceSet(filter);
+                    const instancesFound = await classToCallFindOn.find(filter);
 
                     if (!instancesFound.equals(expectedInstances))
                         throw new Error('InstanceSet returned does not match what was expected.');
@@ -1678,7 +1678,7 @@ describe('Class Model Tests', () => {
                         ]}
                     }; 
 
-                    const instancesFound = await classToCallFindOn.findInstanceSet(filter);
+                    const instancesFound = await classToCallFindOn.find(filter);
 
                     if (!instancesFound.equals(expectedInstances))
                         throw new Error('InstanceSet returned does not match what was expected.');
@@ -2537,15 +2537,15 @@ describe('Class Model Tests', () => {
 
         describe('Test find methods for access filtering.', () => {
 
-            describe('Test findInstanceById() with access filtering', () => {
+            describe('Test findById() with access filtering', () => {
 
-                it('Call findInstanceById() on an instance of an access controlled class. Instance passes filter.', async () => {
+                it('Call findById() on an instance of an access controlled class. Instance passes filter.', async () => {
                     const classToCallFindByIdOn = AccessControlledSuperClass;
                     const instanceToFind = instanceOfAccessControlledSuperClassPasses;
-                    const instanceFound = await classToCallFindByIdOn.findInstanceById(instanceToFind._id);
+                    const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
 
                     if (!instanceFound)
-                        throw new Error('findInstanceById() did not return an instance.');
+                        throw new Error('findById() did not return an instance.');
 
                     if (!instanceFound._id.equals(instanceToFind._id))
                         throw new Error(
@@ -2555,13 +2555,13 @@ describe('Class Model Tests', () => {
                         );
                 });
 
-                it('Call findInstanceById() on an instance of an access controlled class, from super class. Instance passes filter.', async () => {
+                it('Call findById() on an instance of an access controlled class, from super class. Instance passes filter.', async () => {
                     const classToCallFindByIdOn = AccessControlledSuperClass;
                     const instanceToFind = instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses;
-                    const instanceFound = await classToCallFindByIdOn.findInstanceById(instanceToFind._id);
+                    const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
 
                     if (!instanceFound)
-                        throw new Error('findInstanceById() did not return an instance.');
+                        throw new Error('findById() did not return an instance.');
 
                     if (!instanceFound._id.equals(instanceToFind._id))
                         throw new Error(
@@ -2572,40 +2572,40 @@ describe('Class Model Tests', () => {
 
                 });
 
-                it('Call findInstanceById() on an instance of an access controlled class. Instance does not pass filter.', async () => {
+                it('Call findById() on an instance of an access controlled class. Instance does not pass filter.', async () => {
                     const classToCallFindByIdOn = AccessControlledSuperClass;
                     const instanceToFind = instanceOfAccessControlledSuperClassFailsRelationship;
-                    const instanceFound = await classToCallFindByIdOn.findInstanceById(instanceToFind._id);
+                    const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
 
                     if (instanceFound)
-                        throw new Error('findInstanceById() returned an instance.');
+                        throw new Error('findById() returned an instance.');
                 });
 
-                it('Call findInstanceById() on an instance of an access controlled class, from super class. Instance does not pass filter based on super access control method.', async () => {
+                it('Call findById() on an instance of an access controlled class, from super class. Instance does not pass filter based on super access control method.', async () => {
                     const classToCallFindByIdOn = AccessControlledSuperClass;
                     const instanceToFind = instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship;
-                    const instanceFound = await classToCallFindByIdOn.findInstanceById(instanceToFind._id);
+                    const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
 
                     if (instanceFound)
-                        throw new Error('findInstanceById() returned an instance.');
+                        throw new Error('findById() returned an instance.');
 
                 });
 
-                it('Call findInstanceById() on an instance of an access controlled class, from super class. Instance does not pass filter based on it\'s own access control method.', async () => {
+                it('Call findById() on an instance of an access controlled class, from super class. Instance does not pass filter based on it\'s own access control method.', async () => {
                     const classToCallFindByIdOn = AccessControlledSuperClass;
                     const instanceToFind = instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean;
-                    const instanceFound = await classToCallFindByIdOn.findInstanceById(instanceToFind._id);
+                    const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
 
                     if (instanceFound)
-                        throw new Error('findInstanceById() returned an instance.');
+                        throw new Error('findById() returned an instance.');
 
                 });
 
             });
 
-            describe('Test findOneInstance() with access filtering', () => {
+            describe('Test findOne() with access filtering', () => {
 
-                it('Call findOneInstance() on an instance of an access controlled class. instance passes filter.', async () => {
+                it('Call findOne() on an instance of an access controlled class. instance passes filter.', async () => {
                     const classToCallFindByIdOn = AccessControlledSuperClass;
                     const instanceToFind = instanceOfAccessControlledSuperClassPasses;
 
@@ -2613,10 +2613,10 @@ describe('Class Model Tests', () => {
                         name: 'instanceOfAccessControlledSuperClassPasses'
                     }
 
-                    const instanceFound = await classToCallFindByIdOn.findOneInstance(filter);
+                    const instanceFound = await classToCallFindByIdOn.findOne(filter);
 
                     if (!instanceFound)
-                        throw new Error('findOneInstance() did not return an instance.');
+                        throw new Error('findOne() did not return an instance.');
 
                     if (!instanceFound._id.equals(instanceToFind._id))
                         throw new Error(
@@ -2626,7 +2626,7 @@ describe('Class Model Tests', () => {
                         );
                 });
 
-                it('Call findOneInstance() on an instance of an access controlled class, from super class. Instance passes filter.', async () => {
+                it('Call findOne() on an instance of an access controlled class, from super class. Instance passes filter.', async () => {
                     const classToCallFindByIdOn = AccessControlledSuperClass;
                     const instanceToFind = instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses;
 
@@ -2634,10 +2634,10 @@ describe('Class Model Tests', () => {
                         name: 'instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses'
                     }
 
-                    const instanceFound = await classToCallFindByIdOn.findOneInstance(filter);
+                    const instanceFound = await classToCallFindByIdOn.findOne(filter);
 
                     if (!instanceFound)
-                        throw new Error('findOneInstance() did not return an instance.');
+                        throw new Error('findOne() did not return an instance.');
 
                     if (!instanceFound._id.equals(instanceToFind._id))
                         throw new Error(
@@ -2647,53 +2647,53 @@ describe('Class Model Tests', () => {
                         );
                 });
 
-                it('Call findOneInstance() on an instance of an access controlled class. Instance does not pass filter.', async () => {
+                it('Call findOne() on an instance of an access controlled class. Instance does not pass filter.', async () => {
                     const classToCallFindByIdOn = AccessControlledSuperClass;
 
                     const filter = {
                         name: 'instanceOfAccessControlledSuperClassFailsRelationship'
                     }
 
-                    const instanceFound = await classToCallFindByIdOn.findOneInstance(filter);
+                    const instanceFound = await classToCallFindByIdOn.findOne(filter);
 
                     if (instanceFound)
-                        throw new Error('findOneInstance() returned an instance');
+                        throw new Error('findOne() returned an instance');
 
                 });
 
-                it('Call findOneInstance() on an instance of an access controlled class, from super class. Instance does not pass filter based on super access control method.', async () => {
+                it('Call findOne() on an instance of an access controlled class, from super class. Instance does not pass filter based on super access control method.', async () => {
                     const classToCallFindByIdOn = AccessControlledSuperClass;
 
                     const filter = {
                         name: 'instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship'
                     }
 
-                    const instanceFound = await classToCallFindByIdOn.findOneInstance(filter);
+                    const instanceFound = await classToCallFindByIdOn.findOne(filter);
 
                     if (instanceFound)
-                        throw new Error('findOneInstance() returned an instance');
+                        throw new Error('findOne() returned an instance');
 
                 });
 
-                it('Call findOneInstance() on an instance of an access controlled class, from super class. Instance does not pass filter based on it\'s own access control method.', async () => {
+                it('Call findOne() on an instance of an access controlled class, from super class. Instance does not pass filter based on it\'s own access control method.', async () => {
                     const classToCallFindByIdOn = AccessControlledSuperClass;
 
                     const filter = {
                         name: 'instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean'
                     }
 
-                    const instanceFound = await classToCallFindByIdOn.findOneInstance(filter);
+                    const instanceFound = await classToCallFindByIdOn.findOne(filter);
 
                     if (instanceFound)
-                        throw new Error('findOneInstance() returned an instance');
+                        throw new Error('findOne() returned an instance');
 
                 });
 
             });
 
-            describe('Test findInstanceSet() with access filtering', () => {
+            describe('Test find() with access filtering', () => {
 
-                it('Call findInstanceSet() on access controlled super class with a passing and not passing instance of each sub class.', async () => {
+                it('Call find() on access controlled super class with a passing and not passing instance of each sub class.', async () => {
                     const instanceNames = [
                         'instanceOfAccessControlledSuperClassPasses',
                         'instanceOfAccessControlledSuperClassFailsRelationship',
@@ -2717,10 +2717,10 @@ describe('Class Model Tests', () => {
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses
                     ]);
 
-                    const instancesFound = await AccessControlledSuperClass.findInstanceSet({name: {$in: instanceNames}});
+                    const instancesFound = await AccessControlledSuperClass.find({name: {$in: instanceNames}});
 
                     if (!expectedInstances.equals(instancesFound)) 
-                        throw new Error('findInstanceSet did not filter instances correctly.')
+                        throw new Error('find did not filter instances correctly.')
 
                 });
 
