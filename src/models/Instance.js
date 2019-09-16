@@ -121,12 +121,112 @@ class Instance {
 
     // Validation Methods
 
-    validate() {
-        this.classModel.validate(this);
+    /*
+     * Defines what it means for a field to be set. Valid values that count as 'set' are as follows:
+     * boolean: True
+     * number: Any value including 0.
+     * string: Any thing of type string, excluding an empty string.
+     * Array: Any array with a length greater than 0.
+     * Object/Relationship: Any Value
+     */
+    fieldIsSet(key) {
+        let schema = this.classModel.schema;
+
+        if (Array.isArray(schema[key].type))
+            return this[key].length ? true : false;
+
+        if (schema[key].type == Number)
+            return (this[key] || this[key] == 0);
+
+        if (schema[key].type == String)
+            return this[key] ? true : false;
+        
+        return this[key] ? true : false;
     }
 
-    validateSync() {
-        return this[doc].validateSync();
+    // Throws an error if multiple fields with the same mutex have a value.
+    mutexValidation() {
+        let muti = [];
+        let violations = [];
+        let message = '';
+        let classModel = this.classModel;
+        let schema = classModel.schema;
+
+        Object.keys(schema).forEach(key => {
+            if (schema[key].mutex && this.fieldIsSet(key))
+                    if (muti.includes(schema[key].mutex))
+                        violations.push(schema[key].mutex);
+                    else
+                        muti.push(schema[key].mutex);
+        });
+
+        if (violations.length) {
+            message = 'Mutex violations found for instance ' + this.id + '.';
+            Object.keys(schema).forEach(key => {
+                if (violations.includes(schema[key].mutex) && this.fieldIsSet(key)) {
+                            message += ' Field ' + key + ' with mutex \'' + schema[key].mutex + '\'.'
+                }
+            });
+            throw new Error(message);
+        }
+    }
+
+    /*
+     * Mongoose's built in requirement validation does not cover some use cases, so this method fills in the gaps.
+     * This method considers a boolean 'false' value as not set, and an empty array as not set. All other required validations
+     * are left to the built in mongoose validation. 
+     */
+
+    requiredValidation() {
+        let message = '';
+        let valid = true;
+        let schema = this.classModel.schema;
+
+        // Iterate through the schema to find required groups.
+        Object.keys(schema).forEach(key => {
+            if (schema[key].required && !this.fieldIsSet(key)) {
+                valid = false;
+                message += this.classModel.className + ' validation failed: ' + key + ': Path \`' + key + '\` is required.'
+            }
+        });
+
+        if (!valid)
+            throw new Error(message);
+    }
+
+    requiredGroupValidation() {
+        let requiredGroups = [];
+        let message = '';
+        let classModel = this.classModel;
+        let schema = classModel.schema;
+
+        // Iterate through the schema to find required groups.
+        Object.keys(schema).forEach(key => {
+            if (schema[key].requiredGroup && !requiredGroups.includes(schema[key].requiredGroup))
+                requiredGroups.push(schema[key].requiredGroup);
+        });
+
+        // Iterate through the instance members to check that at least one member for each required group is set.
+        Object.keys(schema).forEach(key => {
+            if (schema[key].requiredGroup && this.fieldIsSet(key))
+                requiredGroups = requiredGroups.filter(value => { return value != schema[key].requiredGroup; });
+        });
+
+        if (requiredGroups.length) {
+            message = 'Required Group violations found for requirement group(s): ';
+            requiredGroups.forEach(function(requiredGroup) {
+                message += ' ' + requiredGroup;
+            });
+
+            throw new Error(message);
+        }
+    }
+
+    validate() {
+        this.requiredValidation();
+        this.requiredGroupValidation();
+        this.mutexValidation();
+        this[doc].validateSync();
     }
 
     // Update and Delete Methods Methods

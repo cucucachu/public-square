@@ -331,7 +331,7 @@ describe('Instance Tests', () => {
 
     });
 
-    describe('instance.validate()', () => {
+    describe.only('instance.validate()', () => {
 
         describe('Required Validation', () => {
 
