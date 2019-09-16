@@ -114,22 +114,73 @@ class Instance {
     getDocumentProperty(propertyName) {
         return this[doc][propertyName];
     }
+    
+    /* 
+     * Walks a relationship from a given instance of this Class Model, returning the related instance or instances. 
+     * @param required Object instance: An instance of this class model
+     * @param required String relationship: the key for the desired relationship
+     * @param optional Object filter: a filter Object used in the query to filter the returned instances.
+     * @return Promise which when resolved returns the related instance if relationship is singular, or an Array of the related 
+     *           instances if the relationship is non-singular.
+     */ 
+    async walk(relationship, filter=null) {
+        if (!relationship)
+            throw new Error('instance.walk() called with insufficient arguments. Should be walk(relationship, <optional>filter).');
+        
+        if (typeof(relationship) != 'string')
+            throw new Error('instance.walk(): First argument needs to be a String representing the name of the relationship.');
+        
+        if (!(relationship in this.classModel.schema))
+            throw new Error('instance.walk(): First argument needs to be a relationship property in ' + this.classModel.className + '\'s schema.');
+        
+        if (!this.classModel.propertyIsARelationship(relationship))
+            throw new Error('instance.walk(): property "' + relationship + '" is not a relationship.');
+        
+        if (filter && typeof(filter) !== "object")
+            throw new Error('instance.walk(): Second argument needs to be an object.');
+    
+        const relatedClass = this.classModel.getRelatedClassModel(relationship);
+        const singular = this.classModel.schema[relationship].type == mongoose.Schema.Types.ObjectId;
+        filter = filter ? filter : {}
 
-    async walk(relationship, filter = null) {
-        return this.classModel.walkInstance(this, relationship, filter);
+            // If relationship is to a singular instance, use findOne()
+        if (singular) {
+            if (this[relationship] == null) {
+                return null;
+            }
+            else {
+                Object.assign(filter, {
+                    _id: this[relationship],
+                });
+                return relatedClass.findOne(filter);
+            }
+        }
+        // If nonsingular, use find()
+        else {
+            if (this[relationship] == null || this[relationship].length == 0) {
+                return [];
+            }
+            else {
+                Object.assign(filter, {
+                    _id: {$in: this[relationship]}
+                });
+
+                return relatedClass.find(filter);
+            }
+        }
     }
 
     // Validation Methods
 
     /*
-     * Defines what it means for a field to be set. Valid values that count as 'set' are as follows:
+     * Defines what it means for a property to be set. Valid values that count as 'set' are as follows:
      * boolean: True
      * number: Any value including 0.
      * string: Any thing of type string, excluding an empty string.
      * Array: Any array with a length greater than 0.
      * Object/Relationship: Any Value
      */
-    fieldIsSet(key) {
+    propertyIsSet(key) {
         let schema = this.classModel.schema;
 
         if (Array.isArray(schema[key].type))
@@ -144,7 +195,7 @@ class Instance {
         return this[key] ? true : false;
     }
 
-    // Throws an error if multiple fields with the same mutex have a value.
+    // Throws an error if multiple propertys with the same mutex have a value.
     mutexValidation() {
         let muti = [];
         let violations = [];
@@ -153,7 +204,7 @@ class Instance {
         let schema = classModel.schema;
 
         Object.keys(schema).forEach(key => {
-            if (schema[key].mutex && this.fieldIsSet(key))
+            if (schema[key].mutex && this.propertyIsSet(key))
                     if (muti.includes(schema[key].mutex))
                         violations.push(schema[key].mutex);
                     else
@@ -163,7 +214,7 @@ class Instance {
         if (violations.length) {
             message = 'Mutex violations found for instance ' + this.id + '.';
             Object.keys(schema).forEach(key => {
-                if (violations.includes(schema[key].mutex) && this.fieldIsSet(key)) {
+                if (violations.includes(schema[key].mutex) && this.propertyIsSet(key)) {
                             message += ' Field ' + key + ' with mutex \'' + schema[key].mutex + '\'.'
                 }
             });
@@ -184,7 +235,7 @@ class Instance {
 
         // Iterate through the schema to find required groups.
         Object.keys(schema).forEach(key => {
-            if (schema[key].required && !this.fieldIsSet(key)) {
+            if (schema[key].required && !this.propertyIsSet(key)) {
                 valid = false;
                 message += this.classModel.className + ' validation failed: ' + key + ': Path \`' + key + '\` is required.'
             }
@@ -208,7 +259,7 @@ class Instance {
 
         // Iterate through the instance members to check that at least one member for each required group is set.
         Object.keys(schema).forEach(key => {
-            if (schema[key].requiredGroup && this.fieldIsSet(key))
+            if (schema[key].requiredGroup && this.propertyIsSet(key))
                 requiredGroups = requiredGroups.filter(value => { return value != schema[key].requiredGroup; });
         });
 
@@ -237,7 +288,7 @@ class Instance {
         
         try {
             this.validate();
-            await this.classModel.updateControlCheckInstance(this, ...updateControlMethodParameters);
+            await this.classModel.updateControlCheck(this, ...updateControlMethodParameters);
         }
         catch (error) {
             throw new Error('Caught validation error when attempting to save Instance: ' + error.message);

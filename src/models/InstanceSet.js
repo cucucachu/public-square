@@ -186,7 +186,7 @@ class InstanceSet extends SuperSet {
     async save(...updateControlMethodParameters) {
         try {
             this.validate();
-            await this.classModel.updateControlCheckInstanceSet(this, ...updateControlMethodParameters);
+            await this.classModel.updateControlCheckSet(this, ...updateControlMethodParameters);
         }
         catch (error) {
             throw new Error('Caught validation error when attempting to save InstanceSet: ' + error.message);

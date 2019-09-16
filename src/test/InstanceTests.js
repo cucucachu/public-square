@@ -331,7 +331,7 @@ describe('Instance Tests', () => {
 
     });
 
-    describe.only('instance.validate()', () => {
+    describe('instance.validate()', () => {
 
         describe('Required Validation', () => {
 
@@ -1067,7 +1067,7 @@ describe('Instance Tests', () => {
 
             await instance.save();
 
-            const instanceSaved = await UpdateControlledSuperClass.findInstanceById(instance._id);
+            const instanceSaved = await UpdateControlledSuperClass.findById(instance._id);
             
             if (!instanceSaved)
                 throw new Error('Instance was not saved.');
@@ -1083,7 +1083,7 @@ describe('Instance Tests', () => {
                 return instance.save();
             });
             
-            const instanceFound = await UpdateControlledSuperClass.findInstanceById(instance.id);
+            const instanceFound = await UpdateControlledSuperClass.findById(instance.id);
 
             if (instanceFound) 
                 throw new Error('.save() threw an error, but the instance was saved anyway.');
@@ -1094,7 +1094,7 @@ describe('Instance Tests', () => {
             const updateControlMethodParameters = [1, 1, true];
             
             await instance.save(...updateControlMethodParameters);
-            const instanceSaved = UpdateControlledClassUpdateControlledByParameters.findInstanceById(instance.id);
+            const instanceSaved = UpdateControlledClassUpdateControlledByParameters.findById(instance.id);
             
             if (!instanceSaved)
                 throw new Error('Instance was not saved.');
@@ -1111,7 +1111,7 @@ describe('Instance Tests', () => {
                 return instance.save(...updateControlMethodParameters);
             })
             
-            const instanceFound = await UpdateControlledClassUpdateControlledByParameters.findInstanceById(instance._id);
+            const instanceFound = await UpdateControlledClassUpdateControlledByParameters.findById(instance._id);
 
             if (instanceFound) 
                 throw new Error('.save() threw an error, but the instance was saved anyway.')
@@ -1169,7 +1169,7 @@ describe('Instance Tests', () => {
 
     });
 
-    describe('ClassModel.walkInstance()', () => {
+    describe('ClassModel.walk()', () => {
 
         // Create instances for tests.
         {
@@ -1209,6 +1209,64 @@ describe('Instance Tests', () => {
             await SubClassOfNonSingularRelationshipClass.clear();
         });
 
+        describe('Instance.walk() validations.', () => {
+
+            it('instance.walk() throws an error when relationship is null.', async () => {
+                const instance = new Instance(SingularRelationshipClass);
+                const expectedErrorMessage = 'instance.walk() called with insufficient arguments. Should be walk(relationship, <optional>filter).';
+                
+                await testForErrorAsync('instnace.walk()', expectedErrorMessage, async() => {
+                    return instance.walk(null);
+                })
+            });
+
+            it('instance.walk() throws an error when relationship is undefined.', async () => {
+                const instance = new Instance(SingularRelationshipClass);
+                const expectedErrorMessage = 'instance.walk() called with insufficient arguments. Should be walk(relationship, <optional>filter).';
+                
+                await testForErrorAsync('instnace.walk()', expectedErrorMessage, async() => {
+                    return instance.walk();
+                })
+            });
+
+            it('instance.walk() throws an error when relationship is not a string.', async () => {
+                const instance = new Instance(SingularRelationshipClass);
+                const expectedErrorMessage = 'instance.walk(): First argument needs to be a String representing the name of the relationship.';
+                
+                await testForErrorAsync('instnace.walk()', expectedErrorMessage, async() => {
+                    return instance.walk({ some: 'object' });
+                })
+            });
+
+            it('instance.walk() throws an error when relationship is not part of the classModel\'s schema.', async () => {
+                const instance = new Instance(SingularRelationshipClass);
+                const expectedErrorMessage = 'instance.walk(): First argument needs to be a relationship property in SingularRelationshipClass\'s schema.';
+                
+                await testForErrorAsync('instnace.walk()', expectedErrorMessage, async() => {
+                    return instance.walk('random property');
+                })
+            });
+
+            it('instance.walk() throws an error when relationship is actually an attribute.', async () => {
+                const instance = new Instance(SingularRelationshipClass);
+                const expectedErrorMessage = 'instance.walk(): property "boolean" is not a relationship.';
+                
+                await testForErrorAsync('instnace.walk()', expectedErrorMessage, async() => {
+                    return instance.walk('boolean');
+                })
+            });
+
+            it('instance.walk() throws an error when filter is not an object.', async () => {
+                const instance = new Instance(SingularRelationshipClass);
+                const expectedErrorMessage = 'instance.walk(): Second argument needs to be an object.';
+                
+                await testForErrorAsync('instnace.walk()', expectedErrorMessage, async() => {
+                    return instance.walk('singularRelationship', 'Not an object.');
+                })
+            });
+
+        });
+
         describe('Test walking the relationships.', () => {
 
             it('Walking a singular relationship.', async () => {
@@ -1216,10 +1274,10 @@ describe('Instance Tests', () => {
                 const instance = await instanceOfSingularRelationshipClassA.walk('singularRelationship');
 
                 if (!instance)
-                    throw new Error('walkInstance() did not return anything.');
+                    throw new Error('walk() did not return anything.');
 
                 if (!expectedInstance.equals(instance))
-                    throw new Error('walkInstance() did not return the correct instance.');
+                    throw new Error('walk() did not return the correct instance.');
             });
 
             it('Walking a nonsingular relationship.', async () => {
@@ -1230,21 +1288,21 @@ describe('Instance Tests', () => {
                 const instanceSet = await instanceOfNonSingularRelationshipClass.walk('nonSingularRelationship');
 
                 if (!expectedInstanceSet.equals(instanceSet))
-                    throw new Error('walkInstance() did not return the correct instances.');
+                    throw new Error('walk() did not return the correct instances.');
             });
 
-            it('Walking a singular relationship by calling walkInstance() from the super class.', async () => {
+            it('Walking a singular relationship by calling walk() from the super class.', async () => {
                 const expectedInstance = instanceOfSubClassOfNonSingularRelationshipClass;
                 const instance = await instanceOfSubClassOfSingularRelationshipClassA.walk('singularRelationship');
 
                 if (!instance)
-                    throw new Error('walkInstance() did not return anything.');
+                    throw new Error('walk() did not return anything.');
 
                 if (!expectedInstance.equals(instance))
-                    throw new Error('walkInstance() did not return the correct instance.');
+                    throw new Error('walk() did not return the correct instance.');
             });
 
-            it('Walking a nonsingular relationship by calling walkInstance() from the super class.', async () => {
+            it('Walking a nonsingular relationship by calling walk() from the super class.', async () => {
                 const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
                     instanceOfSubClassOfSingularRelationshipClassA,
                     instanceOfSubClassOfSingularRelationshipClassB
@@ -1252,10 +1310,10 @@ describe('Instance Tests', () => {
                 const instanceSet = await instanceOfSubClassOfNonSingularRelationshipClass.walk('nonSingularRelationship');
 
                 if (!expectedInstanceSet.equals(instanceSet))
-                    throw new Error('walkInstance() did not return the correct instances.');
+                    throw new Error('walk() did not return the correct instances.');
             });
 
-            it('Walking a nonsingular relationship by calling walkInstance() from the super class with a filter.', async () => {
+            it('Walking a nonsingular relationship by calling walk() from the super class with a filter.', async () => {
                 const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
                     instanceOfSubClassOfSingularRelationshipClassA,
                 ]);
@@ -1265,7 +1323,7 @@ describe('Instance Tests', () => {
                 const instanceSet = await instanceOfSubClassOfNonSingularRelationshipClass.walk('nonSingularRelationship', filter);
 
                 if (!expectedInstanceSet.equals(instanceSet))
-                    throw new Error('walkInstance() did not return the correct instances.');
+                    throw new Error('walk() did not return the correct instances.');
             });
 
         });

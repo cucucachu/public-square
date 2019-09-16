@@ -1314,184 +1314,6 @@ describe('Class Model Tests', () => {
 
     });
 
-    describe('ClassModel.walkInstance()', () => {
-
-        // Create instances for tests.
-        {
-            var instanceOfSingularRelationshipClassA = new Instance (SingularRelationshipClass);
-            var instanceOfSingularRelationshipClassB = new Instance (SingularRelationshipClass);
-            var instanceOfNonSingularRelationshipClass = new Instance (NonSingularRelationshipClass);
-            var instanceOfSubClassOfSingularRelationshipClassA = new Instance (SubClassOfSingularRelationshipClass);
-            var instanceOfSubClassOfSingularRelationshipClassB = new Instance (SubClassOfSingularRelationshipClass);
-            var instanceOfSubClassOfNonSingularRelationshipClass = new Instance (SubClassOfNonSingularRelationshipClass);
-    
-            instanceOfSingularRelationshipClassA.singularRelationship = instanceOfNonSingularRelationshipClass._id;
-            instanceOfSingularRelationshipClassA.boolean = true;
-            instanceOfSingularRelationshipClassB.singularRelationship = instanceOfNonSingularRelationshipClass._id;
-            instanceOfSingularRelationshipClassB.boolean = false;
-            instanceOfNonSingularRelationshipClass.nonSingularRelationship = [instanceOfSingularRelationshipClassA._id, instanceOfSingularRelationshipClassB._id];
-    
-            instanceOfSubClassOfSingularRelationshipClassA.singularRelationship = instanceOfSubClassOfNonSingularRelationshipClass._id;
-            instanceOfSubClassOfSingularRelationshipClassA.boolean = true;
-            instanceOfSubClassOfSingularRelationshipClassB.singularRelationship = instanceOfSubClassOfNonSingularRelationshipClass._id;
-            instanceOfSubClassOfSingularRelationshipClassB.boolean = false;
-            instanceOfSubClassOfNonSingularRelationshipClass.nonSingularRelationship = [instanceOfSubClassOfSingularRelationshipClassA._id, instanceOfSubClassOfSingularRelationshipClassB._id];
-        }
-
-        before(async () => {
-            await instanceOfSingularRelationshipClassA.save();
-            await instanceOfSingularRelationshipClassB.save();
-            await instanceOfNonSingularRelationshipClass.save();
-            await instanceOfSubClassOfSingularRelationshipClassA.save();
-            await instanceOfSubClassOfSingularRelationshipClassB.save();
-            await instanceOfSubClassOfNonSingularRelationshipClass.save();
-        });
-
-        after(async () => {
-            await SingularRelationshipClass.clear();
-            await NonSingularRelationshipClass.clear();
-            await SubClassOfSingularRelationshipClass.clear();
-            await SubClassOfNonSingularRelationshipClass.clear();
-        });
-
-        describe('Tests for invalid arguments.', () => {
-
-            it('ClassModel.walkInstance() called with no arguments.', async () => {
-                let expectedErrorMessage = 'SingularRelationshipClass.walkInstance() called with insufficient arguments. Should be walkInstance(instance, relationship, <optional>filter).';
-
-                await testForErrorAsync('ClassModel.walkInstance()', expectedErrorMessage, async () => {
-                    return SingularRelationshipClass.walkInstance();
-                });
-            });
-
-            it('ClassModel.walkInstance() called with only one argument (instance).', async () => {
-                let expectedErrorMessage = 'SingularRelationshipClass.walkInstance() called with insufficient arguments. Should be walkInstance(instance, relationship, <optional>filter).';
-
-                await testForErrorAsync('ClassModel.walkInstance()', expectedErrorMessage, async () => {
-                    return SingularRelationshipClass.walkInstance(instanceOfSingularRelationshipClassA);
-                });
-            });
-
-            it('ClassModel.walkInstance() called with only one argument (instance).', async () => {
-                let expectedErrorMessage = 'SingularRelationshipClass.walkInstance() called with an argument which is not an instance.';
-
-                await testForErrorAsync('ClassModel.walkInstance()', expectedErrorMessage, async () => {
-                    return SingularRelationshipClass.walkInstance({ this: 'that'}, 'some_relationship');
-                });
-            });
-
-            it('ClassModel.walkInstance() called with first argument that is an instance of a different class model.', async () => {
-                let expectedErrorMessage = 'SingularRelationshipClass.walkInstance(): First argument needs to be an instance of SingularRelationshipClass\'s classModel or one of its sub classes.';
-                
-                await testForErrorAsync('ClassModel.walkInstance()', expectedErrorMessage, async () => {
-                    return SingularRelationshipClass.walkInstance(instanceOfNonSingularRelationshipClass, 'some_relationship');
-                });
-            });
-
-            it('ClassModel.walkInstance() called with second argument that is not a String.', async () => {
-                let expectedErrorMessage = 'SingularRelationshipClass.walkInstance(): Second argument needs to be a String.';
-                
-                await testForErrorAsync('ClassModel.walkInstance()', expectedErrorMessage, async () => {
-                    return SingularRelationshipClass.walkInstance(instanceOfSingularRelationshipClassA, true);
-                });
-            });
-
-            it('ClassModel.walkInstance() called with second argument that is not a field in the schema.', async () => {
-                let expectedErrorMessage = 'SingularRelationshipClass.walkInstance(): Second argument needs to be a field in SingularRelationshipClass\'s schema.';
-                
-                await testForErrorAsync('ClassModel.walkInstance()', expectedErrorMessage, async () => {
-                    return SingularRelationshipClass.walkInstance(instanceOfSingularRelationshipClassA, 'rabbit');
-                });
-            });
-
-            it('ClassModel.walkInstance() called with second argument that is not a relationsihp in the schema. (boolean)', async () => {
-                let expectedErrorMessage = 'SingularRelationshipClass.walkInstance(): field "boolean" is not a relationship.';
-                
-                await testForErrorAsync('ClassModel.walkInstance()', expectedErrorMessage, async () => {
-                    return SingularRelationshipClass.walkInstance(instanceOfSingularRelationshipClassA, 'boolean');
-                });
-            });
-
-            it('ClassModel.walkInstance() called with second argument that is not a relationsihp in the schema. (Array of Booleans)', async () => {
-                let expectedErrorMessage = 'SingularRelationshipClass.walkInstance(): field "booleans" is not a relationship.';
-                
-                await testForErrorAsync('ClassModel.walkInstance()', expectedErrorMessage, async () => {
-                    return SingularRelationshipClass.walkInstance(instanceOfSingularRelationshipClassA, 'booleans');
-                });
-            });
-
-            it('ClassModel.walkInstance() called with third argument that is not an object.', async () => {
-                let expectedErrorMessage = 'SingularRelationshipClass.walkInstance(): Third argument needs to be an object.';
-                
-                await testForErrorAsync('ClassModel.walkInstance()', expectedErrorMessage, async () => {
-                    return SingularRelationshipClass.walkInstance(instanceOfSingularRelationshipClassA, 'singularRelationship', '{type: notAnObject}');
-                });
-            });
-
-        });
-
-        describe('Test walking the relationships.', () => {
-
-            it('Walking a singular relationship.', async () => {
-                const expectedInstance = instanceOfNonSingularRelationshipClass;
-                const instance = await SingularRelationshipClass.walkInstance(instanceOfSingularRelationshipClassA, 'singularRelationship');
-
-                if (!instance)
-                    throw new Error('walkInstance() did not return anything.');
-
-                if (!expectedInstance.equals(instance))
-                    throw new Error('walkInstance() did not return the correct instance.');
-            });
-
-            it('Walking a nonsingular relationship.', async () => {
-                const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
-                    instanceOfSingularRelationshipClassA,
-                    instanceOfSingularRelationshipClassB
-                ]);
-                const instanceSet = await NonSingularRelationshipClass.walkInstance(instanceOfNonSingularRelationshipClass, 'nonSingularRelationship');
-
-                if (!expectedInstanceSet.equals(instanceSet))
-                    throw new Error('walkInstance() did not return the correct instances.');
-            });
-
-            it('Walking a singular relationship by calling walkInstance() from the super class.', async () => {
-                const expectedInstance = instanceOfSubClassOfNonSingularRelationshipClass;
-                const instance = await SingularRelationshipClass.walkInstance(instanceOfSubClassOfSingularRelationshipClassA, 'singularRelationship');
-
-                if (!instance)
-                    throw new Error('walkInstance() did not return anything.');
-
-                if (!expectedInstance.equals(instance))
-                    throw new Error('walkInstance() did not return the correct instance.');
-            });
-
-            it('Walking a nonsingular relationship by calling walkInstance() from the super class.', async () => {
-                const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
-                    instanceOfSubClassOfSingularRelationshipClassA,
-                    instanceOfSubClassOfSingularRelationshipClassB
-                ]);
-                const instanceSet = await NonSingularRelationshipClass.walkInstance(instanceOfSubClassOfNonSingularRelationshipClass, 'nonSingularRelationship');
-
-                if (!expectedInstanceSet.equals(instanceSet))
-                    throw new Error('walkInstance() did not return the correct instances.');
-            });
-
-            it('Walking a nonsingular relationship by calling walkInstance() from the super class with a filter.', async () => {
-                const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
-                    instanceOfSubClassOfSingularRelationshipClassA,
-                ]);
-                const filter = { boolean: true };
-
-                const instanceSet = await NonSingularRelationshipClass.walkInstance(instanceOfSubClassOfNonSingularRelationshipClass, 'nonSingularRelationship', filter);
-
-                if (!expectedInstanceSet.equals(instanceSet))
-                    throw new Error('walkInstance() did not return the correct instances.');
-            });
-
-        });
-
-    });
-
     describe('ClassModel.walkInstanceSet()', () => {
 
         // Create instances for tests.
@@ -1720,7 +1542,7 @@ describe('Class Model Tests', () => {
 
     });
 
-    describe('ClassModel.accessControlFilterInstance()', () => {
+    describe('ClassModel.accessControlFilter()', () => {
 
         // Set up accessControlled Instances
         // For each class, create on instance which will pass all access control filters, and one each that will fail due to one of the access control methods
@@ -1856,16 +1678,16 @@ describe('Class Model Tests', () => {
         describe('Tests for invalid arguments.', () => {
 
             it('First argument must be an InstanceSet.', async () => {
-                let expectedErrorMessage = 'Incorrect parameters. ' + AccessControlledSuperClass.className + '.accessControlFilterInstance(InstanceSet instanceSet, ...accessControlMethodParameters)';
-                await testForErrorAsync('ClassModel.accessControlFilterInstance()', expectedErrorMessage, async () => {
-                    return AccessControlledSuperClass.accessControlFilterInstance();
+                let expectedErrorMessage = 'Incorrect parameters. ' + AccessControlledSuperClass.className + '.accessControlFilter(InstanceSet instanceSet, ...accessControlMethodParameters)';
+                await testForErrorAsync('ClassModel.accessControlFilter()', expectedErrorMessage, async () => {
+                    return AccessControlledSuperClass.accessControlFilter();
                 })
             });
 
             it('First argument must be an InstanceSet.', async () => {
-                let expectedErrorMessage = 'Incorrect parameters. ' + AccessControlledSuperClass.className + '.accessControlFilterInstance(InstanceSet instanceSet, ...accessControlMethodParameters)';
-                await testForErrorAsync('ClassModel.accessControlFilterInstance()', expectedErrorMessage, async () => {
-                    return AccessControlledSuperClass.accessControlFilterInstance({ some: 'object' });
+                let expectedErrorMessage = 'Incorrect parameters. ' + AccessControlledSuperClass.className + '.accessControlFilter(InstanceSet instanceSet, ...accessControlMethodParameters)';
+                await testForErrorAsync('ClassModel.accessControlFilter()', expectedErrorMessage, async () => {
+                    return AccessControlledSuperClass.accessControlFilter({ some: 'object' });
                 })
             });
 
@@ -1873,7 +1695,7 @@ describe('Class Model Tests', () => {
 
         describe('Test filtering out instances that don\'t pass access control check.', () => {
 
-            describe('AccessControlledSuperClass.accessControlFilterInstance()', () => {
+            describe('AccessControlledSuperClass.accessControlFilter()', () => {
 
                 it('Access Control Filter called on Class with only direct instances of Class.', async () => {
                     const classModel = AccessControlledSuperClass;
@@ -1885,10 +1707,10 @@ describe('Class Model Tests', () => {
                         instanceOfAccessControlledSuperClassPasses
                     ]);
 
-                    const filteredInstanceSet = await classModel.accessControlFilterInstance(instanceSet);
+                    const filteredInstanceSet = await classModel.accessControlFilter(instanceSet);
                     
                     if (!expectedInstanceSet.equals(filteredInstanceSet))
-                        throw new Error('classModel.accessControlFilterInstance() did not return the expected InstanceSet.');
+                        throw new Error('classModel.accessControlFilter() did not return the expected InstanceSet.');
                 });
 
                 it('Access Control Filter called on Class with instances of class and sub class.', async () => {
@@ -1905,10 +1727,10 @@ describe('Class Model Tests', () => {
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses
                     ]);
 
-                    const filteredInstanceSet = await classModel.accessControlFilterInstance(instanceSet);
+                    const filteredInstanceSet = await classModel.accessControlFilter(instanceSet);
                     
                     if (!expectedInstanceSet.equals(filteredInstanceSet))
-                        throw new Error('classModel.accessControlFilterInstance() did not return the expected InstanceSet.');
+                        throw new Error('classModel.accessControlFilter() did not return the expected InstanceSet.');
                 });
 
                 it('Access Control Filter called on Class with instances of class and 2 layers of sub classes.', async () => {
@@ -1930,10 +1752,10 @@ describe('Class Model Tests', () => {
                         instanceOfAccessControlledDiscriminatedSuperClassPasses
                     ]);
 
-                    const filteredInstanceSet = await classModel.accessControlFilterInstance(instanceSet);
+                    const filteredInstanceSet = await classModel.accessControlFilter(instanceSet);
                     
                     if (!expectedInstanceSet.equals(filteredInstanceSet))
-                        throw new Error('classModel.accessControlFilterInstance() did not return the expected InstanceSet.');
+                        throw new Error('classModel.accessControlFilter() did not return the expected InstanceSet.');
                 });
 
                 it('Access Control Filter called on Class with instances of 3 layers of sub classes.', async () => {
@@ -1961,15 +1783,15 @@ describe('Class Model Tests', () => {
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses
                     ]);
 
-                    const filteredInstanceSet = await classModel.accessControlFilterInstance(instanceSet);
+                    const filteredInstanceSet = await classModel.accessControlFilter(instanceSet);
                     
                     if (!expectedInstanceSet.equals(filteredInstanceSet))
-                        throw new Error('classModel.accessControlFilterInstance() did not return the expected InstanceSet.');
+                        throw new Error('classModel.accessControlFilter() did not return the expected InstanceSet.');
                 });
 
             });
 
-            describe('AccessControlledSubClassOfAccessControlledSuperClass.accessControlFilterInstance()', () => {
+            describe('AccessControlledSubClassOfAccessControlledSuperClass.accessControlFilter()', () => {
 
                 it('Access Control Filter called on Class with only direct instances of Class.', async () => {
                     const classModel = AccessControlledSubClassOfAccessControlledSuperClass;
@@ -1982,10 +1804,10 @@ describe('Class Model Tests', () => {
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses
                     ]);
 
-                    const filteredInstanceSet = await classModel.accessControlFilterInstance(instanceSet);
+                    const filteredInstanceSet = await classModel.accessControlFilter(instanceSet);
                     
                     if (!expectedInstanceSet.equals(filteredInstanceSet))
-                        throw new Error('classModel.accessControlFilterInstance() did not return the expected InstanceSet.');
+                        throw new Error('classModel.accessControlFilter() did not return the expected InstanceSet.');
                 });
 
                 it('Access Control Filter called on Class with instances of class and 1 layers of sub classes.', async () => {
@@ -2004,10 +1826,10 @@ describe('Class Model Tests', () => {
                         instanceOfAccessControlledDiscriminatedSuperClassPasses
                     ]);
 
-                    const filteredInstanceSet = await classModel.accessControlFilterInstance(instanceSet);
+                    const filteredInstanceSet = await classModel.accessControlFilter(instanceSet);
                     
                     if (!expectedInstanceSet.equals(filteredInstanceSet))
-                        throw new Error('classModel.accessControlFilterInstance() did not return the expected InstanceSet.');
+                        throw new Error('classModel.accessControlFilter() did not return the expected InstanceSet.');
                 });
 
                 it('Access Control Filter called on Class with instances of 2 layers of sub classes.', async () => {
@@ -2032,15 +1854,15 @@ describe('Class Model Tests', () => {
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses
                     ]);
 
-                    const filteredInstanceSet = await classModel.accessControlFilterInstance(instanceSet);
+                    const filteredInstanceSet = await classModel.accessControlFilter(instanceSet);
                     
                     if (!expectedInstanceSet.equals(filteredInstanceSet))
-                        throw new Error('classModel.accessControlFilterInstance() did not return the expected InstanceSet.');
+                        throw new Error('classModel.accessControlFilter() did not return the expected InstanceSet.');
                 });
 
             });
 
-            describe('AccessControlledDiscriminatedSuperClass.accessControlFilterInstance()', () => {
+            describe('AccessControlledDiscriminatedSuperClass.accessControlFilter()', () => {
 
                 it('Access Control Filter called on Class with only direct instances of Class.', async () => {
                     const classModel = AccessControlledDiscriminatedSuperClass;
@@ -2054,10 +1876,10 @@ describe('Class Model Tests', () => {
                         instanceOfAccessControlledDiscriminatedSuperClassPasses
                     ]);
 
-                    const filteredInstanceSet = await classModel.accessControlFilterInstance(instanceSet);
+                    const filteredInstanceSet = await classModel.accessControlFilter(instanceSet);
                     
                     if (!expectedInstanceSet.equals(filteredInstanceSet))
-                        throw new Error('classModel.accessControlFilterInstance() did not return the expected InstanceSet.');
+                        throw new Error('classModel.accessControlFilter() did not return the expected InstanceSet.');
                 });
 
                 it('Access Control Filter called on Class with instances of 1 layers of sub classes.', async () => {
@@ -2078,15 +1900,15 @@ describe('Class Model Tests', () => {
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses
                     ]);
 
-                    const filteredInstanceSet = await classModel.accessControlFilterInstance(instanceSet);
+                    const filteredInstanceSet = await classModel.accessControlFilter(instanceSet);
                     
                     if (!expectedInstanceSet.equals(filteredInstanceSet))
-                        throw new Error('classModel.accessControlFilterInstance() did not return the expected InstanceSet.');
+                        throw new Error('classModel.accessControlFilter() did not return the expected InstanceSet.');
                 });
 
             });
 
-            describe('AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.accessControlFilterInstance()', () => {
+            describe('AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.accessControlFilter()', () => {
 
                 it('Access Control Filter called on Class with only direct instances of Class.', async () => {
                     const classModel = AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass;
@@ -2101,15 +1923,15 @@ describe('Class Model Tests', () => {
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses
                     ]);
 
-                    const filteredInstanceSet = await classModel.accessControlFilterInstance(instanceSet);
+                    const filteredInstanceSet = await classModel.accessControlFilter(instanceSet);
                     
                     if (!expectedInstanceSet.equals(filteredInstanceSet))
-                        throw new Error('classModel.accessControlFilterInstance() did not return the expected InstanceSet.');
+                        throw new Error('classModel.accessControlFilter() did not return the expected InstanceSet.');
                 });
 
             });
 
-            describe('AccessControlledClassAccessControlledByParameters.accessControlFilterInstance()', () => {
+            describe('AccessControlledClassAccessControlledByParameters.accessControlFilter()', () => {
 
                 it('Instance passes access control check', async () => {
                     const classModel = AccessControlledClassAccessControlledByParameters;
@@ -2121,10 +1943,10 @@ describe('Class Model Tests', () => {
                     ]);
                     const parameters = [1, 1, true];
 
-                    const filteredInstanceSet = await classModel.accessControlFilterInstance(instanceSet, ...parameters);
+                    const filteredInstanceSet = await classModel.accessControlFilter(instanceSet, ...parameters);
                     
                     if (!expectedInstanceSet.equals(filteredInstanceSet))
-                        throw new Error('classModel.accessControlFilterInstance() did not return the expected InstanceSet.');
+                        throw new Error('classModel.accessControlFilter() did not return the expected InstanceSet.');
                 });
 
                 it('Instance fails access control check because of Numbers.', async () => {
@@ -2135,10 +1957,10 @@ describe('Class Model Tests', () => {
                     const expectedInstanceSet = new InstanceSet(classModel);
                     const parameters = [-2, 1, true];
 
-                    const filteredInstanceSet = await classModel.accessControlFilterInstance(instanceSet, ...parameters);
+                    const filteredInstanceSet = await classModel.accessControlFilter(instanceSet, ...parameters);
                     
                     if (!expectedInstanceSet.equals(filteredInstanceSet))
-                        throw new Error('classModel.accessControlFilterInstance() did not return the expected InstanceSet.');
+                        throw new Error('classModel.accessControlFilter() did not return the expected InstanceSet.');
                 });
 
                 it('Instance fails access control check because of Boolean.', async () => {
@@ -2149,10 +1971,10 @@ describe('Class Model Tests', () => {
                     const expectedInstanceSet = new InstanceSet(classModel);
                     const parameters = [1, 1, false];
 
-                    const filteredInstanceSet = await classModel.accessControlFilterInstance(instanceSet, ...parameters);
+                    const filteredInstanceSet = await classModel.accessControlFilter(instanceSet, ...parameters);
                     
                     if (!expectedInstanceSet.equals(filteredInstanceSet))
-                        throw new Error('classModel.accessControlFilterInstance() did not return the expected InstanceSet.');
+                        throw new Error('classModel.accessControlFilter() did not return the expected InstanceSet.');
                 });
 
             });
@@ -2509,16 +2331,16 @@ describe('Class Model Tests', () => {
 
             it('First Argument must be an InstanceSet', async () => {
                 let updatable;
-                const expectedErrorMessage = 'Incorrect parameters. ' + UpdateControlledSuperClass.className + '.updateControlCheckInstanceSet(InstanceSet instanceSet, ...updateControlMethodParameters)';
+                const expectedErrorMessage = 'Incorrect parameters. ' + UpdateControlledSuperClass.className + '.updateControlCheckSet(InstanceSet instanceSet, ...updateControlMethodParameters)';
                 const instanceSet = new InstanceSet(UpdateControlledSuperClass, [instanceOfUpdateControlledSuperClassPasses, instanceOfUpdateControlledSuperClassPasses]);
 
                 try {
-                    updatable = await UpdateControlledSuperClass.updateControlCheckInstanceSet(instanceOfUpdateControlledSuperClassPasses);
+                    updatable = await UpdateControlledSuperClass.updateControlCheckSet(instanceOfUpdateControlledSuperClassPasses);
                 }
                 catch (error) {
                     if (error.message != expectedErrorMessage) {
                         throw  new Error(
-                            'updateControlCheckInstanceSet() threw an unexpected error.\n' + 
+                            'updateControlCheckSet() threw an unexpected error.\n' + 
                             'Expected: ' + expectedErrorMessage + '\n' + 
                             'Actual:   ' + error.message
                         );
@@ -2526,14 +2348,14 @@ describe('Class Model Tests', () => {
                 }
 
                 if (updatable)
-                    throw new Error ('ClassModel.updateControlCheckInstanceSet() returned when it should have thrown an error.');
+                    throw new Error ('ClassModel.updateControlCheckSet() returned when it should have thrown an error.');
             });
 
         });
 
         describe('Test Update Control Check throws error when an instance doesn\'t pass check.', () => {
 
-            describe('UpdateControlledSuperClass.updateControlCheckInstanceSet()', () => {
+            describe('UpdateControlledSuperClass.updateControlCheckSet()', () => {
 
                 it('Update Control Check called on Class with only direct instances of Class.', async () => {
                     const instanceSet = new InstanceSet(UpdateControlledSuperClass, [
@@ -2543,8 +2365,8 @@ describe('Class Model Tests', () => {
                     const instancesExpectedToFail = new InstanceSet(UpdateControlledSuperClass, [instanceOfUpdateControlledSuperClassFailsRelationship]);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    await testForErrorAsync('ClassModel.updateControlCheckInstanceSet', expectedErrorMessage, async () => {
-                        return  UpdateControlledSuperClass.updateControlCheckInstanceSet(instanceSet);
+                    await testForErrorAsync('ClassModel.updateControlCheckSet', expectedErrorMessage, async () => {
+                        return  UpdateControlledSuperClass.updateControlCheckSet(instanceSet);
                     });
                 });
 
@@ -2563,8 +2385,8 @@ describe('Class Model Tests', () => {
                     ]);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    await testForErrorAsync('ClassModel.updateControlCheckInstanceSet', expectedErrorMessage, async () => {
-                        return  UpdateControlledSuperClass.updateControlCheckInstanceSet(instanceSet);
+                    await testForErrorAsync('ClassModel.updateControlCheckSet', expectedErrorMessage, async () => {
+                        return  UpdateControlledSuperClass.updateControlCheckSet(instanceSet);
                     });
                 });
 
@@ -2599,14 +2421,14 @@ describe('Class Model Tests', () => {
                     ]);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    await testForErrorAsync('ClassModel.updateControlCheckInstanceSet', expectedErrorMessage, async () => {
-                        return  UpdateControlledSuperClass.updateControlCheckInstanceSet(instanceSet);
+                    await testForErrorAsync('ClassModel.updateControlCheckSet', expectedErrorMessage, async () => {
+                        return  UpdateControlledSuperClass.updateControlCheckSet(instanceSet);
                     });
                 });
 
             });
 
-            describe('UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckInstanceSet()', () => {
+            describe('UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckSet()', () => {
 
                 it('Update Control Check called on Class with only direct instances of Class.', async () => {
                     const instanceSet = new InstanceSet(UpdateControlledSuperClass, [
@@ -2620,8 +2442,8 @@ describe('Class Model Tests', () => {
                     ]);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    await testForErrorAsync('ClassModel.updateControlCheckInstanceSet', expectedErrorMessage, async () => {
-                        return  UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckInstanceSet(instanceSet);
+                    await testForErrorAsync('ClassModel.updateControlCheckSet', expectedErrorMessage, async () => {
+                        return  UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckSet(instanceSet);
                     });
                 });
 
@@ -2644,8 +2466,8 @@ describe('Class Model Tests', () => {
                     ]);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    await testForErrorAsync('ClassModel.updateControlCheckInstanceSet', expectedErrorMessage, async () => {
-                        return  UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckInstanceSet(instanceSet);
+                    await testForErrorAsync('ClassModel.updateControlCheckSet', expectedErrorMessage, async () => {
+                        return  UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckSet(instanceSet);
                     });
                 });
 
@@ -2677,14 +2499,14 @@ describe('Class Model Tests', () => {
                     ]);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    await testForErrorAsync('ClassModel.updateControlCheckInstanceSet', expectedErrorMessage, async () => {
-                        return  UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckInstanceSet(instanceSet);
+                    await testForErrorAsync('ClassModel.updateControlCheckSet', expectedErrorMessage, async () => {
+                        return  UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckSet(instanceSet);
                     });
                 });
 
             });
 
-            describe('UpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet()', () => {
+            describe('UpdateControlledDiscriminatedSuperClass.updateControlCheckSet()', () => {
 
                 it('Update Control Check called on Class with only direct instances of Class.', async () => {
                     const instanceSet = new InstanceSet(UpdateControlledSuperClass, [
@@ -2700,8 +2522,8 @@ describe('Class Model Tests', () => {
                     ]);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    await testForErrorAsync('ClassModel.updateControlCheckInstanceSet', expectedErrorMessage, async () => {
-                        return  UpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet(instanceSet);
+                    await testForErrorAsync('ClassModel.updateControlCheckSet', expectedErrorMessage, async () => {
+                        return  UpdateControlledDiscriminatedSuperClass.updateControlCheckSet(instanceSet);
                     });
                 });
 
@@ -2728,14 +2550,14 @@ describe('Class Model Tests', () => {
                     ]);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    await testForErrorAsync('ClassModel.updateControlCheckInstanceSet', expectedErrorMessage, async () => {
-                        return  UpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet(instanceSet);
+                    await testForErrorAsync('ClassModel.updateControlCheckSet', expectedErrorMessage, async () => {
+                        return  UpdateControlledDiscriminatedSuperClass.updateControlCheckSet(instanceSet);
                     });
                 });
 
             });
 
-            describe('UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet()', () => {
+            describe('UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.updateControlCheckSet()', () => {
 
                 it('Update Control Check called on Class with only direct instances of Class.', async () => {
                     const instanceSet = new InstanceSet(UpdateControlledSuperClass, [
@@ -2753,18 +2575,18 @@ describe('Class Model Tests', () => {
                     ]);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    await testForErrorAsync('ClassModel.updateControlCheckInstanceSet', expectedErrorMessage, async () => {
-                        return  UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.updateControlCheckInstanceSet(instanceSet);
+                    await testForErrorAsync('ClassModel.updateControlCheckSet', expectedErrorMessage, async () => {
+                        return  UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.updateControlCheckSet(instanceSet);
                     });
                 });
 
             });
 
-            describe('UpdateControlledClassUpdateControlledByParameters.updateControlCheckInstanceSet()', () => {
+            describe('UpdateControlledClassUpdateControlledByParameters.updateControlCheckSet()', () => {
 
                 it('Update Control Check passes', async () => {
                     const instanceSet = new InstanceSet(UpdateControlledClassUpdateControlledByParameters, [instanceOfUpdateControlledClassUpdateControlledByParameters]);
-                    const updateAllowed = await UpdateControlledClassUpdateControlledByParameters.updateControlCheckInstanceSet(instanceSet, 1, 1, true);
+                    const updateAllowed = await UpdateControlledClassUpdateControlledByParameters.updateControlCheckSet(instanceSet, 1, 1, true);
                     
                     if (!updateAllowed) {
                         throw new Error('Update check passed when it should have thrown an error.');
@@ -2778,8 +2600,8 @@ describe('Class Model Tests', () => {
                     const instancesExpectedToFail = new InstanceSet(UpdateControlledClassUpdateControlledByParameters, [instanceOfUpdateControlledClassUpdateControlledByParameters]);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    await testForErrorAsync('ClassModel.updateControlCheckInstanceSet', expectedErrorMessage, async () => {
-                        return  UpdateControlledClassUpdateControlledByParameters.updateControlCheckInstanceSet(instanceSet, -2, 1, true);
+                    await testForErrorAsync('ClassModel.updateControlCheckSet', expectedErrorMessage, async () => {
+                        return  UpdateControlledClassUpdateControlledByParameters.updateControlCheckSet(instanceSet, -2, 1, true);
                     });
                 });
 
@@ -2790,8 +2612,8 @@ describe('Class Model Tests', () => {
                     const instancesExpectedToFail = new InstanceSet(UpdateControlledClassUpdateControlledByParameters, [instanceOfUpdateControlledClassUpdateControlledByParameters]);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    await testForErrorAsync('ClassModel.updateControlCheckInstanceSet', expectedErrorMessage, async () => {
-                        return  UpdateControlledClassUpdateControlledByParameters.updateControlCheckInstanceSet(instanceSet, 1, 1, false);
+                    await testForErrorAsync('ClassModel.updateControlCheckSet', expectedErrorMessage, async () => {
+                        return  UpdateControlledClassUpdateControlledByParameters.updateControlCheckSet(instanceSet, 1, 1, false);
                     });
                 });
 
