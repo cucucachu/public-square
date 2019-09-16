@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const ClassModel = require('../dist/models/ClassModel');
-const SuperSet = require('../dist/models/SuperSet');
 const InstanceSet = require('../dist/models/InstanceSet');
 const Instance = require('../dist/models/Instance');
 const database = require('../dist/models/database');
@@ -54,6 +53,8 @@ const testForErrorAsync = TestingFunctions.testForErrorAsync;
     var AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass = TestClassModels.AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass;
     var ClassControlsAccessControlledSuperClass = TestClassModels.ClassControlsAccessControlledSuperClass;
     var AccessControlledClassAccessControlledByParameters = TestClassModels.AccessControlledClassAccessControlledByParameters;
+    var SingularRelationshipToAccessControlledClassAccessControlledByParameters = TestClassModels.SingularRelationshipToAccessControlledClassAccessControlledByParameters;
+    var NonSingularRelationshipToAccessControlledClassAccessControlledByParameters = TestClassModels.NonSingularRelationshipToAccessControlledClassAccessControlledByParameters;
 
     // UpdateControlled Classes
     var UpdateControlledSuperClass = TestClassModels.UpdateControlledSuperClass;
@@ -1445,6 +1446,7 @@ describe('Class Model Tests', () => {
             await AccessControlledSubClassOfAccessControlledSuperClass.clear();
             await AccessControlledDiscriminatedSuperClass.clear();
             await AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.clear();
+            await AccessControlledClassAccessControlledByParameters.clear();
         });
 
         describe('Tests for invalid arguments.', () => {
@@ -1940,6 +1942,145 @@ describe('Class Model Tests', () => {
                     if (!expectedInstances.equals(instancesFound)) 
                         throw new Error('find did not filter instances correctly.')
 
+                });
+
+            });
+
+        });
+
+        describe('Test walk methods for access filtering.', () => {
+
+            describe('instance.walk() uses access filtering.', () => {
+
+                it('Test walking a singular relationship. Passes access control filter.', async() => {
+                    const instance = new Instance(SingularRelationshipToAccessControlledClassAccessControlledByParameters);
+                    const relatedInstance = new Instance(AccessControlledClassAccessControlledByParameters);
+                    const parameters = [1, 1, true];
+                    await relatedInstance.save();
+                    instance.singularRelationship = relatedInstance.id;
+
+                    const instanceFound = await instance.walk('singularRelationship', {}, ...parameters);
+
+                    if (!instanceFound) 
+                        throw new Error('walk() did not return the isntance.');
+
+                    if (!relatedInstance.equals(instanceFound))
+                        throw new Error('Instance returned by walk was not what was expected.');
+                });
+
+                it('Test walking a non-singular relationship. Passes access control filter.', async() => {
+                    const instance = new Instance(NonSingularRelationshipToAccessControlledClassAccessControlledByParameters);
+                    const relatedInstanceSet = new InstanceSet(AccessControlledClassAccessControlledByParameters, [
+                        new Instance(AccessControlledClassAccessControlledByParameters),
+                        new Instance(AccessControlledClassAccessControlledByParameters),
+                    ])
+                    const parameters = [1, 1, true];
+                    await relatedInstanceSet.save();
+                    instance.nonSingularRelationship = relatedInstanceSet.getInstanceIds();
+
+                    const instancesFound = await instance.walk('nonSingularRelationship', {}, ...parameters);
+
+                    if (!relatedInstanceSet.equals(instancesFound))
+                        throw new Error('Instances returned by walk() are not the expected instances.');
+
+                });
+
+                it('Test walking a singular relationship. Does not pass access control filter.', async() => {
+                    const instance = new Instance(SingularRelationshipToAccessControlledClassAccessControlledByParameters);
+                    const relatedInstance = new Instance(AccessControlledClassAccessControlledByParameters);
+                    const parameters = [1, 1, false];
+                    await relatedInstance.save();
+                    instance.singularRelationship = relatedInstance.id;
+
+                    const instanceFound = await instance.walk('singularRelationship', {}, ...parameters);
+
+                    if (instanceFound)
+                        throw new Error('walk() returned an instance when it should have been filtered out.');
+
+                });
+
+                it('Test walking a non-singular relationship. Instances do not pass access control filter.', async() => {
+                    const instance = new Instance(NonSingularRelationshipToAccessControlledClassAccessControlledByParameters);
+                    const relatedInstanceSet = new InstanceSet(AccessControlledClassAccessControlledByParameters, [
+                        new Instance(AccessControlledClassAccessControlledByParameters),
+                        new Instance(AccessControlledClassAccessControlledByParameters),
+                    ])
+                    const parameters = [1, 1, false];
+                    await relatedInstanceSet.save();
+                    instance.nonSingularRelationship = relatedInstanceSet.getInstanceIds();
+
+                    const instancesFound = await instance.walk('nonSingularRelationship', {}, ...parameters);
+
+                    if (!instancesFound.isEmpty()) 
+                        throw new Error('walk() returned instances when it shouldn\'t have.');
+
+                });
+
+            });
+
+            describe('instanceSet.walk() uses access filtering.', () => {
+
+                it('Test walking a singular relationship. Passes access control filter.', async() => {
+                    const instance = new Instance(SingularRelationshipToAccessControlledClassAccessControlledByParameters);
+                    const instanceSet = new InstanceSet(SingularRelationshipToAccessControlledClassAccessControlledByParameters, [instance]);
+                    const relatedInstance = new Instance(AccessControlledClassAccessControlledByParameters);
+                    const relatedInstanceSet = new InstanceSet(AccessControlledClassAccessControlledByParameters, [relatedInstance]);
+                    const parameters = [1, 1, true];
+                    await relatedInstance.save();
+                    instance.singularRelationship = relatedInstance.id;
+
+                    const instancesFound = await instanceSet.walk('singularRelationship', {}, ...parameters);
+
+                    if (!relatedInstanceSet.equals(instancesFound))
+                        throw new Error('Instances returned by walk() are not the expected instances.');
+                });
+
+                it('Test walking a non-singular relationship. Passes access control filter.', async() => {
+                    const instance = new Instance(NonSingularRelationshipToAccessControlledClassAccessControlledByParameters);
+                    const instanceSet = new InstanceSet(NonSingularRelationshipToAccessControlledClassAccessControlledByParameters, [instance]);
+                    const relatedInstanceSet = new InstanceSet(AccessControlledClassAccessControlledByParameters, [
+                        new Instance(AccessControlledClassAccessControlledByParameters),
+                        new Instance(AccessControlledClassAccessControlledByParameters),
+                    ]);
+                    const parameters = [1, 1, true];
+                    await relatedInstanceSet.save();
+                    instance.nonSingularRelationship = relatedInstanceSet.getInstanceIds();
+
+                    const instancesFound = await instanceSet.walk('nonSingularRelationship', {}, ...parameters);
+
+                    if (!relatedInstanceSet.equals(instancesFound))
+                        throw new Error('Instances returned by walk() are not the expected instances.');
+                });
+
+                it('Test walking a singular relationship. Does not pass access control filter.', async() => {
+                    const instance = new Instance(SingularRelationshipToAccessControlledClassAccessControlledByParameters);
+                    const instanceSet = new InstanceSet(SingularRelationshipToAccessControlledClassAccessControlledByParameters, [instance]);
+                    const relatedInstance = new Instance(AccessControlledClassAccessControlledByParameters);
+                    const parameters = [1, 1, false];
+                    await relatedInstance.save();
+                    instance.singularRelationship = relatedInstance.id;
+
+                    const instancesFound = await instanceSet.walk('singularRelationship', {}, ...parameters);
+
+                    if (!instancesFound.isEmpty()) 
+                        throw new Error('walk() returned instances when it shouldn\'t have.');
+                });
+
+                it('Test walking a non-singular relationship. Instances do not pass access control filter.', async() => {
+                    const instance = new Instance(NonSingularRelationshipToAccessControlledClassAccessControlledByParameters);
+                    const instanceSet = new InstanceSet(NonSingularRelationshipToAccessControlledClassAccessControlledByParameters, [instance]);
+                    const relatedInstanceSet = new InstanceSet(AccessControlledClassAccessControlledByParameters, [
+                        new Instance(AccessControlledClassAccessControlledByParameters),
+                        new Instance(AccessControlledClassAccessControlledByParameters),
+                    ]);
+                    const parameters = [1, 1, false];
+                    await relatedInstanceSet.save();
+                    instance.nonSingularRelationship = relatedInstanceSet.getInstanceIds();
+
+                    const instancesFound = await instanceSet.walk('nonSingularRelationship', {}, ...parameters);
+
+                    if (!instancesFound.isEmpty()) 
+                        throw new Error('walk() returned instances when it shouldn\'t have.');
                 });
 
             });

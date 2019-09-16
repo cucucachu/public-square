@@ -1,4 +1,3 @@
-
 require('@babel/polyfill');
 const mongoose = require('mongoose');
 const doc = Symbol('document');
@@ -195,7 +194,14 @@ class Instance {
         return this[key] ? true : false;
     }
 
-    // Throws an error if multiple propertys with the same mutex have a value.
+    // Validations
+    validate() {
+        this.requiredValidation();
+        this.requiredGroupValidation();
+        this.mutexValidation();
+        this[doc].validateSync();
+    }
+
     mutexValidation() {
         let muti = [];
         let violations = [];
@@ -221,12 +227,6 @@ class Instance {
             throw new Error(message);
         }
     }
-
-    /*
-     * Mongoose's built in requirement validation does not cover some use cases, so this method fills in the gaps.
-     * This method considers a boolean 'false' value as not set, and an empty array as not set. All other required validations
-     * are left to the built in mongoose validation. 
-     */
 
     requiredValidation() {
         let message = '';
@@ -271,13 +271,6 @@ class Instance {
 
             throw new Error(message);
         }
-    }
-
-    validate() {
-        this.requiredValidation();
-        this.requiredGroupValidation();
-        this.mutexValidation();
-        this[doc].validateSync();
     }
 
     // Update and Delete Methods Methods

@@ -659,6 +659,36 @@ const Instance = require('../dist/models/Instance');
             },
             schema: {}
         });
+
+        var SingularRelationshipToAccessControlledClassAccessControlledByParameters = new ClassModel({
+            className: 'SingularRelationshipToAccessControlledClassAccessControlledByParameters',
+            accessControlled: false,
+            updateControlled: false,
+            schema: {
+                name: {
+                    type: String
+                },
+                singularRelationship: {
+                    type: Schema.Types.ObjectId,
+                    ref: 'AccessControlledClassAccessControlledByParameters'
+                }
+            }
+        });
+
+        var NonSingularRelationshipToAccessControlledClassAccessControlledByParameters = new ClassModel({
+            className: 'NonSingularRelationshipToAccessControlledClassAccessControlledByParameters',
+            accessControlled: false,
+            updateControlled: false,
+            schema: {
+                name: {
+                    type: String
+                },
+                nonSingularRelationship: {
+                    type: [Schema.Types.ObjectId],
+                    ref: 'AccessControlledClassAccessControlledByParameters'
+                }
+            }
+        });
     }
 
     // UpdateControlled Classes
@@ -794,6 +824,8 @@ module.exports = {
     AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass,
     ClassControlsAccessControlledSuperClass,
     AccessControlledClassAccessControlledByParameters,
+    SingularRelationshipToAccessControlledClassAccessControlledByParameters,
+    NonSingularRelationshipToAccessControlledClassAccessControlledByParameters,
     UpdateControlledSuperClass, 
     UpdateControlledSubClassOfUpdateControlledSuperClass,
     UpdateControlledDiscriminatedSuperClass,

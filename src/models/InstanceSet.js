@@ -197,10 +197,6 @@ class InstanceSet extends SuperSet {
         await Promise.all(promises);
     }
 
-    async walk(relationship, filter = null, ...accessControlMethodParameters) {
-        return this.walkInstanceSet(relationship, filter, ...accessControlMethodParameters)
-    }
-
     walkValidations(relationship, filter) {
         if (!relationship) 
             throw new Error('InstanceSet.walk() called without relationship.');
@@ -215,7 +211,7 @@ class InstanceSet extends SuperSet {
             throw new Error('InstanceSet.walk() filter argument must be an object.');
     }
 
-    async walkInstanceSet(relationship, filter = null, ...accessControlMethodParameters) {
+    async walk(relationship, filter=null, ...accessControlMethodParameters) {
         this.walkValidations(relationship, filter);
     
         const relatedClass = this.classModel.getRelatedClassModel(relationship);
@@ -238,7 +234,7 @@ class InstanceSet extends SuperSet {
                 .reduce((acc, cur) => acc.concat(cur));
         }
         instanceIdsToFind =  [...(new Set(instanceIdsToFind))];
-        
+
         Object.assign(filter, {
             _id: {$in : instanceIdsToFind},
         });
@@ -267,7 +263,7 @@ class InstanceSet extends SuperSet {
         if (!isntancesOfThisCollection.isEmpty()) {
             await this.classModel.Model.deleteMany({
                 _id: { $in: isntancesOfThisCollection.getInstanceIds() }
-            });
+            }).exec();
             isntancesOfThisCollection.forEach(instance => instance.deleted = true);
         }
         

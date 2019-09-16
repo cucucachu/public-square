@@ -180,18 +180,6 @@ class ClassModel {
         return this.className + '\n' + JSON.stringify(this.schema);
     }
 
-    // Helper Methods
-    isInstanceOfClassOrSubClass(instance) {
-        if (instance instanceof this.Model)
-            return true;
-                
-        for (let index in this.subClasses)
-            if (this.subClasses[index].isInstanceOfClassOrSubClass(instance)) 
-                return true;
-
-        return false;
-    }
-
     isInstanceOfThisClass(instance) {
         if (instance.classModel === this)
             return true;
@@ -207,10 +195,6 @@ class ClassModel {
         }
 
         return false;
-    }
-
-    static fieldIsARelationship(field) {
-        return field.type == Schema.Types.ObjectId || (Array.isArray(field.type) && field.type[0] == Schema.Types.ObjectId);
     }
 
     propertyIsARelationship(propertyName) {
@@ -241,22 +225,6 @@ class ClassModel {
         }
     }
 
-
-    /*
-     * Helper function for find
-     * Loops through promises one at a time and pushes the results to the results array.
-     */
-    static async allPromiseResultionsTrimmed(promises) {
-        let results = [];
-
-        for (var index in promises) {
-            let singleResult = await promises[index];
-            if (singleResult.length)
-                results = results.concat(await promises[index]);
-        }
-
-        return results;
-    }
     /*
      * Helper function for find
      * Loops through promises one at a time and pushes the results to the results array.
@@ -297,22 +265,14 @@ class ClassModel {
         return ((this.subClasses && this.subClasses.length) || this.discriminated)
     }
 
-    delete(instance) {
+    async delete(instance) {
         let classModel = this;
 
-        return new Promise((resolve, reject) => {
-            if (!(instance instanceof classModel.Model)) {
-                reject(new Error(classModel.className + '.delete() called on an instance of a different class.'));
-            }
-            else {
-                classModel.Model.deleteOne({_id: instance._id}, (error) => {
-                    if (error)
-                        reject(error);
-                    else 
-                        resolve();
-                });
-            }
-        });
+        if (!(instance instanceof classModel.Model))
+            reject(new Error(classModel.className + '.delete() called on an instance of a different class.'));
+
+
+        return classModel.Model.deleteOne({_id: instance._id}).exec()
     }
 
     // Query Methods
@@ -331,8 +291,6 @@ class ClassModel {
         const subClasses = this.subClasses;
         const className = this.className;
         const Model = this.Model;
-
-        //console.log(this.className + '.find() start');
 
         // If this class is a non-discriminated abstract class and it doesn't have any sub classes, throw an error.
         if (abstract && !isSuperClass)
@@ -400,7 +358,7 @@ class ClassModel {
             const documentFound = await Model.findOne(queryFilter).exec();
             if (!documentFound)
                 return null;
-            
+
             let instanceFound;
 
             if (!discriminated)
@@ -415,7 +373,7 @@ class ClassModel {
                 }
             }
 
-            const filteredInstance = this.accessControlFilterOne(instanceFound, ...accessControlMethodParameters)
+            const filteredInstance = await this.accessControlFilterOne(instanceFound, ...accessControlMethodParameters);
             return filteredInstance ? filteredInstance : null;
         }
         // If this is a non-discriminated super class, we may need to check this classmodel's collection as well,
@@ -429,7 +387,7 @@ class ClassModel {
                 if (documentFound) {
                     let instanceFound = new Instance(this, documentFound, true);
 
-                    const filteredInstance = this.accessControlFilterOne(instanceFound, ...accessControlMethodParameters)
+                    const filteredInstance = await this.accessControlFilterOne(instanceFound, ...accessControlMethodParameters)
                     return filteredInstance ? filteredInstance : null;
                 }
             }
@@ -636,66 +594,6 @@ class ClassModel {
         }
 
         return rejectedInstances;
-    }
-
-    // Comparison Methods
-    
-    // This is a member comparison, not an instance comparison. i.e. two separate instances can be equal if their members are equal.
-    compare(instance1, instance2) {
-        var match = true;
-        var message = '';
-        var schema = this.schema;
-        var className = this.className;
-
-        if (!instance1 && !instance2) {
-            return {
-                match: true,
-                message: 'Both instances are null.'
-            }
-        }
-        else if (!instance1) {
-            match = false;
-            message = 'First instance is null.';
-        }
-        else if (!instance2) {
-            match = false;
-            message = 'Second instance is null.';
-        }
-        else {
-            Object.keys(schema).forEach(function(key) {
-                if (key != '_id') {
-                    if (!Array.isArray(schema[key].type)) {
-                        if (instance1[key] != instance2[key]) {
-                            match = false;
-                            message += className + '.' + key + '\'s do not match.';
-                        }
-                    }
-                    else {
-                        if (instance1[key].length != instance2[key].length) {
-                            match = false;
-                            message += className + '.' + key + '\'s do not match.';
-                        }
-                        else {
-                            for (var i = 0; i < instance1[key].length; i++) {
-                                if (instance1[key][i] != instance2[key][i]) {
-                                    match = false;
-                                    message += className + '.' + key + '\'s do not match.';
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-    
-        if (match)
-            message = this.className + 's Match';
-    
-        return {
-            match: match, 
-            message: message
-        };
     }
 
     // Clear the collection. Never run in production! Only run in a test environment.
