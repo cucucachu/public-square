@@ -221,7 +221,7 @@ class ClassModel {
 
     static fieldIsARelationship(field) {
         return field.type == Schema.Types.ObjectId || (Array.isArray(field.type) && field.type[0] == Schema.Types.ObjectId);
-    } 
+    }
 
     /*
      * Helper function for findById and findOne
@@ -298,218 +298,6 @@ class ClassModel {
         return ((this.subClasses && this.subClasses.length) || this.discriminated)
     }
 
-    /*
-     * Defines what it means for a filed to be set. Valid values that count as 'set' are as follows:
-     * boolean: True
-     * number: Any value including 0.
-     * string: Any thing of type string, excluding an empty string.
-     * Array: Any array with a length greater than 0.
-     * Object/Relationship: Any Value
-     */
-    fieldIsSet(instance, key) {
-        let schema = this.schema;
-
-        if (Array.isArray(schema[key].type)) {
-            if (instance[key].length) {
-                return true;
-            }
-        }
-        else if (schema[key].type == Number) {
-            if (instance[key] || instance[key] == 0)
-                return true;
-        }
-        else if (schema[key].type == String) {
-            if (instance[key])
-                return true;
-        }
-        else {
-            if (instance[key]) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    // Validation Methods
-
-    // Throws an error if multiple fields with the same mutex have a value.
-    mutexValidation(instance) {
-        let muti = [];
-        let violations = [];
-        let message = '';
-        let valid = true;
-        let classModel = this;
-        let schema = classModel.schema;
-
-        Object.keys(schema).forEach(function(key) {
-            if (schema[key].mutex && classModel.fieldIsSet(instance, key)) {
-                    if (muti.includes(schema[key].mutex)) {
-                        violations.push(schema[key].mutex);
-                    }
-                    else {
-                        muti.push(schema[key].mutex);
-                    }
-                }
-        });
-
-        if (violations.length) {
-            valid = false;
-            message = 'Mutex violations found for instance ' + instance._id + '.';
-            Object.keys(schema).forEach(function(key) {
-                if (violations.includes(schema[key].mutex) && classModel.fieldIsSet(instance, key)) {
-                            message += ' Field ' + key + ' with mutex \'' + schema[key].mutex + '\'.'
-                }
-            });
-        }
-        return {
-            valid: valid,
-            message: message,
-        }
-    }
-
-    /*
-     * Mongoose's built in requirement validation does not cover some use cases, so this method fills in the gaps.
-     * This method considers a boolean 'false' value as not set, and an empty array as not set. All other required validations
-     * are left to the built in mongoose validation. 
-     */
-
-    requiredValidation(instance) {
-        let message = '';
-        let valid = true;
-        let schema = this.schema;
-        let classModel = this;
-
-        // Iterate through the schema to find required groups.
-        Object.keys(schema).forEach(function(key) {
-            if (schema[key].required) {
-                if (Array.isArray(schema[key].type) && !classModel.fieldIsSet(instance, key)) {
-                        if (valid) {
-                            valid = false;
-                        }
-                        //message += 'Field "' + key + '" is required, but its value is <' + instance[key] + '>. ';
-                        message += classModel.className + ' validation failed: ' + key + ': Path \`' + key + '\` is required.'
-                }
-                else if (schema[key].type == Boolean && instance[key] == false) {
-                    if (valid) {
-                        valid = false;
-                    }
-                    //message += 'Field "' + key + '" is required, but its value is <' + instance[key] + '>. ';
-                    message += classModel.className + ' validation failed: ' + key + ': Path \`' + key + '\` is required.'
-                }
-
-            }
-        });
-
-        return {
-            valid: valid,
-            message: message,
-        }
-
-    }
-
-    requiredGroupValidation(instance) {
-        let requiredGroups = [];
-        let message = '';
-        let valid = true;
-        let classModel = this;
-        let schema = classModel.schema;
-
-        // Iterate through the schema to find required groups.
-        Object.keys(schema).forEach(function(key) {
-            if (schema[key].requiredGroup && !requiredGroups.includes(schema[key].requiredGroup)) {
-                requiredGroups.push(schema[key].requiredGroup);
-            }
-        });
-
-        // Iterate through the instance members to check that at least one member for each required group is set.
-        Object.keys(schema).forEach(function(key) {
-            if (schema[key].requiredGroup && classModel.fieldIsSet(instance, key)) {
-                requiredGroups = requiredGroups.filter(function(value) { return value != schema[key].requiredGroup; });
-            }
-        });
-
-        if (requiredGroups.length) {
-            valid = false;
-            message = 'Required Group violations found for requirement group(s): ';
-            requiredGroups.forEach(function(requiredGroup) {
-                message += ' ' + requiredGroup;
-            });
-        }
-        return {
-            valid: valid,
-            message: message,
-        }
-        
-    }
-
-    validate(instance) {
-        let message = '';
-        let valid = true;
-        let numberOfMessages = 0;
-
-        let requiredFieldValidation = this.requiredValidation(instance);
-        let requiredGroupValidationResult = this.requiredGroupValidation(instance);
-        let mutexValidationResult = this.mutexValidation(instance);
-
-        if (requiredFieldValidation.valid == false) {
-            numberOfMessages++;
-            valid = false;
-            message += requiredFieldValidation.message;
-        }
-
-        if (requiredGroupValidationResult.valid == false) {
-            valid = false;
-            if (numberOfMessages) {
-                message += ' ';
-            }
-            numberOfMessages++;
-            message += requiredGroupValidationResult.message;
-        }
-
-        if (mutexValidationResult.valid == false) {
-            valid = false;
-            if (numberOfMessages) {
-                message += ' ';
-            }
-            numberOfMessages++;
-            message += mutexValidationResult.message;
-        }
-
-        let internalValidationError = instance.validateSync();
-
-        if (internalValidationError) {
-            valid = false;
-            if (numberOfMessages) {
-                message += ' ';
-            }
-            
-            numberOfMessages++;
-            message += internalValidationError.message;
-        }
-
-        if (!valid)
-            throw new Error(message);
-    }
-
-    // Save
-    async save(instance, ...updateControlMethodParameters) {
-        const classModel = this;
-
-        if (!(instance instanceof classModel.Model)) 
-            throw new Error(classModel.className + '.save() called on an instance of a different class.');
-
-        classModel.validate(instance);
-
-        try {
-            await this.updateControlCheckOne(instance, ...updateControlMethodParameters);
-        }
-        catch (error) {
-            throw new Error('Error in ' + this.className + '.save(): ' + error.message);
-        }
-        
-        return instance.save();
-    }
-
     delete(instance) {
         let classModel = this;
 
@@ -526,46 +314,6 @@ class ClassModel {
                 });
             }
         });
-    }
-
-    static async saveAllHelper(promises) {
-        let savedInstances = [];
-
-        for (let index in promises) {
-            savedInstances.push(await promises[index]);
-        }
-
-        return savedInstances;
-    }
-
-    async saveAll(instances, ...updateControlMethodParameters) {
-        const classModel = this;
-        
-        if (instances == null) 
-            throw new Error(classModel.className + '.saveAll(instances): instances cannot be null.');
-        
-        if (!Array.isArray(instances)) 
-            throw new Error(classModel.className + '.saveAll(instances): instances must be an Array.');
-        
-        instances.forEach(instance => {
-            if (!(instance instanceof this.Model))
-                throw new Error(this.className + '.saveAll() passed instances of a different class.');
-        });
-        
-        instances.forEach(instance => classModel.validate(instance));
-
-        try {
-            await this.updateControlCheck(instances, ...updateControlMethodParameters);
-        }
-        catch(error) {
-            throw new Error('Error in ' + this.className + '.saveAll(): ' + error.message);
-        }
-
-        let promises = [];
-    
-        instances.forEach(instance => promises.push(instance.save()));
-        
-        return ClassModel.saveAllHelper(promises);
     }
 
     // Query Methods
@@ -667,22 +415,25 @@ class ClassModel {
         // If this is a discriminated class, or it is a concrete class with no subclasses, find the instance in this ClassModel's collection.
         if ((concrete && !isSuperClass) || discriminated) {
             const documentFound = await Model.findOne(queryFilter).exec();
-            const filteredDocument = await this.accessControlFilterOne(documentFound, ...accessControlMethodParameters);
-            if (!filteredDocument)
+            if (!documentFound)
                 return null;
+            
+            let instanceFound;
+
+            if (!discriminated)
+                instanceFound = new Instance(this, documentFound, true);
             else {
-                if (!discriminated)
-                    return new Instance(this, filteredDocument, true);
+                if (documentFound.__t) {
+                    const classModelForInstance = AllClassModels[documentFound.__t];
+                    instanceFound = new Instance(classModelForInstance, documentFound, true);
+                }
                 else {
-                    if (filteredDocument.__t) {
-                        const classModelForInstance = AllClassModels[filteredDocument.__t];
-                        return new Instance(classModelForInstance, filteredDocument, true);
-                    }
-                    else {
-                        return new Instance(this, filteredDocument, true);
-                    }
+                    instanceFound = new Instance(this, documentFound, true);
                 }
             }
+
+            const filteredInstance = this.accessControlFilterInstanceOne(instanceFound, ...accessControlMethodParameters)
+            return filteredInstance ? filteredInstance : null;
         }
         // If this is a non-discriminated super class, we may need to check this classmodel's collection as well,
         //  as well as the subclasses collections.
@@ -691,11 +442,12 @@ class ClassModel {
 
             // If this is a concrete super class, we need to check this ClassModel's own collection.
             if (concrete){
-                const foundDocument = await Model.findOne(queryFilter).exec();
-                if (foundDocument) {
-                    const filteredDocument = await this.accessControlFilterOne(foundDocument, ...accessControlMethodParameters);
-                    if (filteredDocument)
-                        return new Instance(this, filteredDocument, true);
+                const documentFound = await Model.findOne(queryFilter).exec();
+                if (documentFound) {
+                    let instanceFound = new Instance(this, documentFound, true);
+
+                    const filteredInstance = this.accessControlFilterInstanceOne(instanceFound, ...accessControlMethodParameters)
+                    return filteredInstance ? filteredInstance : null;
                 }
             }
 
@@ -778,44 +530,38 @@ class ClassModel {
 
         // If this is a discriminated class, or it is a concrete class with no subclasses, findInstanceSet the instance in this ClassModel's collection.
         if ((concrete && !isSuperClass) || discriminated) {
-            //console.log(this.className + '.findInstanceSet() no subs');
             const foundDocuments = await Model.find(queryFilter).exec();
-            const filteredDocuments = await this.accessControlFilter(foundDocuments, ...accessControlMethodParameters);
-            const filteredInstances = filteredDocuments.map(instance => { return new Instance(this, instance) });
-            const toReturn = new InstanceSet(this, filteredInstances);
-            //console.log(this.className + '.findInstanceSet() end');
-            return toReturn;
+            const foundInstances = foundDocuments.map(document => { 
+                if (document.__t)
+                    return new Instance(AllClassModels[document.__t], document);
+                return new Instance(this, document);
+            });
+            const foundInstanceSet = new InstanceSet(this, foundInstances);
+            return this.accessControlFilterInstance(foundInstanceSet, ...accessControlMethodParameters);
         }
 
         // If this is a non-discriminated super class, we may need to check this classmodel's collection as well,
         //  as well as the subclasses collections.
         if (isSuperClass && !discriminated) {
-            //console.log(this.className + '.findInstanceSet() starting with my part');
             let promises = [];
-            let foundInstancesOfThisClass = new InstanceSet(this, undefined);
+            let filteredInstancesOfThisClass;
 
-            // If this is a concrete super class, we need to check this ClassModel's own collection.
             if (concrete) {
                 let foundDocumentsOfThisClass = await Model.find(queryFilter).exec();
                 //console.log(this.className + '.findInstanceSet() here');
 
                 if (foundDocumentsOfThisClass.length) {
-                    const filteredDocumentsOfThisClass = await this.accessControlFilter(foundDocumentsOfThisClass, ...accessControlMethodParameters);
-                    const filteredInstances = filteredDocumentsOfThisClass.map(instance => { return new Instance(this, instance)});
-                    foundInstancesOfThisClass.addInstances(filteredInstances)
+                    const foundInstances = foundDocumentsOfThisClass.map(instance => { return new Instance(this, instance)});
+                    const foundInstancesOfThisClass = new InstanceSet(this, foundInstances);
+                    filteredInstancesOfThisClass = await this.accessControlFilterInstance(foundInstancesOfThisClass, ...accessControlMethodParameters);
                 }
             }
-
-            //console.log(this.className + '.findInstanceSet() done with my part');
-
-            // Call findInstanceSet on our subclasses as well.
             for (let subClass of subClasses)
                 promises.push(subClass.findInstanceSet(queryFilter, ...accessControlMethodParameters));
 
             let foundInstances = await this.allPromiseResoltionsInstanceSets(promises);
             
-            //console.log(this.className + '.findInstanceSet() end');
-            foundInstances.addInstances(foundInstancesOfThisClass)
+            foundInstances.addInstances(filteredInstancesOfThisClass)
             return foundInstances;
         }
     }
@@ -1110,6 +856,64 @@ class ClassModel {
         }
 
         return filtered;
+    }
+
+    /* Takes an array of instances of the Class Model and filters out any that do not pass this Class Model's access control method.
+     * @param required Array<instance> : An array of instances of this Class Model to filter.
+     * @return Promise(Array<Instance>): The given instances filtered for access control.
+     */
+    async accessControlFilterInstance(instanceSet, ...accessControlMethodParameters) {
+        if (!(instanceSet instanceof InstanceSet))
+            throw new Error('Incorrect parameters. ' + this.className + '.accessControlFilterInstance(InstanceSet instanceSet, ...accessControlMethodParameters)');
+
+        // If InstanceSet is empty or not access controlled, just return a copy of it.
+        if (!instanceSet.size || !this.accessControlled)
+            return new InstanceSet(this, instanceSet);
+
+        // Filter instances of this class using the relevant access control methods.
+        const filtered = new InstanceSet(this);
+        let accessControlMethods = this.allAccessControlMethodsforClassModel();
+        let filteredInstanceSetOfThisClass;
+
+        if (this.discriminated)
+            filteredInstanceSetOfThisClass = instanceSet.filterToInstanceSet(instance => instance.__t === undefined);
+        else
+            filteredInstanceSetOfThisClass = instanceSet.filterForInstancesInThisCollection();
+        
+        let filteredInstancesOfThisClass = [...filteredInstanceSetOfThisClass];
+
+        for (const accessControlMethod of accessControlMethods) {
+            filteredInstancesOfThisClass = await ClassModel.asyncFilter(filteredInstancesOfThisClass, async (instance) => {
+                return await accessControlMethod(instance, ...accessControlMethodParameters);
+            });
+        }
+
+        filtered.addInstances(filteredInstancesOfThisClass);
+
+        // Recursively call accessControlFilterInstance() for sub classes
+        let subClasses = [];
+
+        if (this.subClasses.length)
+            subClasses = this.subClasses;
+        if (this.discriminatedSubClasses.length)
+            subClasses = this.discriminatedSubClasses;
+        
+        for (let subClass of subClasses) {
+            let instanceSetOfSubClass = instanceSet.filterForClassModel(subClass);
+
+            if (instanceSetOfSubClass.size) {
+                let filteredSubClassInstances = await subClass.accessControlFilterInstance(instanceSetOfSubClass, ...accessControlMethodParameters);
+                filtered.addInstances(filteredSubClassInstances);
+            }
+        }
+
+        return filtered;
+    }
+
+    async accessControlFilterInstanceOne(instance, ...accessControlMethodParameters) {
+        const instanceSet = new InstanceSet(this, [instance]);
+        const filteredInstanceSet = await this.accessControlFilterInstance(instanceSet, ...accessControlMethodParameters);
+        return filteredInstanceSet.isEmpty() ? null : [...instanceSet][0];
     }
 
     /* Takes a single instance of the Class Model. If the instance passes this Class Model's access control method, it is returned,

@@ -574,8 +574,8 @@ const Instance = require('../dist/models/Instance');
             className: 'AccessControlledSuperClass',
             accessControlled: true,
             updateControlled: false,
-            accessControlMethod: async instance => { 
-                let accessControlledByInstance =  await AccessControlledSuperClass.walk(instance, 'accessControlledBy');
+            accessControlMethod: async instance => {
+                const accessControlledByInstance = await instance.walk('accessControlledBy')
                 return accessControlledByInstance.allowed;
             },
             schema: {

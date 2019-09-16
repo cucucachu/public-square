@@ -194,7 +194,6 @@ class InstanceSet extends SuperSet {
 
         let promises = this.map(instance => instance.saveWithoutValidation())
         await Promise.all(promises);
-        return;
     }
 
     async walk(relationship, filter = null, ...accessControlMethodParameters) {

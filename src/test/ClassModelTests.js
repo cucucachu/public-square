@@ -1061,209 +1061,6 @@ describe('Class Model Tests', () => {
 
     });
 
-    describe('ClassModel.save()', () => {    
-
-        it('ClassModel.save() throws an error when called on an instance of a different ClassModel.', async () => {
-            const expectedErrorMessage = 'AllFieldsRequiredClass.save() called on an instance of a different class.'; 
-            const instance = SuperClass.create();
-            let errorThrown = false;
-
-            try {
-                await AllFieldsRequiredClass.save(instance);
-            }
-            catch (error) {
-                if (error.message != expectedErrorMessage) {
-                    throw new Error(
-                        'ClassModel.save() did not throw the expected error message.\n' + 
-                        'Expected: ' + expectedErrorMessage + '\n' + 
-                        'Actual:   ' + error.message
-                    );
-                }
-                errorThrown = true;
-            }
-
-            if (!errorThrown) 
-                throw new Error('ClassModel.save() did not throw an error when it should have.');
-        });
-
-        it('ClassModel.save() works properly.', async () => {
-            let instance = AllFieldsRequiredClass.create();
-            instance.string = 'String';
-            instance.strings = ['String'];
-            instance.date = new Date();
-            instance.boolean = true;
-            instance.booleans = [true];
-            instance.number = 1;
-            instance.numbers = [1];
-            instance.class1 = CompareClass1.create()._id;
-            instance.class2s = [CompareClass2.create()._id];
-
-            await AllFieldsRequiredClass.save(instance);
-            const found = await AllFieldsRequiredClass.findById(instance._id);
-
-            if (!found) 
-                throw new Error('ClassModel.save() did not throw an error, but was not saved.');
-
-            if (instance.id != found.id)
-                throw new Error('ClassModel.save() did not throw an error, but the instance found is different than the instance saved.');
-        });
-
-    });
-
-    describe('ClassModel.saveAll()', () => {
-
-        it('Throws an error if no arguments passed.', function(done) {
-            let expectedErrorMessage = 'AllFieldsRequiredClass.saveAll(instances): instances cannot be null.';
-            let error;
-
-            
-            AllFieldsRequiredClass.saveAll().then(
-                () => {
-                },
-                function(saveError) {
-                    error = saveError;
-                }
-            ).finally(() => {
-                if (!error) {
-                    done(new Error('ClassModel.saveAll() did not throw an error when it should have.'));
-                }
-                else {
-                    if (error.message != expectedErrorMessage) {
-                        done(new Error(
-                            'ClassModel.save() did not throw the expected error message.\n' + 
-                            'Expected: ' + expectedErrorMessage + '\n' + 
-                            'Actual:   ' + error.message
-                        ));
-                    }
-                    else {
-                        done();
-                    }
-                }
-            });
-        });
-
-        it('Throws an error if argument is not an array.', function(done) {
-            let instance = AllFieldsRequiredClass.create();
-            let expectedErrorMessage = 'AllFieldsRequiredClass.saveAll(instances): instances must be an Array.';
-            let error;
-
-            
-            AllFieldsRequiredClass.saveAll(instance).then(
-                () => {
-                },
-                function(saveError) {
-                    error = saveError;
-                }
-            ).finally(() => {
-                if (!error) {
-                    done(new Error('ClassModel.saveAll() did not throw an error when it should have.'));
-                }
-                else {
-                    if (error.message != expectedErrorMessage) {
-                        done(new Error(
-                            'ClassModel.save() did not throw the expected error message.\n' + 
-                            'Expected: ' + expectedErrorMessage + '\n' + 
-                            'Actual:   ' + error.message
-                        ));
-                    }
-                    else {
-                        done();
-                    }
-                }
-            });
-        });
-
-        it('Throws an error if argument an instance of the wrong classModel.', async () => {
-            const instance = AllFieldsRequiredClass.create();
-            const expectedErrorMessage = 'SuperClass.saveAll() passed instances of a different class.';
-            let errorThrown = false;
-
-            try {
-                await SuperClass.saveAll([instance]);
-            }
-            catch (error) {
-                if (error.message != expectedErrorMessage) {
-                    throw new Error(
-                        'ClassModel.save() did not throw the expected error message.\n' + 
-                        'Expected: ' + expectedErrorMessage + '\n' + 
-                        'Actual:   ' + error.message
-                    );
-                }
-                errorThrown = true;
-            }
-            
-            if (!errorThrown)
-                throw new Error('ClassModel.saveAll() did not throw an error when it should have.');
-        });
-
-        it('Saves multiple instances.', function(done) {
-            let instanceA = AllFieldsRequiredClass.create();
-            let instanceB = AllFieldsRequiredClass.create();
-            let instances = [instanceA, instanceB];
-            let error = null;
-
-            instanceA.string = 'instanceA';
-            instanceA.strings = ['instanceA'];
-            instanceA.date = new Date();
-            instanceA.boolean = true;
-            instanceA.booleans = [true];
-            instanceA.number = 1;
-            instanceA.numbers = [1];
-            instanceA.class1 = CompareClass1.create()._id;
-            instanceA.class2s = [CompareClass2.create()._id];
-
-            instanceB.string = 'instanceB';
-            instanceB.strings = ['instanceB'];
-            instanceB.date = new Date();
-            instanceB.boolean = true;
-            instanceB.booleans = [true];
-            instanceB.number = 2;
-            instanceB.numbers = [2];
-            instanceB.class1 = CompareClass1.create()._id;
-            instanceB.class2s = [CompareClass2.create()._id];
-
-            AllFieldsRequiredClass.saveAll(instances).then(    
-                () => {
-                    AllFieldsRequiredClass.find({_id: {$in: [instanceA._id, instanceB._id]}}).then(
-                        function(foundInstances) {
-                            instances.forEach(function(desiredInstance) {
-                                let compareResults = [];
-                                let instancesFound = 0;
-                                foundInstances.forEach(function(instance) {
-                                    if (instance._id.equals(desiredInstance._id)) {
-                                        instancesFound++;
-                                        compareResults.push(AllFieldsRequiredClass.compare(instance, desiredInstance));
-                                    }
-                                });
-                                if (instancesFound == 2 && (compareResults[0].match == false || compareResults[1].match == false)) {
-                                    error = new Error('Instances were saved and retrieved, but they at least one doesn\'t match.' + compareResults[0].message + compareResults[1].message);
-                                }
-                                if (instancesFound == 1) {
-                                    error = new Error('Instances saved but only one instance found.');
-                                }
-                                if (instancesFound == 0) {
-                                    error = new Error('Instances saved but not found.');
-                                }
-                            });
-                        },
-                        function(findError) {
-                            error = findError;
-                        }
-                    );
-                },
-                function(saveErr) {
-                    error = saveErr;
-                }
-            ).finally(() => {
-                if (error)
-                    done(error);
-                else
-                    done();
-            });
-        });
-
-    })
-
     describe('ClassModel Query Methods', () => {
 
         // Create Instances for tests.
@@ -1311,17 +1108,6 @@ describe('Class Model Tests', () => {
 
         before(async () => {
             await Promise.all([
-                AllFieldsMutexClass.save(documentOfAllFieldsMutexClass),
-                DiscriminatedSuperClass.save(documentOfDiscriminatedSuperClass),
-                SuperClass.save(documentOfSuperClass),
-                SubClassOfSuperClass.save(documentOfSubClassOfSuperClass),
-                SubClassOfDiscriminatorSuperClass.save(documentOfSubClassOfDiscriminatorSuperClass),
-                SubClassOfAbstractSuperClass.save(documentOfSubClassOfAbstractSuperClass),
-                SubClassOfDiscriminatedSubClassOfSuperClass.save(documentOfSubClassOfDiscriminatedSubClassOfSuperClass),
-                SubClassOfSubClassOfSuperClass.save(documentOfSubClassOfSubClassOfSuperClass),
-                SubClassOfAbstractSubClassOfSuperClass.save(documentOfSubClassOfAbstractSubClassOfSuperClass),
-            ]);
-            await Promise.all([
                 instanceOfAllFieldsMutexClass.save(),
                 instanceOfDiscriminatedSuperClass.save(),
                 instanceOfSuperClass.save(),
@@ -1347,783 +1133,6 @@ describe('Class Model Tests', () => {
                 SubClassOfAbstractSubClassOfSuperClass.clear(),
                 SubClassOfSubClassOfSuperClass.clear()
             ]);
-        });
-
-        describe('ClassModel.findById()', () => {
-    
-            describe('Calling findById on the Class of the instance you want to find. (Direct)', () => {
-
-                it('An instance of a concrete class with no subclasses can be found by Id.', async () => {
-                    const classOfInstance = AllFieldsMutexClass
-                    const instanceToFind = documentOfAllFieldsMutexClass
-                    const instanceFound = await classOfInstance.findById(instanceToFind._id);
-
-                    if (!instanceFound) {
-                        throw new Error('findById() did not return an instance.');
-                    }
-                    
-                    const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
-
-                    if (!instanceFound._id.equals(instanceToFind._id) || compareResult.match == false) {
-                        throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                    }
-                });
-        
-                it('An instance of a concrete discriminated class can be found by Id.', async () => {
-                    const classOfInstance = SubClassOfDiscriminatorSuperClass;
-                    const instanceToFind = documentOfSubClassOfDiscriminatorSuperClass
-                    const instanceFound = await classOfInstance.findById(instanceToFind._id);
-
-                    if (!instanceFound) {
-                        throw new Error('findById() did not return an instance.');
-                    }
-                    
-                    const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
-
-                    if (!instanceFound._id.equals(instanceToFind._id) || compareResult.match == false) {
-                        throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                    }
-                });
-        
-                it('An instance of a concrete super class can be found by Id.', async () => {
-                    const classOfInstance = SuperClass;
-                    const instanceToFind = documentOfSuperClass
-                    const instanceFound = await classOfInstance.findById(instanceToFind._id);
-
-                    if (!instanceFound) {
-                        throw new Error('findById() did not return an instance.');
-                    }
-                    
-                    const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
-
-                    if (!instanceFound._id.equals(instanceToFind._id) || compareResult.match == false) {
-                        throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                    }
-                });
-        
-                it('An instance of a concrete discriminated sub-class can be found by Id.', async () => {
-                    const classOfInstance = DiscriminatedSuperClass;
-                    const instanceToFind = documentOfDiscriminatedSuperClass
-                    const instanceFound = await classOfInstance.findById(instanceToFind._id);
-
-                    if (!instanceFound) {
-                        throw new Error('findById() did not return an instance.');
-                    }
-                    
-                    const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
-
-                    if (!instanceFound._id.equals(instanceToFind._id) || compareResult.match == false) {
-                        throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                    }
-                });
-    
-            });
-    
-            describe('Calling findById on a super class of the class of the instance you want to find. (Indirect)', () => {
-        
-                it('An instance of a sub class of a discrimintated super class can be found by Id from the super class.', async () => {
-                    const classToCallFindByIdOn = DiscriminatedSuperClass;
-                    const classOfInstance = SubClassOfDiscriminatorSuperClass;
-                    const instanceToFind = documentOfSubClassOfDiscriminatorSuperClass;
-                    const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
-
-                    if (!instanceFound) {
-                        throw new Error('findById() did not return an instance.');
-                    }
-                    
-                    const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
-
-                    if (!instanceFound._id.equals(instanceToFind._id) || compareResult.match == false) {
-                        throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                    }
-                });
-        
-                it('An instance of a concrete sub class of a non-discriminated super class can be found by Id from the super class.', async () => {
-                    const classToCallFindByIdOn = SuperClass;
-                    const classOfInstance = SubClassOfSuperClass;
-                    const instanceToFind = documentOfSubClassOfSuperClass;
-                    const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
-
-                    if (!instanceFound) {
-                        throw new Error('findById() did not return an instance.');
-                    }
-                    
-                    const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
-
-                    if (!instanceFound._id.equals(instanceToFind._id) || compareResult.match == false) {
-                        throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                    }
-                });
-        
-                it('An instance of a concrete sub class of a non-discriminated abstract super class can be found by Id from the super class.', async () => {
-                    const classToCallFindByIdOn = AbstractSuperClass;
-                    const classOfInstance = SubClassOfAbstractSuperClass;
-                    const instanceToFind = documentOfSubClassOfAbstractSuperClass;
-                    const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
-
-                    if (!instanceFound) {
-                        throw new Error('findById() did not return an instance.');
-                    }
-                    
-                    const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
-
-                    if (!instanceFound._id.equals(instanceToFind._id) || compareResult.match == false) {
-                        throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                    }
-                });
-    
-            });
-    
-            describe('Calling findById on a super class of the super class of the instance you want to find. (Recursive)', () => {
-        
-        
-                it('SuperClass -> Discriminated Sub Class -> Sub Sub Class', async () => {
-                    const classToCallFindByIdOn = SuperClass;
-                    const classOfInstance = SubClassOfDiscriminatedSubClassOfSuperClass;
-                    const instanceToFind = documentOfSubClassOfDiscriminatedSubClassOfSuperClass;
-                    const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
-
-                    if (!instanceFound) {
-                        throw new Error('findById() did not return an instance.');
-                    }
-                    
-                    const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
-
-                    if (!instanceFound._id.equals(instanceToFind._id) || compareResult.match == false) {
-                        throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                    }
-                });
-
-                it('SuperClass -> Sub Class -> Sub Sub Class', async () => {
-                    const classToCallFindByIdOn = SuperClass;
-                    const classOfInstance = SubClassOfSubClassOfSuperClass;
-                    const instanceToFind = documentOfSubClassOfSubClassOfSuperClass;
-                    const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
-
-                    if (!instanceFound) {
-                        throw new Error('findById() did not return an instance.');
-                    }
-                    
-                    const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
-
-                    if (!instanceFound._id.equals(instanceToFind._id) || compareResult.match == false) {
-                        throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                    }
-                });
-
-                it('SuperClass -> Abstract Sub Class -> Sub Sub Class', async () => {
-                    const classToCallFindByIdOn = SuperClass;
-                    const classOfInstance = SubClassOfAbstractSubClassOfSuperClass;
-                    const instanceToFind = documentOfSubClassOfAbstractSubClassOfSuperClass;
-                    const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
-
-                    if (!instanceFound) {
-                        throw new Error('findById() did not return an instance.');
-                    }
-                    
-                    const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
-
-                    if (!instanceFound._id.equals(instanceToFind._id) || compareResult.match == false) {
-                        throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                    }
-                });
-    
-            });
-    
-        });
-
-        describe('ClassModel.findOne()', () => {
-    
-            describe('Calling findOne on the Class of the instance you want to find. (Direct)', () => {
-
-                it('An instance of a concrete class with no subclasses can be found.', async () => {
-                    const classToCallFindOneOn = AllFieldsMutexClass;
-                    const classOfInstance = AllFieldsMutexClass;
-                    const instanceToFind = documentOfAllFieldsMutexClass;
-
-                    const filter = {
-                        string: 'documentOfAllFieldsMutexClass'
-                    }
-
-                    const instanceFound = await classToCallFindOneOn.findOne(filter);
-
-                    if (!instanceFound) {
-                        throw new Error('findOne() did not return an instance.');
-                    }
-                    
-                    const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
-
-                    if (!instanceFound._id.equals(instanceToFind._id) || compareResult.match == false) {
-                        throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                    }
-                });
-
-                it('An instance of a concrete discriminated class can be found.', async () => {
-                    const classToCallFindOneOn = SubClassOfDiscriminatorSuperClass;
-                    const classOfInstance = SubClassOfDiscriminatorSuperClass;
-                    const instanceToFind = documentOfSubClassOfDiscriminatorSuperClass;
-
-                    const filter = {
-                        name: 'documentOfSubClassOfDiscriminatorSuperClass'
-                    }
-
-                    const instanceFound = await classToCallFindOneOn.findOne(filter);
-
-                    if (!instanceFound) {
-                        throw new Error('findOne() did not return an instance.');
-                    }
-                    
-                    const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
-
-                    if (!instanceFound._id.equals(instanceToFind._id) || compareResult.match == false) {
-                        throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                    }
-                });
-
-                it('An instance of a concrete super class can be found.', async () => {
-                    const classToCallFindOneOn = SuperClass;
-                    const classOfInstance = SuperClass;
-                    const instanceToFind = documentOfSuperClass;
-
-                    const filter = {
-                        name: 'documentOfSuperClass'
-                    }
-
-                    const instanceFound = await classToCallFindOneOn.findOne(filter);
-
-                    if (!instanceFound) {
-                        throw new Error('findOne() did not return an instance.');
-                    }
-                    
-                    const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
-
-                    if (!instanceFound._id.equals(instanceToFind._id) || compareResult.match == false) {
-                        throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                    }
-                });
-
-                it('An instance of a concrete discriminated sub-class can be found.', async () => {
-                    const classToCallFindOneOn = DiscriminatedSuperClass;
-                    const classOfInstance = DiscriminatedSuperClass;
-                    const instanceToFind = documentOfDiscriminatedSuperClass;
-
-                    const filter = {
-                        name: 'documentOfDiscriminatedSuperClass'
-                    }
-
-                    const instanceFound = await classToCallFindOneOn.findOne(filter);
-
-                    if (!instanceFound) {
-                        throw new Error('findOne() did not return an instance.');
-                    }
-                    
-                    const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
-
-                    if (!instanceFound._id.equals(instanceToFind._id) || compareResult.match == false) {
-                        throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                    }
-                });
-    
-            });
-    
-            describe('Calling findOne on a super class of the class of the instance you want to find. (Indirect)', () => {
-
-                it('An instance of a sub class of a discrimintated super class can be found by Id from the super class.', async () => {
-                    const classToCallFindOneOn = DiscriminatedSuperClass;
-                    const classOfInstance = SubClassOfDiscriminatorSuperClass;
-                    const instanceToFind = documentOfSubClassOfDiscriminatorSuperClass;
-
-                    const filter = {
-                        name: 'documentOfSubClassOfDiscriminatorSuperClass'
-                    }
-
-                    const instanceFound = await classToCallFindOneOn.findOne(filter);
-
-                    if (!instanceFound) {
-                        throw new Error('findOne() did not return an instance.');
-                    }
-                    
-                    const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
-
-                    if (!instanceFound._id.equals(instanceToFind._id) || compareResult.match == false) {
-                        throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                    }
-                });
-        
-                it('An instance of a concrete sub class of a non-discriminated super class can be found by Id from the super class.', async () => {
-                    const classToCallFindOneOn = SuperClass;
-                    const classOfInstance = SubClassOfSuperClass;
-                    const instanceToFind = documentOfSubClassOfSuperClass;
-
-                    const filter = {
-                        name: 'documentOfSubClassOfSuperClass'
-                    }
-
-                    const instanceFound = await classToCallFindOneOn.findOne(filter);
-
-                    if (!instanceFound) {
-                        throw new Error('findOne() did not return an instance.');
-                    }
-                    
-                    const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
-
-                    if (!instanceFound._id.equals(instanceToFind._id) || compareResult.match == false) {
-                        throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                    }
-                });
-        
-                it('An instance of a concrete sub class of a non-discriminated abstract super class can be found by Id from the super class.', async () => {
-                    const classToCallFindOneOn = AbstractSuperClass;
-                    const classOfInstance = SubClassOfAbstractSuperClass;
-                    const instanceToFind = documentOfSubClassOfAbstractSuperClass;
-
-                    const filter = {
-                        name: 'documentOfSubClassOfAbstractSuperClass'
-                    }
-
-                    const instanceFound = await classToCallFindOneOn.findOne(filter);
-
-                    if (!instanceFound) {
-                        throw new Error('findOne() did not return an instance.');
-                    }
-                    
-                    const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
-
-                    if (!instanceFound._id.equals(instanceToFind._id) || compareResult.match == false) {
-                        throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                    }
-                });
-    
-            });
-    
-            describe('Calling findOne on a super class of the super class of the instance you want to find. (Recursive)', () => {
-        
-                it('SuperClass -> Discriminated Sub Class -> Sub Sub Class', async () => {
-                    const classToCallFindOneOn = SuperClass;
-                    const classOfInstance = SubClassOfDiscriminatedSubClassOfSuperClass;
-                    const instanceToFind = documentOfSubClassOfDiscriminatedSubClassOfSuperClass;
-
-                    const filter = {
-                        name: 'documentOfSubClassOfDiscriminatedSubClassOfSuperClass'
-                    }
-
-                    const instanceFound = await classToCallFindOneOn.findOne(filter);
-
-                    if (!instanceFound) {
-                        throw new Error('findOne() did not return an instance.');
-                    }
-                    
-                    const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
-
-                    if (!instanceFound._id.equals(instanceToFind._id) || compareResult.match == false) {
-                        throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                    }
-                });
-        
-                it('SuperClass -> Sub Class -> Sub Sub Class', async () => {
-                    const classToCallFindOneOn = SuperClass;
-                    const classOfInstance = SubClassOfSubClassOfSuperClass;
-                    const instanceToFind = documentOfSubClassOfSubClassOfSuperClass;
-
-                    const filter = {
-                        name: 'documentOfSubClassOfSubClassOfSuperClass'
-                    }
-
-                    const instanceFound = await classToCallFindOneOn.findOne(filter);
-
-                    if (!instanceFound) {
-                        throw new Error('findOne() did not return an instance.');
-                    }
-                    
-                    const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
-
-                    if (!instanceFound._id.equals(instanceToFind._id) || compareResult.match == false) {
-                        throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                    }
-                });
-        
-                it('SuperClass -> Abstract Sub Class -> Sub Sub Class', async () => {
-                    const classToCallFindOneOn = SuperClass;
-                    const classOfInstance = SubClassOfAbstractSubClassOfSuperClass;
-                    const instanceToFind = documentOfSubClassOfAbstractSubClassOfSuperClass;
-
-                    const filter = {
-                        name: 'documentOfSubClassOfAbstractSubClassOfSuperClass'
-                    }
-
-                    const instanceFound = await classToCallFindOneOn.findOne(filter);
-
-                    if (!instanceFound) {
-                        throw new Error('findOne() did not return an instance.');
-                    }
-                    
-                    const compareResult = classOfInstance.compare(instanceFound, instanceToFind);
-
-                    if (!instanceFound._id.equals(instanceToFind._id) || compareResult.match == false) {
-                        throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                    }
-                });
-    
-            });
-    
-        });
-
-        describe('ClassModel.find()', () => {
-
-            describe('Finding a single instance.', () => {
-    
-                describe('Calling find on the Class of the instance you want to find. (Direct)', () => {
-        
-                    it('An instance of a concrete class with no subclasses can be found.', async () => {
-                        const classToCallFindOn = AllFieldsMutexClass;
-                        const classOfInstance = AllFieldsMutexClass;
-                        const instanceToFind = documentOfAllFieldsMutexClass;
-    
-                        const filter = {
-                            string: 'documentOfAllFieldsMutexClass'
-                        }
-    
-                        const instancesFound = await classToCallFindOn.find(filter);
-    
-                        if (instancesFound == null || instancesFound.length == 0)
-                            throw new Error('find() did not return any instances.');
-
-                        if (instancesFound.length > 1) {
-                            throw new Error('find() returned more than one instance.');
-                        }
-                        
-                        const compareResult = classOfInstance.compare(instancesFound[0], instanceToFind);
-    
-                        if (!instancesFound[0]._id.equals(instanceToFind._id) || compareResult.match == false) {
-                            throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                        }
-                    });
-        
-                    it('An instance of a concrete discriminated class can be found.', async () => {
-                        const classToCallFindOn = SubClassOfDiscriminatorSuperClass;
-                        const classOfInstance = SubClassOfDiscriminatorSuperClass;
-                        const instanceToFind = documentOfSubClassOfDiscriminatorSuperClass;
-    
-                        const filter = {
-                            name: 'documentOfSubClassOfDiscriminatorSuperClass'
-                        }
-    
-                        const instancesFound = await classToCallFindOn.find(filter);
-    
-                        if (instancesFound == null || instancesFound.length == 0)
-                            throw new Error('find() did not return any instances.');
-
-                        if (instancesFound.length > 1) {
-                            throw new Error('find() returned more than one instance.');
-                        }
-                        
-                        const compareResult = classOfInstance.compare(instancesFound[0], instanceToFind);
-    
-                        if (!instancesFound[0]._id.equals(instanceToFind._id) || compareResult.match == false) {
-                            throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                        }
-                    });
-        
-                    it('An instance of a concrete super class can be found.', async () => {
-                        const classToCallFindOn = SuperClass;
-                        const classOfInstance = SuperClass;
-                        const instanceToFind = documentOfSuperClass;
-    
-                        const filter = {
-                            name: 'documentOfSuperClass'
-                        }
-    
-                        const instancesFound = await classToCallFindOn.find(filter);
-    
-                        if (instancesFound == null || instancesFound.length == 0)
-                            throw new Error('find() did not return any instances.');
-
-                        if (instancesFound.length > 1) {
-                            throw new Error('find() returned more than one instance.');
-                        }
-                        
-                        const compareResult = classOfInstance.compare(instancesFound[0], instanceToFind);
-    
-                        if (!instancesFound[0]._id.equals(instanceToFind._id) || compareResult.match == false) {
-                            throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                        }
-                    });
-        
-                    it('An instance of a concrete discriminated sub-class can be found.', async () => {
-                        const classToCallFindOn = DiscriminatedSuperClass;
-                        const classOfInstance = DiscriminatedSuperClass;
-                        const instanceToFind = documentOfDiscriminatedSuperClass;
-    
-                        const filter = {
-                            name: 'documentOfDiscriminatedSuperClass'
-                        }
-    
-                        const instancesFound = await classToCallFindOn.find(filter);
-    
-                        if (instancesFound == null || instancesFound.length == 0)
-                            throw new Error('find() did not return any instances.');
-
-                        if (instancesFound.length > 1) {
-                            throw new Error('find() returned more than one instance.');
-                        }
-                        
-                        const compareResult = classOfInstance.compare(instancesFound[0], instanceToFind);
-    
-                        if (!instancesFound[0]._id.equals(instanceToFind._id) || compareResult.match == false) {
-                            throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                        }
-                    });
-        
-                });
-        
-                describe('Calling find on a super class of the class of the instance you want to find. (Indirect)', () => {
-        
-                    it('An instance of a sub class of a discrimintated super class can be found by Id from the super class.', async () => {
-                        const classToCallFindOn = DiscriminatedSuperClass;
-                        const classOfInstance = SubClassOfDiscriminatorSuperClass;
-                        const instanceToFind = documentOfSubClassOfDiscriminatorSuperClass;
-    
-                        const filter = {
-                            name: 'documentOfSubClassOfDiscriminatorSuperClass'
-                        }
-    
-                        const instancesFound = await classToCallFindOn.find(filter);
-    
-                        if (instancesFound == null || instancesFound.length == 0)
-                            throw new Error('find() did not return any instances.');
-
-                        if (instancesFound.length > 1) {
-                            throw new Error('find() returned more than one instance.');
-                        }
-                        
-                        const compareResult = classOfInstance.compare(instancesFound[0], instanceToFind);
-    
-                        if (!instancesFound[0]._id.equals(instanceToFind._id) || compareResult.match == false) {
-                            throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                        }
-                    });
-        
-                    it('An instance of a concrete sub class of a non-discriminated super class can be found by Id from the super class.', async () => {
-                        const classToCallFindOn = SuperClass;
-                        const classOfInstance = SubClassOfSuperClass;
-                        const instanceToFind = documentOfSubClassOfSuperClass;
-    
-                        const filter = {
-                            name: 'documentOfSubClassOfSuperClass'
-                        }
-    
-                        const instancesFound = await classToCallFindOn.find(filter);
-    
-                        if (instancesFound == null || instancesFound.length == 0)
-                            throw new Error('find() did not return any instances.');
-
-                        if (instancesFound.length > 1) {
-                            throw new Error('find() returned more than one instance.');
-                        }
-                        
-                        const compareResult = classOfInstance.compare(instancesFound[0], instanceToFind);
-    
-                        if (!instancesFound[0]._id.equals(instanceToFind._id) || compareResult.match == false) {
-                            throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                        }
-                    });
-        
-                    it('An instance of a concrete sub class of a non-discriminated abstract super class can be found by Id from the super class.', async () => {
-                        const classToCallFindOn = AbstractSuperClass;
-                        const classOfInstance = SubClassOfAbstractSuperClass;
-                        const instanceToFind = documentOfSubClassOfAbstractSuperClass;
-    
-                        const filter = {
-                            name: 'documentOfSubClassOfAbstractSuperClass'
-                        }
-    
-                        const instancesFound = await classToCallFindOn.find(filter);
-    
-                        if (instancesFound == null || instancesFound.length == 0)
-                            throw new Error('find() did not return any instances.');
-
-                        if (instancesFound.length > 1) {
-                            throw new Error('find() returned more than one instance.');
-                        }
-                        
-                        const compareResult = classOfInstance.compare(instancesFound[0], instanceToFind);
-    
-                        if (!instancesFound[0]._id.equals(instanceToFind._id) || compareResult.match == false) {
-                            throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                        }
-                    });
-        
-                });
-        
-                describe('Calling find() on a super class of the super class of the instance you want to find. (Recursive)', () => {
-        
-                    it('SuperClass -> Discriminated Sub Class -> Sub Sub Class', async () => {
-                        const classToCallFindOn = SuperClass;
-                        const classOfInstance = SubClassOfDiscriminatedSubClassOfSuperClass;
-                        const instanceToFind = documentOfSubClassOfDiscriminatedSubClassOfSuperClass;
-    
-                        const filter = {
-                            name: 'documentOfSubClassOfDiscriminatedSubClassOfSuperClass'
-                        }
-    
-                        const instancesFound = await classToCallFindOn.find(filter);
-    
-                        if (instancesFound == null || instancesFound.length == 0)
-                            throw new Error('find() did not return any instances.');
-
-                        if (instancesFound.length > 1) {
-                            throw new Error('find() returned more than one instance.');
-                        }
-                        
-                        const compareResult = classOfInstance.compare(instancesFound[0], instanceToFind);
-    
-                        if (!instancesFound[0]._id.equals(instanceToFind._id) || compareResult.match == false) {
-                            throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                        }
-                    });
-        
-                    it('SuperClass -> Sub Class -> Sub Sub Class', async () => {
-                        const classToCallFindOn = SuperClass;
-                        const classOfInstance = SubClassOfSubClassOfSuperClass;
-                        const instanceToFind = documentOfSubClassOfSubClassOfSuperClass;
-    
-                        const filter = {
-                            name: 'documentOfSubClassOfSubClassOfSuperClass'
-                        }
-    
-                        const instancesFound = await classToCallFindOn.find(filter);
-    
-                        if (instancesFound == null || instancesFound.length == 0)
-                            throw new Error('find() did not return any instances.');
-
-                        if (instancesFound.length > 1) {
-                            throw new Error('find() returned more than one instance.');
-                        }
-                        
-                        const compareResult = classOfInstance.compare(instancesFound[0], instanceToFind);
-    
-                        if (!instancesFound[0]._id.equals(instanceToFind._id) || compareResult.match == false) {
-                            throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                        }
-                    });
-        
-                    it('SuperClass -> Abstract Sub Class -> Sub Sub Class', async () => {
-                        const classToCallFindOn = SuperClass;
-                        const classOfInstance = SubClassOfAbstractSubClassOfSuperClass;
-                        const instanceToFind = documentOfSubClassOfAbstractSubClassOfSuperClass;
-    
-                        const filter = {
-                            name: 'documentOfSubClassOfAbstractSubClassOfSuperClass'
-                        }
-    
-                        const instancesFound = await classToCallFindOn.find(filter);
-    
-                        if (instancesFound == null || instancesFound.length == 0)
-                            throw new Error('find() did not return any instances.');
-
-                        if (instancesFound.length > 1) {
-                            throw new Error('find() returned more than one instance.');
-                        }
-                        
-                        const compareResult = classOfInstance.compare(instancesFound[0], instanceToFind);
-    
-                        if (!instancesFound[0]._id.equals(instanceToFind._id) || compareResult.match == false) {
-                            throw new Error('An instance was returned, but it is not the correct one. ' + compareResult.message);
-                        }
-                    });
-        
-                });
-        
-            });
-
-            describe('Finding Multiple Instances.', () => {
-        
-                it('Find two instances of a super class. One is an instance of the super class itself, one is 2 levels deep.', async () => {
-                    const classToCallFindOn = SuperClass;
-                    const instancesToFind = [documentOfSuperClass, documentOfSubClassOfDiscriminatedSubClassOfSuperClass];
-
-                    const filter = {
-                        name: {$in: ['documentOfSuperClass', 'documentOfSubClassOfDiscriminatedSubClassOfSuperClass']}
-                    }; 
-
-                    const instancesFound = await classToCallFindOn.find(filter);
-
-                    if (instancesFound == null || instancesFound.length == 0)
-                        throw new Error('find() did not return any instances.');
-                    
-                    if (instancesFound.length < instancesToFind.length)
-                        throw new Error('find() did not return all the instances.');
-                    
-                    if (instancesFound.length > instancesToFind.length)
-                        throw new Error('find() returned too many instances');
-                    
-                    let instancesCorrectlyFound = 0;
-
-                    for (const instanceToFind of instancesToFind)
-                        for (const instanceFound of instancesFound)
-                            if (instanceFound.id == instanceToFind.id) {
-                                instancesCorrectlyFound++;
-                                break;
-                            }
-                    
-                    if (instancesCorrectlyFound != instancesToFind.length)
-                        throw new Error(
-                            'find() returned the correct number of instances, but did not return the correct instances.\n' +
-                            'Instances found: \n' + instancesFound + '\n' + 
-                            'Expected instances: \n' + instancesToFind
-                        );
-                });
-        
-                it('Find all the instances of a super class. One is an instance of the super class itself, and the others are the instances of the various sub classes.', async () => {
-                    const classToCallFindOn = SuperClass;
-                    const instancesToFind = [
-                        documentOfSuperClass, 
-                        documentOfSubClassOfSuperClass,
-                        documentOfSubClassOfDiscriminatedSubClassOfSuperClass,
-                        documentOfSubClassOfSubClassOfSuperClass,
-                        documentOfSubClassOfAbstractSubClassOfSuperClass
-                    ];
-
-                    const filter = {
-                        name: {$in: [
-                            'documentOfSuperClass', 
-                            'documentOfSubClassOfSuperClass',
-                            'documentOfSubClassOfDiscriminatedSubClassOfSuperClass',
-                            'documentOfSubClassOfSubClassOfSuperClass',
-                            'documentOfSubClassOfAbstractSubClassOfSuperClass'
-                        ]}
-                    }; 
-
-                    const instancesFound = await classToCallFindOn.find(filter);
-
-                    if (instancesFound == null || instancesFound.length == 0)
-                        throw new Error('find() did not return any instances.');
-                    
-                    if (instancesFound.length < instancesToFind.length)
-                        throw new Error('find() did not return all the instances.');
-                    
-                    if (instancesFound.length > instancesToFind.length)
-                        throw new Error('find() returned too many instances');
-                    
-                    let instancesCorrectlyFound = 0;
-
-                    for (const instanceToFind of instancesToFind)
-                        for (const instanceFound of instancesFound)
-                            if (instanceFound.id == instanceToFind.id) {
-                                instancesCorrectlyFound++;
-                                break;
-                            }
-                    
-                    if (instancesCorrectlyFound != instancesToFind.length)
-                        throw new Error(
-                            'find() returned the correct number of instances, but did not return the correct instances.\n' +
-                            'Instances found: \n' + instancesFound + '\n' + 
-                            'Expected instances: \n' + instancesToFind
-                        );
-                });
-
-            });
-
         });
 
         describe('ClassModel.findOneInstance()', () => {
@@ -2307,6 +1316,152 @@ describe('Class Model Tests', () => {
                     
                     if (!instanceToFind.equals(instanceFound))
                         throw new Error('findOneInstance() returned the wrong instance.');
+                });
+    
+            });
+    
+        });
+
+        describe('ClassModel.findInstanceById()', () => {
+    
+            describe('Calling findInstanceById on the Class of the instance you want to find. (Direct)', () => {
+
+                it('An instance of a concrete class with no subclasses can be found.', async () => {
+                    const classToCallFindOneOn = AllFieldsMutexClass;
+                    const instanceToFind = instanceOfAllFieldsMutexClass;
+
+                    const instanceFound = await classToCallFindOneOn.findInstanceById(instanceToFind.id);
+
+                    if (!instanceFound)
+                        throw new Error('findInstanceById() did not return an instance.');
+                    
+                    if (!instanceToFind.equals(instanceFound))
+                        throw new Error('findInstanceById() returned the wrong instance.');
+                });
+
+                it('An instance of a concrete discriminated class can be found.', async () => {
+                    const classToCallFindInstanceByIdOn = SubClassOfDiscriminatorSuperClass;
+                    const instanceToFind = instanceOfSubClassOfDiscriminatorSuperClass;
+
+                    const instanceFound = await classToCallFindInstanceByIdOn.findInstanceById(instanceToFind.id);
+
+                    if (!instanceFound)
+                        throw new Error('findInstanceById() did not return an instance.');
+                    
+                    if (!instanceToFind.equals(instanceFound))
+                        throw new Error('findInstanceById() returned the wrong instance.');
+                });
+
+                it('An instance of a concrete super class can be found.', async () => {
+                    const classToCallFindInstanceByIdOn = SuperClass;
+                    const instanceToFind = instanceOfSuperClass;
+
+                    const instanceFound = await classToCallFindInstanceByIdOn.findInstanceById(instanceToFind.id);
+
+                    if (!instanceFound)
+                        throw new Error('findInstanceById() did not return an instance.');
+                    
+                    if (!instanceToFind.equals(instanceFound))
+                        throw new Error('findInstanceById() returned the wrong instance.');
+                });
+
+                it('An instance of a concrete discriminated sub-class can be found.', async () => {
+                    const classToCallFindInstanceByIdOn = DiscriminatedSuperClass;
+                    const instanceToFind = instanceOfDiscriminatedSuperClass;
+
+                    const instanceFound = await classToCallFindInstanceByIdOn.findInstanceById(instanceToFind.id);
+
+                    if (!instanceFound)
+                        throw new Error('findInstanceById() did not return an instance.');
+                    
+                    if (!instanceToFind.equals(instanceFound))
+                        throw new Error('findInstanceById() returned the wrong instance.');
+                });
+    
+            });
+    
+            describe('Calling findInstanceById on a super class of the class of the instance you want to find. (Indirect)', () => {
+
+                it('An instance of a sub class of a discrimintated super class can be found from the super class.', async () => {
+                    const classToCallFindInstanceByIdOn = DiscriminatedSuperClass;
+                    const instanceToFind = instanceOfSubClassOfDiscriminatorSuperClass;
+
+                    const instanceFound = await classToCallFindInstanceByIdOn.findInstanceById(instanceToFind.id);
+
+                    if (!instanceFound) 
+                        throw new Error('findInstanceById() did not return an instance.');
+                    
+                    if (!instanceToFind.equals(instanceFound))
+                        throw new Error('findInstanceById() returned the wrong instance.');
+                });
+
+                it('An instance of a concrete sub class of a non-discriminated super class can be found from the super class.', async () => {
+                    const classToCallFindInstanceByIdOn = SuperClass;
+                    const instanceToFind = instanceOfSubClassOfSuperClass;
+
+                    const instanceFound = await classToCallFindInstanceByIdOn.findInstanceById(instanceToFind.id);
+
+                    if (!instanceFound) 
+                        throw new Error('findInstanceById() did not return an instance.');
+                    
+                    if (!instanceToFind.equals(instanceFound))
+                        throw new Error('findInstanceById() returned the wrong instance.');
+                });
+
+                it('An instance of a concrete sub class of a non-discriminated abstract super class can be found from the super class.', async () => {
+                    const classToCallFindInstanceByIdOn = AbstractSuperClass;
+                    const instanceToFind = instanceOfSubClassOfAbstractSuperClass;
+
+                    const instanceFound = await classToCallFindInstanceByIdOn.findInstanceById(instanceToFind.id);
+
+                    if (!instanceFound) 
+                        throw new Error('findInstanceById() did not return an instance.');
+                    
+                    if (!instanceToFind.equals(instanceFound))
+                        throw new Error('findInstanceById() returned the wrong instance.');
+                });
+    
+            });
+    
+            describe('Calling findInstanceById on a super class of the super class of the instance you want to find. (Recursive)', () => {
+
+                it('SuperClass -> Discriminated Sub Class -> Sub Sub Class', async () => {
+                    const classToCallFindInstanceByIdOn = SuperClass;
+                    const instanceToFind = instanceOfSubClassOfDiscriminatedSubClassOfSuperClass;
+
+                    const instanceFound = await classToCallFindInstanceByIdOn.findInstanceById(instanceToFind.id);
+
+                    if (!instanceFound) 
+                        throw new Error('findInstanceById() did not return an instance.');
+                    
+                    if (!instanceToFind.equals(instanceFound))
+                        throw new Error('findInstanceById() returned the wrong instance.');
+                });
+
+                it('SuperClass -> Sub Class -> Sub Sub Class', async () => {
+                    const classToCallFindInstanceByIdOn = SuperClass;
+                    const instanceToFind = instanceOfSubClassOfSubClassOfSuperClass;
+
+                    const instanceFound = await classToCallFindInstanceByIdOn.findInstanceById(instanceToFind.id);
+
+                    if (!instanceFound) 
+                        throw new Error('findInstanceById() did not return an instance.');
+                    
+                    if (!instanceToFind.equals(instanceFound))
+                        throw new Error('findInstanceById() returned the wrong instance.');
+                });
+
+                it('SuperClass -> Abstract Sub Class -> Sub Sub Class', async () => {
+                    const classToCallFindInstanceByIdOn = SuperClass;
+                    const instanceToFind = instanceOfSubClassOfAbstractSubClassOfSuperClass;
+
+                    const instanceFound = await classToCallFindInstanceByIdOn.findInstanceById(instanceToFind.id);
+
+                    if (!instanceFound) 
+                        throw new Error('findInstanceById() did not return an instance.');
+                    
+                    if (!instanceToFind.equals(instanceFound))
+                        throw new Error('findInstanceById() returned the wrong instance.');
                 });
     
             });
@@ -2529,367 +1684,6 @@ describe('Class Model Tests', () => {
                         throw new Error('InstanceSet returned does not match what was expected.');
                 });
 
-            });
-
-        });
-
-    });
-
-    describe('ClassModel.walk()', () => {
-
-        // Create instances for tests.
-        {
-            var instanceOfSingularRelationshipClassA = SingularRelationshipClass.create();
-            var instanceOfSingularRelationshipClassB = SingularRelationshipClass.create();
-            var instanceOfNonSingularRelationshipClass = NonSingularRelationshipClass.create();
-            var instanceOfSubClassOfSingularRelationshipClassA = SubClassOfSingularRelationshipClass.create();
-            var instanceOfSubClassOfSingularRelationshipClassB = SubClassOfSingularRelationshipClass.create();
-            var instanceOfSubClassOfNonSingularRelationshipClass = SubClassOfNonSingularRelationshipClass.create();
-    
-            instanceOfSingularRelationshipClassA.singularRelationship = instanceOfNonSingularRelationshipClass._id;
-            instanceOfSingularRelationshipClassA.boolean = true;
-            instanceOfSingularRelationshipClassB.singularRelationship = instanceOfNonSingularRelationshipClass._id;
-            instanceOfSingularRelationshipClassB.boolean = false;
-            instanceOfNonSingularRelationshipClass.nonSingularRelationship = [instanceOfSingularRelationshipClassA._id, instanceOfSingularRelationshipClassB._id];
-    
-            instanceOfSubClassOfSingularRelationshipClassA.singularRelationship = instanceOfSubClassOfNonSingularRelationshipClass._id;
-            instanceOfSubClassOfSingularRelationshipClassA.boolean = true;
-            instanceOfSubClassOfSingularRelationshipClassB.singularRelationship = instanceOfSubClassOfNonSingularRelationshipClass._id;
-            instanceOfSubClassOfSingularRelationshipClassB.boolean = false;
-            instanceOfSubClassOfNonSingularRelationshipClass.nonSingularRelationship = [instanceOfSubClassOfSingularRelationshipClassA._id, instanceOfSubClassOfSingularRelationshipClassB._id];
-        }
-
-        before(async () => {
-            await SingularRelationshipClass.saveAll([instanceOfSingularRelationshipClassA, instanceOfSingularRelationshipClassB]);
-            await NonSingularRelationshipClass.save(instanceOfNonSingularRelationshipClass);
-            await SubClassOfSingularRelationshipClass.saveAll([instanceOfSubClassOfSingularRelationshipClassA, instanceOfSubClassOfSingularRelationshipClassB]);
-            await SubClassOfNonSingularRelationshipClass.save(instanceOfSubClassOfNonSingularRelationshipClass);
-        });
-
-        after(async () => {
-            await SingularRelationshipClass.clear();
-            await NonSingularRelationshipClass.clear();
-            await SubClassOfSingularRelationshipClass.clear();
-            await SubClassOfNonSingularRelationshipClass.clear();
-        });
-
-        describe('Tests for invalid arguments.', () => {
-
-            it('ClassModel.walk() called with no arguments.', function(done) {
-                let expectedErrorMessage = 'SingularRelationshipClass.walk() called with insufficient arguments. Should be walk(instance, relationship, <optional>filter).';
-                let error;
-
-                SingularRelationshipClass.walk().then(
-                    () => {
-                        error = new Error('ClassModel.walk() promise resolved when it should have rejected with an error.');
-                    },
-                    (walkError) => {
-                        if (walkError.message != expectedErrorMessage) {
-                            error = new Error(
-                                'ClassModel.walk() did not throw the expected error.\n' +
-                                'Expected: ' + expectedErrorMessage + '\n' +
-                                'Actual:   ' + walkError.message
-                            );
-                        }
-                    }
-                ).finally(() => {
-                    if (error)
-                        done(error);
-                    else
-                        done();
-                });
-            });
-
-            it('ClassModel.walk() called with only one argument (instance).', function(done) {
-                let expectedErrorMessage = 'SingularRelationshipClass.walk() called with insufficient arguments. Should be walk(instance, relationship, <optional>filter).';
-                let error;
-
-                SingularRelationshipClass.walk(instanceOfSingularRelationshipClassA).then(
-                    () => {
-                        error = new Error('ClassModel.walk() promise resolved when it should have rejected with an error.');
-                    },
-                    (walkError) => {
-                        if (walkError.message != expectedErrorMessage) {
-                            error = new Error(
-                                'ClassModel.walk() did not throw the expected error.\n' +
-                                'Expected: ' + expectedErrorMessage + '\n' +
-                                'Actual:   ' + walkError.message
-                            );
-                        }
-                    }
-                ).finally(() => {
-                    if (error)
-                        done(error);
-                    else
-                        done();
-                });
-            });
-
-            it('ClassModel.walk() called with first argument that is an instance of a different class model.', function(done) {
-                let expectedErrorMessage = 'SingularRelationshipClass.walk(): First argument needs to be an instance of SingularRelationshipClass\'s classModel or one of its sub classes.';
-                let error;
-
-                SingularRelationshipClass.walk(instanceOfNonSingularRelationshipClass, 'some_relationship').then(
-                    () => {
-                        error = new Error('ClassModel.walk() promise resolved when it should have rejected with an error.');
-                    },
-                    (walkError) => {
-                        if (walkError.message != expectedErrorMessage) {
-                            error = new Error(
-                                'ClassModel.walk() did not throw the expected error.\n' +
-                                'Expected: ' + expectedErrorMessage + '\n' +
-                                'Actual:   ' + walkError.message
-                            );
-                        }
-                    }
-                ).finally(() => {
-                    if (error)
-                        done(error);
-                    else
-                        done();
-                });
-            });
-
-            it('ClassModel.walk() called with second argument that is not a String.', function(done) {
-                let expectedErrorMessage = 'SingularRelationshipClass.walk(): Second argument needs to be a String.';
-                let error;
-
-                SingularRelationshipClass.walk(instanceOfSingularRelationshipClassA, true).then(
-                    () => {
-                        error = new Error('ClassModel.walk() promise resolved when it should have rejected with an error.');
-                    },
-                    (walkError) => {
-                        if (walkError.message != expectedErrorMessage) {
-                            error = new Error(
-                                'ClassModel.walk() did not throw the expected error.\n' +
-                                'Expected: ' + expectedErrorMessage + '\n' +
-                                'Actual:   ' + walkError.message
-                            );
-                        }
-                    }
-                ).finally(() => {
-                    if (error)
-                        done(error);
-                    else
-                        done();
-                });
-            });
-
-            it('ClassModel.walk() called with second argument that is not a field in the schema.', function(done) {
-                let expectedErrorMessage = 'SingularRelationshipClass.walk(): Second argument needs to be a field in SingularRelationshipClass\'s schema.';
-                let error;
-
-                SingularRelationshipClass.walk(instanceOfSingularRelationshipClassA, 'rabbit').then(
-                    () => {
-                        error = new Error('ClassModel.walk() promise resolved when it should have rejected with an error.');
-                    },
-                    (walkError) => {
-                        if (walkError.message != expectedErrorMessage) {
-                            error = new Error(
-                                'ClassModel.walk() did not throw the expected error.\n' +
-                                'Expected: ' + expectedErrorMessage + '\n' +
-                                'Actual:   ' + walkError.message
-                            );
-                        }
-                    }
-                ).finally(() => {
-                    if (error)
-                        done(error);
-                    else
-                        done();
-                });
-            });
-
-            it('ClassModel.walk() called with second argument that is not a relationsihp in the schema. (boolean)', function(done) {
-                let expectedErrorMessage = 'SingularRelationshipClass.walk(): field "boolean" is not a relationship.';
-                let error;
-
-                SingularRelationshipClass.walk(instanceOfSingularRelationshipClassA, 'boolean').then(
-                    () => {
-                        error = new Error('ClassModel.walk() promise resolved when it should have rejected with an error.');
-                    },
-                    (walkError) => {
-                        if (walkError.message != expectedErrorMessage) {
-                            error = new Error(
-                                'ClassModel.walk() did not throw the expected error.\n' +
-                                'Expected: ' + expectedErrorMessage + '\n' +
-                                'Actual:   ' + walkError.message
-                            );
-                        }
-                    }
-                ).finally(() => {
-                    if (error)
-                        done(error);
-                    else
-                        done();
-                });
-            });
-
-            it('ClassModel.walk() called with second argument that is not a relationsihp in the schema. (Array of Booleans)', function(done) {
-                let expectedErrorMessage = 'SingularRelationshipClass.walk(): field "booleans" is not a relationship.';
-                let error;
-
-                SingularRelationshipClass.walk(instanceOfSingularRelationshipClassA, 'booleans').then(
-                    () => {
-                        error = new Error('ClassModel.walk() promise resolved when it should have rejected with an error.');
-                    },
-                    (walkError) => {
-                        if (walkError.message != expectedErrorMessage) {
-                            error = new Error(
-                                'ClassModel.walk() did not throw the expected error.\n' +
-                                'Expected: ' + expectedErrorMessage + '\n' +
-                                'Actual:   ' + walkError.message
-                            );
-                        }
-                    }
-                ).finally(() => {
-                    if (error)
-                        done(error);
-                    else
-                        done();
-                });
-            });
-
-            it('ClassModel.walk() called with third argument that is not an object.', function(done) {
-                let expectedErrorMessage = 'SingularRelationshipClass.walk(): Third argument needs to be an object.';
-                let error;
-
-                SingularRelationshipClass.walk(instanceOfSingularRelationshipClassA, 'singularRelationship', '{type: notAnObject}').then(
-                    () => {
-                        error = new Error('ClassModel.walk() promise resolved when it should have rejected with an error.');
-                    },
-                    (walkError) => {
-                        if (walkError.message != expectedErrorMessage) {
-                            error = new Error(
-                                'ClassModel.walk() did not throw the expected error.\n' +
-                                'Expected: ' + expectedErrorMessage + '\n' +
-                                'Actual:   ' + walkError.message
-                            );
-                        }
-                    }
-                ).finally(() => {
-                    if (error)
-                        done(error);
-                    else
-                        done();
-                });
-            });
-
-        });
-
-        describe('Test walking the relationships.', () => {
-
-            it('Walking a singular relationship.', function(done) {
-                let expectedInstance = instanceOfNonSingularRelationshipClass;
-                let error;
-
-                SingularRelationshipClass.walk(instanceOfSingularRelationshipClassA, 'singularRelationship').then(
-                    (instance) => {
-                        if (instance == null) 
-                            error = new Error('walk() did not return an instance.');
-                        if (!(instance._id.equals(expectedInstance._id)))
-                            error = new Error('walk() returned an instance, but it is not the right one.');
-                    },
-                    (walkError) => {
-                        error = walkError;
-                    }
-                ).finally(() => {
-                    if (error)
-                        done(error);
-                    else   
-                        done();
-                });
-
-            });
-
-            it('Walking a nonsingular relationship.', function(done) {
-                let expectedInstances = [instanceOfSingularRelationshipClassA, instanceOfSingularRelationshipClassB];
-                let error;
-
-                NonSingularRelationshipClass.walk(instanceOfNonSingularRelationshipClass, 'nonSingularRelationship').then(
-                    (instances) => {
-                        if (instances == null) 
-                            error = new Error('walk() returned null. It should have at least returned an empty array.');
-                        if (instances.length == 0) 
-                            error = new Error('walk() returned an empty array.');
-                        if (instances.length == 1) 
-                            error = new Error('walk() only returned a single instance, it should have returned 2 instances.');
-                        expectedInstances.forEach((expectedInstance) => {
-                            let expectedInstanceFound = false;
-                            instances.forEach((instance) => {
-                                if (instance._id.equals(expectedInstance._id))
-                                    expectedInstanceFound = true;
-                            });
-                            if (!expectedInstanceFound) {
-                                error = new Error('One of the expected instances was not returned.');
-                            }
-                        });
-                    },
-                    (walkError) => {
-                        error = walkError;
-                    }
-                ).finally(() => {
-                    if (error)
-                        done(error);
-                    else   
-                        done();
-                });
-            });
-
-            it('Walking a singular relationship by calling walk() from the super class.', function(done) {
-                let expectedInstance = instanceOfSubClassOfNonSingularRelationshipClass;
-                let error;
-
-                SingularRelationshipClass.walk(instanceOfSubClassOfSingularRelationshipClassA, 'singularRelationship').then(
-                    (instance) => {
-                        if (instance == null) 
-                            error = new Error('walk() did not return an instance.');
-                        if (!(instance._id.equals(expectedInstance._id)))
-                            error = new Error('walk() returned an instance, but it is not the right one.');
-                    },
-                    (walkError) => {
-                        error = walkError;
-                    }
-                ).finally(() => {
-                    if (error)
-                        done(error);
-                    else   
-                        done();
-                });
-            });
-
-            it('Walking a nonsingular relationship by calling walk() from the super class.', function(done) {
-                let expectedInstances = [instanceOfSubClassOfSingularRelationshipClassA._id, instanceOfSubClassOfSingularRelationshipClassB._id];
-                let error;
-
-                NonSingularRelationshipClass.walk(instanceOfSubClassOfNonSingularRelationshipClass, 'nonSingularRelationship').then(
-                    (instances) => {
-                        if (instances == null) 
-                            error = new Error('walk() returned null. It should have at least returned an empty array.');
-                        if (instances.length == 0) 
-                            error = new Error('walk() returned an empty array.');
-                        if (instances.length == 1) 
-                            error = new Error('walk() only returned a single instance, it should have returned 2 instances.');
-                        expectedInstances.forEach((expectedInstance) => {
-                            let expectedInstanceFound = false;
-                            instances.forEach((instance) => {
-                                if (instance._id.equals(expectedInstance._id))
-                                    expectedInstanceFound = true;
-                            });
-                            if (!expectedInstanceFound) {
-                                error = new Error('One of the expected instances was not returned.');
-                            }
-                        });
-                    },
-                    (walkError) => {
-                        error = walkError;
-                    }
-                ).finally(() => {
-                    if (error)
-                        done(error);
-                    else   
-                        done();
-                });
             });
 
         });
@@ -3302,98 +2096,98 @@ describe('Class Model Tests', () => {
 
     });
 
-    describe('ClassModel.accessControlFilter()', () => {
+    describe('ClassModel.accessControlFilterInstance()', () => {
 
         // Set up accessControlled Instances
         // For each class, create on instance which will pass all access control filters, and one each that will fail due to one of the access control methods
         {
             // ClassControlsAccessControlledSuperClass Instances
-            var instanceOfClassControlsAccessControlledSuperClassAllowed = ClassControlsAccessControlledSuperClass.create();
+            var instanceOfClassControlsAccessControlledSuperClassAllowed = new Instance(ClassControlsAccessControlledSuperClass);
             instanceOfClassControlsAccessControlledSuperClassAllowed.allowed = true;
             
-            var instanceOfClassControlsAccessControlledSuperClassNotAllowed = ClassControlsAccessControlledSuperClass.create();
+            var instanceOfClassControlsAccessControlledSuperClassNotAllowed = new Instance(ClassControlsAccessControlledSuperClass);
             instanceOfClassControlsAccessControlledSuperClassNotAllowed.allowed = false;
 
             // AccessControlledSuperClass Instances
-            var instanceOfAccessControlledSuperClassPasses = AccessControlledSuperClass.create();
+            var instanceOfAccessControlledSuperClassPasses = new Instance(AccessControlledSuperClass);
             instanceOfAccessControlledSuperClassPasses.name = 'instanceOfAccessControlledSuperClassPasses';
             instanceOfAccessControlledSuperClassPasses.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;
 
-            var instanceOfAccessControlledSuperClassFailsRelationship = AccessControlledSuperClass.create();
+            var instanceOfAccessControlledSuperClassFailsRelationship = new Instance(AccessControlledSuperClass);
             instanceOfAccessControlledSuperClassFailsRelationship.name = 'instanceOfAccessControlledSuperClassFailsRelationship';
             instanceOfAccessControlledSuperClassFailsRelationship.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassNotAllowed;
 
             // AccessControlledSubClassOfAccessControlledSuperClass Instances
-            var instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses = AccessControlledSubClassOfAccessControlledSuperClass.create();
+            var instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses = new Instance(AccessControlledSubClassOfAccessControlledSuperClass);
             instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses.name = 'instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses';
             instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;
             instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses.boolean = true;
 
-            var instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship = AccessControlledSubClassOfAccessControlledSuperClass.create();
+            var instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship = new Instance(AccessControlledSubClassOfAccessControlledSuperClass);
             instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship.name = 'instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship';
             instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassNotAllowed;
             instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship.boolean = true;
 
-            var instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean = AccessControlledSubClassOfAccessControlledSuperClass.create();
+            var instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean = new Instance(AccessControlledSubClassOfAccessControlledSuperClass);
             instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean.name = 'instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean'
             instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;
             instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean.boolean = false;
 
             // AccessControlledDiscriminatedSuperClass Instances
-            var instanceOfAccessControlledDiscriminatedSuperClassPasses = AccessControlledDiscriminatedSuperClass.create();
+            var instanceOfAccessControlledDiscriminatedSuperClassPasses = new Instance(AccessControlledDiscriminatedSuperClass);
             instanceOfAccessControlledDiscriminatedSuperClassPasses.name = 'instanceOfAccessControlledDiscriminatedSuperClassPasses';
             instanceOfAccessControlledDiscriminatedSuperClassPasses.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;
             instanceOfAccessControlledDiscriminatedSuperClassPasses.boolean = true;
             instanceOfAccessControlledDiscriminatedSuperClassPasses.string = 'accessControlled';
 
-            var instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship = AccessControlledDiscriminatedSuperClass.create();
+            var instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship = new Instance(AccessControlledDiscriminatedSuperClass);
             instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship.name = 'instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship';
             instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassNotAllowed;
             instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship.boolean = true;
             instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship.string = 'accessControlled';
 
-            var instanceOfAccessControlledDiscriminatedSuperClassFailsString = AccessControlledDiscriminatedSuperClass.create();
+            var instanceOfAccessControlledDiscriminatedSuperClassFailsString = new Instance(AccessControlledDiscriminatedSuperClass);
             instanceOfAccessControlledDiscriminatedSuperClassFailsString.name = 'instanceOfAccessControlledDiscriminatedSuperClassFailsString';
             instanceOfAccessControlledDiscriminatedSuperClassFailsString.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;
             instanceOfAccessControlledDiscriminatedSuperClassFailsString.boolean = true;
             instanceOfAccessControlledDiscriminatedSuperClassFailsString.string = 'not accessControlled';
 
-            var instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean = AccessControlledDiscriminatedSuperClass.create();
+            var instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean = new Instance(AccessControlledDiscriminatedSuperClass);
             instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean.name = 'instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean';
             instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;
             instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean.boolean = false;
             instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean.string = 'accessControlled';
 
             // AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass Instances
-            var instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses = AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.create();
+            var instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses = new Instance(AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass);
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses.name = 'instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses';
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;  
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses.boolean = true;
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses.string = 'accessControlled';         
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses.number = 1;
 
-            var instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship = AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.create();
+            var instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship = new Instance(AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass);
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship.name = 'instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship';
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassNotAllowed;             
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship.number = 1;
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship.boolean = true;
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship.string = 'accessControlled';
 
-            var instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean = AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.create();
+            var instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean = new Instance(AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass);
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean.name = 'instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean';
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;     
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean.boolean = false;
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean.string = 'accessControlled';
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean.number = 1;
 
-            var instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString = AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.create();
+            var instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString = new Instance(AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass);
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString.name = 'instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString';
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;     
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString.boolean = true;
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString.string = 'not accessControlled';            
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString.number = 1;
 
-            var instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber = AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.create();
+            var instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber = new Instance(AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass);
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber.name = 'instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber';
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber.boolean = true;
@@ -3401,182 +2195,101 @@ describe('Class Model Tests', () => {
             instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber.number = -1;
 
             // AccessControlledClassAccessControlledByParameters Instances
-            var instanceOfAccessControlledClassAccessControlledByParameters = AccessControlledClassAccessControlledByParameters.create();
+            var instanceOfAccessControlledClassAccessControlledByParameters = new Instance(AccessControlledClassAccessControlledByParameters);
 
         }
 
         // Save all SecurityFilter Test Instances
         before(async () => {
-            await ClassControlsAccessControlledSuperClass.saveAll([
-                instanceOfClassControlsAccessControlledSuperClassAllowed,
-                instanceOfClassControlsAccessControlledSuperClassNotAllowed
+            await Promise.all([
+                instanceOfClassControlsAccessControlledSuperClassAllowed.save(),
+                instanceOfClassControlsAccessControlledSuperClassNotAllowed.save(),
+                instanceOfAccessControlledSuperClassPasses.save(),
+                instanceOfAccessControlledSuperClassFailsRelationship.save(),
+                instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses.save(),
+                instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship.save(),
+                instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean.save(),
+                instanceOfAccessControlledDiscriminatedSuperClassPasses.save(),
+                instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship.save(),
+                instanceOfAccessControlledDiscriminatedSuperClassFailsString.save(),
+                instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean.save(),
+                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses.save(),
+                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship.save(),
+                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean.save(),
+                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString.save(),
+                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber.save(),
             ]);
-            await AccessControlledSuperClass.saveAll([
-                instanceOfAccessControlledSuperClassPasses,
-                instanceOfAccessControlledSuperClassFailsRelationship
-            ]);
-            await AccessControlledSubClassOfAccessControlledSuperClass.saveAll([
-                instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
-                instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship,
-                instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean
-            ]);
-            await AccessControlledDiscriminatedSuperClass.saveAll([
-                instanceOfAccessControlledDiscriminatedSuperClassPasses,
-                instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship,
-                instanceOfAccessControlledDiscriminatedSuperClassFailsString,
-                instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean
-            ]);
-            await AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.saveAll([
-                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses,
-                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship,
-                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean,
-                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString,
-                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber
-            ]);
+        });
 
+        after(async () => {
+            await ClassControlsAccessControlledSuperClass.clear();
+            await AccessControlledSuperClass.clear();
+            await AccessControlledSubClassOfAccessControlledSuperClass.clear();
+            await AccessControlledDiscriminatedSuperClass.clear();
+            await AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.clear();
         });
 
         describe('Tests for invalid arguments.', () => {
 
-            it('First Argument must be an Array', (done) => {
-                let error;
-                let expectedErrorMessage = 'Incorrect parameters. ' + AccessControlledSuperClass.className + '.accessControlFilter(Array<instance> instances, ...accessControlMethodParameters)';
-
-                AccessControlledSuperClass.accessControlFilter(instanceOfAccessControlledSuperClassPasses, instanceOfAccessControlledSuperClassPasses._id).then(
-                    (filtered) => {
-                    },
-                    (accessControlError) => {
-                        error = accessControlError;
-                    }
-                ).finally(() => {
-                    if (error) {
-                        if (error.message == expectedErrorMessage) {
-                            done();
-                        }
-                        else {
-                            done(new Error(
-                                'accessFilter() threw an unexpected error.\n' + 
-                                'Expected: ' + expectedErrorMessage + '\n' + 
-                                'Actual:   ' + error.message
-                            ));
-                        }
-                    }
-                    else {
-                        done(new Error('ClassModel.accessControlFilter() should have thrown an error.'));
-                    }
-                });
+            it('First argument must be an InstanceSet.', async () => {
+                let expectedErrorMessage = 'Incorrect parameters. ' + AccessControlledSuperClass.className + '.accessControlFilterInstance(InstanceSet instanceSet, ...accessControlMethodParameters)';
+                await testForErrorAsync('ClassModel.accessControlFilterInstance()', expectedErrorMessage, async () => {
+                    return AccessControlledSuperClass.accessControlFilterInstance();
+                })
             });
 
-            it('All instances must be of the Class or a Sub Class', (done) => {
-                let error;
-                let expectedErrorMessage = AccessControlledSubClassOfAccessControlledSuperClass.className + '.accessControlFilter() called with instances of a different class.';
-
-                AccessControlledSubClassOfAccessControlledSuperClass.accessControlFilter([instanceOfAccessControlledSuperClassPasses, instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses], instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses._id).then(
-                    (filtered) => {
-                    },
-                    (accessControlError) => {
-                        error = accessControlError;
-                    }
-                ).finally(() => {
-                    if (error) {
-                        if (error.message == expectedErrorMessage) {
-                            done();
-                        }
-                        else {
-                            done(new Error(
-                                'accessFilter() threw an unexpected error.\n' + 
-                                'Expected: ' + expectedErrorMessage + '\n' + 
-                                'Actual:   ' + error.message
-                            ));
-                        }
-                    }
-                    else {
-                        done(new Error('ClassModel.accessControlFilter() should have thrown an error.'));
-                    }
-                });
+            it('First argument must be an InstanceSet.', async () => {
+                let expectedErrorMessage = 'Incorrect parameters. ' + AccessControlledSuperClass.className + '.accessControlFilterInstance(InstanceSet instanceSet, ...accessControlMethodParameters)';
+                await testForErrorAsync('ClassModel.accessControlFilterInstance()', expectedErrorMessage, async () => {
+                    return AccessControlledSuperClass.accessControlFilterInstance({ some: 'object' });
+                })
             });
 
         });
 
         describe('Test filtering out instances that don\'t pass access control check.', () => {
 
-            describe('AccessControlledSuperClass.accessControlFilter()', () => {
+            describe('AccessControlledSuperClass.accessControlFilterInstance()', () => {
 
-                it('Access Control Filter called on Class with only direct instances of Class.', done => {
-                    let instances = [instanceOfAccessControlledSuperClassPasses, instanceOfAccessControlledSuperClassFailsRelationship];
+                it('Access Control Filter called on Class with only direct instances of Class.', async () => {
+                    const classModel = AccessControlledSuperClass;
+                    const instanceSet = new InstanceSet(classModel, [
+                        instanceOfAccessControlledSuperClassPasses,
+                        instanceOfAccessControlledSuperClassFailsRelationship
+                    ]);
+                    const expectedInstanceSet = new InstanceSet(classModel, [
+                        instanceOfAccessControlledSuperClassPasses
+                    ]);
 
-                    let expectedInstances = [instanceOfAccessControlledSuperClassPasses];
+                    const filteredInstanceSet = await classModel.accessControlFilterInstance(instanceSet);
                     
-                    AccessControlledSuperClass.accessControlFilter(instances)
-                        .then(
-                            filtered => {
-                                if (filtered.length != expectedInstances.length)
-                                    done(new Error("Filtering Failed. Instances returned: " + filtered));
-                                else {
-                                    let filteredCorrectly = true;
-
-                                    for (let instance of expectedInstances) {
-                                        if (!filtered.includes(instance))
-                                            filteredCorrectly = false;
-                                    }
-
-                                    if (!filteredCorrectly) {
-                                        done(new Error("Filtering Failed. Instances returned: " + filtered));
-                                    }
-                                    else done();
-                                }
-                            },
-                            error => {
-                                done(error);
-                            }
-                        ).catch(error => {
-                            done(error);
-                        });
+                    if (!expectedInstanceSet.equals(filteredInstanceSet))
+                        throw new Error('classModel.accessControlFilterInstance() did not return the expected InstanceSet.');
                 });
 
-                it('Access Control Filter called on Class with instances of class and sub class.', done => {
-                    let instances = [
+                it('Access Control Filter called on Class with instances of class and sub class.', async () => {
+                    const classModel = AccessControlledSuperClass;
+                    const instanceSet = new InstanceSet(classModel, [
                         instanceOfAccessControlledSuperClassPasses,
                         instanceOfAccessControlledSuperClassFailsRelationship,
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean,
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship
-                    ];
-
-                    let expectedInstances = [
+                    ]);
+                    const expectedInstanceSet = new InstanceSet(classModel, [
                         instanceOfAccessControlledSuperClassPasses,
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses
-                    ];
+                    ]);
 
-                    AccessControlledSuperClass.accessControlFilter(instances)
-                        .then(
-                            filtered => {
-                                if (filtered.length != expectedInstances.length)
-                                    done(new Error("Filtering Failed. Instances returned: " + filtered));
-                                else {
-                                    let filteredCorrectly = true;
-
-                                    for (let instance of expectedInstances) {
-                                        if (!filtered.includes(instance))
-                                            filteredCorrectly = false;
-                                    }
-
-                                    if (!filteredCorrectly) {
-                                        done(new Error("Filtering Failed. Instances returned: " + filtered));
-                                    }
-                                    else done();
-                                }
-                            },
-                            error => {
-                                done(error);
-                            }
-                        ).catch(error => {
-                            done(error);
-                        });
+                    const filteredInstanceSet = await classModel.accessControlFilterInstance(instanceSet);
+                    
+                    if (!expectedInstanceSet.equals(filteredInstanceSet))
+                        throw new Error('classModel.accessControlFilterInstance() did not return the expected InstanceSet.');
                 });
 
-                it('Access Control Filter called on Class with instances of class and 2 layers of sub classes', done => {
-                    let instances = [
+                it('Access Control Filter called on Class with instances of class and 2 layers of sub classes.', async () => {
+                    const classModel = AccessControlledSuperClass;
+                    const instanceSet = new InstanceSet(classModel, [
                         instanceOfAccessControlledSuperClassPasses,
                         instanceOfAccessControlledSuperClassFailsRelationship,
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
@@ -3586,44 +2299,22 @@ describe('Class Model Tests', () => {
                         instanceOfAccessControlledDiscriminatedSuperClassFailsString,
                         instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean,
                         instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship
-                    ];
-
-                    let expectedInstances = [
+                    ]);
+                    const expectedInstanceSet = new InstanceSet(classModel, [
                         instanceOfAccessControlledSuperClassPasses,
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
                         instanceOfAccessControlledDiscriminatedSuperClassPasses
-                    ];
+                    ]);
 
-                    AccessControlledSuperClass.accessControlFilter(instances)
-                        .then(
-                            filtered => {
-                                if (filtered.length != expectedInstances.length)
-                                    done(new Error("Filtering Failed. Wrong number of instances returned. Instances returned: " + filtered));
-                                else {
-                                    let filteredCorrectly = true;
-
-                                    for (let instance of expectedInstances) {
-                                        if (!filtered.includes(instance)) {
-                                            filteredCorrectly = false;
-                                        }
-                                    }
-
-                                    if (!filteredCorrectly) {
-                                        done(new Error("Filtering Failed. Instances returned: " + filtered));
-                                    }
-                                    else done();
-                                }
-                            },
-                            error => {
-                                done(error);
-                            }
-                        ).catch(error => {
-                            done(error);
-                        });
+                    const filteredInstanceSet = await classModel.accessControlFilterInstance(instanceSet);
+                    
+                    if (!expectedInstanceSet.equals(filteredInstanceSet))
+                        throw new Error('classModel.accessControlFilterInstance() did not return the expected InstanceSet.');
                 });
 
-                it('Access Control Filter called on Class with instances of 3 layers of sub classes', done => {
-                    let instances = [
+                it('Access Control Filter called on Class with instances of 3 layers of sub classes.', async () => {
+                    const classModel = AccessControlledSuperClass;
+                    const instanceSet = new InstanceSet(classModel, [
                         instanceOfAccessControlledSuperClassPasses,
                         instanceOfAccessControlledSuperClassFailsRelationship,
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
@@ -3638,86 +2329,44 @@ describe('Class Model Tests', () => {
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString,
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean,
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber
-                    ];
-
-                    let expectedInstances = [
+                    ]);
+                    const expectedInstanceSet = new InstanceSet(classModel, [
                         instanceOfAccessControlledSuperClassPasses,
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
                         instanceOfAccessControlledDiscriminatedSuperClassPasses,
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses
-                    ];
+                    ]);
 
-                    AccessControlledSuperClass.accessControlFilter(instances)
-                        .then(
-                            filtered => {
-                                if (filtered.length != expectedInstances.length)
-                                    done(new Error("Filtering Failed. Wrong number of instances returned. Instances returned: " + filtered));
-                                else {
-                                    let filteredCorrectly = true;
-
-                                    for (let instance of expectedInstances) {
-                                        if (!filtered.includes(instance)) {
-                                            filteredCorrectly = false;
-                                        }
-                                    }
-
-                                    if (!filteredCorrectly) {
-                                        done(new Error("Filtering Failed. Instances returned: " + filtered));
-                                    }
-                                    else done();
-                                }
-                            },
-                            error => {
-                                done(error);
-                            }
-                        ).catch(error => {
-                            done(error);
-                        });
+                    const filteredInstanceSet = await classModel.accessControlFilterInstance(instanceSet);
+                    
+                    if (!expectedInstanceSet.equals(filteredInstanceSet))
+                        throw new Error('classModel.accessControlFilterInstance() did not return the expected InstanceSet.');
                 });
+
             });
 
-            describe('AccessControlledSubClassOfAccessControlledSuperClass.accessControlFilter()', () => {
+            describe('AccessControlledSubClassOfAccessControlledSuperClass.accessControlFilterInstance()', () => {
 
-                it('Access Control Filter called on Class with only direct instances of Class.', done => {
-                    let instances = [
+                it('Access Control Filter called on Class with only direct instances of Class.', async () => {
+                    const classModel = AccessControlledSubClassOfAccessControlledSuperClass;
+                    const instanceSet = new InstanceSet(classModel, [
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean,
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship
-                    ];
-
-                    let expectedInstances = [
+                    ]);
+                    const expectedInstanceSet = new InstanceSet(classModel, [
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses
-                    ];
+                    ]);
 
-                    AccessControlledSubClassOfAccessControlledSuperClass.accessControlFilter(instances)
-                        .then(
-                            filtered => {
-                                if (filtered.length != expectedInstances.length)
-                                    done(new Error("Filtering Failed. Instances returned: " + filtered));
-                                else {
-                                    let filteredCorrectly = true;
-
-                                    for (let instance of expectedInstances) {
-                                        if (!filtered.includes(instance))
-                                            filteredCorrectly = false;
-                                    }
-
-                                    if (!filteredCorrectly) {
-                                        done(new Error("Filtering Failed. Instances returned: " + filtered));
-                                    }
-                                    else done();
-                                }
-                            },
-                            error => {
-                                done(error);
-                            }
-                        ).catch(error => {
-                            done(error);
-                        });
+                    const filteredInstanceSet = await classModel.accessControlFilterInstance(instanceSet);
+                    
+                    if (!expectedInstanceSet.equals(filteredInstanceSet))
+                        throw new Error('classModel.accessControlFilterInstance() did not return the expected InstanceSet.');
                 });
 
-                it('Access Control Filter called on Class with instances of class and 1 layers of sub classes', done => {
-                    let instances = [
+                it('Access Control Filter called on Class with instances of class and 1 layers of sub classes.', async () => {
+                    const classModel = AccessControlledSubClassOfAccessControlledSuperClass;
+                    const instanceSet = new InstanceSet(classModel, [
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean,
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship,
@@ -3725,43 +2374,21 @@ describe('Class Model Tests', () => {
                         instanceOfAccessControlledDiscriminatedSuperClassFailsString,
                         instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean,
                         instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship
-                    ];
-
-                    let expectedInstances = [
+                    ]);
+                    const expectedInstanceSet = new InstanceSet(classModel, [
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
                         instanceOfAccessControlledDiscriminatedSuperClassPasses
-                    ];
+                    ]);
 
-                    AccessControlledSubClassOfAccessControlledSuperClass.accessControlFilter(instances)
-                        .then(
-                            filtered => {
-                                if (filtered.length != expectedInstances.length)
-                                    done(new Error("Filtering Failed. Wrong number of instances returned. Instances returned: " + filtered));
-                                else {
-                                    let filteredCorrectly = true;
-
-                                    for (let instance of expectedInstances) {
-                                        if (!filtered.includes(instance)) {
-                                            filteredCorrectly = false;
-                                        }
-                                    }
-
-                                    if (!filteredCorrectly) {
-                                        done(new Error("Filtering Failed. Instances returned: " + filtered));
-                                    }
-                                    else done();
-                                }
-                            },
-                            error => {
-                                done(error);
-                            }
-                        ).catch(error => {
-                            done(error);
-                        });
+                    const filteredInstanceSet = await classModel.accessControlFilterInstance(instanceSet);
+                    
+                    if (!expectedInstanceSet.equals(filteredInstanceSet))
+                        throw new Error('classModel.accessControlFilterInstance() did not return the expected InstanceSet.');
                 });
 
-                it('Access Control Filter called on Class with instances of 2 layers of sub classes', done => {
-                    let instances = [
+                it('Access Control Filter called on Class with instances of 2 layers of sub classes.', async () => {
+                    const classModel = AccessControlledSubClassOfAccessControlledSuperClass;
+                    const instanceSet = new InstanceSet(classModel, [
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean,
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship,
@@ -3774,87 +2401,44 @@ describe('Class Model Tests', () => {
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString,
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean,
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber
-                    ];
-
-                    let expectedInstances = [
+                    ]);
+                    const expectedInstanceSet = new InstanceSet(classModel, [
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
                         instanceOfAccessControlledDiscriminatedSuperClassPasses,
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses
-                    ];
+                    ]);
 
-                    AccessControlledSubClassOfAccessControlledSuperClass.accessControlFilter(instances)
-                        .then(
-                            filtered => {
-                                if (filtered.length != expectedInstances.length)
-                                    done(new Error("Filtering Failed. Wrong number of instances returned. Instances returned: " + filtered));
-                                else {
-                                    let filteredCorrectly = true;
-
-                                    for (let instance of expectedInstances) {
-                                        if (!filtered.includes(instance)) {
-                                            filteredCorrectly = false;
-                                        }
-                                    }
-
-                                    if (!filteredCorrectly) {
-                                        done(new Error("Filtering Failed. Instances returned: " + filtered));
-                                    }
-                                    else done();
-                                }
-                            },
-                            error => {
-                                done(error);
-                            }
-                        ).catch(error => {
-                            done(error);
-                        });
+                    const filteredInstanceSet = await classModel.accessControlFilterInstance(instanceSet);
+                    
+                    if (!expectedInstanceSet.equals(filteredInstanceSet))
+                        throw new Error('classModel.accessControlFilterInstance() did not return the expected InstanceSet.');
                 });
+
             });
 
-            describe('AccessControlledDiscriminatedSuperClass.accessControlFilter()', () => {
+            describe('AccessControlledDiscriminatedSuperClass.accessControlFilterInstance()', () => {
 
-                it('Access Control Filter called on Class with only direct instances of Class.', done => {
-                    let instances = [
+                it('Access Control Filter called on Class with only direct instances of Class.', async () => {
+                    const classModel = AccessControlledDiscriminatedSuperClass;
+                    const instanceSet = new InstanceSet(classModel, [
                         instanceOfAccessControlledDiscriminatedSuperClassPasses,
                         instanceOfAccessControlledDiscriminatedSuperClassFailsString,
                         instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean,
                         instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship
-                    ];
-
-                    let expectedInstances = [
+                    ]);
+                    const expectedInstanceSet = new InstanceSet(classModel, [
                         instanceOfAccessControlledDiscriminatedSuperClassPasses
-                    ];
+                    ]);
 
-                    AccessControlledDiscriminatedSuperClass.accessControlFilter(instances)
-                        .then(
-                            filtered => {
-                                if (filtered.length != expectedInstances.length)
-                                    done(new Error("Filtering Failed. Wrong number of instances returned. Instances returned: " + filtered));
-                                else {
-                                    let filteredCorrectly = true;
-
-                                    for (let instance of expectedInstances) {
-                                        if (!filtered.includes(instance)) {
-                                            filteredCorrectly = false;
-                                        }
-                                    }
-
-                                    if (!filteredCorrectly) {
-                                        done(new Error("Filtering Failed. Instances returned: " + filtered));
-                                    }
-                                    else done();
-                                }
-                            },
-                            error => {
-                                done(error);
-                            }
-                        ).catch(error => {
-                            done(error);
-                        });
+                    const filteredInstanceSet = await classModel.accessControlFilterInstance(instanceSet);
+                    
+                    if (!expectedInstanceSet.equals(filteredInstanceSet))
+                        throw new Error('classModel.accessControlFilterInstance() did not return the expected InstanceSet.');
                 });
 
-                it('Access Control Filter called on Class with instances of 1 layers of sub classes', done => {
-                    let instances = [
+                it('Access Control Filter called on Class with instances of 1 layers of sub classes.', async () => {
+                    const classModel = AccessControlledDiscriminatedSuperClass;
+                    const instanceSet = new InstanceSet(classModel, [
                         instanceOfAccessControlledDiscriminatedSuperClassPasses,
                         instanceOfAccessControlledDiscriminatedSuperClassFailsString,
                         instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean,
@@ -3864,185 +2448,87 @@ describe('Class Model Tests', () => {
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString,
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean,
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber
-                    ];
-
-                    let expectedInstances = [
+                    ]);
+                    const expectedInstanceSet = new InstanceSet(classModel, [
                         instanceOfAccessControlledDiscriminatedSuperClassPasses,
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses
-                    ];
+                    ]);
 
-                    AccessControlledDiscriminatedSuperClass.accessControlFilter(instances)
-                        .then(
-                            filtered => {
-                                if (filtered.length != expectedInstances.length)
-                                    done(new Error("Filtering Failed. Wrong number of instances returned. Instances returned: " + filtered));
-                                else {
-                                    let filteredCorrectly = true;
-
-                                    for (let instance of expectedInstances) {
-                                        if (!filtered.includes(instance)) {
-                                            filteredCorrectly = false;
-                                        }
-                                    }
-
-                                    if (!filteredCorrectly) {
-                                        done(new Error("Filtering Failed. Instances returned: " + filtered));
-                                    }
-                                    else done();
-                                }
-                            },
-                            error => {
-                                done(error);
-                            }
-                        ).catch(error => {
-                            done(error);
-                        });
+                    const filteredInstanceSet = await classModel.accessControlFilterInstance(instanceSet);
+                    
+                    if (!expectedInstanceSet.equals(filteredInstanceSet))
+                        throw new Error('classModel.accessControlFilterInstance() did not return the expected InstanceSet.');
                 });
+
             });
 
-            describe('AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.accessControlFilter()', () => {
+            describe('AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.accessControlFilterInstance()', () => {
 
-                it('Access Control Filter called on Class with only direct instances of Class.', done => {
-                    let instances = [
+                it('Access Control Filter called on Class with only direct instances of Class.', async () => {
+                    const classModel = AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass;
+                    const instanceSet = new InstanceSet(classModel, [
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses,
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship,
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString,
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean,
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber
-                    ];
-
-                    let expectedInstances = [
+                    ]);
+                    const expectedInstanceSet = new InstanceSet(classModel, [
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses
-                    ];
+                    ]);
 
-                    AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.accessControlFilter(instances)
-                        .then(
-                            filtered => {
-                                if (filtered.length != expectedInstances.length)
-                                    done(new Error("Filtering Failed. Wrong number of instances returned. Instances returned: " + filtered));
-                                else {
-                                    let filteredCorrectly = true;
-
-                                    for (let instance of expectedInstances) {
-                                        if (!filtered.includes(instance)) {
-                                            filteredCorrectly = false;
-                                        }
-                                    }
-
-                                    if (!filteredCorrectly) {
-                                        done(new Error("Filtering Failed. Instances returned: " + filtered));
-                                    }
-                                    else done();
-                                }
-                            },
-                            error => {
-                                done(error);
-                            }
-                        ).catch(error => {
-                            done(error);
-                        });
+                    const filteredInstanceSet = await classModel.accessControlFilterInstance(instanceSet);
+                    
+                    if (!expectedInstanceSet.equals(filteredInstanceSet))
+                        throw new Error('classModel.accessControlFilterInstance() did not return the expected InstanceSet.');
                 });
+
             });
 
-            describe('AccessControlledClassAccessControlledByParameters.accessControlFilter()', () => {
+            describe('AccessControlledClassAccessControlledByParameters.accessControlFilterInstance()', () => {
 
-                it('Instance passes access control check', done => {
-                    let instances = [instanceOfAccessControlledClassAccessControlledByParameters];
+                it('Instance passes access control check', async () => {
+                    const classModel = AccessControlledClassAccessControlledByParameters;
+                    const instanceSet = new InstanceSet(classModel, [
+                        instanceOfAccessControlledClassAccessControlledByParameters,
+                    ]);
+                    const expectedInstanceSet = new InstanceSet(classModel, [
+                        instanceOfAccessControlledClassAccessControlledByParameters
+                    ]);
+                    const parameters = [1, 1, true];
 
-                    let expectedInstances = [instanceOfAccessControlledClassAccessControlledByParameters];
+                    const filteredInstanceSet = await classModel.accessControlFilterInstance(instanceSet, ...parameters);
                     
-                    AccessControlledClassAccessControlledByParameters.accessControlFilter(instances, 1, 1, true)
-                        .then(
-                            filtered => {
-                                if (filtered.length != expectedInstances.length)
-                                    done(new Error("Filtering Failed. Instances returned: " + filtered));
-                                else {
-                                    let filteredCorrectly = true;
-
-                                    for (let instance of expectedInstances) {
-                                        if (!filtered.includes(instance))
-                                            filteredCorrectly = false;
-                                    }
-
-                                    if (!filteredCorrectly) {
-                                        done(new Error("Filtering Failed. Instances returned: " + filtered));
-                                    }
-                                    else done();
-                                }
-                            },
-                            error => {
-                                done(error);
-                            }
-                        ).catch(error => {
-                            done(error);
-                        });
-
+                    if (!expectedInstanceSet.equals(filteredInstanceSet))
+                        throw new Error('classModel.accessControlFilterInstance() did not return the expected InstanceSet.');
                 });
 
-                it('Instance fails access control check because of Numbers.', done => {
-                    let instances = [instanceOfAccessControlledClassAccessControlledByParameters];
+                it('Instance fails access control check because of Numbers.', async () => {
+                    const classModel = AccessControlledClassAccessControlledByParameters;
+                    const instanceSet = new InstanceSet(classModel, [
+                        instanceOfAccessControlledClassAccessControlledByParameters,
+                    ]);
+                    const expectedInstanceSet = new InstanceSet(classModel);
+                    const parameters = [-2, 1, true];
 
-                    let expectedInstances = [];
+                    const filteredInstanceSet = await classModel.accessControlFilterInstance(instanceSet, ...parameters);
                     
-                    AccessControlledClassAccessControlledByParameters.accessControlFilter(instances, -2, 1, true)
-                        .then(
-                            filtered => {
-                                if (filtered.length != expectedInstances.length)
-                                    done(new Error("Filtering Failed. Instances returned: " + filtered));
-                                else {
-                                    let filteredCorrectly = true;
-
-                                    for (let instance of expectedInstances) {
-                                        if (!filtered.includes(instance))
-                                            filteredCorrectly = false;
-                                    }
-
-                                    if (!filteredCorrectly) {
-                                        done(new Error("Filtering Failed. Instances returned: " + filtered));
-                                    }
-                                    else done();
-                                }
-                            },
-                            error => {
-                                done(error);
-                            }
-                        ).catch(error => {
-                            done(error);
-                        });
-
+                    if (!expectedInstanceSet.equals(filteredInstanceSet))
+                        throw new Error('classModel.accessControlFilterInstance() did not return the expected InstanceSet.');
                 });
 
-                it('Instance failes access control check because of Boolean', done => {
-                    let instances = [instanceOfAccessControlledClassAccessControlledByParameters];
+                it('Instance fails access control check because of Boolean.', async () => {
+                    const classModel = AccessControlledClassAccessControlledByParameters;
+                    const instanceSet = new InstanceSet(classModel, [
+                        instanceOfAccessControlledClassAccessControlledByParameters,
+                    ]);
+                    const expectedInstanceSet = new InstanceSet(classModel);
+                    const parameters = [1, 1, false];
 
-                    let expectedInstances = [];
+                    const filteredInstanceSet = await classModel.accessControlFilterInstance(instanceSet, ...parameters);
                     
-                    AccessControlledClassAccessControlledByParameters.accessControlFilter(instances, 1, 1, false)
-                        .then(
-                            filtered => {
-                                if (filtered.length != expectedInstances.length)
-                                    done(new Error("Filtering Failed. Instances returned: " + filtered));
-                                else {
-                                    let filteredCorrectly = true;
-
-                                    for (let instance of expectedInstances) {
-                                        if (!filtered.includes(instance))
-                                            filteredCorrectly = false;
-                                    }
-
-                                    if (!filteredCorrectly) {
-                                        done(new Error("Filtering Failed. Instances returned: " + filtered));
-                                    }
-                                    else done();
-                                }
-                            },
-                            error => {
-                                done(error);
-                            }
-                        ).catch(error => {
-                            done(error);
-                        });
-
+                    if (!expectedInstanceSet.equals(filteredInstanceSet))
+                        throw new Error('classModel.accessControlFilterInstance() did not return the expected InstanceSet.');
                 });
 
             });
@@ -4051,15 +2537,15 @@ describe('Class Model Tests', () => {
 
         describe('Test find methods for access filtering.', () => {
 
-            describe('Test findById() with access filtering', () => {
+            describe('Test findInstanceById() with access filtering', () => {
 
-                it('Call findByID() on an instance of an access controlled class. Instance passes filter.', async () => {
+                it('Call findInstanceById() on an instance of an access controlled class. Instance passes filter.', async () => {
                     const classToCallFindByIdOn = AccessControlledSuperClass;
                     const instanceToFind = instanceOfAccessControlledSuperClassPasses;
-                    const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
+                    const instanceFound = await classToCallFindByIdOn.findInstanceById(instanceToFind._id);
 
                     if (!instanceFound)
-                        throw new Error('findById() did not return an instance.');
+                        throw new Error('findInstanceById() did not return an instance.');
 
                     if (!instanceFound._id.equals(instanceToFind._id))
                         throw new Error(
@@ -4069,13 +2555,13 @@ describe('Class Model Tests', () => {
                         );
                 });
 
-                it('Call findByID() on an instance of an access controlled class, from super class. Instance passes filter.', async () => {
+                it('Call findInstanceById() on an instance of an access controlled class, from super class. Instance passes filter.', async () => {
                     const classToCallFindByIdOn = AccessControlledSuperClass;
                     const instanceToFind = instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses;
-                    const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
+                    const instanceFound = await classToCallFindByIdOn.findInstanceById(instanceToFind._id);
 
                     if (!instanceFound)
-                        throw new Error('findById() did not return an instance.');
+                        throw new Error('findInstanceById() did not return an instance.');
 
                     if (!instanceFound._id.equals(instanceToFind._id))
                         throw new Error(
@@ -4086,40 +2572,40 @@ describe('Class Model Tests', () => {
 
                 });
 
-                it('Call findByID() on an instance of an access controlled class. Instance does not pass filter.', async () => {
+                it('Call findInstanceById() on an instance of an access controlled class. Instance does not pass filter.', async () => {
                     const classToCallFindByIdOn = AccessControlledSuperClass;
                     const instanceToFind = instanceOfAccessControlledSuperClassFailsRelationship;
-                    const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
+                    const instanceFound = await classToCallFindByIdOn.findInstanceById(instanceToFind._id);
 
                     if (instanceFound)
-                        throw new Error('findById() returned an instance.');
+                        throw new Error('findInstanceById() returned an instance.');
                 });
 
-                it('Call findByID() on an instance of an access controlled class, from super class. Instance does not pass filter based on super access control method.', async () => {
+                it('Call findInstanceById() on an instance of an access controlled class, from super class. Instance does not pass filter based on super access control method.', async () => {
                     const classToCallFindByIdOn = AccessControlledSuperClass;
                     const instanceToFind = instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship;
-                    const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
+                    const instanceFound = await classToCallFindByIdOn.findInstanceById(instanceToFind._id);
 
                     if (instanceFound)
-                        throw new Error('findById() returned an instance.');
+                        throw new Error('findInstanceById() returned an instance.');
 
                 });
 
-                it('Call findByID() on an instance of an access controlled class, from super class. Instance does not pass filter based on it\'s own access control method.', async () => {
+                it('Call findInstanceById() on an instance of an access controlled class, from super class. Instance does not pass filter based on it\'s own access control method.', async () => {
                     const classToCallFindByIdOn = AccessControlledSuperClass;
                     const instanceToFind = instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean;
-                    const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
+                    const instanceFound = await classToCallFindByIdOn.findInstanceById(instanceToFind._id);
 
                     if (instanceFound)
-                        throw new Error('findById() returned an instance.');
+                        throw new Error('findInstanceById() returned an instance.');
 
                 });
 
             });
 
-            describe('Test findOne() with access filtering', () => {
+            describe('Test findOneInstance() with access filtering', () => {
 
-                it('Call findOne() on an instance of an access controlled class. instance passes filter.', async () => {
+                it('Call findOneInstance() on an instance of an access controlled class. instance passes filter.', async () => {
                     const classToCallFindByIdOn = AccessControlledSuperClass;
                     const instanceToFind = instanceOfAccessControlledSuperClassPasses;
 
@@ -4127,10 +2613,10 @@ describe('Class Model Tests', () => {
                         name: 'instanceOfAccessControlledSuperClassPasses'
                     }
 
-                    const instanceFound = await classToCallFindByIdOn.findOne(filter);
+                    const instanceFound = await classToCallFindByIdOn.findOneInstance(filter);
 
                     if (!instanceFound)
-                        throw new Error('findOne() did not return an instance.');
+                        throw new Error('findOneInstance() did not return an instance.');
 
                     if (!instanceFound._id.equals(instanceToFind._id))
                         throw new Error(
@@ -4140,7 +2626,7 @@ describe('Class Model Tests', () => {
                         );
                 });
 
-                it('Call findOne() on an instance of an access controlled class, from super class. Instance passes filter.', async () => {
+                it('Call findOneInstance() on an instance of an access controlled class, from super class. Instance passes filter.', async () => {
                     const classToCallFindByIdOn = AccessControlledSuperClass;
                     const instanceToFind = instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses;
 
@@ -4148,10 +2634,10 @@ describe('Class Model Tests', () => {
                         name: 'instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses'
                     }
 
-                    const instanceFound = await classToCallFindByIdOn.findOne(filter);
+                    const instanceFound = await classToCallFindByIdOn.findOneInstance(filter);
 
                     if (!instanceFound)
-                        throw new Error('findOne() did not return an instance.');
+                        throw new Error('findOneInstance() did not return an instance.');
 
                     if (!instanceFound._id.equals(instanceToFind._id))
                         throw new Error(
@@ -4161,53 +2647,53 @@ describe('Class Model Tests', () => {
                         );
                 });
 
-                it('Call findOne() on an instance of an access controlled class. Instance does not pass filter.', async () => {
+                it('Call findOneInstance() on an instance of an access controlled class. Instance does not pass filter.', async () => {
                     const classToCallFindByIdOn = AccessControlledSuperClass;
 
                     const filter = {
                         name: 'instanceOfAccessControlledSuperClassFailsRelationship'
                     }
 
-                    const instanceFound = await classToCallFindByIdOn.findOne(filter);
+                    const instanceFound = await classToCallFindByIdOn.findOneInstance(filter);
 
                     if (instanceFound)
-                        throw new Error('findOne() returned an instance');
+                        throw new Error('findOneInstance() returned an instance');
 
                 });
 
-                it('Call findOne() on an instance of an access controlled class, from super class. Instance does not pass filter based on super access control method.', async () => {
+                it('Call findOneInstance() on an instance of an access controlled class, from super class. Instance does not pass filter based on super access control method.', async () => {
                     const classToCallFindByIdOn = AccessControlledSuperClass;
 
                     const filter = {
                         name: 'instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship'
                     }
 
-                    const instanceFound = await classToCallFindByIdOn.findOne(filter);
+                    const instanceFound = await classToCallFindByIdOn.findOneInstance(filter);
 
                     if (instanceFound)
-                        throw new Error('findOne() returned an instance');
+                        throw new Error('findOneInstance() returned an instance');
 
                 });
 
-                it('Call findOne() on an instance of an access controlled class, from super class. Instance does not pass filter based on it\'s own access control method.', async () => {
+                it('Call findOneInstance() on an instance of an access controlled class, from super class. Instance does not pass filter based on it\'s own access control method.', async () => {
                     const classToCallFindByIdOn = AccessControlledSuperClass;
 
                     const filter = {
                         name: 'instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean'
                     }
 
-                    const instanceFound = await classToCallFindByIdOn.findOne(filter);
+                    const instanceFound = await classToCallFindByIdOn.findOneInstance(filter);
 
                     if (instanceFound)
-                        throw new Error('findOne() returned an instance');
+                        throw new Error('findOneInstance() returned an instance');
 
                 });
 
             });
 
-            describe('Test find() with access filtering', () => {
+            describe('Test findInstanceSet() with access filtering', () => {
 
-                it('Call find() on access controlled super class with a passing and not passing instance of each sub class.', async () => {
+                it('Call findInstanceSet() on access controlled super class with a passing and not passing instance of each sub class.', async () => {
                     const instanceNames = [
                         'instanceOfAccessControlledSuperClassPasses',
                         'instanceOfAccessControlledSuperClassFailsRelationship',
@@ -4224,923 +2710,22 @@ describe('Class Model Tests', () => {
                         'AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass',
                         'AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass'
                     ];
-                    const instancesToFind = [
+                    const expectedInstances = new InstanceSet(AccessControlledSuperClass, [
                         instanceOfAccessControlledSuperClassPasses,
                         instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
                         instanceOfAccessControlledDiscriminatedSuperClassPasses,
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses
-                    ];
-
-                    const instancesFound = await AccessControlledSuperClass.find({name: {$in: instanceNames}});
-
-                    if (instancesFound.length < instancesToFind.length) 
-                        throw new Error('find() returned too few instances.');
-                    
-                    if (instancesFound.length > instancesToFind.length)
-                        throw new Error('find() returned too many instances')
-
-                    let instancesCorrectlyFound = 0;
-
-                    for (const instanceToFind of instancesToFind)
-                        for (const instanceFound of instancesFound)
-                            if (instanceFound.id == instanceToFind.id) {
-                                instancesCorrectlyFound++;
-                                break;
-                            }
-                    
-                    if (instancesCorrectlyFound != instancesToFind.length)
-                        throw new Error(
-                            'find() returned the correct number of instances, but did not return the correct instances.\n' +
-                            'Instances found: \n' + instancesFound + '\n' + 
-                            'Expected instances: \n' + instancesToFind
-                        );
-                });
-
-            });
-
-        });
-
-        after(async () => {
-            await ClassControlsAccessControlledSuperClass.clear();
-            await AccessControlledSuperClass.clear();
-            await AccessControlledSubClassOfAccessControlledSuperClass.clear();
-            await AccessControlledDiscriminatedSuperClass.clear();
-            await AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.clear();
-        });
-
-    });
-
-    describe('ClassModel.updateControlFilter()', () => {
-
-        // Set up updateControlled Instances
-        // For each class, create on instance which will pass all update control filters, and one each that will fail due to one of the update control methods
-        {
-            // ClassControlsUpdateControlledSuperClass Instances
-            var instanceOfClassControlsUpdateControlledSuperClassAllowed = ClassControlsUpdateControlledSuperClass.create();
-            instanceOfClassControlsUpdateControlledSuperClassAllowed.allowed = true;
-            
-            var instanceOfClassControlsUpdateControlledSuperClassNotAllowed = ClassControlsUpdateControlledSuperClass.create();
-            instanceOfClassControlsUpdateControlledSuperClassNotAllowed.allowed = false;
-
-            // UpdateControlledSuperClass Instances
-            var instanceOfUpdateControlledSuperClassPasses = UpdateControlledSuperClass.create();
-            instanceOfUpdateControlledSuperClassPasses.name = 'instanceOfUpdateControlledSuperClassPasses';
-            instanceOfUpdateControlledSuperClassPasses.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
-
-            var instanceOfUpdateControlledSuperClassFailsRelationship = UpdateControlledSuperClass.create();
-            instanceOfUpdateControlledSuperClassFailsRelationship.name = 'instanceOfUpdateControlledSuperClassFailsRelationship';
-            instanceOfUpdateControlledSuperClassFailsRelationship.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassNotAllowed;
-
-            // UpdateControlledSubClassOfUpdateControlledSuperClass Instances
-            var instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses = UpdateControlledSubClassOfUpdateControlledSuperClass.create();
-            instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses.name = 'instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses';
-            instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
-            instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses.boolean = true;
-
-            var instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship = UpdateControlledSubClassOfUpdateControlledSuperClass.create();
-            instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship.name = 'instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship';
-            instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassNotAllowed;
-            instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship.boolean = true;
-
-            var instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean = UpdateControlledSubClassOfUpdateControlledSuperClass.create();
-            instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean.name = 'instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean'
-            instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
-            instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean.boolean = false;
-
-            // UpdateControlledDiscriminatedSuperClass Instances
-            var instanceOfUpdateControlledDiscriminatedSuperClassPasses = UpdateControlledDiscriminatedSuperClass.create();
-            instanceOfUpdateControlledDiscriminatedSuperClassPasses.name = 'instanceOfUpdateControlledDiscriminatedSuperClassPasses';
-            instanceOfUpdateControlledDiscriminatedSuperClassPasses.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
-            instanceOfUpdateControlledDiscriminatedSuperClassPasses.boolean = true;
-            instanceOfUpdateControlledDiscriminatedSuperClassPasses.string = 'updateControlled';
-
-            var instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship = UpdateControlledDiscriminatedSuperClass.create();
-            instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship.name = 'instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship';
-            instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassNotAllowed;
-            instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship.boolean = true;
-            instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship.string = 'updateControlled';
-
-            var instanceOfUpdateControlledDiscriminatedSuperClassFailsString = UpdateControlledDiscriminatedSuperClass.create();
-            instanceOfUpdateControlledDiscriminatedSuperClassFailsString.name = 'instanceOfUpdateControlledDiscriminatedSuperClassFailsString';
-            instanceOfUpdateControlledDiscriminatedSuperClassFailsString.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
-            instanceOfUpdateControlledDiscriminatedSuperClassFailsString.boolean = true;
-            instanceOfUpdateControlledDiscriminatedSuperClassFailsString.string = 'not updateControlled';
-
-            var instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean = UpdateControlledDiscriminatedSuperClass.create();
-            instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean.name = 'instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean';
-            instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
-            instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean.boolean = false;
-            instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean.string = 'updateControlled';
-
-            // UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass Instances
-            var instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses = UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.create();
-            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses.name = 'instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses';
-            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;  
-            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses.boolean = true;
-            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses.string = 'updateControlled';         
-            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses.number = 1;
-
-            var instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship = UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.create();
-            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship.name = 'instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship';
-            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassNotAllowed;             
-            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship.number = 1;
-            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship.boolean = true;
-            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship.string = 'updateControlled';
-
-            var instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean = UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.create();
-            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean.name = 'instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean';
-            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;     
-            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean.boolean = false;
-            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean.string = 'updateControlled';
-            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean.number = 1;
-
-            var instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString = UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.create();
-            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString.name = 'instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString';
-            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;     
-            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString.boolean = true;
-            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString.string = 'not updateControlled';            
-            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString.number = 1;
-
-            var instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber = UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.create();
-            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber.name = 'instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber';
-            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
-            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber.boolean = true;
-            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber.string = 'updateControlled';      
-            instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber.number = -1;
-
-            // UpdateControlledClassUpdateControlledByParameters Instances
-            var instanceOfUpdateControlledClassUpdateControlledByParameters = UpdateControlledClassUpdateControlledByParameters.create();
-
-        }
-
-        // Save all SecurityFilter Test Instances
-        before(async () => {
-            await ClassControlsUpdateControlledSuperClass.saveAll([
-                instanceOfClassControlsUpdateControlledSuperClassAllowed,
-                instanceOfClassControlsUpdateControlledSuperClassNotAllowed
-            ]);
-
-        });
-
-        describe('Tests for invalid arguments.', () => {
-
-            it('First Argument must be an Array', async () => {
-                let updatable;
-                const expectedErrorMessage = 'Incorrect parameters. ' + UpdateControlledSuperClass.className + '.updateControlCheck(Array<instance> instances, ...updateControlMethodParameters)';
-
-                try {
-                    updatable = await UpdateControlledSuperClass.updateControlCheck(instanceOfUpdateControlledSuperClassPasses, instanceOfUpdateControlledSuperClassPasses._id);
-                }
-                catch (error) {
-                    if (error.message != expectedErrorMessage) {
-                        throw  new Error(
-                            'accessFilter() threw an unexpected error.\n' + 
-                            'Expected: ' + expectedErrorMessage + '\n' + 
-                            'Actual:   ' + error.message
-                        );
-                    }
-                }
-
-                if (updatable)
-                    throw new Error ('ClassModel.updateControlCheck() returned when it should have thrown an error.');
-            });
-
-            it('All instances must be of the Class or a Sub Class', async () => {
-                let updatable;
-                const expectedErrorMessage = UpdateControlledSubClassOfUpdateControlledSuperClass.className + '.updateControlCheck() called with instances of a different class.';
-
-                try {
-                    updatable = await UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheck([instanceOfUpdateControlledSuperClassPasses, instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses], instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses._id)
-                }
-                catch (error) {
-                    if (error.message != expectedErrorMessage) {
-                        throw  new Error(
-                            'accessFilter() threw an unexpected error.\n' + 
-                            'Expected: ' + expectedErrorMessage + '\n' + 
-                            'Actual:   ' + error.message
-                        );
-                    }
-                }
-
-                if (updatable)
-                    throw new Error ('ClassModel.updateControlCheck() returned when it should have thrown an error.');
-            });
-
-        });
-
-        describe('Test Update Control Check throws error when an instance doesn\'t pass check.', () => {
-
-            describe('UpdateControlledSuperClass.updateControlCheck()', () => {
-
-                it('Update Control Check called on Class with only direct instances of Class.', async () => {
-                    const instances = [instanceOfUpdateControlledSuperClassPasses, instanceOfUpdateControlledSuperClassFailsRelationship];
-                    const instancesExpectedToFail = new SuperSet([instanceOfUpdateControlledSuperClassFailsRelationship]);
-                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-                    let passed = false;
-
-                    try {
-                        await UpdateControlledSuperClass.updateControlCheck(instances);
-                    }
-                    catch (error) {
-                        if (error.message != expectedErrorMessage) {
-                            throw new Error(
-                                'updateControlCheck() threw an error, but not the expected one.\n' + 
-                                'expected: ' + expectedErrorMessage + '\n' + 
-                                'actual:   ' + error.message
-                            );
-                        }
-                        passed = true;
-                    }
-
-                    if (!passed) {
-                        throw new Error('updateControlCheck() returned when it should have thrown an error.');
-                    }
-                });
-
-                it('Update Control Check called on Class with instances of class and sub class.', async () => {
-                    const instances = [
-                        instanceOfUpdateControlledSuperClassPasses,
-                        instanceOfUpdateControlledSuperClassFailsRelationship,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship
-                    ];
-                    const instancesExpectedToFail = new SuperSet([
-                        instanceOfUpdateControlledSuperClassFailsRelationship,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship
                     ]);
-                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-                    let passed = false;
 
-                    try {
-                        await UpdateControlledSuperClass.updateControlCheck(instances);
-                    }
-                    catch (error) {
-                        if (error.message != expectedErrorMessage) {
-                            throw new Error(
-                                'updateControlCheck() threw an error, but not the expected one.\n' + 
-                                'expected: ' + expectedErrorMessage + '\n' + 
-                                'actual:   ' + error.message
-                            );
-                        }
-                        passed = true;
-                    }
+                    const instancesFound = await AccessControlledSuperClass.findInstanceSet({name: {$in: instanceNames}});
 
-                    if (!passed) {
-                        throw new Error('updateControlCheck() returned when it should have thrown an error.');
-                    }
-                });
-
-                it('Update Control Check called on Class with instances of class and 3 layers of sub classes', async () => {
-                    const instances = [
-                        instanceOfUpdateControlledSuperClassPasses,
-                        instanceOfUpdateControlledSuperClassFailsRelationship,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
-                        instanceOfUpdateControlledDiscriminatedSuperClassPasses,
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
-                    ];
-                    const instancesExpectedToFail = new SuperSet([                
-                        instanceOfUpdateControlledSuperClassFailsRelationship,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
-
-                    ]);
-                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-                    let passed = false;
-
-                    try {
-                        await UpdateControlledSuperClass.updateControlCheck(instances);
-                    }
-                    catch (error) {
-                        if (error.message != expectedErrorMessage) {
-                            throw new Error(
-                                'updateControlCheck() threw an error, but not the expected one.\n' + 
-                                'expected: ' + expectedErrorMessage + '\n' + 
-                                'actual:   ' + error.message
-                            );
-                        }
-                        passed = true;
-                    }
-
-                    if (!passed) {
-                        throw new Error('updateControlCheck() returned when it should have thrown an error.');
-                    }
-                });
-
-            });
-
-            describe('UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheck()', () => {
-
-                it('Update Control Check called on Class with only direct instances of Class.', async () => {
-                    const instances = [
-                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship
-                    ];
-                    const instancesExpectedToFail = new SuperSet([                
-                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
-
-                    ]);
-                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-                    let passed = false;
-
-                    try {
-                        await UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheck(instances);
-                    }
-                    catch (error) {
-                        if (error.message != expectedErrorMessage) {
-                            throw new Error(
-                                'updateControlCheck() threw an error, but not the expected one.\n' + 
-                                'expected: ' + expectedErrorMessage + '\n' + 
-                                'actual:   ' + error.message
-                            );
-                        }
-                        passed = true;
-                    }
-
-                    if (!passed) {
-                        throw new Error('updateControlCheck() returned when it should have thrown an error.');
-                    }
-                });
-
-                it('Update Control Check called on Class with instances of class and 1 layers of sub classes', async () => {
-                    const instances = [
-                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
-                        instanceOfUpdateControlledDiscriminatedSuperClassPasses,
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship
-                    ];
-                    const instancesExpectedToFail = new SuperSet([                
-                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship
-                    ]);
-                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-                    let passed = false;
-
-                    try {
-                        await UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheck(instances);
-                    }
-                    catch (error) {
-                        if (error.message != expectedErrorMessage) {
-                            throw new Error(
-                                'updateControlCheck() threw an error, but not the expected one.\n' + 
-                                'expected: ' + expectedErrorMessage + '\n' + 
-                                'actual:   ' + error.message
-                            );
-                        }
-                        passed = true;
-                    }
-
-                    if (!passed) {
-                        throw new Error('updateControlCheck() returned when it should have thrown an error.');
-                    }
-                });
-
-                it('Update Control Check called on Class with instances of 2 layers of sub classes', async () => {
-                    const instances = [
-                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassPasses,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
-                        instanceOfUpdateControlledDiscriminatedSuperClassPasses,
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
-                    ];
-                    const instancesExpectedToFail = new SuperSet([                
-                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsBoolean,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledSuperClassFailsRelationship,
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
-                    ]);
-                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-                    let passed = false;
-
-                    try {
-                        await UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheck(instances);
-                    }
-                    catch (error) {
-                        if (error.message != expectedErrorMessage) {
-                            throw new Error(
-                                'updateControlCheck() threw an error, but not the expected one.\n' + 
-                                'expected: ' + expectedErrorMessage + '\n' + 
-                                'actual:   ' + error.message
-                            );
-                        }
-                        passed = true;
-                    }
-
-                    if (!passed) {
-                        throw new Error('updateControlCheck() returned when it should have thrown an error.');
-                    }
-                });
-
-            });
-
-            describe('UpdateControlledDiscriminatedSuperClass.updateControlCheck()', () => {
-
-                it('Update Control Check called on Class with only direct instances of Class.', async () => {
-                    const instances = [
-                        instanceOfUpdateControlledDiscriminatedSuperClassPasses,
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship
-                    ];
-                    const instancesExpectedToFail = new SuperSet([
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship
-                    ]);
-                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-                    let passed = false;
-
-                    try {
-                        await UpdateControlledDiscriminatedSuperClass.updateControlCheck(instances);
-                    }
-                    catch (error) {
-                        if (error.message != expectedErrorMessage) {
-                            throw new Error(
-                                'updateControlCheck() threw an error, but not the expected one.\n' + 
-                                'expected: ' + expectedErrorMessage + '\n' + 
-                                'actual:   ' + error.message
-                            );
-                        }
-                        passed = true;
-                    }
-
-                    if (!passed) {
-                        throw new Error('updateControlCheck() returned when it should have thrown an error.');
-                    }
-                });
-
-                it('Update Control Check called on Class with instances of 1 layers of sub classes', async () => {
-                    const instances = [
-                        instanceOfUpdateControlledDiscriminatedSuperClassPasses,
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
-                    ];
-                    const instancesExpectedToFail = new SuperSet([
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsString,
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-                        instanceOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
-                    ]);
-                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-                    let passed = false;
-
-                    try {
-                        await UpdateControlledDiscriminatedSuperClass.updateControlCheck(instances);
-                    }
-                    catch (error) {
-                        if (error.message != expectedErrorMessage) {
-                            throw new Error(
-                                'updateControlCheck() threw an error, but not the expected one.\n' + 
-                                'expected: ' + expectedErrorMessage + '\n' + 
-                                'actual:   ' + error.message
-                            );
-                        }
-                        passed = true;
-                    }
-
-                    if (!passed) {
-                        throw new Error('updateControlCheck() returned when it should have thrown an error.');
-                    }
-                });
-
-            });
-
-            describe('UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.updateControlCheck()', () => {
-
-                it('Update Control Check called on Class with only direct instances of Class.', async () => {
-                    const instances = [
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassPasses,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
-                    ];
-                    const instancesExpectedToFail = new SuperSet([
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsRelationship,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsString,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsBoolean,
-                        instanceOfUpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClassFailsNumber
-                    ]);
-                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-                    let passed = false;
-
-                    try {
-                        await UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.updateControlCheck(instances);
-                    }
-                    catch (error) {
-                        if (error.message != expectedErrorMessage) {
-                            throw new Error(
-                                'updateControlCheck() threw an error, but not the expected one.\n' + 
-                                'expected: ' + expectedErrorMessage + '\n' + 
-                                'actual:   ' + error.message
-                            );
-                        }
-                        passed = true;
-                    }
-
-                    if (!passed) {
-                        throw new Error('updateControlCheck() returned when it should have thrown an error.');
-                    }
-                });
-
-            });
-
-            describe('UpdateControlledClassUpdateControlledByParameters.updateControlCheck()', () => {
-
-                it('Update Control Check passes', async () => {
-                    const updateAllowed = await UpdateControlledClassUpdateControlledByParameters.updateControlCheck([instanceOfUpdateControlledClassUpdateControlledByParameters], 1, 1, true);
-                    
-                    if (!updateAllowed) {
-                        throw new Error('Update check passed when it should have thrown an error.');
-                    }
-                });
-
-                it('Instance fails update control check because of Numbers.', async () => {
-                    const instances = [instanceOfUpdateControlledClassUpdateControlledByParameters];
-                    const instancesExpectedToFail = new SuperSet([instanceOfUpdateControlledClassUpdateControlledByParameters]);
-                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-                    let passed = false;
-
-                    try {
-                        await UpdateControlledClassUpdateControlledByParameters.updateControlCheck(instances, -2, 1, true);
-                    }
-                    catch (error) {
-                        if (error.message != expectedErrorMessage) {
-                            throw new Error(
-                                'updateControlCheck() threw an error, but not the expected one.\n' + 
-                                'expected: ' + expectedErrorMessage + '\n' + 
-                                'actual:   ' + error.message
-                            );
-                        }
-                        passed = true;
-                    }
-
-                    if (!passed) {
-                        throw new Error('updateControlCheck() returned when it should have thrown an error.');
-                    }
-                });
-
-                it('Instance fails update control check because of Boolean.', async () => {
-                    const instances = [instanceOfUpdateControlledClassUpdateControlledByParameters];
-                    const instancesExpectedToFail = new SuperSet([instanceOfUpdateControlledClassUpdateControlledByParameters]);
-                    const expectedInstanceIds = instancesExpectedToFail.map(instance => instance.id);
-                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + expectedInstanceIds;
-                    let passed = false;
-
-                    try {
-                        await UpdateControlledClassUpdateControlledByParameters.updateControlCheck(instances, 1, 1, false);
-                    }
-                    catch (error) {
-                        if (error.message != expectedErrorMessage) {
-                            throw new Error(
-                                'updateControlCheck() threw an error, but not the expected one.\n' + 
-                                'expected: ' + expectedErrorMessage + '\n' + 
-                                'actual:   ' + error.message
-                            );
-                        }
-                        passed = true;
-                    }
-
-                    if (!passed) {
-                        throw new Error('updateControlCheck() returned when it should have thrown an error.');
-                    }
-                });
-
-            });
-
-        });
-
-        describe('Test save methods for update control checks.', () => {
-
-            describe('Test save() with update control checks', () => {
-
-                describe('Without updateControlMethodParameters.', () => {
-
-                    it('Call save() on an instance of an update controlled class. Instance saved.', async () => {
-                        const classToCallSaveOn = UpdateControlledSuperClass;
-                        const instanceToSave = UpdateControlledSuperClass.create();
-                        instanceToSave.name = 'instanceOfUpdateControlledSuperClassPasses-save';
-                        instanceToSave.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
-    
-                        await classToCallSaveOn.save(instanceToSave);
-                        const instanceSaved = await classToCallSaveOn.findById(instanceToSave._id);
-    
-                        if (!instanceSaved)
-                            throw new Error('.save() returned without error, but instance could not be found in the database.');
-                        
-                        await classToCallSaveOn.delete(instanceToSave);
-                    });
-    
-                    it('Call save() on an instance of an update controlled class. Save fails due to update control check.', async () => {
-                        const classToCallSaveOn = UpdateControlledSuperClass;
-                        const instanceToSave = instanceOfUpdateControlledSuperClassFailsRelationship;
-                        const expectedErrorMessage = 'Error in ' + classToCallSaveOn.className + '.save(): Illegal attempt to update instances: ' + instanceToSave.id;
-                        let errorThrown = false;
-    
-                        try {
-                            await classToCallSaveOn.save(instanceToSave);
-                        }
-                        catch (error) {
-                            if (error.message != expectedErrorMessage) {
-                                throw new Error(
-                                    '.save() threw an error, but not the expected one.\n' +
-                                    'expected: ' + expectedErrorMessage + '\n' + 
-                                    'actual:   ' + error.message
-                                );
-                            }
-                            errorThrown = true;
-                        }
-    
-                        if (!errorThrown)
-                            throw new Error('.save() returned when it should have returned an error.');
-                        
-                        const instanceFound = await classToCallSaveOn.findById(instanceToSave._id);
-
-                        if (instanceFound) 
-                            throw new Error('.save() threw an error, but the instance was saved anyway.');
-                    });
-
-                });
-
-                describe('Calling save with updateControlMethodParameters', () => {
-    
-                    it('Call save() on an instance of an update controlled class with updateControlMethodParameters. Save fails due to update control check.', async () => {
-                        const classToCallSaveOn = UpdateControlledClassUpdateControlledByParameters;
-                        const instanceToSave = instanceOfUpdateControlledClassUpdateControlledByParameters;
-                        const expectedErrorMessage = 'Error in ' + classToCallSaveOn.className + '.save(): Illegal attempt to update instances: ' + instanceToSave.id;
-                        const updateControlMethodParameters = [-2, 1, true];
-                        let errorThrown = false;
-    
-                        try {
-                            await classToCallSaveOn.save(instanceToSave, ...updateControlMethodParameters);
-                        }
-                        catch (error) {
-                            if (error.message != expectedErrorMessage) {
-                                throw new Error(
-                                    '.save() threw an error, but not the expected one.\n' +
-                                    'expected: ' + expectedErrorMessage + '\n' + 
-                                    'actual:   ' + error.message
-                                );
-                            }
-                            errorThrown = true;
-                        }
-    
-                        if (!errorThrown)
-                            throw new Error('.save() returned when it should have returned an error.');
-                        
-                        const instanceFound = await classToCallSaveOn.findById(instanceToSave._id);
-
-                        if (instanceFound) 
-                            throw new Error('.save() threw an error, but the instance was saved anyway.')
-                    });
-    
-                    it('Call save() on an instance of an update controlled class with updateControlMethodParameters. Save fails due to update control check.', async () => {
-                        const classToCallSaveOn = UpdateControlledClassUpdateControlledByParameters;
-                        const instanceToSave = instanceOfUpdateControlledClassUpdateControlledByParameters;
-                        const expectedErrorMessage = 'Error in ' + classToCallSaveOn.className + '.save(): Illegal attempt to update instances: ' + instanceToSave.id;
-                        const updateControlMethodParameters = [1, 1, false];
-                        let errorThrown = false;
-                        
-                        try {
-                            await classToCallSaveOn.save(instanceToSave, ...updateControlMethodParameters);
-                        }
-                        catch (error) {
-                            if (error.message != expectedErrorMessage) {
-                                throw new Error(
-                                    '.save() threw an error, but not the expected one.\n' +
-                                    'expected: ' + expectedErrorMessage + '\n' + 
-                                    'actual:   ' + error.message
-                                );
-                            }
-                            errorThrown = true;
-                        }
-    
-                        if (!errorThrown)
-                            throw new Error('.save() returned when it should have returned an error.');
-
-                        const instanceFound = await classToCallSaveOn.findById(instanceToSave._id);
-
-                        if (instanceFound) 
-                            throw new Error('.save() threw an error, but the instance was saved anyway.')
-                    });
-
-                    it('Call save() on an instance of an update controlled class with updateControlMethodParameters. Instance saved.', async () => {
-                        const classToCallSaveOn = UpdateControlledClassUpdateControlledByParameters;
-                        const instanceToSave = UpdateControlledClassUpdateControlledByParameters.create();
-                        const updateControlMethodParameters = [1, 1, true];
-    
-                        await classToCallSaveOn.save(instanceToSave, ...updateControlMethodParameters);
-                        const instanceSaved = await classToCallSaveOn.findById(instanceToSave._id);
-    
-                        if (!instanceSaved)
-                            throw new Error('.save() returned without error, but instance could not be found in the database.');
-                    });
+                    if (!expectedInstances.equals(instancesFound)) 
+                        throw new Error('findInstanceSet did not filter instances correctly.')
 
                 });
 
             });
 
-            describe('Test saveAll() with update control check', () => {
-
-                describe('Without updateControlMethodParameters.', () => {
-
-                    it('Call saveAll() on an instances of an update controlled class. Instances saved.', async () => {
-                        const classToCallSaveAllOn = UpdateControlledSuperClass;
-                        const instanceToSave = UpdateControlledSuperClass.create();
-                        instanceToSave.name = 'instanceOfUpdateControlledSuperClassPasses-saveAll';
-                        instanceToSave.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
-    
-                        await classToCallSaveAllOn.saveAll([instanceToSave]);
-                        const instanceSaved = await classToCallSaveAllOn.findById(instanceToSave._id);
-    
-                        if (!instanceSaved)
-                            throw new Error('.saveAll() returned without error, but instance could not be found in the database.');
-                        
-                        await classToCallSaveAllOn.delete(instanceToSave);
-                    });
-    
-                    it('Call saveAll() on instances of an update controlled class. Save fails due to update control check.', async () => {
-                        const classToCallSaveAllOn = UpdateControlledSuperClass;
-                        const instancesToSave = [
-                            instanceOfUpdateControlledSuperClassPasses,
-                            instanceOfUpdateControlledSuperClassFailsRelationship,
-                        ];
-                        const expectedErrorMessage = 'Error in ' + classToCallSaveAllOn.className + '.saveAll(): Illegal attempt to update instances: ' + instancesToSave[1].id;
-                        let errorThrown = false;
-    
-                        try {
-                            await classToCallSaveAllOn.saveAll(instancesToSave);
-                        }
-                        catch (error) {
-                            if (error.message != expectedErrorMessage) {
-                                throw new Error(
-                                    '.saveAll() threw an error, but not the expected one.\n' +
-                                    'expected: ' + expectedErrorMessage + '\n' + 
-                                    'actual:   ' + error.message
-                                );
-                            }
-                            errorThrown = true;
-                        }
-    
-                        if (!errorThrown)
-                            throw new Error('.saveAll() returned when it should have returned an error.');
-                        
-                        const instancesFound = await classToCallSaveAllOn.find({
-                            _id: {$in: instancesToSave.map(instance => instance.id)}
-                        });
-
-                        if (instancesFound && instancesFound.length) 
-                            throw new Error('.saveAll() threw an error, but the instance was saved anyway.');
-                    });
-
-                });
-
-                describe('Calling save with updateControlMethodParameters', () => {
-
-                    it('Call saveAll() on an instance of an update controlled class with updateControlMethodParameters. Instance saved.', async () => {
-                        const classToCallSaveAllOn = UpdateControlledClassUpdateControlledByParameters;
-                        const instanceToSave = UpdateControlledClassUpdateControlledByParameters.create();
-                        const updateControlMethodParameters = [1, 1, true];
-    
-                        await classToCallSaveAllOn.saveAll([instanceToSave], ...updateControlMethodParameters);
-                        const instanceSaved = await classToCallSaveAllOn.findById(instanceToSave._id);
-    
-                        if (!instanceSaved)
-                            throw new Error('.saveAll() returned without error, but instance could not be found in the database.');
-                        
-                            
-                        await classToCallSaveAllOn.delete(instanceToSave);
-                    });
-    
-                    it('Call saveAll() on an instance of an update controlled class with updateControlMethodParameters. Save fails due to update control check.', async () => {
-                        const classToCallSaveAllOn = UpdateControlledClassUpdateControlledByParameters;
-                        const instanceToSave = UpdateControlledClassUpdateControlledByParameters.create();
-                        const expectedErrorMessage = 'Error in ' + classToCallSaveAllOn.className + '.saveAll(): Illegal attempt to update instances: ' + instanceToSave.id;
-                        const updateControlMethodParameters = [-2, 1, true];
-                        let errorThrown = false;
-    
-                        try {
-                            await classToCallSaveAllOn.saveAll([instanceToSave], ...updateControlMethodParameters);
-                        }
-                        catch (error) {
-                            if (error.message != expectedErrorMessage) {
-                                throw new Error(
-                                    '.saveAll() threw an error, but not the expected one.\n' +
-                                    'expected: ' + expectedErrorMessage + '\n' + 
-                                    'actual:   ' + error.message
-                                );
-                            }
-                            errorThrown = true;
-                        }
-    
-                        if (!errorThrown)
-                            throw new Error('.saveAll() returned when it should have returned an error.');
-                        
-                        const instanceFound = await classToCallSaveAllOn.findById(instanceToSave._id);
-
-                        if (instanceFound) 
-                            throw new Error('.saveAll() threw an error, but the instance was saved anyway.')
-                    });
-    
-                    it('Call save() on an instance of an update controlled class with updateControlMethodParameters. Save fails due to update control check.', async () => {
-                        const classToCallSaveAllOn = UpdateControlledClassUpdateControlledByParameters;
-                        const instanceToSave = UpdateControlledClassUpdateControlledByParameters.create();
-                        const expectedErrorMessage = 'Error in ' + classToCallSaveAllOn.className + '.saveAll(): Illegal attempt to update instances: ' + instanceToSave.id;
-                        const updateControlMethodParameters = [1, 1, false];
-                        let errorThrown = false;
-                        
-                        try {
-                            await classToCallSaveAllOn.saveAll([instanceToSave], ...updateControlMethodParameters);
-                        }
-                        catch (error) {
-                            if (error.message != expectedErrorMessage) {
-                                throw new Error(
-                                    '.saveAll() threw an error, but not the expected one.\n' +
-                                    'expected: ' + expectedErrorMessage + '\n' + 
-                                    'actual:   ' + error.message
-                                );
-                            }
-                            errorThrown = true;
-                        }
-    
-                        if (!errorThrown)
-                            throw new Error('.saveAll() returned when it should have returned an error.');
-
-                        const instanceFound = await classToCallSaveAllOn.findById(instanceToSave._id);
-
-                        if (instanceFound) 
-                            throw new Error('.saveAll() threw an error, but the instance was saved anyway.')
-                    });
-
-                });
-
-            });
-
-        });
-
-        after(async () => {
-            await ClassControlsUpdateControlledSuperClass.clear();
-            await UpdateControlledSuperClass.clear();
-            await UpdateControlledSubClassOfUpdateControlledSuperClass.clear();
-            await UpdateControlledDiscriminatedSuperClass.clear();
-            await UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.clear();
-            await UpdateControlledClassUpdateControlledByParameters.clear();
         });
 
     });
