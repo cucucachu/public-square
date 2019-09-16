@@ -25,7 +25,7 @@ const Appointment = require('../dist/models/Modules/Government/Appointment/Appoi
 const Nominator = require('../dist/models/Modules/Government/Nomination/Nominator');
 const Executive = require('../dist/models/Modules/Government/Executive/Executive');
 
-describe('Government Module Tests', function() {
+describe.skip('Government Module Tests', function() {
 	
 	before(async () => {
 		await database.connect();

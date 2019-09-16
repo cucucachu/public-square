@@ -13,7 +13,7 @@ const BillVersion = require('../dist/models/Modules/Government/Legislator/BillVe
 const Law = require('../dist/models/Modules/Government/Law');
 const Poll = require('../dist/models/Modules/Poll/Poll');
 
-describe('Legislator Module Tests', function() {
+describe.skip('Legislator Module Tests', function() {
 
     before(async () => {
 		await database.connect();

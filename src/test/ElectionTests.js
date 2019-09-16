@@ -11,7 +11,7 @@ const PrimaryElectionResult = require('../dist/models/Modules/Government/Electio
 const Person = require('../dist/models/Modules/User/Person');
 const GeographicArea = require('../dist/models/Modules/Geography/GeographicArea');
 
-describe('Election Module Tests', function() {
+describe.skip('Election Module Tests', function() {
 
     before(async () => {
 		await database.connect();

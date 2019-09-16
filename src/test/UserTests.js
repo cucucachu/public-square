@@ -14,7 +14,7 @@ var Address = require('../dist/models/Modules/Geography/Address');
 var Citizen = require('../dist/models/Modules/Poll/Citizen');
 var GroupMember = require('../dist/models/Modules/UserGroup/GroupMember')
 
-describe('Person Module Tests', function() {
+describe.skip('Person Module Tests', function() {
 	
 	before(async () => {
 		await database.connect();

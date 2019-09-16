@@ -12,7 +12,7 @@ const OccupiedPosition = require('../dist/models/Modules/Government/OccupiedPosi
 const Law = require('../dist/models/Modules/Government/Law');
 const Poll = require('../dist/models/Modules/Poll/Poll');
 
-describe('Judge Module Tests', function() {
+describe.skip('Judge Module Tests', function() {
 
     before(async () => {
 		await database.connect();

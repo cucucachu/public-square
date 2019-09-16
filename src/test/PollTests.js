@@ -11,7 +11,7 @@ const Citizen = require('../dist/models/Modules/Poll/Citizen');
 const Government = require('../dist/models/Modules/Government/Government');
 const GeographicArea = require('../dist/models/Modules/Geography/GeographicArea');
 
-describe('Poll Module Tests', function() {
+describe.skip('Poll Module Tests', function() {
 
     before(async () => {
 		await database.connect();

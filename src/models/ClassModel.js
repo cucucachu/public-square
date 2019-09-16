@@ -7,7 +7,6 @@ require('./database');
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
-const SuperSet = require('./SuperSet');
 const InstanceSet = require('./InstanceSet');
 const Instance = require('./Instance');
 

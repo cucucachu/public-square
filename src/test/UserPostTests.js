@@ -19,7 +19,7 @@ const VideoLink = require('../dist/models/Modules/UserPost/VideoLink');
 
 
 
-describe('UserPost Module Tests', function() {
+describe.skip('UserPost Module Tests', function() {
 	
 	before(async () => {
 		await database.connect();

@@ -10,7 +10,7 @@ const Address = require('../dist/models/Modules/Geography/Address');
 const Government = require('../dist/models/Modules/Government/Government');
 const ElectionResult = require('../dist/models/Modules/Government/Election/ElectionResult');
 
-describe('Geography Module Tests', function() {
+describe.skip('Geography Module Tests', function() {
 	
 	before(async () => {
 		await database.connect();

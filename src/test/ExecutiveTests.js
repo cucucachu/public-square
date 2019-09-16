@@ -12,7 +12,7 @@ const ExecutiveVoteOption = require('../dist/models/Modules/Government/Executive
 const OccupiedPosition = require('../dist/models/Modules/Government/OccupiedPosition');
 const Poll = require('../dist/models/Modules/Poll/Poll');
 
-describe('Executive Module Tests', function() {
+describe.skip('Executive Module Tests', function() {
 
     before(async () => {
 		await database.connect();

@@ -9,7 +9,7 @@ const Appointment = require('../dist/models/Modules/Government/Appointment/Appoi
 const Appointer = require('../dist/models/Modules/Government/Appointment/Appointer');
 const Appointee = require('../dist/models/Modules/Government/Appointment/Appointee');
 
-describe('Appointment Module Tests', function() {
+describe.skip('Appointment Module Tests', function() {
 
     before(async () => {
 		await database.connect();
@@ -18,6 +18,10 @@ describe('Appointment Module Tests', function() {
 		await Appointer.clear();
 		await Appointee.clear();
     });
+
+	after(() => {
+		database.close();
+	});
     
 	describe('Appointment Model Tests', function() {
 
@@ -568,9 +572,5 @@ describe('Appointment Module Tests', function() {
 		});
 
 	});
-
-	after(() => {
-		database.close();
-	})
 
 });

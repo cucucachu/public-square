@@ -13,7 +13,7 @@ const IndividualConfirmationVote = require('../dist/models/Modules/Government/No
 const ConfirmationVoteOption = require('../dist/models/Modules/Government/Nomination/ConfirmationVoteOption');
 const Confirmer = require('../dist/models/Modules/Government/Nomination/Confirmer');
 
-describe('Nomination Module Tests', function() {
+describe.skip('Nomination Module Tests', function() {
 
     before(async () => {
 		await database.connect();

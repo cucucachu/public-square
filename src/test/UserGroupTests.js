@@ -13,7 +13,7 @@ const OrganizationMember = require('../dist/models/Modules/UserGroup/Organizatio
 const Address = require('../dist/models/Modules/Geography/Address');
 
 
-describe('UserGroup Module Tests', function() {
+describe.skip('UserGroup Module Tests', function() {
 	
 	before(async () => {
 		await database.connect();
