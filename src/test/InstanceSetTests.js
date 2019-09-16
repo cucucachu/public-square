@@ -1293,8 +1293,8 @@ describe('InstanceSet Tests', () => {
                         booleans: [true],
                         number: 1,
                         numbers: [1],
-                        class1: CompareClass1.create(),
-                        class2s: CompareClass2.create()
+                        class1: new Instance(CompareClass1).id,
+                        class2s: new Instance(CompareClass2).id
                     });
                     const instance2 = new Instance(AllFieldsRequiredClass);
                     instance2.assign({
@@ -1305,8 +1305,8 @@ describe('InstanceSet Tests', () => {
                         booleans: [true],
                         number: 1,
                         numbers: [1],
-                        class1: CompareClass1.create(),
-                        class2s: CompareClass2.create()
+                        class1: new Instance(CompareClass1).id,
+                        class2s: new Instance(CompareClass2).id
                     });
                     const instanceSet = new InstanceSet(AllFieldsRequiredClass, [instance1, instance2]);
                         
@@ -1326,8 +1326,8 @@ describe('InstanceSet Tests', () => {
                         booleans: [true],
                         number: 1,
                         numbers: [1],
-                        class1: CompareClass1.create(),
-                        class2s: CompareClass2.create()
+                        class1: new Instance(CompareClass1).id,
+                        class2s: new Instance(CompareClass2).id
                     });
                     const instanceSet = new InstanceSet(AllFieldsRequiredClass, [instance]);
     
@@ -1346,8 +1346,8 @@ describe('InstanceSet Tests', () => {
                         booleans: [true],
                         number: 1,
                         numbers: [1],
-                        class1: CompareClass1.create(),
-                        class2s: CompareClass2.create()
+                        class1: new Instance(CompareClass1).id,
+                        class2s: new Instance(CompareClass2).id
                     });
                     const instance2 = new Instance(AllFieldsRequiredClass);
                     instance2.assign({
@@ -1358,8 +1358,8 @@ describe('InstanceSet Tests', () => {
                         booleans: [true],
                         number: 1,
                         numbers: [1],
-                        class1: CompareClass1.create(),
-                        class2s: CompareClass2.create()
+                        class1: new Instance(CompareClass1).id,
+                        class2s: new Instance(CompareClass2).id
                     });
                     const instanceSet = new InstanceSet(AllFieldsRequiredClass, [instance1, instance2]);
     
@@ -1540,8 +1540,8 @@ describe('InstanceSet Tests', () => {
                     let expectedErrorMutex = /^Mutex violations found for instance .* Field class1 with mutex \'a\'. Field class2 with mutex \'a\'.$/;  
                     const instance = new Instance(MutexClassB);
     
-                    instance.class1 = CompareClass1.create()._id;
-                    instance.class2 = CompareClass2.create()._id;
+                    instance.class1 = new Instance(CompareClass1).id;
+                    instance.class2 = new Instance(CompareClass2).id;
                     const instanceSet = new InstanceSet(MutexClassB, [instance]);
     
                     try {
@@ -1565,7 +1565,7 @@ describe('InstanceSet Tests', () => {
                 
                 it('2 singular relationship fields have a mutex and one is set. No error thrown.', () => {    
                     const instance = new Instance(MutexClassB);
-                    instance.class1 = CompareClass1.create()._id;
+                    instance.class1 = new Instance(CompareClass1).id._id;
                     const instanceSet = new InstanceSet(MutexClassB, [instance]);
     
                     try {
@@ -1587,8 +1587,8 @@ describe('InstanceSet Tests', () => {
     
                     const instance = new Instance(MutexClassC);
     
-                    instance.class1s = [CompareClass1.create()._id, CompareClass1.create()._id];
-                    instance.class2s = [CompareClass2.create()._id, CompareClass2.create()._id];
+                    instance.class1s = [new Instance(CompareClass1).id._id, new Instance(CompareClass1).id._id];
+                    instance.class2s = [new Instance(CompareClass2).id._id, new Instance(CompareClass2).id._id];
                     const instanceSet = new InstanceSet(MutexClassC, [instance]);
     
                     try {
@@ -1663,8 +1663,8 @@ describe('InstanceSet Tests', () => {
                     booleans: [true],
                     number: 1,
                     numbers: [1],
-                    class1: CompareClass1.create()._id,
-                    class2s: [CompareClass2.create()._id],
+                    class1: new Instance(CompareClass1).id,
+                    class2s: [new Instance(CompareClass2).id],
                 });
                 instanceB.assign({
                     strings: ['instanceB'],
@@ -1673,8 +1673,8 @@ describe('InstanceSet Tests', () => {
                     booleans: [true],
                     number: 2,
                     numbers: [2],
-                    class1: CompareClass1.create()._id,
-                    class2s: [CompareClass2.create()._id],
+                    class1: new Instance(CompareClass1).id,
+                    class2s: [new Instance(CompareClass2).id],
                 });
                 let instanceSet = new InstanceSet(AllFieldsRequiredClass, [instanceA, instanceB]);
 
@@ -1682,8 +1682,8 @@ describe('InstanceSet Tests', () => {
                     return instanceSet.save();
                 });
 
-                const foundInstanceA = await AllFieldsRequiredClass.findInstanceById(instanceA.id);
-                const foundInstanceB = await AllFieldsRequiredClass.findInstanceById(instanceB.id);
+                const foundInstanceA = await AllFieldsRequiredClass.findById(instanceA.id);
+                const foundInstanceB = await AllFieldsRequiredClass.findById(instanceB.id);
 
                 if (foundInstanceA || foundInstanceB) 
                     throw new Error('Save threw an error, but one or more instances were saved anyway.');
@@ -1700,8 +1700,8 @@ describe('InstanceSet Tests', () => {
                     booleans: [true],
                     number: 1,
                     numbers: [1],
-                    class1: CompareClass1.create()._id,
-                    class2s: [CompareClass2.create()._id],
+                    class1: new Instance(CompareClass1).id,
+                    class2s: [new Instance(CompareClass2).id],
                 });
                 instanceB.assign({
                     string: 'instanceB',
@@ -1711,14 +1711,14 @@ describe('InstanceSet Tests', () => {
                     booleans: [true],
                     number: 2,
                     numbers: [2],
-                    class1: CompareClass1.create()._id,
-                    class2s: [CompareClass2.create()._id],
+                    class1: new Instance(CompareClass1).id,
+                    class2s: [new Instance(CompareClass2).id],
                 });
                 let instanceSet = new InstanceSet(AllFieldsRequiredClass, [instanceA, instanceB]);
 
                 await instanceSet.save();
-                const foundInstanceA = await AllFieldsRequiredClass.findInstanceById(instanceA.id);
-                const foundInstanceB = await AllFieldsRequiredClass.findInstanceById(instanceB.id);
+                const foundInstanceA = await AllFieldsRequiredClass.findById(instanceA.id);
+                const foundInstanceB = await AllFieldsRequiredClass.findById(instanceB.id);
 
                 if (!(foundInstanceA.equals(instanceA) && foundInstanceB.equals(instanceB))) 
                     throw new Error('Could not find the instances after save().');
@@ -1738,7 +1738,7 @@ describe('InstanceSet Tests', () => {
                 const instanceSet = new InstanceSet(UpdateControlledSuperClass, [instance]);
                 await instanceSet.save();
 
-                const instanceSaved = await UpdateControlledSuperClass.findInstanceById(instance._id);
+                const instanceSaved = await UpdateControlledSuperClass.findById(instance._id);
                 
                 if (!instanceSaved)
                     throw new Error('Instance was not saved.');
@@ -1757,7 +1757,7 @@ describe('InstanceSet Tests', () => {
                     return instanceSet.save();
                 });
                 
-                const instancesFound = await UpdateControlledSuperClass.findInstanceSet({
+                const instancesFound = await UpdateControlledSuperClass.find({
                     _id: {$in: instanceSet.getInstanceIds()}
                 });
 
@@ -1771,7 +1771,7 @@ describe('InstanceSet Tests', () => {
                 const instanceSet = new InstanceSet(UpdateControlledClassUpdateControlledByParameters, [instance]);
                 
                 await instanceSet.save(...updateControlMethodParameters);
-                const instanceSaved = UpdateControlledClassUpdateControlledByParameters.findInstanceById(instance.id);
+                const instanceSaved = UpdateControlledClassUpdateControlledByParameters.findById(instance.id);
                 
                 if (!instanceSaved)
                     throw new Error('Instance was not saved.');
@@ -1789,7 +1789,7 @@ describe('InstanceSet Tests', () => {
                     return instanceSet.save(...updateControlMethodParameters);
                 })
                 
-                const instanceFound = await UpdateControlledClassUpdateControlledByParameters.findInstanceById(instance._id);
+                const instanceFound = await UpdateControlledClassUpdateControlledByParameters.findById(instance._id);
 
                 if (instanceFound) 
                     throw new Error('.save() threw an error, but the instance was saved anyway.')
@@ -2043,7 +2043,7 @@ describe('InstanceSet Tests', () => {
                     return instanceSet.delete();
                 });
 
-                const instanceFound = await SuperClass.findInstanceById(instance1.id);
+                const instanceFound = await SuperClass.findById(instance1.id);
 
                 if (!instanceFound) 
                     throw new Error('instanceSet.delete() threw an error, but the instance was deleted anyway.');
@@ -2057,7 +2057,7 @@ describe('InstanceSet Tests', () => {
                 await instanceSet.save();
                 await instanceSet.delete();
 
-                const instancesFound = await SuperClass.findInstanceSet({ _id: { $in: instanceSet.getInstanceIds() } });
+                const instancesFound = await SuperClass.find({ _id: { $in: instanceSet.getInstanceIds() } });
 
                 if (!instancesFound.isEmpty())
                     throw new Error('instanceSet.delete() did not throw an error, but the instances were not deleted.');
@@ -2080,7 +2080,7 @@ describe('InstanceSet Tests', () => {
                 await instanceSet.save();                
                 await instanceSet.delete();
 
-                const instancesFound = await SuperClass.findInstanceSet({ _id: { $in: instanceSet.getInstanceIds() } });
+                const instancesFound = await SuperClass.find({ _id: { $in: instanceSet.getInstanceIds() } });
 
                 if (!instancesFound.isEmpty())
                     throw new Error('instanceSet.delete() did not throw an error, but the instances were not deleted.');

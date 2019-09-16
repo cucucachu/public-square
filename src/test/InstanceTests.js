@@ -345,8 +345,8 @@ describe('Instance Tests', () => {
                     booleans: [true],
                     number: 1,
                     numbers: [1],
-                    class1: CompareClass1.create(),
-                    class2s: [CompareClass2.create()]
+                    class1: new Instance(CompareClass1).id,
+                    class2s: [new Instance(CompareClass2).id]
                 });
                     
                 instance.validate();
@@ -362,8 +362,8 @@ describe('Instance Tests', () => {
                     booleans: [true],
                     number: 1,
                     numbers: [1],
-                    class1: CompareClass1.create(),
-                    class2s: [CompareClass2.create()]
+                    class1: new Instance(CompareClass1).id,
+                    class2s: [new Instance(CompareClass2).id]
                 });
 
                 testForError('instance.validate()', expectedErrorMessage, () => {
@@ -383,8 +383,8 @@ describe('Instance Tests', () => {
                     booleans: [true],
                     number: 1,
                     numbers: [1],
-                    class1: CompareClass1.create(),
-                    class2s: [CompareClass2.create()]
+                    class1: new Instance(CompareClass1).id,
+                    class2s: [new Instance(CompareClass2).id]
                 });
 
                 testForError('instance.validate()', expectedErrorMessage, () => {
@@ -403,8 +403,8 @@ describe('Instance Tests', () => {
                     booleans: [true],
                     number: 1,
                     numbers: [1],
-                    class1: CompareClass1.create(),
-                    class2s: [CompareClass2.create()]
+                    class1: new Instance(CompareClass1).id,
+                    class2s: [new Instance(CompareClass2).id]
                 });
 
                 testForError('instance.validate()', expectedErrorMessage, () => {
@@ -424,8 +424,8 @@ describe('Instance Tests', () => {
                     booleans: [true],
                     number: 1,
                     numbers: [1],
-                    class1: CompareClass1.create(),
-                    class2s: [CompareClass2.create()]
+                    class1: new Instance(CompareClass1).id,
+                    class2s: [new Instance(CompareClass2).id]
                 });
 
                 testForError('instance.validate()', expectedErrorMessage, () => {
@@ -444,8 +444,8 @@ describe('Instance Tests', () => {
                     booleans: [true],
                     number: 1,
                     numbers: [1],
-                    class1: CompareClass1.create(),
-                    class2s: [CompareClass2.create()]
+                    class1: new Instance(CompareClass1).id,
+                    class2s: [new Instance(CompareClass2).id]
                 });
 
                 testForError('instance.validate()', expectedErrorMessage, () => {
@@ -464,8 +464,8 @@ describe('Instance Tests', () => {
                     booleans: [true],
                     number: 1,
                     numbers: [1],
-                    class1: CompareClass1.create(),
-                    class2s: [CompareClass2.create()]
+                    class1: new Instance(CompareClass1).id,
+                    class2s: [new Instance(CompareClass2).id]
                 });
 
                 testForError('instance.validate()', expectedErrorMessage, () => {
@@ -484,8 +484,8 @@ describe('Instance Tests', () => {
                     boolean: true,
                     number: 1,
                     numbers: [1],
-                    class1: CompareClass1.create(),
-                    class2s: [CompareClass2.create()]
+                    class1: new Instance(CompareClass1).id,
+                    class2s: [new Instance(CompareClass2).id]
                 });
 
                 testForError('instance.validate()', expectedErrorMessage, () => {
@@ -505,8 +505,8 @@ describe('Instance Tests', () => {
                     booleans: [],
                     number: 1,
                     numbers: [1],
-                    class1: CompareClass1.create(),
-                    class2s: [CompareClass2.create()]
+                    class1: new Instance(CompareClass1).id,
+                    class2s: [new Instance(CompareClass2).id]
                 });
 
                 testForError('instance.validate()', expectedErrorMessage, () => {
@@ -525,8 +525,8 @@ describe('Instance Tests', () => {
                     boolean: true,
                     booleans: [true],
                     numbers: [1],
-                    class1: CompareClass1.create(),
-                    class2s: [CompareClass2.create()]
+                    class1: new Instance(CompareClass1).id,
+                    class2s: [new Instance(CompareClass2).id]
                 });
 
                 testForError('instance.validate()', expectedErrorMessage, () => {
@@ -545,8 +545,8 @@ describe('Instance Tests', () => {
                     boolean: true,
                     booleans: [true],
                     number: 1,
-                    class1: CompareClass1.create(),
-                    class2s: [CompareClass2.create()]
+                    class1: new Instance(CompareClass1).id,
+                    class2s: [new Instance(CompareClass2).id]
                 });
 
                 testForError('instance.validate()', expectedErrorMessage, () => {
@@ -566,8 +566,8 @@ describe('Instance Tests', () => {
                     booleans: [true],
                     number: 1,
                     numbers: [],
-                    class1: CompareClass1.create(),
-                    class2s: [CompareClass2.create()]
+                    class1: new Instance(CompareClass1).id,
+                    class2s: [new Instance(CompareClass2).id]
                 });
 
                 testForError('instance.validate()', expectedErrorMessage, () => {
@@ -587,7 +587,7 @@ describe('Instance Tests', () => {
                     booleans: [true],
                     number: 1,
                     numbers: [1],
-                    class2s: [CompareClass2.create()]
+                    class2s: [new Instance(CompareClass2).id]
                 });
 
                 testForError('instance.validate()', expectedErrorMessage, () => {
@@ -607,7 +607,7 @@ describe('Instance Tests', () => {
                     booleans: [true],
                     number: 1,
                     numbers: [1],
-                    class1: CompareClass1.create(),
+                    class1: new Instance(CompareClass1).id,
                 });
 
                 testForError('instance.validate()', expectedErrorMessage, () => {
@@ -627,7 +627,7 @@ describe('Instance Tests', () => {
                     booleans: [true],
                     number: 1,
                     numbers: [1],
-                    class1: CompareClass1.create(),
+                    class1: new Instance(CompareClass1).id,
                     class2s: []
                 });
 
@@ -998,8 +998,8 @@ describe('Instance Tests', () => {
                 booleans: [true],
                 number: 1,
                 numbers: [1],
-                class1: CompareClass1.create(),
-                class2s: [CompareClass2.create()],
+                class1: new Instance(CompareClass1).id,
+                class2s: [new Instance(CompareClass2).id],
             });
             await instance.save();
             const found = await AllFieldsRequiredClass.findById(instance._id);
@@ -1024,8 +1024,8 @@ describe('Instance Tests', () => {
                 booleans: [true],
                 number: 1,
                 numbers: [1],
-                class1: CompareClass1.create(),
-                class2s: [CompareClass2.create()],
+                class1: new Instance(CompareClass1).id,
+                class2s: [new Instance(CompareClass2).id],
             });
 
             await testForErrorAsync('instance.save', expectedErrorMessage, async () => {
@@ -1049,8 +1049,8 @@ describe('Instance Tests', () => {
                 booleans: [true],
                 number: 1,
                 numbers: [1],
-                class1: CompareClass1.create(),
-                class2s: [CompareClass2.create()],
+                class1: new Instance(CompareClass1).id,
+                class2s: [new Instance(CompareClass2).id],
             });
 
             instance.deleted = true;
@@ -1131,8 +1131,8 @@ describe('Instance Tests', () => {
                 booleans: [true],
                 number: 1,
                 numbers: [1],
-                class1: CompareClass1.create(),
-                class2s: [CompareClass2.create()],
+                class1: new Instance(CompareClass1).id,
+                class2s: [new Instance(CompareClass2).id],
             });
             await instance.save();
             await instance.delete();
@@ -1158,8 +1158,8 @@ describe('Instance Tests', () => {
                 booleans: [true],
                 number: 1,
                 numbers: [1],
-                class1: CompareClass1.create(),
-                class2s: [CompareClass2.create()],
+                class1: new Instance(CompareClass1).id,
+                class2s: [new Instance(CompareClass2).id],
             });
 
             await testForErrorAsync('instance.delete()', expectedErrorMessage, async() => {
