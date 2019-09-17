@@ -195,6 +195,23 @@ class ClassModel {
         return false;
     }
 
+    isInstanceSetOfThisClass(instanceSet) {
+        if (instanceSet.classModel === this)
+            return true;
+        
+        for (const subClass of this.subClasses) {
+            if (subClass.isInstanceOfThisClass(instanceSet))
+                return true;
+        }
+
+        for (const subClass of this.discriminatedSubClasses) {
+            if (subClass.isInstanceOfThisClass(instanceSet))
+                return true;
+        }
+
+        return false;
+    }
+
     propertyIsARelationship(propertyName) {
         const property = this.schema[propertyName]
         return property.type == Schema.Types.ObjectId || (Array.isArray(property.type) && property.type[0] == Schema.Types.ObjectId);
@@ -202,6 +219,60 @@ class ClassModel {
 
     getRelatedClassModel(relationship) {
         return AllClassModels[this.schema[relationship].ref];
+    }
+
+    static isAttribute(object) {
+        const attributeTypes = [String, Boolean, Number, Date];
+
+        if (Array.isArray(object.type) && attributeTypes.includes(object.type[0]))
+            return true;
+        if (attributeTypes.includes(object.type))
+            return true;
+        return false; 
+    }
+
+    static isSingularRelationship(object) {
+        if (Array.isArray(object.type))
+            return false;
+        if (object.type === Schema.Types.ObjectId)
+            return true;
+        return false;
+    }
+
+
+    static isNonSingularRelationship(object) {
+        if (!Array.isArray(object.type))
+            return false;
+        if (object.type[0] === Schema.Types.ObjectId)
+            return true;
+        return false;
+    }
+
+    getAttributes() {
+        const attributes = [];
+        for (const key in this.schema) {
+            if (ClassModel.isAttribute(object[key]))
+                attributes.push(object[key]);
+        }
+        return attributes;
+    }
+
+    getSingularRelationships() {
+        const relationships = [];
+        for (const key in this.schema) {
+            if (ClassModel.isSingularRelationship(object[key]))
+                relationships.push(object[key]);
+        }
+        return relationships;
+    }
+
+    getNonSingularRelationships() {
+        const relationships = [];
+        for (const key in this.schema) {
+            if (ClassModel.isNonSingularRelationship(object[key]))
+                relationships.push(object[key]);
+        }
+        return relationships;
     }
 
     /*

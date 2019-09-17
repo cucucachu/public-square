@@ -275,6 +275,10 @@ class InstanceSet extends SuperSet {
         return this.map(instance => instance.id);
     }
 
+    isInstanceSetOf(classModel) {
+        return classModel.isInstanceSetOfThisClass(this);
+    }
+
 }
 
 module.exports = InstanceSet;

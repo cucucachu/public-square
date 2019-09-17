@@ -73,6 +73,68 @@ class Instance {
         });
     }
 
+
+    // Constructs an instance of Instance. 
+    // Should only be called by ClassModel methods, not in outside code.
+    constructorOld(classModel, document=null, saved=false) {
+        this.constructorValidations(classModel, document, saved);
+
+        this.classModel = classModel;
+        this[doc] = document ? document : new classModel.Model({ _id: new mongoose.Types.ObjectId });
+        this.saved = saved;
+        this.deleted = false;
+
+        const documentProperties = Object.keys(this.classModel.schema).concat(['id', '_id', '__t']);
+        const unSettableInstanceProperties = ['classModel', doc, 'id', '_id', '__t']; 
+        const instanceMethods = Object.getOwnPropertyNames(Object.getPrototypeOf(this)); 
+
+        return new Proxy(this, {
+            set(trapTarget, key, value, receiver) {
+                if (this.deleted) 
+                    throw new Error('Illegal Attempt to set a property after instance has been deleted.');
+
+                if (unSettableInstanceProperties.includes(key))
+                    throw new Error('Illegal attempt to change the ' + key + ' of an Instance.');
+
+                if (documentProperties.includes(key)) {
+                    trapTarget[doc][key] = value;
+                    return true;
+                }
+
+                return Reflect.set(trapTarget, key, value, receiver);
+            },
+
+            get(trapTarget, key, receiver) {
+                if (documentProperties.includes(key))
+                    return trapTarget[doc][key];
+
+                return Reflect.get(trapTarget, key, receiver);
+            },
+
+            has(trapTarget, key) {
+                if (documentProperties.includes(key))
+                    return key in trapTarget[doc]
+                
+                return Reflect.has(trapTarget, key);
+            },
+
+            deleteProperty(trapTarget, key) {
+                if (unSettableInstanceProperties.includes(key) || instanceMethods.includes(key) || Object.keys(trapTarget).includes(key)) 
+                    throw new Error('Illegal attempt to delete the ' + key + ' property of an Instance.');
+
+                if (documentProperties.includes(key)) {
+                    trapTarget[doc][key] = undefined;
+                    return true;
+                }
+                return Reflect.deleteProperty(trapTarget, key);
+            },
+
+            ownKeys(trapTarget) {
+                return Reflect.ownKeys(trapTarget).filter(key => typeof key !== 'symbol');
+            }
+        });
+    }
+
     constructorValidations(classModel, document, saved) {
         if (!classModel) 
             throw new Error('Instance.constructor(), parameter classModel is required.');
@@ -321,6 +383,10 @@ class Instance {
             return false;
         if (instance.id != this.id)
             return false;
+        return true;
+    }
+
+    isInstance() {
         return true;
     }
 }
