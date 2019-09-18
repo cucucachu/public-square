@@ -1,5 +1,7 @@
 require('@babel/polyfill');
 
+const SuperSet = require('./SuperSet');
+
 class InstanceSetReference {
 
     constructor() {
@@ -29,6 +31,40 @@ class InstanceSetReference {
 
     isEmpty() {
         return this.ids.length === 0;
+    }
+
+    diff(that) {
+        if (this.isEmpty() && that.isEmpty()) {
+            return {};
+        }
+        if (!this.isEmpty() && that.isEmpty()) {
+            return {
+                add: this.ids,
+            }
+        }
+        if (this.isEmpty() && !that.isEmpty()) {
+            return {
+                remove: this.ids,
+            }
+        }
+        
+        const thisSet = new SuperSet(this.ids);
+        const thatSet = new SuperSet(that.ids);
+
+        if (thisSet.equals(thatSet))
+            return {};
+
+        const toInsert = [...thisSet.difference(thatSet)];
+        const toRemove = [...thatSet.difference(thisSet)];
+
+        return {
+            update: {
+                value: this.ids,
+                previous: that.ids,
+                insert: [...toInsert],
+                remove: [...toRemove],
+            }
+        }
     }
 
 }

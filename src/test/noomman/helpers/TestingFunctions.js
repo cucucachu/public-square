@@ -62,8 +62,23 @@ async function testForErrorAsync(functionName, expectedErrorMessage, functionToC
         throw new Error(functionName + ' did not throw an error when it should have.');
 }
 
+function arrayEquals(array1, array2, message='') {
+    if (!Array.isArray(array1) || !Array.isArray(array2))
+        throw new Error('arrayEquals() called with arguments which are not arrays.');
+    
+    if (array1.length !== array2.length)
+        return false;
+
+    for (const item of array1)
+        if (!array2.includes(item))
+            return false;
+
+    return true;
+}
+
 module.exports = {
     testForError,
     testForErrorMutex,
     testForErrorAsync,
+    arrayEquals,
 }

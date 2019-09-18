@@ -2536,7 +2536,7 @@ describe('Class Model Tests', () => {
 
     });
 
-    describe.only('Attributes and Relationships', () => {
+    describe('Attributes and Relationships', () => {
 
         describe('ClassModel.getAttributes()', () => {
 

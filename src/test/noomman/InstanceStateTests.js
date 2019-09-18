@@ -6,6 +6,7 @@ const TestingFunctions = require('./helpers/TestingFunctions');
 const testForError = TestingFunctions.testForError;
 const testForErrorMutex = TestingFunctions.testForErrorMutex;
 const testForErrorAsync = TestingFunctions.testForErrorAsync;
+const arrayEquals = TestingFunctions.arrayEquals;
 
 var AllFieldsRequiredClass = TestClassModels.AllFieldsRequiredClass;
 
@@ -238,6 +239,1064 @@ describe('Instance State Tests', () => {
 
             });
            
+        });
+
+    });
+
+    describe('InstanceState.diff() Tests', () => {
+        
+        describe('Attribute Diffs', () => {
+
+            describe('Singular Attribute Diffs', () => {
+
+                describe('Adding Attributes', () => {
+    
+                    it('Current document has \'string\' set and previous document does not contain \'string\'.', () => {
+                        const attributeName = 'string';
+                        const attributeValue = 'something';
+                        const previousDocument = {};
+                        const currentDocument = { 
+                            [attributeName]: attributeValue,
+                        }
+                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const diff = currentInstanceState.diff(previousInstanceState);
+    
+                        if (!diff.add || diff.add[attributeName] === undefined || diff.add[attributeName] !== attributeValue)
+                            throw new Error('diff did not include the expected change to the attribute.')
+    
+                    });
+    
+                    it('Current document has \'string\' set to empty string and previous document does not contain \'string\'.', () => {
+                        const attributeName = 'string';
+                        const attributeValue = '';
+                        const previousDocument = {};
+                        const currentDocument = { 
+                            [attributeName]: attributeValue,
+                        }
+                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const diff = currentInstanceState.diff(previousInstanceState);
+    
+                        if (!diff.add || diff.add[attributeName] === undefined || diff.add[attributeName] !== attributeValue)
+                            throw new Error('diff did not include the expected change to the attribute.')
+    
+                    });
+    
+                    it('Current document has \'date\' set and previous document does not contain \'date\'.', () => {
+                        const attributeName = 'date';
+                        const attributeValue = new Date();
+                        const previousDocument = {};
+                        const currentDocument = { 
+                            [attributeName]: attributeValue,
+                        }
+                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const diff = currentInstanceState.diff(previousInstanceState);
+    
+                        if (!diff.add || diff.add[attributeName] === undefined || diff.add[attributeName] !== attributeValue)
+                            throw new Error('diff did not include the expected change to the attribute.')
+                    });
+    
+                    it('Current document has \'number\' set and previous document does not contain \'number\'.', () => {
+                        const attributeName = 'number';
+                        const attributeValue = 17;
+                        const previousDocument = {};
+                        const currentDocument = { 
+                            [attributeName]: attributeValue,
+                        }
+                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const diff = currentInstanceState.diff(previousInstanceState);
+    
+                        if (!diff.add || diff.add[attributeName] === undefined || diff.add[attributeName] !== attributeValue)
+                            throw new Error('diff did not include the expected change to the attribute.')
+                    });
+    
+                    it('Current document has \'number\' set to 0 and previous document does not contain \'number\'.', () => {
+                        const attributeName = 'number';
+                        const attributeValue = 0;
+                        const previousDocument = {};
+                        const currentDocument = { 
+                            [attributeName]: attributeValue,
+                        }
+                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const diff = currentInstanceState.diff(previousInstanceState);
+    
+                        if (!diff.add || diff.add[attributeName] === undefined || diff.add[attributeName] !== attributeValue)
+                            throw new Error('diff did not include the expected change to the attribute.')
+                    });
+    
+                    it('Current document has \'boolean\' set and previous document does not contain \'boolean\'.', () => {
+                        const attributeName = 'boolean';
+                        const attributeValue = true;
+                        const previousDocument = {};
+                        const currentDocument = { 
+                            [attributeName]: attributeValue,
+                        }
+                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const diff = currentInstanceState.diff(previousInstanceState);
+    
+                        if (!diff.add || diff.add[attributeName] === undefined || diff.add[attributeName] !== attributeValue)
+                            throw new Error('diff did not include the expected change to the attribute.')
+                    });
+    
+                    it('Current document has \'boolean\' set and previous document does not contain \'boolean\'.', () => {
+                        const attributeName = 'boolean';
+                        const attributeValue = false;
+                        const previousDocument = {};
+                        const currentDocument = { 
+                            [attributeName]: attributeValue,
+                        }
+                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const diff = currentInstanceState.diff(previousInstanceState);
+    
+                        if (!diff.add || diff.add[attributeName] === undefined || diff.add[attributeName] !== attributeValue)
+                            throw new Error('diff did not include the expected change to the attribute.')
+                    });
+    
+                });
+
+                describe('Removing Attributes', () => {
+    
+                    it('Previous document has \'string\' set and current document does not contain \'string\'.', () => {
+                        const attributeName = 'string';
+                        const attributeValue = 'something';
+                        const previousDocument = { 
+                            [attributeName]: attributeValue,
+                        };
+                        const currentDocument = {};
+                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const diff = currentInstanceState.diff(previousInstanceState);
+    
+                        if (!diff.remove || diff.remove[attributeName] === undefined || diff.remove[attributeName] !== attributeValue)
+                            throw new Error('diff did not include the expected change to the attribute.')
+                    });
+    
+                    it('Previous document has \'string\' set to empty string and current document does not contain \'string\'.', () => {
+                        const attributeName = 'string';
+                        const attributeValue = '';
+                        const previousDocument = { 
+                            [attributeName]: attributeValue,
+                        };
+                        const currentDocument = {};
+                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const diff = currentInstanceState.diff(previousInstanceState);
+    
+                        if (!diff.remove || diff.remove[attributeName] === undefined || diff.remove[attributeName] !== attributeValue)
+                            throw new Error('diff did not include the expected change to the attribute.')
+                    });
+    
+                    it('Previous document has \'date\' set and current document does not contain \'date\'.', () => {
+                        const attributeName = 'date';
+                        const attributeValue = new Date();
+                        const previousDocument = { 
+                            [attributeName]: attributeValue,
+                        };
+                        const currentDocument = {};
+                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const diff = currentInstanceState.diff(previousInstanceState);
+    
+                        if (!diff.remove || diff.remove[attributeName] === undefined || diff.remove[attributeName] !== attributeValue)
+                            throw new Error('diff did not include the expected change to the attribute.')
+                    });
+    
+                    it('Previous document has \'boolean\' set and current document does not contain \'boolean\'.', () => {
+                        const attributeName = 'boolean';
+                        const attributeValue = true;
+                        const previousDocument = { 
+                            [attributeName]: attributeValue,
+                        };
+                        const currentDocument = {};
+                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const diff = currentInstanceState.diff(previousInstanceState);
+    
+                        if (!diff.remove || diff.remove[attributeName] === undefined || diff.remove[attributeName] !== attributeValue)
+                            throw new Error('diff did not include the expected change to the attribute.')
+                    });
+    
+                    it('Previous document has \'boolean\' set to false and current document does not contain \'boolean\'.', () => {
+                        const attributeName = 'boolean';
+                        const attributeValue = false;
+                        const previousDocument = { 
+                            [attributeName]: attributeValue,
+                        };
+                        const currentDocument = {};
+                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const diff = currentInstanceState.diff(previousInstanceState);
+    
+                        if (!diff.remove || diff.remove[attributeName] === undefined || diff.remove[attributeName] !== attributeValue)
+                            throw new Error('diff did not include the expected change to the attribute.')
+                    });
+    
+                    it('Previous document has \'number\' set and current document does not contain \'number\'.', () => {
+                        const attributeName = 'number';
+                        const attributeValue = 1;
+                        const previousDocument = { 
+                            [attributeName]: attributeValue,
+                        };
+                        const currentDocument = {};
+                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const diff = currentInstanceState.diff(previousInstanceState);
+    
+                        if (!diff.remove || diff.remove[attributeName] === undefined || diff.remove[attributeName] !== attributeValue)
+                            throw new Error('diff did not include the expected change to the attribute.')
+                    });
+    
+                    it('Previous document has \'number\' set to 0 and current document does not contain \'number\'.', () => {
+                        const attributeName = 'number';
+                        const attributeValue = 0;
+                        const previousDocument = { 
+                            [attributeName]: attributeValue,
+                        };
+                        const currentDocument = {};
+                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const diff = currentInstanceState.diff(previousInstanceState);
+
+                        if (!diff.remove || diff.remove[attributeName] === undefined || diff.remove[attributeName] !== attributeValue)
+                            throw new Error('diff did not include the expected change to the attribute.')
+                    });
+
+                });
+
+                describe('Updating Attributes', () => {
+    
+                    describe('Updating Attributes to New Values', () => {
+
+                        it('\'string\' attribute updated.', () => {
+                            const attributeName = 'string';
+                            const previousValue = 'something';
+                            const currentValue = 'something else';
+                            const previousDocument = { 
+                                [attributeName]: previousValue,
+                            };
+                            const currentDocument = { 
+                                [attributeName]: currentValue,
+                            };
+                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const diff = currentInstanceState.diff(previousInstanceState);
+        
+                            if (!diff.update || diff.update[attributeName] === undefined)
+                                throw new Error('diff did not include an update for the attribute.')
+     
+                            if (diff.update[attributeName].insert !== currentValue || diff.update[attributeName].remove !== previousValue || diff.update[attributeName].value !== currentValue)
+                                throw new Error('The attribute update was not set as expected.');
+                        });
+        
+                        it('\'string\' attribute updated from empty string to something.', () => {
+                            const attributeName = 'string';
+                            const previousValue = '';
+                            const currentValue = 'something';
+                            const previousDocument = { 
+                                [attributeName]: previousValue,
+                            };
+                            const currentDocument = { 
+                                [attributeName]: currentValue,
+                            };
+                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const diff = currentInstanceState.diff(previousInstanceState);
+    
+                            if (!diff.update || diff.update[attributeName] === undefined)
+                                throw new Error('diff did not include an update for the attribute.')
+     
+                            if (diff.update[attributeName].insert !== currentValue || diff.update[attributeName].remove !== previousValue || diff.update[attributeName].value !== currentValue)
+                                throw new Error('The attribute update was not set as expected.');
+                        });
+        
+                        it('\'string\' attribute updated from something to empty string.', () => {
+                            const attributeName = 'string';
+                            const previousValue = 'something';
+                            const currentValue = '';
+                            const previousDocument = { 
+                                [attributeName]: previousValue,
+                            };
+                            const currentDocument = { 
+                                [attributeName]: currentValue,
+                            };
+                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const diff = currentInstanceState.diff(previousInstanceState);
+        
+                            if (!diff.update || diff.update[attributeName] === undefined)
+                                throw new Error('diff did not include an update for the attribute.')
+     
+                            if (diff.update[attributeName].insert !== currentValue || diff.update[attributeName].remove !== previousValue || diff.update[attributeName].value !== currentValue)
+                                throw new Error('The attribute update was not set as expected.');
+                        });
+        
+                        it('\'date\' attribute updated.', () => {
+                            const attributeName = 'date';
+                            const previousValue = new Date('2019-01-01');
+                            const currentValue = new Date();
+                            const previousDocument = { 
+                                [attributeName]: previousValue,
+                            };
+                            const currentDocument = { 
+                                [attributeName]: currentValue,
+                            };
+                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const diff = currentInstanceState.diff(previousInstanceState);
+        
+                            if (!diff.update || diff.update[attributeName] === undefined)
+                                throw new Error('diff did not include an update for the attribute.')
+     
+                            if (diff.update[attributeName].insert !== currentValue || diff.update[attributeName].remove !== previousValue || diff.update[attributeName].value !== currentValue)
+                                throw new Error('The attribute update was not set as expected.');
+                        });
+        
+                        it('\'number\' attribute updated.', () => {
+                            const attributeName = 'number';
+                            const previousValue = 0;
+                            const currentValue = 17;
+                            const previousDocument = { 
+                                [attributeName]: previousValue,
+                            };
+                            const currentDocument = { 
+                                [attributeName]: currentValue,
+                            };
+                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const diff = currentInstanceState.diff(previousInstanceState);
+        
+                            if (!diff.update || diff.update[attributeName] === undefined)
+                                throw new Error('diff did not include an update for the attribute.')
+     
+                            if (diff.update[attributeName].insert !== currentValue || diff.update[attributeName].remove !== previousValue || diff.update[attributeName].value !== currentValue)
+                                throw new Error('The attribute update was not set as expected.');
+                        });
+        
+                        it('\'number\' attribute updated.', () => {
+                            const attributeName = 'number';
+                            const previousValue =  17;
+                            const currentValue = 0;
+                            const previousDocument = { 
+                                [attributeName]: previousValue,
+                            };
+                            const currentDocument = { 
+                                [attributeName]: currentValue,
+                            };
+                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const diff = currentInstanceState.diff(previousInstanceState);
+        
+                            if (!diff.update || diff.update[attributeName] === undefined)
+                                throw new Error('diff did not include an update for the attribute.')
+     
+                            if (diff.update[attributeName].insert !== currentValue || diff.update[attributeName].remove !== previousValue || diff.update[attributeName].value !== currentValue)
+                                throw new Error('The attribute update was not set as expected.');
+                        });
+        
+                        it('\'boolean\' attribute updated.', () => {
+                            const attributeName = 'boolean';
+                            const previousValue =  false;
+                            const currentValue = true;
+                            const previousDocument = { 
+                                [attributeName]: previousValue,
+                            };
+                            const currentDocument = { 
+                                [attributeName]: currentValue,
+                            };
+                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const diff = currentInstanceState.diff(previousInstanceState);
+        
+                            if (!diff.update || diff.update[attributeName] === undefined)
+                                throw new Error('diff did not include an update for the attribute.')
+     
+                            if (diff.update[attributeName].insert !== currentValue || diff.update[attributeName].remove !== previousValue || diff.update[attributeName].value !== currentValue)
+                                throw new Error('The attribute update was not set as expected.');
+                        });
+        
+                        it('\'boolean\' attribute updated.', () => {
+                            const attributeName = 'boolean';
+                            const previousValue =  true;
+                            const currentValue = false;
+                            const previousDocument = { 
+                                [attributeName]: previousValue,
+                            };
+                            const currentDocument = { 
+                                [attributeName]: currentValue,
+                            };
+                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const diff = currentInstanceState.diff(previousInstanceState);
+        
+                            if (!diff.update || diff.update[attributeName] === undefined)
+                                throw new Error('diff did not include an update for the attribute.')
+     
+                            if (diff.update[attributeName].insert !== currentValue || diff.update[attributeName].remove !== previousValue || diff.update[attributeName].value !== currentValue)
+                                throw new Error('The attribute update was not set as expected.');
+                        });
+
+                    });
+
+                    describe('Setting an Attribute to the Same Value (Should Not Update)', () => {
+
+                        it('\'string\' attribute not updated.', () => {
+                            const attributeName = 'string';
+                            const previousValue = 'something';
+                            const currentValue = 'something';
+                            const previousDocument = { 
+                                [attributeName]: previousValue,
+                            };
+                            const currentDocument = { 
+                                [attributeName]: currentValue,
+                            };
+                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const diff = currentInstanceState.diff(previousInstanceState);
+        
+                            if (!diff.update && diff.update[attributeName] !== undefined)
+                                throw new Error('diff included the update when it shouldn\'t have.');
+                        });
+
+                        it('\'string\' attribute not updated.', () => {
+                            const attributeName = 'string';
+                            const previousValue = '';
+                            const currentValue = '';
+                            const previousDocument = { 
+                                [attributeName]: previousValue,
+                            };
+                            const currentDocument = { 
+                                [attributeName]: currentValue,
+                            };
+                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const diff = currentInstanceState.diff(previousInstanceState);
+        
+                            if (!diff.update && diff.update[attributeName] !== undefined)
+                                throw new Error('diff included the update when it shouldn\'t have.');
+                        });
+
+                        it('\'boolean\' attribute not updated.', () => {
+                            const attributeName = 'boolean';
+                            const previousValue = false;
+                            const currentValue = false;
+                            const previousDocument = { 
+                                [attributeName]: previousValue,
+                            };
+                            const currentDocument = { 
+                                [attributeName]: currentValue,
+                            };
+                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const diff = currentInstanceState.diff(previousInstanceState);
+        
+                            if (!diff.update && diff.update[attributeName] !== undefined)
+                                throw new Error('diff included the update when it shouldn\'t have.');
+                        });
+
+                        it('\'boolean\' attribute not updated.', () => {
+                            const attributeName = 'boolean';
+                            const previousValue = true;
+                            const currentValue = true;
+                            const previousDocument = { 
+                                [attributeName]: previousValue,
+                            };
+                            const currentDocument = { 
+                                [attributeName]: currentValue,
+                            };
+                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const diff = currentInstanceState.diff(previousInstanceState);
+        
+                            if (!diff.update && diff.update[attributeName] !== undefined)
+                                throw new Error('diff included the update when it shouldn\'t have.');
+                        });
+
+                        it('\'number\' attribute not updated.', () => {
+                            const attributeName = 'number';
+                            const previousValue = 0;
+                            const currentValue = 0;
+                            const previousDocument = { 
+                                [attributeName]: previousValue,
+                            };
+                            const currentDocument = { 
+                                [attributeName]: currentValue,
+                            };
+                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const diff = currentInstanceState.diff(previousInstanceState);
+        
+                            if (!diff.update && diff.update[attributeName] !== undefined)
+                                throw new Error('diff included the update when it shouldn\'t have.');
+                        });
+
+                        it('\'number\' attribute not updated.', () => {
+                            const attributeName = 'number';
+                            const previousValue = -10;
+                            const currentValue = -10;
+                            const previousDocument = { 
+                                [attributeName]: previousValue,
+                            };
+                            const currentDocument = { 
+                                [attributeName]: currentValue,
+                            };
+                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const diff = currentInstanceState.diff(previousInstanceState);
+        
+                            if (!diff.update && diff.update[attributeName] !== undefined)
+                                throw new Error('diff included the update when it shouldn\'t have.');
+                        });
+
+                        it('\'date\' attribute not updated.', () => {
+                            const attributeName = 'date';
+                            const previousValue = new Date('1992-03-06');
+                            const currentValue = new Date('1992-03-06');
+                            const previousDocument = { 
+                                [attributeName]: previousValue,
+                            };
+                            const currentDocument = { 
+                                [attributeName]: currentValue,
+                            };
+                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const diff = currentInstanceState.diff(previousInstanceState);
+        
+                            if (!diff.update && diff.update[attributeName] !== undefined)
+                                throw new Error('diff included the update when it shouldn\'t have.');
+                        });
+
+                    })
+
+                });
+
+            });
+
+            describe('List Attribute Diffs', () => {
+
+                describe('Adding Attributes', () => {
+    
+                    it('Current document has \'strings\' set and previous document does not contain \'strings\'.', () => {
+                        const attributeName = 'strings';
+                        const attributeValue = ['something'];
+                        const previousDocument = {};
+                        const currentDocument = { 
+                            [attributeName]: attributeValue,
+                        }
+                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const diff = currentInstanceState.diff(previousInstanceState);
+
+                        if (!arrayEquals(diff.add[attributeName], attributeValue))
+                            throw new Error('diff does not contain the expected attribute value.')
+    
+                    });
+    
+                    it('Current document has \'numbers\' set and previous document does not contain \'numbers\'.', () => {
+                        const attributeName = 'numbers';
+                        const attributeValue = [0, 17];
+                        const previousDocument = {};
+                        const currentDocument = { 
+                            [attributeName]: attributeValue,
+                        }
+                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const diff = currentInstanceState.diff(previousInstanceState);
+
+
+                        if (!arrayEquals(diff.add[attributeName], attributeValue))
+                            throw new Error('diff does not contain the expected attribute value.')
+                    });
+
+                    it('Current document has \'booleans\' set and previous document does not contain \'booleans\'.', () => {
+                        const attributeName = 'booleans';
+                        const attributeValue = [false, true];
+                        const previousDocument = {};
+                        const currentDocument = { 
+                            [attributeName]: attributeValue,
+                        }
+                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const diff = currentInstanceState.diff(previousInstanceState);
+
+                        if (!arrayEquals(diff.add[attributeName], attributeValue))
+                            throw new Error('diff does not contain the expected attribute value.')
+                    });
+    
+                });
+
+                describe('Removing Attributes', () => {
+    
+                    it('Previous document has \'strings\' set and current document does not contain \'strings\'.', () => {
+                        const attributeName = 'strings';
+                        const attributeValue = ['something'];
+                        const previousDocument = { 
+                            [attributeName]: attributeValue,
+                        };
+                        const currentDocument = {};
+                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const diff = currentInstanceState.diff(previousInstanceState);
+
+                        if (!arrayEquals(diff.remove[attributeName], attributeValue))
+                            throw new Error('diff does not contain the expected attribute value.')
+                    });
+    
+                    it('Previous document has \'booleans\' set and current document does not contain \'booleans\'.', () => {
+                        const attributeName = 'booleans';
+                        const attributeValue = [false, true];
+                        const previousDocument = { 
+                            [attributeName]: attributeValue,
+                        };
+                        const currentDocument = {};
+                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const diff = currentInstanceState.diff(previousInstanceState);
+
+
+                        if (!arrayEquals(diff.remove[attributeName], attributeValue))
+                            throw new Error('diff does not contain the expected attribute value.')
+                    });
+    
+                    it('Previous document has \'numbers\' set and current document does not contain \'numbers\'.', () => {
+                        const attributeName = 'numbers';
+                        const attributeValue = [1, 2];
+                        const previousDocument = { 
+                            [attributeName]: attributeValue,
+                        };
+                        const currentDocument = {};
+                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const diff = currentInstanceState.diff(previousInstanceState);
+
+
+                        if (!arrayEquals(diff.remove[attributeName], attributeValue))
+                            throw new Error('diff does not contain the expected attribute value.')
+                    });
+
+                });
+
+                describe('Updating Attributes', () => {
+
+                    describe('Adding Elements to List Attributes', () => {
+
+                        it('Adding an element to list Element \'strings\'.', () => {
+                            const attributeName = 'strings';
+                            const previousValue = ['string1'];
+                            const valuesAdded = ['string2'];
+                            const valuesRemoved = [];
+                            const currentValue = previousValue.concat(valuesAdded);
+                            const previousDocument = { 
+                                [attributeName]: previousValue,
+                            }
+                            const currentDocument = { 
+                                [attributeName]: currentValue,
+                            }
+                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const diff = currentInstanceState.diff(previousInstanceState);
+    
+                            if (!diff.update || !diff.update[attributeName])
+                                throw new Error('Diff does not contain the update for the attibute.');
+        
+                            if (!arrayEquals(currentValue, diff.update[attributeName].value))
+                                throw new Error('diff.update.value is not set correctly.');
+        
+                            if (!arrayEquals(previousValue, diff.update[attributeName].previous))
+                                throw new Error('diff.update.previous is not set correctly.');
+                            
+                            if (!arrayEquals(valuesAdded, diff.update[attributeName].insert))
+                                throw new Error('diff.update.insert is not set correctly.');
+
+                            if (!arrayEquals(valuesRemoved, diff.update[attributeName].remove))
+                                throw new Error('diff.update.remove is not set correctly.');
+                        });
+
+                        it('Adding an element to list Element \'booleans\'.', () => {
+                            const attributeName = 'booleans';
+                            const previousValue = [true];
+                            const valuesAdded = [false];
+                            const valuesRemoved = [];
+                            const currentValue = previousValue.concat(valuesAdded);
+                            const previousDocument = { 
+                                [attributeName]: previousValue,
+                            }
+                            const currentDocument = { 
+                                [attributeName]: currentValue,
+                            }
+                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const diff = currentInstanceState.diff(previousInstanceState);
+        
+                            if (!arrayEquals(currentValue, diff.update[attributeName].value))
+                                throw new Error('diff.update.value is not set correctly.');
+        
+                            if (!arrayEquals(previousValue, diff.update[attributeName].previous))
+                                throw new Error('diff.update.previous is not set correctly.');
+                            
+                            if (!arrayEquals(valuesAdded, diff.update[attributeName].insert))
+                                throw new Error('diff.update.insert is not set correctly.');
+
+                            if (!arrayEquals(valuesRemoved, diff.update[attributeName].remove))
+                                throw new Error('diff.update.remove is not set correctly.');
+                        });
+
+                        it('Adding an element to list Element \'numbers\'.', () => {
+                            const attributeName = 'numbers';
+                            const previousValue = [0, 1];
+                            const valuesAdded = [2];
+                            const valuesRemoved = [];
+                            const currentValue = previousValue.concat(valuesAdded);
+                            const previousDocument = { 
+                                [attributeName]: previousValue,
+                            }
+                            const currentDocument = { 
+                                [attributeName]: currentValue,
+                            }
+                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const diff = currentInstanceState.diff(previousInstanceState);
+        
+                            if (!arrayEquals(currentValue, diff.update[attributeName].value))
+                                throw new Error('diff.update.value is not set correctly.');
+        
+                            if (!arrayEquals(previousValue, diff.update[attributeName].previous))
+                                throw new Error('diff.update.previous is not set correctly.');
+                            
+                            if (!arrayEquals(valuesAdded, diff.update[attributeName].insert))
+                                throw new Error('diff.update.insert is not set correctly.');
+
+                            if (!arrayEquals(valuesRemoved, diff.update[attributeName].remove))
+                                throw new Error('diff.update.remove is not set correctly.');
+                        });
+
+                    });
+
+                    describe('Removing Elements from List Attributes.', () => {
+
+                        it('Adding an element to list Element \'strings\'.', () => {
+                            const attributeName = 'strings';
+                            const previousValue = ['string1', 'string2'];
+                            const valuesAdded = [];
+                            const valuesRemoved = ['string2'];
+                            const currentValue = ['string1'];
+                            const previousDocument = { 
+                                [attributeName]: previousValue,
+                            }
+                            const currentDocument = { 
+                                [attributeName]: currentValue,
+                            }
+                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const diff = currentInstanceState.diff(previousInstanceState);
+    
+                            if (!diff.update || !diff.update[attributeName])
+                                throw new Error('Diff does not contain the update for the attibute.');
+        
+                            if (!arrayEquals(currentValue, diff.update[attributeName].value))
+                                throw new Error('diff.update.value is not set correctly.');
+        
+                            if (!arrayEquals(previousValue, diff.update[attributeName].previous))
+                                throw new Error('diff.update.previous is not set correctly.');
+                            
+                            if (!arrayEquals(valuesAdded, diff.update[attributeName].insert))
+                                throw new Error('diff.update.insert is not set correctly.');
+
+                            if (!arrayEquals(valuesRemoved, diff.update[attributeName].remove))
+                                throw new Error('diff.update.remove is not set correctly.');
+                        });
+
+                        it('Adding an element to list Element \'booleans\'.', () => {
+                            const attributeName = 'booleans';
+                            const previousValue = [true, false];
+                            const valuesAdded = [];
+                            const valuesRemoved = [false];
+                            const currentValue = [true];
+                            const previousDocument = { 
+                                [attributeName]: previousValue,
+                            }
+                            const currentDocument = { 
+                                [attributeName]: currentValue,
+                            }
+                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const diff = currentInstanceState.diff(previousInstanceState);
+    
+                            if (!diff.update || !diff.update[attributeName])
+                                throw new Error('Diff does not contain the update for the attibute.');
+        
+                            if (!arrayEquals(currentValue, diff.update[attributeName].value))
+                                throw new Error('diff.update.value is not set correctly.');
+        
+                            if (!arrayEquals(previousValue, diff.update[attributeName].previous))
+                                throw new Error('diff.update.previous is not set correctly.');
+                            
+                            if (!arrayEquals(valuesAdded, diff.update[attributeName].insert))
+                                throw new Error('diff.update.insert is not set correctly.');
+
+                            if (!arrayEquals(valuesRemoved, diff.update[attributeName].remove))
+                                throw new Error('diff.update.remove is not set correctly.');
+                        });
+
+                        it('Adding an element to list Element \'numbers\'.', () => {
+                            const attributeName = 'numbers';
+                            const previousValue = [0, 1, 2];
+                            const valuesAdded = [];
+                            const valuesRemoved = [2];
+                            const currentValue = [0, 1];
+                            const previousDocument = { 
+                                [attributeName]: previousValue,
+                            }
+                            const currentDocument = { 
+                                [attributeName]: currentValue,
+                            }
+                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const diff = currentInstanceState.diff(previousInstanceState);
+    
+                            if (!diff.update || !diff.update[attributeName])
+                                throw new Error('Diff does not contain the update for the attibute.');
+        
+                            if (!arrayEquals(currentValue, diff.update[attributeName].value))
+                                throw new Error('diff.update.value is not set correctly.');
+        
+                            if (!arrayEquals(previousValue, diff.update[attributeName].previous))
+                                throw new Error('diff.update.previous is not set correctly.');
+                            
+                            if (!arrayEquals(valuesAdded, diff.update[attributeName].insert))
+                                throw new Error('diff.update.insert is not set correctly.');
+
+                            if (!arrayEquals(valuesRemoved, diff.update[attributeName].remove))
+                                throw new Error('diff.update.remove is not set correctly.');
+                        });
+
+                    });
+
+                    describe('Adding and Removing Elements to/from List Attributes.', () => {
+
+                        it('Adding one string and removing another form List Attribute \'strings\'.', () => {
+                            const attributeName = 'strings';
+                            const previousValue = ['string1', 'string2'];
+                            const valuesAdded = ['string3'];
+                            const valuesRemoved = ['string2'];
+                            const currentValue = ['string1', 'string3'];
+                            const previousDocument = { 
+                                [attributeName]: previousValue,
+                            }
+                            const currentDocument = { 
+                                [attributeName]: currentValue,
+                            }
+                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const diff = currentInstanceState.diff(previousInstanceState);
+    
+                            if (!diff.update || !diff.update[attributeName])
+                                throw new Error('Diff does not contain the update for the attibute.');
+        
+                            if (!arrayEquals(currentValue, diff.update[attributeName].value))
+                                throw new Error('diff.update.value is not set correctly.');
+        
+                            if (!arrayEquals(previousValue, diff.update[attributeName].previous))
+                                throw new Error('diff.update.previous is not set correctly.');
+                            
+                            if (!arrayEquals(valuesAdded, diff.update[attributeName].insert))
+                                throw new Error('diff.update.insert is not set correctly.');
+
+                            if (!arrayEquals(valuesRemoved, diff.update[attributeName].remove))
+                                throw new Error('diff.update.remove is not set correctly.');
+                        });
+
+                        it('Switching the order of attributes in List Attribute \'booleans\'.', () => {
+                            const attributeName = 'booleans';
+                            const previousValue = [true, false, true, false];
+                            const valuesAdded = [];
+                            const valuesRemoved = [];
+                            const currentValue = [false, true, false, true];
+                            const previousDocument = { 
+                                [attributeName]: previousValue,
+                            }
+                            const currentDocument = { 
+                                [attributeName]: currentValue,
+                            }
+                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const diff = currentInstanceState.diff(previousInstanceState);
+    
+                            if (!diff.update || !diff.update[attributeName])
+                                throw new Error('Diff does not contain the update for the attibute.');
+        
+                            if (!arrayEquals(currentValue, diff.update[attributeName].value))
+                                throw new Error('diff.update.value is not set correctly.');
+        
+                            if (!arrayEquals(previousValue, diff.update[attributeName].previous))
+                                throw new Error('diff.update.previous is not set correctly.');
+                            
+                            if (!arrayEquals(valuesAdded, diff.update[attributeName].insert))
+                                throw new Error('diff.update.insert is not set correctly.');
+
+                            if (!arrayEquals(valuesRemoved, diff.update[attributeName].remove))
+                                throw new Error('diff.update.remove is not set correctly.');
+                        });
+
+                        it('Completely replacing the values in List Attribute \'numbers\'.', () => {
+                            const attributeName = 'numbers';
+                            const previousValue = [1, 2, 3];
+                            const valuesAdded = [4, 5, 6, 7];
+                            const valuesRemoved = [1, 2, 3];
+                            const currentValue = [4, 5, 6, 7];
+                            const previousDocument = { 
+                                [attributeName]: previousValue,
+                            }
+                            const currentDocument = { 
+                                [attributeName]: currentValue,
+                            }
+                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const diff = currentInstanceState.diff(previousInstanceState);
+    
+                            if (!diff.update || !diff.update[attributeName])
+                                throw new Error('Diff does not contain the update for the attibute.');
+        
+                            if (!arrayEquals(currentValue, diff.update[attributeName].value))
+                                throw new Error('diff.update.value is not set correctly.');
+        
+                            if (!arrayEquals(previousValue, diff.update[attributeName].previous))
+                                throw new Error('diff.update.previous is not set correctly.');
+                            
+                            if (!arrayEquals(valuesAdded, diff.update[attributeName].insert))
+                                throw new Error('diff.update.insert is not set correctly.');
+
+                            if (!arrayEquals(valuesRemoved, diff.update[attributeName].remove))
+                                throw new Error('diff.update.remove is not set correctly.');
+                        });
+
+                    });
+
+                });
+
+            });
+
+        });
+
+        describe('Relationship Diffs', () => {
+
+            describe('Singular Relationship Diffs', () => {
+
+                describe('Adding Relationship', () => {
+
+                    it('Setting a relationship that was empty.', () => {
+                        const relationshipName = 'class1';
+                        const relatedId = '1234asdf2134asdf';
+                        const previousDocument = {};
+                        const currentDocument = {
+                            [relationshipName] : relatedId
+                        }
+                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const diff = currentInstanceState.diff(previousInstanceState);
+
+                        if (!diff.add || !diff.add[relationshipName])
+                            throw new Error('diff.add is missing the relationship change.');
+
+                        if (diff.add[relationshipName] != relatedId)
+                            throw new Error('diff is missing the added instance Id.');
+                    });
+
+                });
+
+                describe('Removing Relationship', () => {
+
+                    it('Removing a relationship that was empty.', () => {
+                        const relationshipName = 'class1';
+                        const relatedId = '1234asdf2134asdf';
+                        const previousDocument = {
+                            [relationshipName] : relatedId
+                        }
+                        const currentDocument = {};
+                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const diff = currentInstanceState.diff(previousInstanceState);
+
+                        if (!diff.remove || !diff.remove[relationshipName])
+                            throw new Error('diff.remove is missing the relationship change.');
+
+                        if (diff.remove[relationshipName] != relatedId)
+                            throw new Error('diff is missing the added instance Id.');
+                    });
+
+                });
+
+                describe('Updating Relationship', () => {
+
+                    it('Changing a relationship to a new id.', () => {
+                        const relationshipName = 'class1';
+                        const previousId = '1234asdf2134asdf';
+                        const currentId = '9876asdf6543fdas';
+                        const previousDocument = {
+                            [relationshipName] : previousId
+                        }
+                        const currentDocument = {
+                            [relationshipName] : currentId
+                        };
+                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const diff = currentInstanceState.diff(previousInstanceState);
+
+                        console.log(JSON.stringify(diff));
+
+                        if (!diff.update || !diff.update[relationshipName])
+                            throw new Error('diff.update is missing the relationship change.');
+
+                        if (diff.update[relationshipName].previous != previousId)
+                            throw new Error('diff previous value is incorect.');
+
+                        if (diff.update[relationshipName].value != currentId)
+                            throw new Error('diff is current value is incorrect.');
+
+                        if (diff.update[relationshipName].remove != previousId)
+                            throw new Error('diff remove value is incorect.');
+
+                        if (diff.update[relationshipName].insert != currentId)
+                            throw new Error('diff is insert value is incorrect.');
+                    });
+
+                });
+
+            });
+
+            describe('NonSingular Relationship Diffs', () => {
+
+                describe('Adding Relationship', () => {
+
+                });
+
+                describe('Removing Relationship', () => {
+
+                });
+
+                describe('Updating Relationship', () => {
+
+                    describe('Adding New IDs to the Relationship', () => {
+
+                    });
+
+                    describe('Removing IDs from the Relationship', () => {
+
+                    });
+
+                    describe('Adding New IDs to and Removing IDs from the Relationship', () => {
+
+                    });
+
+                });
+
+            });
+
         });
 
     });
