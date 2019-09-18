@@ -1,7 +1,5 @@
 
 require("@babel/polyfill");
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
 
 const database = require('../../dist/noomman/database');
 const Instance = require('../../dist/noomman/Instance');

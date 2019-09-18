@@ -251,8 +251,24 @@ class ClassModel {
     getAttributes() {
         const attributes = [];
         for (const key in this.schema) {
-            if (ClassModel.isAttribute(object[key]))
-                attributes.push(object[key]);
+            if (ClassModel.isAttribute(this.schema[key])){
+                let type = this.schema[key].type;
+                let list = false;
+                
+                if (Array.isArray(this.schema[key].type)) {
+                    type = this.schema[key].type[0];
+                    list = true;
+                }
+
+                attributes.push({
+                    name: key,
+                    type: type,
+                    list: list,
+                    mutex: this.schema[key].mutex,
+                    required: this.schema[key].required,
+                    requiredGroup: this.schema[key].requiredGroup,
+                });
+            }
         }
         return attributes;
     }
@@ -260,8 +276,15 @@ class ClassModel {
     getSingularRelationships() {
         const relationships = [];
         for (const key in this.schema) {
-            if (ClassModel.isSingularRelationship(object[key]))
-                relationships.push(object[key]);
+            if (ClassModel.isSingularRelationship(this.schema[key]))
+                relationships.push({
+                    name: key,
+                    toClass: this.schema[key].ref,
+                    type: this.schema[key].type,
+                    mutex: this.schema[key].mutex,
+                    required: this.schema[key].required,
+                    requiredGroup: this.schema[key].requiredGroup,
+                });
         }
         return relationships;
     }
@@ -269,8 +292,15 @@ class ClassModel {
     getNonSingularRelationships() {
         const relationships = [];
         for (const key in this.schema) {
-            if (ClassModel.isNonSingularRelationship(object[key]))
-                relationships.push(object[key]);
+            if (ClassModel.isNonSingularRelationship(this.schema[key]))
+                relationships.push({
+                    name: key,
+                    toClass: this.schema[key].ref,
+                    type: this.schema[key].type,
+                    mutex: this.schema[key].mutex,
+                    required: this.schema[key].required,
+                    requiredGroup: this.schema[key].requiredGroup,
+                });
         }
         return relationships;
     }

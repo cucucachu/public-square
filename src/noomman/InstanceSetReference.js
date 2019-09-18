@@ -27,6 +27,10 @@ class InstanceSetReference {
         return true;
     }
 
+    isEmpty() {
+        return this.ids.length === 0;
+    }
+
 }
 
 module.exports = InstanceSetReference;

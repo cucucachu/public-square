@@ -11,6 +11,10 @@ class InstanceReference {
         return this.id === that.id;
     }
 
+    isEmpty() {
+        return this.id === null;
+    }
+
 }
 
 module.exports = InstanceReference;

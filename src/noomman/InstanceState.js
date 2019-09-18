@@ -1,24 +1,33 @@
 require('@babel/polyfill');
 
+const InstanceReference = require('./InstanceReference');
+const InstanceSetReference = require('./InstanceSetReference');
+
 class InstanceState {
     constructor(classModel, document) {
         this.attributes = {};
         this.instanceReferences = {};
         this.instanceSetReferences = {};
 
+        if (!classModel)
+            throw new Error('new InstanceState(): First argument \'classModel\' is required.');
 
         for (const attribute of classModel.getAttributes()) {
-            this.attributes[attribute.name] = document ? document[attribute.name] : null;
+            if (attribute.list)
+                this.attributes[attribute.name] = (document && document[attribute.name]) ? document[attribute.name] : [];
+            else {
+                this.attributes[attribute.name] = (document && document[attribute.name] !== undefined) ? document[attribute.name] : null;
+            }
         }
         for (const singularRelationship of classModel.getSingularRelationships()) {
-            instanceReference = new InstanceReference();
-            if (document) 
-                instanceReference.id = document[singularRelationship].id;
+            const instanceReference = new InstanceReference();
+            if (document && document[singularRelationship.name])
+                instanceReference.id = document[singularRelationship.name];
             this.instanceReferences[singularRelationship.name] = instanceReference;
         }
         for (const nonSingularRelationship of classModel.getNonSingularRelationships()) {
-            instanceSetReference = new InstanceSetReference();
-            if (document)
+            const instanceSetReference = new InstanceSetReference();
+            if (document && document[nonSingularRelationship.name])
                 instanceSetReference.ids = document[nonSingularRelationship.name];
             this.instanceSetReferences[nonSingularRelationship.name] = instanceSetReference;
         }
@@ -52,7 +61,7 @@ class InstanceState {
                     return trapTarget.instanceSetReferences[key].instance ? trapTarget.instanceSetReferences[key].instanceSet : trapTarget.instanceSetReferences[key].ids;
                 }
                 else {
-                    Reflect(trapTarget, key, receiver);
+                    return Reflect.get(trapTarget, key, receiver);
                 }
             },
             
