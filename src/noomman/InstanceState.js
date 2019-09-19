@@ -118,9 +118,12 @@ class InstanceState {
         }
 
         for (const relationshipName in this.instanceSetReferences) {
+            console.log('checking for relatinoship ' + relationshipName);
             const relationship = this.instanceSetReferences[relationshipName];
+            console.log('Relationship has ids ' + relationship.ids)
+
             if (!relationship.isEmpty())
-                document[relationshipName] = relationship.id;
+                document[relationshipName] = relationship.ids;
         }
 
         return document;        

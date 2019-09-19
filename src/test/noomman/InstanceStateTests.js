@@ -4,8 +4,6 @@ const InstanceState = require('../../dist/noomman/InstanceState');
 const TestClassModels = require('./helpers/TestClassModels');
 const TestingFunctions = require('./helpers/TestingFunctions');
 const testForError = TestingFunctions.testForError;
-const testForErrorMutex = TestingFunctions.testForErrorMutex;
-const testForErrorAsync = TestingFunctions.testForErrorAsync;
 const arraysEqual = TestingFunctions.arraysEqual;
 const objectsEqual = TestingFunctions.objectsEqual;
 
@@ -357,8 +355,6 @@ describe('Instance State Tests', () => {
                     }
                     const instanceState = new InstanceState(AllFieldsRequiredClass, originalDocument);
                     const document = instanceState.toDocument();
-
-                    console.log(JSON.stringify(document, null, 2));
     
                     if (!objectsEqual(document, expectedDocument))
                         throw new Error('instanceState.toDocument() did not return the expected document.');
@@ -373,9 +369,107 @@ describe('Instance State Tests', () => {
 
             describe('Relationships', () => {
 
+                it('Singular relationships is set.', () => {
+                    const originalDocument = {
+                        class1: 'id1',
+                    }
+                    const expectedDocument = {
+                        class1: 'id1',
+                    }
+                    const instanceState = new InstanceState(AllFieldsRequiredClass, originalDocument);
+                    const document = instanceState.toDocument();
+    
+                    if (!objectsEqual(document, expectedDocument))
+                        throw new Error('instanceState.toDocument() did not return the expected document.');
+
+                });
+
+                it('Nonsingular relationship is set.', () => {
+                    const originalDocument = {
+                        class2s: ['id1', 'id2'],
+                    }
+                    const expectedDocument = {
+                        class2s: ['id1', 'id2'],
+                    }
+                    const instanceState = new InstanceState(AllFieldsRequiredClass, originalDocument);
+                    const document = instanceState.toDocument();
+    
+                    if (!objectsEqual(document, expectedDocument))
+                        throw new Error('instanceState.toDocument() did not return the expected document.');
+
+                });
+
             });
 
             describe('Empty Relationships Are Not Set', () => {
+
+                it('Null singular relationship not set.', () => {
+                    const originalDocument = {
+                        class1: null,
+                    }
+                    const expectedDocument = {
+                    }
+                    const instanceState = new InstanceState(AllFieldsRequiredClass, originalDocument);
+                    const document = instanceState.toDocument();
+    
+                    if (!objectsEqual(document, expectedDocument))
+                        throw new Error('instanceState.toDocument() did not return the expected document.');
+
+                });
+
+                it('Undefined singular relationship not set.', () => {
+                    const originalDocument = {
+                    }
+                    const expectedDocument = {
+                    }
+                    const instanceState = new InstanceState(AllFieldsRequiredClass, originalDocument);
+                    const document = instanceState.toDocument();
+    
+                    if (!objectsEqual(document, expectedDocument))
+                        throw new Error('instanceState.toDocument() did not return the expected document.');
+
+                });
+
+                it('Empty array nonsingular relationship is not set.', () => {
+                    const originalDocument = {
+                        class2s: [],
+                    }
+                    const expectedDocument = {
+                    }
+                    const instanceState = new InstanceState(AllFieldsRequiredClass, originalDocument);
+                    const document = instanceState.toDocument();
+    
+                    if (!objectsEqual(document, expectedDocument))
+                        throw new Error('instanceState.toDocument() did not return the expected document.');
+
+                });
+
+                it('Null nonsingular relationship is not set.', () => {
+                    const originalDocument = {
+                        class2s: null,
+                    }
+                    const expectedDocument = {
+                    }
+                    const instanceState = new InstanceState(AllFieldsRequiredClass, originalDocument);
+                    const document = instanceState.toDocument();
+    
+                    if (!objectsEqual(document, expectedDocument))
+                        throw new Error('instanceState.toDocument() did not return the expected document.');
+
+                });
+
+                it('Undefined nonsingular relationship is not set.', () => {
+                    const originalDocument = {
+                    }
+                    const expectedDocument = {
+                    }
+                    const instanceState = new InstanceState(AllFieldsRequiredClass, originalDocument);
+                    const document = instanceState.toDocument();
+    
+                    if (!objectsEqual(document, expectedDocument))
+                        throw new Error('instanceState.toDocument() did not return the expected document.');
+
+                });
 
             });
 
