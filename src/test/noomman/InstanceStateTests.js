@@ -6,7 +6,8 @@ const TestingFunctions = require('./helpers/TestingFunctions');
 const testForError = TestingFunctions.testForError;
 const testForErrorMutex = TestingFunctions.testForErrorMutex;
 const testForErrorAsync = TestingFunctions.testForErrorAsync;
-const arrayEquals = TestingFunctions.arrayEquals;
+const arraysEqual = TestingFunctions.arraysEqual;
+const objectsEqual = TestingFunctions.objectsEqual;
 
 var AllFieldsRequiredClass = TestClassModels.AllFieldsRequiredClass;
 
@@ -240,6 +241,145 @@ describe('Instance State Tests', () => {
             });
            
         });
+
+    });
+
+    describe('InstanceState.toDocument()', () => {
+
+        describe('Attributes Set In Document', () => {
+
+            describe('Attributes Set', () => {
+
+                it('All attributes are set to non-falsey values.', () => {
+                    const originalDocument = {
+                        string: 'string',
+                        strings: ['string1', 'string2'],
+                        date: new Date('1997-06-07'),
+                        boolean: true,
+                        booleans: [true, false],
+                        number: 1212,
+                        numbers: [0, 1, 2],
+                    }
+                    const expectedDocument = {
+                        string: 'string',
+                        strings: ['string1', 'string2'],
+                        date: new Date('1997-06-07'),
+                        boolean: true,
+                        booleans: [true, false],
+                        number: 1212,
+                        numbers: [0, 1, 2],
+                    }
+                    const instanceState = new InstanceState(AllFieldsRequiredClass, originalDocument);
+                    const document = instanceState.toDocument();
+    
+                    if (!objectsEqual(document, expectedDocument))
+                        throw new Error('instanceState.toDocument() did not return the expected document.');
+
+                });
+
+            });
+
+            describe('Empty Attributes Are Not Set', () => {
+
+                it('String is empty in original document and instance state document.', () => {
+                    const originalDocument = {
+                        strings: ['string1', 'string2'],
+                        date: new Date('1997-06-07'),
+                        boolean: true,
+                        booleans: [true, false],
+                        number: 1212,
+                        numbers: [0, 1, 2],
+                    }
+                    const expectedDocument = {
+                        strings: ['string1', 'string2'],
+                        date: new Date('1997-06-07'),
+                        boolean: true,
+                        booleans: [true, false],
+                        number: 1212,
+                        numbers: [0, 1, 2],
+                    }
+                    const instanceState = new InstanceState(AllFieldsRequiredClass, originalDocument);
+                    const document = instanceState.toDocument();
+    
+                    if (!objectsEqual(document, expectedDocument))
+                        throw new Error('instanceState.toDocument() did not return the expected document.');
+
+                });
+
+                it('Strings is an empty array in original document and not set on instanceState document.', () => {
+                    const originalDocument = {
+                        string: 'string',
+                        strings: [],
+                        date: new Date('1997-06-07'),
+                        boolean: true,
+                        booleans: [true, false],
+                        number: 1212,
+                        numbers: [0, 1, 2],
+                    }
+                    const expectedDocument = {
+                        string: 'string',
+                        date: new Date('1997-06-07'),
+                        boolean: true,
+                        booleans: [true, false],
+                        number: 1212,
+                        numbers: [0, 1, 2],
+                    }
+                    const instanceState = new InstanceState(AllFieldsRequiredClass, originalDocument);
+                    const document = instanceState.toDocument();
+    
+                    if (!objectsEqual(document, expectedDocument))
+                        throw new Error('instanceState.toDocument() did not return the expected document.');
+
+                });
+
+            });
+
+            describe('Falsey Attributes Are Set', () => {
+
+                it('Attributes that can be falsey are set to falsey.', () => {
+                    const originalDocument = {
+                        string: '',
+                        strings: ['', ''],
+                        date: new Date('1997-06-07'),
+                        boolean: false,
+                        booleans: [false, false],
+                        number: 0,
+                        numbers: [0, 0, 0],
+                    }
+                    const expectedDocument = {
+                        string: '',
+                        strings: ['', ''],
+                        date: new Date('1997-06-07'),
+                        boolean: false,
+                        booleans: [false, false],
+                        number: 0,
+                        numbers: [0, 0, 0],
+                    }
+                    const instanceState = new InstanceState(AllFieldsRequiredClass, originalDocument);
+                    const document = instanceState.toDocument();
+
+                    console.log(JSON.stringify(document, null, 2));
+    
+                    if (!objectsEqual(document, expectedDocument))
+                        throw new Error('instanceState.toDocument() did not return the expected document.');
+
+                });
+
+            });
+
+        });
+
+        describe('Relationships Set In Document', () => {
+
+            describe('Relationships', () => {
+
+            });
+
+            describe('Empty Relationships Are Not Set', () => {
+
+            });
+
+        })
 
     });
 
@@ -792,7 +932,7 @@ describe('Instance State Tests', () => {
                         const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
 
-                        if (!arrayEquals(diff.add[attributeName], attributeValue))
+                        if (!arraysEqual(diff.add[attributeName], attributeValue))
                             throw new Error('diff does not contain the expected attribute value.')
     
                     });
@@ -809,7 +949,7 @@ describe('Instance State Tests', () => {
                         const diff = currentInstanceState.diff(previousInstanceState);
 
 
-                        if (!arrayEquals(diff.add[attributeName], attributeValue))
+                        if (!arraysEqual(diff.add[attributeName], attributeValue))
                             throw new Error('diff does not contain the expected attribute value.')
                     });
 
@@ -824,7 +964,7 @@ describe('Instance State Tests', () => {
                         const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
 
-                        if (!arrayEquals(diff.add[attributeName], attributeValue))
+                        if (!arraysEqual(diff.add[attributeName], attributeValue))
                             throw new Error('diff does not contain the expected attribute value.')
                     });
     
@@ -843,7 +983,7 @@ describe('Instance State Tests', () => {
                         const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
 
-                        if (!arrayEquals(diff.remove[attributeName], attributeValue))
+                        if (!arraysEqual(diff.remove[attributeName], attributeValue))
                             throw new Error('diff does not contain the expected attribute value.')
                     });
     
@@ -859,7 +999,7 @@ describe('Instance State Tests', () => {
                         const diff = currentInstanceState.diff(previousInstanceState);
 
 
-                        if (!arrayEquals(diff.remove[attributeName], attributeValue))
+                        if (!arraysEqual(diff.remove[attributeName], attributeValue))
                             throw new Error('diff does not contain the expected attribute value.')
                     });
     
@@ -875,7 +1015,7 @@ describe('Instance State Tests', () => {
                         const diff = currentInstanceState.diff(previousInstanceState);
 
 
-                        if (!arrayEquals(diff.remove[attributeName], attributeValue))
+                        if (!arraysEqual(diff.remove[attributeName], attributeValue))
                             throw new Error('diff does not contain the expected attribute value.')
                     });
 
@@ -904,16 +1044,16 @@ describe('Instance State Tests', () => {
                             if (!diff.update || !diff.update[attributeName])
                                 throw new Error('Diff does not contain the update for the attibute.');
         
-                            if (!arrayEquals(currentValue, diff.update[attributeName].value))
+                            if (!arraysEqual(currentValue, diff.update[attributeName].value))
                                 throw new Error('diff.update.value is not set correctly.');
         
-                            if (!arrayEquals(previousValue, diff.update[attributeName].previous))
+                            if (!arraysEqual(previousValue, diff.update[attributeName].previous))
                                 throw new Error('diff.update.previous is not set correctly.');
                             
-                            if (!arrayEquals(valuesAdded, diff.update[attributeName].insert))
+                            if (!arraysEqual(valuesAdded, diff.update[attributeName].insert))
                                 throw new Error('diff.update.insert is not set correctly.');
 
-                            if (!arrayEquals(valuesRemoved, diff.update[attributeName].remove))
+                            if (!arraysEqual(valuesRemoved, diff.update[attributeName].remove))
                                 throw new Error('diff.update.remove is not set correctly.');
                         });
 
@@ -933,16 +1073,16 @@ describe('Instance State Tests', () => {
                             const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
         
-                            if (!arrayEquals(currentValue, diff.update[attributeName].value))
+                            if (!arraysEqual(currentValue, diff.update[attributeName].value))
                                 throw new Error('diff.update.value is not set correctly.');
         
-                            if (!arrayEquals(previousValue, diff.update[attributeName].previous))
+                            if (!arraysEqual(previousValue, diff.update[attributeName].previous))
                                 throw new Error('diff.update.previous is not set correctly.');
                             
-                            if (!arrayEquals(valuesAdded, diff.update[attributeName].insert))
+                            if (!arraysEqual(valuesAdded, diff.update[attributeName].insert))
                                 throw new Error('diff.update.insert is not set correctly.');
 
-                            if (!arrayEquals(valuesRemoved, diff.update[attributeName].remove))
+                            if (!arraysEqual(valuesRemoved, diff.update[attributeName].remove))
                                 throw new Error('diff.update.remove is not set correctly.');
                         });
 
@@ -962,16 +1102,16 @@ describe('Instance State Tests', () => {
                             const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
         
-                            if (!arrayEquals(currentValue, diff.update[attributeName].value))
+                            if (!arraysEqual(currentValue, diff.update[attributeName].value))
                                 throw new Error('diff.update.value is not set correctly.');
         
-                            if (!arrayEquals(previousValue, diff.update[attributeName].previous))
+                            if (!arraysEqual(previousValue, diff.update[attributeName].previous))
                                 throw new Error('diff.update.previous is not set correctly.');
                             
-                            if (!arrayEquals(valuesAdded, diff.update[attributeName].insert))
+                            if (!arraysEqual(valuesAdded, diff.update[attributeName].insert))
                                 throw new Error('diff.update.insert is not set correctly.');
 
-                            if (!arrayEquals(valuesRemoved, diff.update[attributeName].remove))
+                            if (!arraysEqual(valuesRemoved, diff.update[attributeName].remove))
                                 throw new Error('diff.update.remove is not set correctly.');
                         });
 
@@ -998,16 +1138,16 @@ describe('Instance State Tests', () => {
                             if (!diff.update || !diff.update[attributeName])
                                 throw new Error('Diff does not contain the update for the attibute.');
         
-                            if (!arrayEquals(currentValue, diff.update[attributeName].value))
+                            if (!arraysEqual(currentValue, diff.update[attributeName].value))
                                 throw new Error('diff.update.value is not set correctly.');
         
-                            if (!arrayEquals(previousValue, diff.update[attributeName].previous))
+                            if (!arraysEqual(previousValue, diff.update[attributeName].previous))
                                 throw new Error('diff.update.previous is not set correctly.');
                             
-                            if (!arrayEquals(valuesAdded, diff.update[attributeName].insert))
+                            if (!arraysEqual(valuesAdded, diff.update[attributeName].insert))
                                 throw new Error('diff.update.insert is not set correctly.');
 
-                            if (!arrayEquals(valuesRemoved, diff.update[attributeName].remove))
+                            if (!arraysEqual(valuesRemoved, diff.update[attributeName].remove))
                                 throw new Error('diff.update.remove is not set correctly.');
                         });
 
@@ -1030,16 +1170,16 @@ describe('Instance State Tests', () => {
                             if (!diff.update || !diff.update[attributeName])
                                 throw new Error('Diff does not contain the update for the attibute.');
         
-                            if (!arrayEquals(currentValue, diff.update[attributeName].value))
+                            if (!arraysEqual(currentValue, diff.update[attributeName].value))
                                 throw new Error('diff.update.value is not set correctly.');
         
-                            if (!arrayEquals(previousValue, diff.update[attributeName].previous))
+                            if (!arraysEqual(previousValue, diff.update[attributeName].previous))
                                 throw new Error('diff.update.previous is not set correctly.');
                             
-                            if (!arrayEquals(valuesAdded, diff.update[attributeName].insert))
+                            if (!arraysEqual(valuesAdded, diff.update[attributeName].insert))
                                 throw new Error('diff.update.insert is not set correctly.');
 
-                            if (!arrayEquals(valuesRemoved, diff.update[attributeName].remove))
+                            if (!arraysEqual(valuesRemoved, diff.update[attributeName].remove))
                                 throw new Error('diff.update.remove is not set correctly.');
                         });
 
@@ -1062,16 +1202,16 @@ describe('Instance State Tests', () => {
                             if (!diff.update || !diff.update[attributeName])
                                 throw new Error('Diff does not contain the update for the attibute.');
         
-                            if (!arrayEquals(currentValue, diff.update[attributeName].value))
+                            if (!arraysEqual(currentValue, diff.update[attributeName].value))
                                 throw new Error('diff.update.value is not set correctly.');
         
-                            if (!arrayEquals(previousValue, diff.update[attributeName].previous))
+                            if (!arraysEqual(previousValue, diff.update[attributeName].previous))
                                 throw new Error('diff.update.previous is not set correctly.');
                             
-                            if (!arrayEquals(valuesAdded, diff.update[attributeName].insert))
+                            if (!arraysEqual(valuesAdded, diff.update[attributeName].insert))
                                 throw new Error('diff.update.insert is not set correctly.');
 
-                            if (!arrayEquals(valuesRemoved, diff.update[attributeName].remove))
+                            if (!arraysEqual(valuesRemoved, diff.update[attributeName].remove))
                                 throw new Error('diff.update.remove is not set correctly.');
                         });
 
@@ -1098,16 +1238,16 @@ describe('Instance State Tests', () => {
                             if (!diff.update || !diff.update[attributeName])
                                 throw new Error('Diff does not contain the update for the attibute.');
         
-                            if (!arrayEquals(currentValue, diff.update[attributeName].value))
+                            if (!arraysEqual(currentValue, diff.update[attributeName].value))
                                 throw new Error('diff.update.value is not set correctly.');
         
-                            if (!arrayEquals(previousValue, diff.update[attributeName].previous))
+                            if (!arraysEqual(previousValue, diff.update[attributeName].previous))
                                 throw new Error('diff.update.previous is not set correctly.');
                             
-                            if (!arrayEquals(valuesAdded, diff.update[attributeName].insert))
+                            if (!arraysEqual(valuesAdded, diff.update[attributeName].insert))
                                 throw new Error('diff.update.insert is not set correctly.');
 
-                            if (!arrayEquals(valuesRemoved, diff.update[attributeName].remove))
+                            if (!arraysEqual(valuesRemoved, diff.update[attributeName].remove))
                                 throw new Error('diff.update.remove is not set correctly.');
                         });
 
@@ -1130,16 +1270,16 @@ describe('Instance State Tests', () => {
                             if (!diff.update || !diff.update[attributeName])
                                 throw new Error('Diff does not contain the update for the attibute.');
         
-                            if (!arrayEquals(currentValue, diff.update[attributeName].value))
+                            if (!arraysEqual(currentValue, diff.update[attributeName].value))
                                 throw new Error('diff.update.value is not set correctly.');
         
-                            if (!arrayEquals(previousValue, diff.update[attributeName].previous))
+                            if (!arraysEqual(previousValue, diff.update[attributeName].previous))
                                 throw new Error('diff.update.previous is not set correctly.');
                             
-                            if (!arrayEquals(valuesAdded, diff.update[attributeName].insert))
+                            if (!arraysEqual(valuesAdded, diff.update[attributeName].insert))
                                 throw new Error('diff.update.insert is not set correctly.');
 
-                            if (!arrayEquals(valuesRemoved, diff.update[attributeName].remove))
+                            if (!arraysEqual(valuesRemoved, diff.update[attributeName].remove))
                                 throw new Error('diff.update.remove is not set correctly.');
                         });
 
@@ -1162,16 +1302,16 @@ describe('Instance State Tests', () => {
                             if (!diff.update || !diff.update[attributeName])
                                 throw new Error('Diff does not contain the update for the attibute.');
         
-                            if (!arrayEquals(currentValue, diff.update[attributeName].value))
+                            if (!arraysEqual(currentValue, diff.update[attributeName].value))
                                 throw new Error('diff.update.value is not set correctly.');
         
-                            if (!arrayEquals(previousValue, diff.update[attributeName].previous))
+                            if (!arraysEqual(previousValue, diff.update[attributeName].previous))
                                 throw new Error('diff.update.previous is not set correctly.');
                             
-                            if (!arrayEquals(valuesAdded, diff.update[attributeName].insert))
+                            if (!arraysEqual(valuesAdded, diff.update[attributeName].insert))
                                 throw new Error('diff.update.insert is not set correctly.');
 
-                            if (!arrayEquals(valuesRemoved, diff.update[attributeName].remove))
+                            if (!arraysEqual(valuesRemoved, diff.update[attributeName].remove))
                                 throw new Error('diff.update.remove is not set correctly.');
                         });
 
@@ -1288,7 +1428,7 @@ describe('Instance State Tests', () => {
                         if (!diff || !diff.add[relationshipName])
                             throw new Error('Diff did not return with an add.');
 
-                        if (!arrayEquals(currentIds, diff.add[relationshipName]))
+                        if (!arraysEqual(currentIds, diff.add[relationshipName]))
                             throw new Error('Diff did not return the add with the correct ids.');
                     });
                     
@@ -1314,7 +1454,7 @@ describe('Instance State Tests', () => {
                         if (!diff || !diff.remove[relationshipName])
                             throw new Error('Diff did not return with an remove.');
 
-                        if (!arrayEquals(previousIds, diff.remove[relationshipName]))
+                        if (!arraysEqual(previousIds, diff.remove[relationshipName]))
                             throw new Error('Diff did not return the remove with the correct ids.');
                     });
 
@@ -1343,16 +1483,16 @@ describe('Instance State Tests', () => {
                             if (!diff || !diff.update[relationshipName])
                                 throw new Error('Diff did not return with an update.');
     
-                            if (!arrayEquals(currentIds, diff.update[relationshipName].value))
+                            if (!arraysEqual(currentIds, diff.update[relationshipName].value))
                                 throw new Error('Diff did not return the value with the correct ids.');
     
-                            if (!arrayEquals(previousIds, diff.update[relationshipName].previous))
+                            if (!arraysEqual(previousIds, diff.update[relationshipName].previous))
                                 throw new Error('Diff did not return the previous with the correct ids.');
     
-                            if (!arrayEquals(insertIds, diff.update[relationshipName].insert))
+                            if (!arraysEqual(insertIds, diff.update[relationshipName].insert))
                                 throw new Error('Diff did not return the insert with the correct ids.');
     
-                            if (!arrayEquals(removeIds, diff.update[relationshipName].remove))
+                            if (!arraysEqual(removeIds, diff.update[relationshipName].remove))
                                 throw new Error('Diff did not return the remove with the correct ids.');
 
                         });
@@ -1380,16 +1520,16 @@ describe('Instance State Tests', () => {
                             if (!diff || !diff.update[relationshipName])
                                 throw new Error('Diff did not return with an update.');
     
-                            if (!arrayEquals(currentIds, diff.update[relationshipName].value))
+                            if (!arraysEqual(currentIds, diff.update[relationshipName].value))
                                 throw new Error('Diff did not return the value with the correct ids.');
     
-                            if (!arrayEquals(previousIds, diff.update[relationshipName].previous))
+                            if (!arraysEqual(previousIds, diff.update[relationshipName].previous))
                                 throw new Error('Diff did not return the previous with the correct ids.');
     
-                            if (!arrayEquals(insertIds, diff.update[relationshipName].insert))
+                            if (!arraysEqual(insertIds, diff.update[relationshipName].insert))
                                 throw new Error('Diff did not return the insert with the correct ids.');
     
-                            if (!arrayEquals(removeIds, diff.update[relationshipName].remove))
+                            if (!arraysEqual(removeIds, diff.update[relationshipName].remove))
                                 throw new Error('Diff did not return the remove with the correct ids.');
                         });
 
@@ -1416,16 +1556,16 @@ describe('Instance State Tests', () => {
                             if (!diff || !diff.update[relationshipName])
                                 throw new Error('Diff did not return with an update.');
     
-                            if (!arrayEquals(currentIds, diff.update[relationshipName].value))
+                            if (!arraysEqual(currentIds, diff.update[relationshipName].value))
                                 throw new Error('Diff did not return the value with the correct ids.');
     
-                            if (!arrayEquals(previousIds, diff.update[relationshipName].previous))
+                            if (!arraysEqual(previousIds, diff.update[relationshipName].previous))
                                 throw new Error('Diff did not return the previous with the correct ids.');
     
-                            if (!arrayEquals(insertIds, diff.update[relationshipName].insert))
+                            if (!arraysEqual(insertIds, diff.update[relationshipName].insert))
                                 throw new Error('Diff did not return the insert with the correct ids.');
     
-                            if (!arrayEquals(removeIds, diff.update[relationshipName].remove))
+                            if (!arraysEqual(removeIds, diff.update[relationshipName].remove))
                                 throw new Error('Diff did not return the remove with the correct ids.');
                         });
 

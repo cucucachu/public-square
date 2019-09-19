@@ -100,6 +100,32 @@ class InstanceState {
         return true;
     }
 
+    toDocument() {
+        const document = {};
+
+        for (const attributeName in this.attributes) {
+            const attribute = this.attributes[attributeName];
+            if (Array.isArray(attribute) && attribute.length == 0)
+                continue;
+            if (attribute !== null && attribute !== undefined) 
+                document[attributeName] = attribute;
+        }
+
+        for (const relationshipName in this.instanceReferences) {
+            const relationship = this.instanceReferences[relationshipName];
+            if (!relationship.isEmpty())
+                document[relationshipName] = relationship.id;
+        }
+
+        for (const relationshipName in this.instanceSetReferences) {
+            const relationship = this.instanceSetReferences[relationshipName];
+            if (!relationship.isEmpty())
+                document[relationshipName] = relationship.id;
+        }
+
+        return document;        
+    }
+
     diff(that) {
         const diffObject = {
             add: {},
