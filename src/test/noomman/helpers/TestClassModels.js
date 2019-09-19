@@ -460,7 +460,7 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                     type: Boolean
                 },
                 discriminatedNumber: {
-                    type:Boolean
+                    type:Number
                 }
             }
         });

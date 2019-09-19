@@ -22,14 +22,14 @@ function testForError(functionName, expectedErrorMessage, functionToCall) {
         throw new Error(functionName + ' did not throw an error when it should have.');
 }
 
-function testForErrorMutex(functionName, expectedErrorMessage, expectedErrorMutex, functionToCall) {
+function testForErrorRegex(functionName, expectedErrorMessage, expectedErrorRegex, functionToCall) {
     let errorThrown = false;
 
     try {
         functionToCall();
     }
     catch (error) {
-        if (!expectedErrorMutex.test(error.message)) {
+        if (!expectedErrorRegex.test(error.message)) {
             throw new Error(
                 functionName + ' threw an error, but not the expected one.\n' + 
                 'expected: ' + expectedErrorMessage + '\n' + 
@@ -131,7 +131,7 @@ function objectsEqual(object1, object2) {
 
 module.exports = {
     testForError,
-    testForErrorMutex,
+    testForErrorRegex,
     testForErrorAsync,
     arraysEqual,
     objectsEqual,

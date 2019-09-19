@@ -305,6 +305,32 @@ class ClassModel {
         return relationships;
     }
 
+    valueValidForSingularRelationship(value, relationshipName) {
+        const relationship = this.getSingularRelationships().filter(relationship => relationship.name === relationshipName)[0];
+        const toClass = AllClassModels[relationship.toClass];
+
+        if (!(value instanceof Instance))
+            return false;
+
+        if (!toClass.isInstanceOfThisClass(value))
+            return false;
+
+        return true;
+    }
+
+    valueValidForNonSingularRelationship(value, relationshipName) {
+        const relationship = this.getNonSingularRelationships().filter(relationship => relationship.name === relationshipName)[0];
+        const toClass = AllClassModels[relationship.toClass];
+
+        if (!(value instanceof InstanceSet))
+            return false;
+
+        if (!toClass.isInstanceSetOfThisClass(value))
+            return false;
+
+        return true;
+    }
+
     /*
      * Helper function for findById and findOne
      * Loops through promises one at a time and returns the first non null resolution. Will break the loop on the first non-null resolution.

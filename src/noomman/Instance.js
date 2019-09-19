@@ -1,5 +1,7 @@
 require('@babel/polyfill');
 const mongoose = require('mongoose');
+
+const InstanceState = require('./InstanceState');
 const doc = Symbol('document');
 
 /*
@@ -14,28 +16,67 @@ class Instance {
 
     // Constructs an instance of Instance. 
     // Should only be called by ClassModel methods, not in outside code.
-    constructor(classModel, document=null, saved=false) {
-        this.constructorValidations(classModel, document, saved);
+    constructor(classModel, document=null) {
+        this.constructorValidations(classModel, document);
 
         this.classModel = classModel;
-        this[doc] = document ? document : new classModel.Model({ _id: new mongoose.Types.ObjectId });
-        this.saved = saved;
-        this.deleted = false;
 
-        const documentProperties = Object.keys(this.classModel.schema).concat(['id', '_id', '__t']);
-        const unSettableInstanceProperties = ['classModel', doc, 'id', '_id', '__t']; 
+        if (document) {
+            this._id = document._id;
+            this.__t = document.__t;
+            this.previousState = new InstanceState(classModel, document);
+            this.currentState = new InstanceState(classModel, document);
+        }
+        else {
+            this._id = new mongoose.Types.ObjectId;
+            this.__t = classModel.discrinatorSuperClass ? classModel.discriminatorSuperClass.className : undefined;
+            this.previousState = null;
+            this.currentState = new InstanceState(classModel);
+        }
+
+        const attributes = classModel.getAttributes();
+        const attributeNames = attributes.map(attribute => attribute.name);
+        const singularRelationships = classModel.getSingularRelationships();
+        const singularRelationshipNames = singularRelationships.map(relationship => relationship.name);
+        const nonSingularRelationships = classModel.getNonSingularRelationships();
+        const nonSingularRelationshipNames = nonSingularRelationships.map(relationship => relationship.name);
+        const documentProperties = attributeNames.concat(singularRelationshipNames, nonSingularRelationshipNames);
+        const unSettableInstanceProperties = ['classModel', 'id', '_id', '__t']; 
         const instanceMethods = Object.getOwnPropertyNames(Object.getPrototypeOf(this)); 
 
         return new Proxy(this, {
             set(trapTarget, key, value, receiver) {
-                if (this.deleted) 
+                if (trapTarget.deleted) 
                     throw new Error('Illegal Attempt to set a property after instance has been deleted.');
 
                 if (unSettableInstanceProperties.includes(key))
                     throw new Error('Illegal attempt to change the ' + key + ' of an Instance.');
 
-                if (documentProperties.includes(key)) {
-                    trapTarget[doc][key] = value;
+                if (attributeNames.includes(key)) {
+                    const attribute = attributes.filter(attribute => attribute.name === key)[0];
+                    if (attribute.list && !Array.isArray(value)) {
+                        throw new Error('Illegal attempt to set a List Attribute to something other than an Array.');
+                    }
+                    if (!attribute.list && Array.isArray(value)) {
+                        throw new Error('Illegal attempt to set an Attribute to an Array.');
+                    }
+                    trapTarget.currentState[key] = value;
+                    return true;
+                }
+
+                if (singularRelationshipNames.includes(key)) {
+                    if (!classmodel.valueValidForSingularRelationship(value, key)) 
+                        throw new Error('Illegal attempt to set a singular relationship to a value which is not an Instance of the correct ClassModel.');
+                    trapTarget.currentState[key].instance = value;
+                    trapTarget.currentState[key].id = value.id;
+                    return true;
+                }
+
+                if (nonSingularRelationshipNames.inclues(key)) {
+                    if (!classmodel.valueValidForNonSingularRelationship(value, key))
+                        throw new Error('Illegal attempt to set a non-singular relationship to a value which is not an InstanceSet of the correct ClassModel.');
+                    trapTarget.currentState[key].instanceSet = value;
+                    trapTarget.currentState[key].ids = value.getInstanceIds();
                     return true;
                 }
 
@@ -43,27 +84,89 @@ class Instance {
             },
 
             get(trapTarget, key, receiver) {
-                if (documentProperties.includes(key))
-                    return trapTarget[doc][key];
+                if (attributeNames.includes(key)) {
+                    return trapTarget.currentState[key];
+                }
+
+                if (singularRelationshipNames.includes(key)) {
+                    if (trapTarget.currentState[key].instance) {
+                        return trapTarget.currentState[key].instance;
+                    }
+                    else if (trapTarget.currentState[key].id) {
+                        return trapTarget.currentState[key].id;
+                    }
+                    else {
+                        return null;
+                    }
+                }
+
+                if (nonSingularRelationshipNames.includes(key)) {
+                    if (trapTarget.currentState[key].instanceSet) {
+                        return trapTarget.currentState[key].instanceSet;
+                    }
+                    else if (trapTarget.currentState[key].ids) {
+                        return trapTarget.currentState[key].ids;
+                    }
+                    else {
+                        return null;
+                    }
+                    
+                }
 
                 return Reflect.get(trapTarget, key, receiver);
             },
 
             has(trapTarget, key) {
-                if (documentProperties.includes(key))
-                    return key in trapTarget[doc]
-                
+                if (attributeNames.includes(key)) {
+                    const attribute = attributes.filter(attribute => attribute.name === key)[0];
+                    if (attribute.list) {
+                        return trapTarget.currentState[key].length > 0;
+                    }
+                    else {
+                        return trapTarget.currentState[key] !== null;
+                    }
+                }
+
+                if (singularRelationshipNames.inclues(key)) {
+                    return (trapTarget.currentState[key].id !== null);
+                }
+
+                if (nonSingularRelationshipNames.inclues(key)) {
+                    return (trapTarget.currentState[key].ids !== null && trapTarget.currentState[key].ids.length);
+                }
+
                 return Reflect.has(trapTarget, key);
             },
 
             deleteProperty(trapTarget, key) {
-                if (unSettableInstanceProperties.includes(key) || instanceMethods.includes(key) || Object.keys(trapTarget).includes(key)) 
+                if (unSettableInstanceProperties.includes(key) || instanceMethods.includes(key) || Object.keys(trapTarget).includes(key)) {
                     throw new Error('Illegal attempt to delete the ' + key + ' property of an Instance.');
+                }
 
-                if (documentProperties.includes(key)) {
-                    trapTarget[doc][key] = undefined;
+                if (attributeNames.includes(key)) {
+                    const attribute = attributes.filter(attribute => attribute.name === key)[0];
+                    if (attribute.list) {
+                        trapTarget.currentState[key] = [];
+                        return true;
+                    }
+                    else {
+                        trapTarget.currentState[key] = null;
+                        return true;
+                    }
+                }
+
+                if (singularRelationshipNames.includes(key)) {
+                    trapTarget.currentState[key].instance = null;
+                    trapTarget.currentState[key].id = null;
                     return true;
                 }
+
+                if (nonSingularRelationshipNames.includes(key)) {
+                    trapTarget.currentState[key].instanceSet = null;
+                    trapTarget.currentState[key].ids = [];
+                    return true;
+                }
+
                 return Reflect.deleteProperty(trapTarget, key);
             },
 
@@ -72,11 +175,10 @@ class Instance {
             }
         });
     }
-
 
     // Constructs an instance of Instance. 
     // Should only be called by ClassModel methods, not in outside code.
-    constructorOld(classModel, document=null, saved=false) {
+    constructor2(classModel, document=null, saved=false) {
         this.constructorValidations(classModel, document, saved);
 
         this.classModel = classModel;
@@ -135,7 +237,7 @@ class Instance {
         });
     }
 
-    constructorValidations(classModel, document, saved) {
+    constructorValidations(classModel, document) {
         if (!classModel) 
             throw new Error('Instance.constructor(), parameter classModel is required.');
 
@@ -148,16 +250,24 @@ class Instance {
         if (document && !(document instanceof classModel.Model))
             throw new Error('Instance.constructor(), given document is not an instance of the given classModel.');
 
-        if (!document && saved)
-            throw new Error('Instance.constructor(), if called without a document, parameter saved must be false.');
+        if (document && !('_id' in document))
+            throw new Error('Instance.constructor(), given document does not have an ObjectId.');
 
+    }
+
+    saved() {
+        return this.previousState !== null;
+    }
+
+    deleted() {
+        return this.currentState === null;
     }
 
     toString() {
         return 'Instance of ' + this.classModel.className + '\n' + 
-        'saved:   ' + this.saved + '\n' + 
-        'deleted: ' + this.deleted + '\n' + 
-        'doc:     ' + this[doc]
+        'saved:   ' + this.saved() + '\n' + 
+        'deleted: ' + this.deleted() + '\n' + 
+        'state:     ' + this.currentState
     }
 
     assign(object) {
