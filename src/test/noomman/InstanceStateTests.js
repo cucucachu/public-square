@@ -1247,8 +1247,6 @@ describe('Instance State Tests', () => {
                         const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
 
-                        console.log(JSON.stringify(diff));
-
                         if (!diff.update || !diff.update[relationshipName])
                             throw new Error('diff.update is missing the relationship change.');
 
@@ -1273,9 +1271,52 @@ describe('Instance State Tests', () => {
 
                 describe('Adding Relationship', () => {
 
+                    it('Adding ids to a nonsingular relationship that was empty.', () => {
+                        const relationshipName = 'class2s';
+                        const previousIds = [];
+                        const currentIds = ['9876asdf6543fdas', 'asdfjjkoi902u4u9834j4'];
+                        const previousDocument = {
+                            [relationshipName] : previousIds
+                        }
+                        const currentDocument = {
+                            [relationshipName] : currentIds
+                        };
+                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const diff = currentInstanceState.diff(previousInstanceState);
+
+                        if (!diff || !diff.add[relationshipName])
+                            throw new Error('Diff did not return with an add.');
+
+                        if (!arrayEquals(currentIds, diff.add[relationshipName]))
+                            throw new Error('Diff did not return the add with the correct ids.');
+                    });
+                    
+
                 });
 
                 describe('Removing Relationship', () => {
+
+                    it('Adding ids to a nonsingular relationship that was empty.', () => {
+                        const relationshipName = 'class2s';
+                        const previousIds = ['9876asdf6543fdas', 'asdfjjkoi902u4u9834j4'];
+                        const currentIds = [];
+                        const previousDocument = {
+                            [relationshipName] : previousIds
+                        }
+                        const currentDocument = {
+                            [relationshipName] : currentIds
+                        };
+                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const diff = currentInstanceState.diff(previousInstanceState);
+
+                        if (!diff || !diff.remove[relationshipName])
+                            throw new Error('Diff did not return with an remove.');
+
+                        if (!arrayEquals(previousIds, diff.remove[relationshipName]))
+                            throw new Error('Diff did not return the remove with the correct ids.');
+                    });
 
                 });
 
@@ -1283,13 +1324,110 @@ describe('Instance State Tests', () => {
 
                     describe('Adding New IDs to the Relationship', () => {
 
+                        it('Relationship has two ids and we add two more.', () => {
+                            const relationshipName = 'class2s';
+                            const previousIds = ['id1', 'id2'];
+                            const currentIds = ['id1', 'id2', 'id3', 'id4'];
+                            const insertIds = ['id3', 'id4'];
+                            const removeIds = [];
+                            const previousDocument = {
+                                [relationshipName] : previousIds
+                            }
+                            const currentDocument = {
+                                [relationshipName] : currentIds
+                            };
+                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const diff = currentInstanceState.diff(previousInstanceState);
+    
+                            if (!diff || !diff.update[relationshipName])
+                                throw new Error('Diff did not return with an update.');
+    
+                            if (!arrayEquals(currentIds, diff.update[relationshipName].value))
+                                throw new Error('Diff did not return the value with the correct ids.');
+    
+                            if (!arrayEquals(previousIds, diff.update[relationshipName].previous))
+                                throw new Error('Diff did not return the previous with the correct ids.');
+    
+                            if (!arrayEquals(insertIds, diff.update[relationshipName].insert))
+                                throw new Error('Diff did not return the insert with the correct ids.');
+    
+                            if (!arrayEquals(removeIds, diff.update[relationshipName].remove))
+                                throw new Error('Diff did not return the remove with the correct ids.');
+
+                        });
+
                     });
 
                     describe('Removing IDs from the Relationship', () => {
 
+                        it('Relationship has 4 ids and we remove two.', () => {
+                            const relationshipName = 'class2s';
+                            const previousIds = ['id1', 'id2', 'id3', 'id4'];
+                            const currentIds = ['id1', 'id2'];
+                            const insertIds = [];
+                            const removeIds = ['id3', 'id4'];
+                            const previousDocument = {
+                                [relationshipName] : previousIds
+                            }
+                            const currentDocument = {
+                                [relationshipName] : currentIds
+                            };
+                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const diff = currentInstanceState.diff(previousInstanceState);
+    
+                            if (!diff || !diff.update[relationshipName])
+                                throw new Error('Diff did not return with an update.');
+    
+                            if (!arrayEquals(currentIds, diff.update[relationshipName].value))
+                                throw new Error('Diff did not return the value with the correct ids.');
+    
+                            if (!arrayEquals(previousIds, diff.update[relationshipName].previous))
+                                throw new Error('Diff did not return the previous with the correct ids.');
+    
+                            if (!arrayEquals(insertIds, diff.update[relationshipName].insert))
+                                throw new Error('Diff did not return the insert with the correct ids.');
+    
+                            if (!arrayEquals(removeIds, diff.update[relationshipName].remove))
+                                throw new Error('Diff did not return the remove with the correct ids.');
+                        });
+
                     });
 
                     describe('Adding New IDs to and Removing IDs from the Relationship', () => {
+
+                        it('Relationship has 4 ids, we remove two and add two more.', () => {
+                            const relationshipName = 'class2s';
+                            const previousIds = ['id1', 'id2', 'id3', 'id4'];
+                            const currentIds = ['id1', 'id2', 'id5', 'id6'];
+                            const insertIds = ['id5', 'id6'];
+                            const removeIds = ['id3', 'id4'];
+                            const previousDocument = {
+                                [relationshipName] : previousIds
+                            }
+                            const currentDocument = {
+                                [relationshipName] : currentIds
+                            };
+                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const diff = currentInstanceState.diff(previousInstanceState);
+    
+                            if (!diff || !diff.update[relationshipName])
+                                throw new Error('Diff did not return with an update.');
+    
+                            if (!arrayEquals(currentIds, diff.update[relationshipName].value))
+                                throw new Error('Diff did not return the value with the correct ids.');
+    
+                            if (!arrayEquals(previousIds, diff.update[relationshipName].previous))
+                                throw new Error('Diff did not return the previous with the correct ids.');
+    
+                            if (!arrayEquals(insertIds, diff.update[relationshipName].insert))
+                                throw new Error('Diff did not return the insert with the correct ids.');
+    
+                            if (!arrayEquals(removeIds, diff.update[relationshipName].remove))
+                                throw new Error('Diff did not return the remove with the correct ids.');
+                        });
 
                     });
 

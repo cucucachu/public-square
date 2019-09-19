@@ -44,7 +44,7 @@ class InstanceSetReference {
         }
         if (this.isEmpty() && !that.isEmpty()) {
             return {
-                remove: this.ids,
+                remove: that.ids,
             }
         }
         
