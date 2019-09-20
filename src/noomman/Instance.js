@@ -63,7 +63,7 @@ class Instance {
                 }
 
                 if (singularRelationshipNames.includes(key)) {
-                    if (!classmodel.valueValidForSingularRelationship(value, key)) 
+                    if (!classModel.valueValidForSingularRelationship(value, key)) 
                         throw new Error('Illegal attempt to set a singular relationship to a value which is not an Instance of the correct ClassModel.');
                     if (value === null || value === undefined) {
                         trapTarget.currentState[key] = null;
@@ -74,8 +74,8 @@ class Instance {
                     return true;
                 }
 
-                if (nonSingularRelationshipNames.inclues(key)) {
-                    if (!classmodel.valueValidForNonSingularRelationship(value, key))
+                if (nonSingularRelationshipNames.includes(key)) {
+                    if (!classModel.valueValidForNonSingularRelationship(value, key))
                         throw new Error('Illegal attempt to set a non-singular relationship to a value which is not an InstanceSet of the correct ClassModel.');
                     if (value === null || value === undefined) {
                         trapTarget.currentState[key].instanceSet = null;

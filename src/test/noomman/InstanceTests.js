@@ -749,32 +749,80 @@ describe('Instance Tests', () => {
 
                     describe('Singular Relationships', () => {
     
-                        it.skip('Attempting to set a singular relationship to something that is not an Instance.', () => {
-            
+                        it('Attempting to set a singular relationship to something that is not an Instance.', () => {
+                            const relationshipName = 'class1';
+                            const value = 'fake id';
+                            const document = new AllFieldsRequiredClass.Model({});
+                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const expectedErrorMessage = 'Illegal attempt to set a singular relationship to a value which is not an Instance of the correct ClassModel.';
+
+                            testForError('Instance Set Trap', expectedErrorMessage, () => {
+                                instance[relationshipName] = value;
+                            });
                         });
     
-                        it.skip('Attempting to set a singular relationship to an Instance of a different class.', () => {
-            
+                        it('Attempting to set a singular relationship to an Instance of a different class.', () => {
+                            const relationshipName = 'class1';
+                            const value = new Instance(SuperClass);
+                            const document = new AllFieldsRequiredClass.Model({});
+                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const expectedErrorMessage = 'Illegal attempt to set a singular relationship to a value which is not an Instance of the correct ClassModel.';
+
+                            testForError('Instance Set Trap', expectedErrorMessage, () => {
+                                instance[relationshipName] = value;
+                            });
                         });
     
-                        it.skip('Attempting to set a singular relationship to an InstanceSet.', () => {
-            
+                        it('Attempting to set a singular relationship to an InstanceSet.', () => {
+                            const relationshipName = 'class1';
+                            const value = new InstanceSet(AllFieldsRequiredClass);
+                            const document = new AllFieldsRequiredClass.Model({});
+                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const expectedErrorMessage = 'Illegal attempt to set a singular relationship to a value which is not an Instance of the correct ClassModel.';
+
+                            testForError('Instance Set Trap', expectedErrorMessage, () => {
+                                instance[relationshipName] = value;
+                            });
                         });
 
                     });
 
                     describe('Non-Singular Relationships', () => {
     
-                        it.skip('Attempting to set a non-singular relationship to something that is not an InstanceSet.', () => {
-            
+                        it('Attempting to set a non-singular relationship to something that is not an InstanceSet.', () => {
+                            const relationshipName = 'class2s';
+                            const value = ['fake id', 'fake id2'];
+                            const document = new AllFieldsRequiredClass.Model({});
+                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const expectedErrorMessage = 'Illegal attempt to set a non-singular relationship to a value which is not an InstanceSet of the correct ClassModel.';
+
+                            testForError('Instance Set Trap', expectedErrorMessage, () => {
+                                instance[relationshipName] = value;
+                            });
                         });
     
-                        it.skip('Attempting to set a singular relationship to an InstanceSet of a different class.', () => {
-            
+                        it('Attempting to set a non-singular relationship to an InstanceSet of a different class.', () => {
+                            const relationshipName = 'class2s';
+                            const value = new InstanceSet(SuperClass);
+                            const document = new AllFieldsRequiredClass.Model({});
+                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const expectedErrorMessage = 'Illegal attempt to set a non-singular relationship to a value which is not an InstanceSet of the correct ClassModel.';
+
+                            testForError('Instance Set Trap', expectedErrorMessage, () => {
+                                instance[relationshipName] = value;
+                            });
                         });
             
-                        it.skip('Attempting to set a non-singular relationship to an Instance.', () => {
-            
+                        it('Attempting to set a non-singular relationship to an Instance.', () => {
+                            const relationshipName = 'class2s';
+                            const value = new Instance(CompareClass2);
+                            const document = new AllFieldsRequiredClass.Model({});
+                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const expectedErrorMessage = 'Illegal attempt to set a non-singular relationship to a value which is not an InstanceSet of the correct ClassModel.';
+
+                            testForError('Instance Set Trap', expectedErrorMessage, () => {
+                                instance[relationshipName] = value;
+                            });
                         });
 
                     });
