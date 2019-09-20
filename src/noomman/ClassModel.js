@@ -305,6 +305,83 @@ class ClassModel {
         return relationships;
     }
 
+    static valueIsBoolean(value) {
+        return (value === true || value === false);
+    }
+
+    static valueIsString(value) {
+        return (typeof(value) === 'string');
+    }
+
+    static valueIsNumber(value) {
+        return (typeof(value) === 'number');
+    }
+
+    static valueIsDate(value) {
+        return value instanceof Date;
+    }
+
+    validateAttribute(attributeName, value) {
+        const attribute = this.getAttributes().filter(attribute => attribute.name === attributeName)[0];
+        const type = attribute.type;
+
+        if (value === null)
+            return true;
+
+        if (attribute.list) {
+            if  (value !== null && !Array.isArray(value)) {
+                throw new Error('Illegal attempt to set a List Attribute to something other than an Array.');
+            }
+            if (type === Boolean) {
+                for (const item of value) {
+                    if (item !== null && !ClassModel.valueIsBoolean(item))
+                        throw new Error('Illegal attempt to set a Boolean List Attribute to an array containing non-Boolean element(s).');
+                }
+            }
+            else if (type === Number) {
+                for (const item of value) {
+                    if (item !== null && !ClassModel.valueIsNumber(item))
+                        throw new Error('Illegal attempt to set a Number List Attribute to an array containing non-Number element(s).');
+                }
+            }
+            else if (type === String) {
+                for (const item of value) {
+                    if (item !== null && !ClassModel.valueIsString(item))
+                        throw new Error('Illegal attempt to set a String List Attribute to an array containing non-String element(s).');
+                }
+            }
+            else if (type === Date) {
+                for (const item of value) {
+                    if (item !== null && !ClassModel.valueIsDate(item))
+                        throw new Error('Illegal attempt to set a Date List Attribute to an array containing non Date element(s).');
+                }
+            }
+        }
+        else {
+            if (Array.isArray(value)) {
+                throw new Error('Illegal attempt to set an Attribute to an Array.');
+            }
+            if (type === Boolean) {
+                if (!ClassModel.valueIsBoolean(value))
+                    throw new Error('Illegal attempt to set a Boolean Attribute to something other than a Boolean.');
+            }
+            else if (type === Number) {
+                if (!ClassModel.valueIsNumber(value))
+                    throw new Error('Illegal attempt to set a Number Attribute to something other than a Number.');
+            }
+            else if (type === String) {
+                if (!ClassModel.valueIsString(value))
+                    throw new Error('Illegal attempt to set a String Attribute to something other than a String.');
+            }
+            else if (type === Date) {
+                if (!ClassModel.valueIsDate(value))
+                    throw new Error('Illegal attempt to set a Date Attribute to something other than a Date.');
+            }
+
+        }
+
+    }
+
     valueValidForSingularRelationship(value, relationshipName) {
         const relationship = this.getSingularRelationships().filter(relationship => relationship.name === relationshipName)[0];
         const toClass = AllClassModels[relationship.toClass];

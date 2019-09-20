@@ -53,21 +53,10 @@ class Instance {
                     throw new Error('Illegal attempt to change the ' + key + ' of an Instance.');
 
                 if (attributeNames.includes(key)) {
-                    const attribute = attributes.filter(attribute => attribute.name === key)[0];
-
                     if (value === undefined)
                         value = null;
 
-                    if (attribute.list) {
-                        if  (!Array.isArray(value) || value !== null) {
-                            throw new Error('Illegal attempt to set a List Attribute to something other than an Array.');
-                        }
-                    }
-                    if (!attribute.list && Array.isArray(value)) {
-                        if (Array.isArray(value)) {
-                            throw new Error('Illegal attempt to set an Attribute to an Array.');
-                        }
-                    }
+                    classModel.validateAttribute(key, value);
 
                     trapTarget.currentState[key] = value;
                     return true;

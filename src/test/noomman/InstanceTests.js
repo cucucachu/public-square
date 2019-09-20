@@ -469,7 +469,7 @@ describe('Instance Tests', () => {
     
                         });
     
-                        describe('When Vo Document Given', () => {
+                        describe('When No Document Given', () => {
     
                             it('Relationship set to null.', () => {
                                 const instance = new Instance(SingularRelationshipClass);
@@ -587,7 +587,7 @@ describe('Instance Tests', () => {
 
         describe('Set Trap', () => {
 
-            describe('Validations', () => {
+            describe.only('Validations', () => {
 
                 describe('Changing Instance\'s own properties', () => {
 
@@ -618,48 +618,127 @@ describe('Instance Tests', () => {
 
                     describe('Non-List Attributes', () => {
     
-                        it.skip('Attempting to set a non list attribute to an array.', () => {
-            
-                        });
-    
-                        it.skip('Attempting to set a boolean attribute to something other than a boolean.', () => {
-            
-                        });
-    
-                        it.skip('Attempting to set a number attribute to something other than a number.', () => {
-            
-                        });
-    
-                        it.skip('Attempting to set a string attribute to something other than a string.', () => {
-            
-                        });
-    
-                        it.skip('Attempting to set a date attribute to something other than a date.', () => {
-            
-                        });
+                        it('Attempting to set a non list attribute to an array.', () => {
+                            const attributeName = 'boolean';
+                            const value = [];
+                            const document = new AllFieldsRequiredClass.Model({});
+                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const expectedErrorMessage = 'Illegal attempt to set an Attribute to an Array.';
 
+                            testForError('Instance Set Trap', expectedErrorMessage, () => {
+                                instance[attributeName] = value;
+                            });                            
+                        });
+    
+                        it('Attempting to set a boolean attribute to something other than a boolean.', () => {
+                            const attributeName = 'boolean';
+                            const value = 0;
+                            const document = new AllFieldsRequiredClass.Model({});
+                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const expectedErrorMessage = 'Illegal attempt to set a Boolean Attribute to something other than a Boolean.';
+
+                            testForError('Instance Set Trap', expectedErrorMessage, () => {
+                                instance[attributeName] = value;
+                            });
+                        });
+    
+                        it('Attempting to set a number attribute to something other than a number.', () => {
+                            const attributeName = 'number';
+                            const value = false;
+                            const document = new AllFieldsRequiredClass.Model({});
+                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const expectedErrorMessage = 'Illegal attempt to set a Number Attribute to something other than a Number.';
+
+                            testForError('Instance Set Trap', expectedErrorMessage, () => {
+                                instance[attributeName] = value;
+                            });
+                        });
+    
+                        it('Attempting to set a string attribute to something other than a string.', () => {
+                            const attributeName = 'string';
+                            const value = false;
+                            const document = new AllFieldsRequiredClass.Model({});
+                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const expectedErrorMessage = 'Illegal attempt to set a String Attribute to something other than a String.';
+
+                            testForError('Instance Set Trap', expectedErrorMessage, () => {
+                                instance[attributeName] = value;
+                            });
+                        });
+    
+                        it('Attempting to set a date attribute to something other than a date.', () => {
+                            const attributeName = 'date';
+                            const value = '1999-01-01';
+                            const document = new AllFieldsRequiredClass.Model({});
+                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const expectedErrorMessage = 'Illegal attempt to set a Date Attribute to something other than a Date.';
+
+                            testForError('Instance Set Trap', expectedErrorMessage, () => {
+                                instance[attributeName] = value;
+                            });
+                        });
                     });
 
                     describe('List Attributes', () => {
     
-                        it.skip('Attempting to set a list attribute to a single value.', () => {
-            
+                        it('Attempting to set a list attribute to a single value.', () => {
+                            const attributeName = 'booleans';
+                            const value = true;
+                            const document = new AllFieldsRequiredClass.Model({});
+                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const expectedErrorMessage = 'Illegal attempt to set a List Attribute to something other than an Array.';
+
+                            testForError('Instance Set Trap', expectedErrorMessage, () => {
+                                instance[attributeName] = value;
+                            });
                         });
     
-                        it.skip('Attempting to set a boolean list attribute to an array of something other than booleans.', () => {
-            
+                        it('Attempting to set a boolean list attribute to an array of something other than booleans.', () => {
+                            const attributeName = 'booleans';
+                            const value = [true, 1];
+                            const document = new AllFieldsRequiredClass.Model({});
+                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const expectedErrorMessage = 'Illegal attempt to set a Boolean List Attribute to an array containing non-Boolean element(s).';
+
+                            testForError('Instance Set Trap', expectedErrorMessage, () => {
+                                instance[attributeName] = value;
+                            });
                         });
     
-                        it.skip('Attempting to set a number list attribute to an array of something other than numbers.', () => {
-            
+                        it('Attempting to set a number list attribute to an array of something other than numbers.', () => {
+                            const attributeName = 'numbers';
+                            const value = [1, 234, '14'];
+                            const document = new AllFieldsRequiredClass.Model({});
+                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const expectedErrorMessage = 'Illegal attempt to set a Number List Attribute to an array containing non-Number element(s).';
+
+                            testForError('Instance Set Trap', expectedErrorMessage, () => {
+                                instance[attributeName] = value;
+                            });
                         });
     
-                        it.skip('Attempting to set a string list attribute to an array of something other than strings.', () => {
-            
+                        it('Attempting to set a string list attribute to an array of something other than strings.', () => {
+                            const attributeName = 'strings';
+                            const value = ['1', '2', 'word', 'This is a sentence.', 5];
+                            const document = new AllFieldsRequiredClass.Model({});
+                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const expectedErrorMessage = 'Illegal attempt to set a String List Attribute to an array containing non-String element(s).';
+
+                            testForError('Instance Set Trap', expectedErrorMessage, () => {
+                                instance[attributeName] = value;
+                            });            
                         });
     
                         it.skip('Attempting to set a date list attribute to an array of something other than dates.', () => {
-            
+                            const attributeName = 'booleans';
+                            const value = true;
+                            const document = new AllFieldsRequiredClass.Model({});
+                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const expectedErrorMessage = '';
+
+                            testForError('Instance Set Trap', expectedErrorMessage, () => {
+                                instance[attributeName] = value;
+                            });            
                         });
 
                     });
@@ -1023,11 +1102,11 @@ describe('Instance Tests', () => {
 
                 });
 
-                describe('List Attributes', () => {
+                describe.skip('List Attributes', () => {
 
-                    describe('Boolean List Attributes', () => {
+                    describe.skip('Boolean List Attributes', () => {
 
-                        it('Setting a boolean list attribute sets the list attribute.', () => {
+                        it.skip('Setting a boolean list attribute sets the list attribute.', () => {
 
                         });
 
@@ -1045,7 +1124,7 @@ describe('Instance Tests', () => {
         
                     });
         
-                    describe('Number List Attributes', () => {
+                    describe.skip('Number List Attributes', () => {
 
                         it('Setting a number list attribute sets the list attribute.', () => {
 
@@ -1065,7 +1144,7 @@ describe('Instance Tests', () => {
         
                     });
         
-                    describe('String List Attributes', () => {
+                    describe.skip('String List Attributes', () => {
 
                         it('Setting a string list attribute sets the list attribute.', () => {
 
@@ -1085,7 +1164,7 @@ describe('Instance Tests', () => {
         
                     });
         
-                    describe('Date List Attributes', () => {
+                    describe.skip('Date List Attributes', () => {
 
                         it('Setting a date list attribute sets the list attribute.', () => {
 
@@ -1111,7 +1190,7 @@ describe('Instance Tests', () => {
 
             describe('Setting Relationships', () => {
 
-                describe('Singular Relationships', () => {
+                describe.skip('Singular Relationships', () => {
 
                     it('Setting a singular relationship to an Instance.', () => {
 
@@ -1127,7 +1206,7 @@ describe('Instance Tests', () => {
 
                 });
 
-                describe('Non-Singular Relationships', () => {
+                describe.skip('Non-Singular Relationships', () => {
 
                     it('Setting a non-singular relationship to an InstanceSet.', () => {
 
