@@ -51,10 +51,11 @@ class Instance {
 
                 if (unSettableInstanceProperties.includes(key))
                     throw new Error('Illegal attempt to change the ' + key + ' of an Instance.');
+                
+                if (value === undefined)
+                    value = null;
 
                 if (attributeNames.includes(key)) {
-                    if (value === undefined)
-                        value = null;
 
                     classModel.validateAttribute(key, value);
 
@@ -65,26 +66,16 @@ class Instance {
                 if (singularRelationshipNames.includes(key)) {
                     if (!classModel.valueValidForSingularRelationship(value, key)) 
                         throw new Error('Illegal attempt to set a singular relationship to a value which is not an Instance of the correct ClassModel.');
-                    if (value === null || value === undefined) {
-                        trapTarget.currentState[key] = null;
-                    }
-                    else {
-                        trapTarget.currentState[key] = value;
-                    }
+                    
+                    trapTarget.currentState[key] = value;
                     return true;
                 }
 
                 if (nonSingularRelationshipNames.includes(key)) {
                     if (!classModel.valueValidForNonSingularRelationship(value, key))
                         throw new Error('Illegal attempt to set a non-singular relationship to a value which is not an InstanceSet of the correct ClassModel.');
-                    if (value === null || value === undefined) {
-                        trapTarget.currentState[key].instanceSet = null;
-                        trapTarget.currentState[key].ids = [];
-                    }
-                    else {
-                        trapTarget.currentState[key].instanceSet = value;
-                        trapTarget.currentState[key].ids = value.getInstanceIds();
-                    }
+                    
+                    trapTarget.currentState[key] = value;
                     return true;
                 }
 
@@ -92,28 +83,8 @@ class Instance {
             },
 
             get(trapTarget, key, receiver) {
-                if (attributeNames.includes(key)) {
+                if (documentProperties.includes(key))
                     return trapTarget.currentState[key];
-                }
-
-                if (singularRelationshipNames.includes(key)) {
-                    if (trapTarget.currentState[key].instance) {
-                        return trapTarget.currentState[key].instance;
-                    }
-                    else {
-                        return null;
-                    }
-                }
-
-                if (nonSingularRelationshipNames.includes(key)) {
-                    if (trapTarget.currentState[key]) {
-                        return trapTarget.currentState[key];
-                    }
-                    else {
-                        return null;
-                    }
-                    
-                }
 
                 if (key === 'id')
                     return trapTarget._id.toString();

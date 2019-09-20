@@ -386,7 +386,7 @@ class ClassModel {
         const relationship = this.getSingularRelationships().filter(relationship => relationship.name === relationshipName)[0];
         const toClass = AllClassModels[relationship.toClass];
 
-        if (value === null || value === undefined)
+        if (value === null)
             return true;
 
         if (!(value instanceof Instance))
@@ -402,7 +402,7 @@ class ClassModel {
         const relationship = this.getNonSingularRelationships().filter(relationship => relationship.name === relationshipName)[0];
         const toClass = AllClassModels[relationship.toClass];
 
-        if (value === null || value === undefined)
+        if (value === null)
             return true;
 
         if (!(value instanceof InstanceSet))

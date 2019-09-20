@@ -52,12 +52,12 @@ class InstanceState {
                 }
                 else if (key in trapTarget.instanceSetReferences) {
                     if (value === null) {
-                        trapTarget.instanceReferences[key].ids = [];
-                        trapTarget.instanceReferences[key].instanceSet = null;
+                        trapTarget.instanceSetReferences[key].ids = [];
+                        trapTarget.instanceSetReferences[key].instanceSet = null;
                     }
                     else {
-                        trapTarget.instanceReferences[key].ids = value.getInstanceIds();
-                        trapTarget.instanceReferences[key].instanceSet = value;
+                        trapTarget.instanceSetReferences[key].ids = value.getInstanceIds();
+                        trapTarget.instanceSetReferences[key].instanceSet = value;
                     }
                 }
                 else {
@@ -74,7 +74,7 @@ class InstanceState {
                     return trapTarget.instanceReferences[key].instance ? trapTarget.instanceReferences[key].instance : trapTarget.instanceReferences[key].id;
                 }
                 else if (key in trapTarget.instanceSetReferences) {
-                    return trapTarget.instanceSetReferences[key].instance ? trapTarget.instanceSetReferences[key].instanceSet : trapTarget.instanceSetReferences[key].ids;
+                    return trapTarget.instanceSetReferences[key].instanceSet ? trapTarget.instanceSetReferences[key].instanceSet : trapTarget.instanceSetReferences[key].ids;
                 }
                 else {
                     return Reflect.get(trapTarget, key, receiver);
