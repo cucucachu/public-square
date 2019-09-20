@@ -1,5 +1,6 @@
 require('@babel/polyfill');
 const moment = require('moment');
+const mongoose = require('mongoose');
 
 const SuperSet = require('./SuperSet');
 const InstanceReference = require('./InstanceReference');
@@ -24,13 +25,13 @@ class InstanceState {
         for (const singularRelationship of classModel.getSingularRelationships()) {
             const instanceReference = new InstanceReference();
             if (document && document[singularRelationship.name])
-                instanceReference.id = document[singularRelationship.name];
+                instanceReference.id = document[singularRelationship.name].toHexString();
             this.instanceReferences[singularRelationship.name] = instanceReference;
         }
         for (const nonSingularRelationship of classModel.getNonSingularRelationships()) {
             const instanceSetReference = new InstanceSetReference();
             if (document && document[nonSingularRelationship.name])
-                instanceSetReference.ids = document[nonSingularRelationship.name];
+                instanceSetReference.ids = document[nonSingularRelationship.name].map(id => id.toHexString());
             this.instanceSetReferences[nonSingularRelationship.name] = instanceSetReference;
         }
 
@@ -40,16 +41,29 @@ class InstanceState {
                     trapTarget.attributes[key] = value;
                 }
                 else if (key in trapTarget.instanceReferences) {
-                    trapTarget.instanceReferences[key].id = value.id;
-                    trapTarget.instanceReferences[key].instance = value;
+                    if (value === null) {
+                        trapTarget.instanceReferences[key].id = null;
+                        trapTarget.instanceReferences[key].instance = null;
+                    }
+                    else {
+                        trapTarget.instanceReferences[key].id = value.id;
+                        trapTarget.instanceReferences[key].instance = value;
+                    }
                 }
                 else if (key in trapTarget.instanceSetReferences) {
-                    trapTarget.instanceReferences[key].ids = value.getInstanceIds();
-                    trapTarget.instanceReferences[key].instanceSet = value;
+                    if (value === null) {
+                        trapTarget.instanceReferences[key].ids = [];
+                        trapTarget.instanceReferences[key].instanceSet = null;
+                    }
+                    else {
+                        trapTarget.instanceReferences[key].ids = value.getInstanceIds();
+                        trapTarget.instanceReferences[key].instanceSet = value;
+                    }
                 }
                 else {
                     throw new Error('Attempt to set an invalid property on an InstanceState.');
                 }
+                return true;
             },
 
             get(trapTarget, key, receiver) {
@@ -114,16 +128,14 @@ class InstanceState {
         for (const relationshipName in this.instanceReferences) {
             const relationship = this.instanceReferences[relationshipName];
             if (!relationship.isEmpty())
-                document[relationshipName] = relationship.id;
+                document[relationshipName] = new mongoose.Types.ObjectId(relationship.id);
         }
 
         for (const relationshipName in this.instanceSetReferences) {
-            console.log('checking for relatinoship ' + relationshipName);
             const relationship = this.instanceSetReferences[relationshipName];
-            console.log('Relationship has ids ' + relationship.ids)
 
             if (!relationship.isEmpty())
-                document[relationshipName] = relationship.ids;
+                document[relationshipName] = relationship.ids.map(id => new mongoose.Types.ObjectId(id));
         }
 
         return document;        

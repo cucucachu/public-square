@@ -1,6 +1,7 @@
 
 require("@babel/polyfill");
 const mongoose = require('mongoose');
+const moment = require('moment');
 
 const database = require('../../dist/noomman/database');
 const Instance = require('../../dist/noomman/Instance');
@@ -59,7 +60,6 @@ const arraysEqual = TestingFunctions.arraysEqual;
     var UpdateControlledClassUpdateControlledByParameters = TestClassModels.UpdateControlledClassUpdateControlledByParameters;
 }
 
-
 describe('Instance Tests', () => {
 
     // Simple Documents
@@ -90,7 +90,7 @@ describe('Instance Tests', () => {
         database.close();
     });
 
-    describe.only('Instance.constructor Tests', () => {
+    describe('Instance.constructor Tests', () => {
 
         describe('Instance Constructor Requirements Tests', () => {
 
@@ -393,12 +393,185 @@ describe('Instance Tests', () => {
                 });
 
                 describe('Relationships Set', () => {
+                    
+                    describe('Singular Relationship', () => {
 
-                    describe('When Document Given', () => {
+                        describe('When Document Given', () => {
+    
+                            describe('On Current State', () => {
+    
+                                it('Document contains object Id for related intance.', () => {
+                                    const objectId = new mongoose.Types.ObjectId;
+                                    const document = new SingularRelationshipClass.Model({
+                                        singularRelationship: objectId,
+                                    });
+                                    const instance = new Instance(SingularRelationshipClass, document);
+    
+                                    if (instance.currentState.singularRelationship !== objectId.toHexString())
+                                        throw new Error('Related id is not set correctly.');
+                                });
+    
+                                it('Document relationship set to null.', () => {
+                                    const document = new SingularRelationshipClass.Model({
+                                        singularRelationship: null,
+                                    });
+                                    const instance = new Instance(SingularRelationshipClass, document);
+    
+                                    if (instance.currentState.singularRelationship !== null)
+                                        throw new Error('Related id is not set correctly.');
+                                });
+    
+                                it('Document relationship not set.', () => {
+                                    const document = new SingularRelationshipClass.Model({
+                                    });
+                                    const instance = new Instance(SingularRelationshipClass, document);
+    
+                                    if (instance.currentState.singularRelationship !== null)
+                                        throw new Error('Related id is not set correctly.');
+    
+                                });
+    
+                            });
+    
+                            describe('On Previous State', () => {
+    
+                                it('Document contains object Id for related intance.', () => {
+                                    const objectId = new mongoose.Types.ObjectId;
+                                    const document = new SingularRelationshipClass.Model({
+                                        singularRelationship: objectId,
+                                    });
+                                    const instance = new Instance(SingularRelationshipClass, document);
+    
+                                    if (instance.previousState.singularRelationship !== objectId.toHexString())
+                                        throw new Error('Related id is not set correctly.');
+                                });
+    
+                                it('Document relationship set to null.', () => {
+                                    const document = new SingularRelationshipClass.Model({
+                                        singularRelationship: null,
+                                    });
+                                    const instance = new Instance(SingularRelationshipClass, document);
+    
+                                    if (instance.previousState.singularRelationship !== null)
+                                        throw new Error('Related id is not set correctly.');
+                                });
+    
+                                it('Document relationship not set.', () => {
+                                    const document = new SingularRelationshipClass.Model({
+                                    });
+                                    const instance = new Instance(SingularRelationshipClass, document);
+    
+                                    if (instance.previousState.singularRelationship !== null)
+                                        throw new Error('Related id is not set correctly.');
+                                });
+    
+                            });
+    
+                        });
+    
+                        describe('When Vo Document Given', () => {
+    
+                            it('Relationship set to null.', () => {
+                                const instance = new Instance(SingularRelationshipClass);
+    
+                                if (instance.currentState.singularRelationship !== null)
+                                    throw new Error('Related id is not set correctly.');
+                            });
+                        
+                        });
 
                     });
 
-                    describe('When no Document Given', () => {
+                    describe('Non Singular Relationship', () => {
+
+                        describe('When Document Given', () => {
+
+                            describe('On Current State', () => {
+    
+                                it('Document contains object Ids for related intances.', () => {
+                                    const objectIds = [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId];
+                                    const document = new NonSingularRelationshipClass.Model({
+                                        nonSingularRelationship: objectIds,
+                                    });
+                                    const instance = new Instance(NonSingularRelationshipClass, document);
+    
+                                    if (!arraysEqual(instance.currentState.nonSingularRelationship, objectIds.map(id => id.toHexString())))
+                                        throw new Error('Related ids are not set correctly.');
+                                });
+    
+                                it('Document relationship set to empty array.', () => {
+                                    const document = new NonSingularRelationshipClass.Model({
+                                        nonSingularRelationship: null,
+                                    });
+                                    const instance = new Instance(NonSingularRelationshipClass, document);
+    
+                                    if (!arraysEqual(instance.currentState.nonSingularRelationship, []))
+                                        throw new Error('Related ids are not set correctly.');
+                                });
+    
+                                it('Document relationship not set to empty array', () => {
+                                    const document = new NonSingularRelationshipClass.Model({
+                                    });
+                                    const instance = new Instance(NonSingularRelationshipClass, document);
+    
+                                    if (!arraysEqual(instance.currentState.nonSingularRelationship, []))
+                                        throw new Error('Related ids are not set correctly.');
+    
+                                });
+
+                            });
+
+                            describe('On Previous State', () => {
+    
+                                it('Document contains object Ids for related intances.', () => {
+                                    const objectIds = [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId];
+                                    const document = new NonSingularRelationshipClass.Model({
+                                        nonSingularRelationship: objectIds,
+                                    });
+                                    const instance = new Instance(NonSingularRelationshipClass, document);
+    
+                                    if (!arraysEqual(instance.previousState.nonSingularRelationship, objectIds.map(id => id.toHexString())))
+                                        throw new Error('Related ids are not set correctly.');
+                                });
+    
+                                it('Document relationship set to empty array.', () => {
+                                    const document = new NonSingularRelationshipClass.Model({
+                                        nonSingularRelationship: null,
+                                    });
+                                    const instance = new Instance(NonSingularRelationshipClass, document);
+    
+                                    if (!arraysEqual(instance.previousState.nonSingularRelationship, []))
+                                        throw new Error('Related ids are not set correctly.');
+                                });
+    
+                                it('Document relationship not set to empty array', () => {
+                                    const document = new NonSingularRelationshipClass.Model({
+                                    });
+                                    const instance = new Instance(NonSingularRelationshipClass, document);
+    
+                                    if (!arraysEqual(instance.previousState.nonSingularRelationship, []))
+                                        throw new Error('Related ids are not set correctly.');
+    
+                                });
+
+                            });
+
+                        });
+
+                        describe('When No Document Given', () => {
+
+                            describe('On Current State', () => {
+    
+                                it('Document relationship not set to empty array', () => {
+                                    const instance = new Instance(NonSingularRelationshipClass);
+    
+                                    if (!arraysEqual(instance.currentState.nonSingularRelationship, []))
+                                        throw new Error('Related ids are not set correctly.');
+                                });
+
+                            });
+
+                        });
 
                     });
 
@@ -414,44 +587,564 @@ describe('Instance Tests', () => {
 
         describe('Set Trap', () => {
 
-            it.skip('Setting a property that is part of the schema sets the property on the currentState.', () => {
-                const testDocument = new TestClassWithBoolean.Model({
-                    boolean: false
+            describe('Validations', () => {
+
+                describe('Changing Instance\'s own properties', () => {
+
+                    it('Attempting to change the class model of an instance throws an error.', () => {
+                        const instance = new Instance(TestClassWithBoolean, documentOfTestClassWithBoolean);
+                        testForError('instance.classModel = ...', 'Illegal attempt to change the classModel of an Instance.', () => {
+                            instance.classModel = TestClassWithNumber;
+                        });
+                    });
+        
+                    it('Attempting to change the id of an instance throws an error.', () => {
+                        const instance = new Instance(TestClassWithBoolean);
+                        testForError('instance.id = ...', 'Illegal attempt to change the id of an Instance.', () => {
+                            instance.id = TestClassWithNumber;
+                        });
+                    });
+        
+                    it('Attempting to change the _id of an instance throws an error.', () => {
+                        const instance = new Instance(TestClassWithBoolean);
+                        testForError('instance._id = ...', 'Illegal attempt to change the _id of an Instance.', () => {
+                            instance._id = TestClassWithNumber;
+                        });
+                    });
+
                 });
-                const instance = new Instance(TestClassWithBoolean, testDocument);
-                
-                if (instance.currentState.boolean != false)
-                    throw new Error();
 
-                instance.boolean = true;
+                describe('Attribute Validations.', () => {
 
-                if (instance.getDocumentProperty('boolean') != true)
-                    throw new Error();
-                
-                if (instance.boolean != instance.getDocumentProperty('boolean'))
-                    throw new Error();
+                    describe('Non-List Attributes', () => {
+    
+                        it.skip('Attempting to set a non list attribute to an array.', () => {
+            
+                        });
+    
+                        it.skip('Attempting to set a boolean attribute to something other than a boolean.', () => {
+            
+                        });
+    
+                        it.skip('Attempting to set a number attribute to something other than a number.', () => {
+            
+                        });
+    
+                        it.skip('Attempting to set a string attribute to something other than a string.', () => {
+            
+                        });
+    
+                        it.skip('Attempting to set a date attribute to something other than a date.', () => {
+            
+                        });
+
+                    });
+
+                    describe('List Attributes', () => {
+    
+                        it.skip('Attempting to set a list attribute to a single value.', () => {
+            
+                        });
+    
+                        it.skip('Attempting to set a boolean list attribute to an array of something other than booleans.', () => {
+            
+                        });
+    
+                        it.skip('Attempting to set a number list attribute to an array of something other than numbers.', () => {
+            
+                        });
+    
+                        it.skip('Attempting to set a string list attribute to an array of something other than strings.', () => {
+            
+                        });
+    
+                        it.skip('Attempting to set a date list attribute to an array of something other than dates.', () => {
+            
+                        });
+
+                    });
+
+                });
+
+                describe ('Relationship Validations.', () => {
+
+                    describe('Singular Relationships', () => {
+    
+                        it.skip('Attempting to set a singular relationship to something that is not an Instance.', () => {
+            
+                        });
+    
+                        it.skip('Attempting to set a singular relationship to an Instance of a different class.', () => {
+            
+                        });
+    
+                        it.skip('Attempting to set a singular relationship to an InstanceSet.', () => {
+            
+                        });
+
+                    });
+
+                    describe('Non-Singular Relationships', () => {
+    
+                        it.skip('Attempting to set a non-singular relationship to something that is not an InstanceSet.', () => {
+            
+                        });
+    
+                        it.skip('Attempting to set a singular relationship to an InstanceSet of a different class.', () => {
+            
+                        });
+            
+                        it.skip('Attempting to set a non-singular relationship to an Instance.', () => {
+            
+                        });
+
+                    });
+
+                });
+
             });
 
-            it('Attempting to change the class model of an instance throws an error.', () => {
-                const instance = new Instance(TestClassWithBoolean, documentOfTestClassWithBoolean);
-                testForError('instance.classModel = ...', 'Illegal attempt to change the classModel of an Instance.', () => {
-                    instance.classModel = TestClassWithNumber;
+            describe('Setting Attributes', () => {
+
+                describe('Non-List Attributes', () => {
+
+                    describe('Boolean Attributes', () => {
+
+                        it('Setting a boolean attribute sets the attribute on the currentState.', () => {
+                            const document = new TestClassWithBoolean.Model({
+                                boolean: false
+                            });
+                            const instance = new Instance(TestClassWithBoolean, document);
+                            
+                            if (instance.currentState.boolean !== false || instance.boolean !== false)
+                                throw new Error();
+            
+                            instance.boolean = true;
+            
+                            if (instance.currentState.boolean !== true)
+                                throw new Error('instance.currentState.boolean not set.');
+                            
+                            if (instance.boolean !== true)
+                                throw new Error('instance.boolean not set.');
+                        });
+
+                        it('Setting a boolean attribute to null sets the attribute to null on the current state.', () => {
+                            const document = new TestClassWithBoolean.Model({
+                                boolean: false
+                            });
+                            const instance = new Instance(TestClassWithBoolean, document);
+                            
+                            if (instance.currentState.boolean !== false || instance.boolean !== false)
+                                throw new Error();
+            
+                            instance.boolean = null;
+            
+                            if (instance.currentState.boolean !== null)
+                                throw new Error('instance.currentState.boolean not set.');
+                            
+                            if (instance.boolean !== null)
+                                throw new Error('instance.boolean not set.');
+                        });
+
+                        it('Setting a boolean attribute to undefined sets the attribute to null on the current state.', () => {
+                            const document = new TestClassWithBoolean.Model({
+                                boolean: false
+                            });
+                            const instance = new Instance(TestClassWithBoolean, document);
+                            
+                            if (instance.currentState.boolean !== false || instance.boolean !== false)
+                                throw new Error();
+            
+                            instance.boolean = undefined;
+            
+                            if (instance.currentState.boolean !== null)
+                                throw new Error('instance.currentState.boolean not set.');
+                            
+                            if (instance.boolean !== null)
+                                throw new Error('instance.boolean not set.');
+                        });
+        
+                    });
+        
+                    describe('Number Attributes', () => {
+
+                        it('Setting a number attribute sets the attribute on the currentState.', () => {
+                            const originalValue = 2;
+                            const newValue = 3;
+                            const attributeName = 'number';
+
+                            const document = new AllFieldsRequiredClass.Model({
+                                [attributeName]: originalValue
+                            });
+                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            
+                            if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
+                                throw new Error();
+            
+                            instance[attributeName] = newValue;
+            
+                            if (instance.currentState[attributeName] !== newValue)
+                                throw new Error('instance.currentState.' + attributeName + ' not set.');
+                            
+                            if (instance[attributeName] !== newValue)
+                                throw new Error('instance.' + attributeName + ' not set.');
+                        });
+
+                        it('Setting a number attribute to 0 sets the attribute on the currentState.', () => {
+                            const originalValue = 2;
+                            const newValue = 0;
+                            const attributeName = 'number';
+
+                            const document = new AllFieldsRequiredClass.Model({
+                                [attributeName]: originalValue
+                            });
+                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            
+                            if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
+                                throw new Error();
+            
+                            instance[attributeName] = newValue;
+            
+                            if (instance.currentState[attributeName] !== newValue)
+                                throw new Error('instance.currentState.' + attributeName + ' not set.');
+                            
+                            if (instance[attributeName] !== newValue)
+                                throw new Error('instance.' + attributeName + ' not set.');
+                        });
+
+                        it('Setting a number attribute to null sets the attribute on the currentState.', () => {
+                            const originalValue = 2;
+                            const newValue = null;
+                            const attributeName = 'number';
+
+                            const document = new AllFieldsRequiredClass.Model({
+                                [attributeName]: originalValue
+                            });
+                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            
+                            if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
+                                throw new Error();
+            
+                            instance[attributeName] = newValue;
+            
+                            if (instance.currentState[attributeName] !== newValue)
+                                throw new Error('instance.currentState.' + attributeName + ' not set.');
+                            
+                            if (instance[attributeName] !== newValue)
+                                throw new Error('instance.' + attributeName + ' not set.');
+                        });
+
+                        it('Setting a number attribute to undefined sets the attribute on the currentState.', () => {
+                            const originalValue = 2;
+                            const newValue = undefined;
+                            const attributeName = 'number';
+
+                            const document = new AllFieldsRequiredClass.Model({
+                                [attributeName]: originalValue
+                            });
+                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            
+                            if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
+                                throw new Error();
+            
+                            instance[attributeName] = newValue;
+            
+                            if (instance.currentState[attributeName] !== null)
+                                throw new Error('instance.currentState.' + attributeName + ' not set.');
+                            
+                            if (instance[attributeName] !== null)
+                                throw new Error('instance.' + attributeName + ' not set.');
+                        });
+        
+                    });
+        
+                    describe('String Attributes', () => {
+
+                        it('Setting a string attribute sets the attribute on the currentState.', () => {
+                            const originalValue = '';
+                            const newValue = 'some value';
+                            const attributeName = 'string';
+
+                            const document = new AllFieldsRequiredClass.Model({
+                                [attributeName]: originalValue
+                            });
+                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            
+                            if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
+                                throw new Error();
+            
+                            instance[attributeName] = newValue;
+            
+                            if (instance.currentState[attributeName] !== newValue)
+                                throw new Error('instance.currentState.' + attributeName + ' not set.');
+                            
+                            if (instance[attributeName] !== newValue)
+                                throw new Error('instance.' + attributeName + ' not set.');
+                        });
+
+                        it('Setting a string attribute to empty string sets the attribute on the currentState.', () => {
+                            const originalValue = 'some value';
+                            const newValue = '';
+                            const attributeName = 'string';
+
+                            const document = new AllFieldsRequiredClass.Model({
+                                [attributeName]: originalValue
+                            });
+                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            
+                            if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
+                                throw new Error();
+            
+                            instance[attributeName] = newValue;
+            
+                            if (instance.currentState[attributeName] !== newValue)
+                                throw new Error('instance.currentState.' + attributeName + ' not set.');
+                            
+                            if (instance[attributeName] !== newValue)
+                                throw new Error('instance.' + attributeName + ' not set.');
+                        });
+
+                        it('Setting a string attribute to null sets the attribute on the currentState.', () => {
+                            const originalValue = '';
+                            const newValue = null;
+                            const attributeName = 'string';
+
+                            const document = new AllFieldsRequiredClass.Model({
+                                [attributeName]: originalValue
+                            });
+                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            
+                            if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
+                                throw new Error();
+            
+                            instance[attributeName] = newValue;
+            
+                            if (instance.currentState[attributeName] !== newValue)
+                                throw new Error('instance.currentState.' + attributeName + ' not set.');
+                            
+                            if (instance[attributeName] !== newValue)
+                                throw new Error('instance.' + attributeName + ' not set.');
+                        });
+
+                        it('Setting a string attribute to undefined sets the attribute on the currentState.', () => {
+                            const originalValue = 'some value';
+                            const newValue = undefined;
+                            const attributeName = 'string';
+
+                            const document = new AllFieldsRequiredClass.Model({
+                                [attributeName]: originalValue
+                            });
+                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            
+                            if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
+                                throw new Error();
+            
+                            instance[attributeName] = newValue;
+            
+                            if (instance.currentState[attributeName] !== null)
+                                throw new Error('instance.currentState.' + attributeName + ' not set.');
+                            
+                            if (instance[attributeName] !== null)
+                                throw new Error('instance.' + attributeName + ' not set.');
+                        });
+        
+                    });
+        
+                    describe('Date Attributes', () => {
+
+                        it('Setting a date attribute sets the attribute on the currentState.', () => {
+                            const originalValue = new Date('1999-12-31');
+                            const newValue = new Date();
+                            const attributeName = 'date';
+
+                            const document = new AllFieldsRequiredClass.Model({
+                                [attributeName]: originalValue
+                            });
+                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            
+                            if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
+                                throw new Error();
+            
+                            instance[attributeName] = newValue;
+            
+                            if (!moment(instance.currentState[attributeName]).isSame(newValue))
+                                throw new Error('instance.currentState.' + attributeName + ' not set.');
+                            
+                            if (!moment(instance[attributeName]).isSame(newValue))
+                                throw new Error('instance.' + attributeName + ' not set.');
+                        });
+
+                        it('Setting a date attribute to null sets the attribute on the currentState.', () => {
+                            const originalValue = new Date('1999-12-31');
+                            const newValue = null;
+                            const attributeName = 'date';
+
+                            const document = new AllFieldsRequiredClass.Model({
+                                [attributeName]: originalValue
+                            });
+                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            
+                            if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
+                                throw new Error();
+            
+                            instance[attributeName] = newValue;
+            
+                            if (instance.currentState[attributeName] !== null)
+                                throw new Error('instance.currentState.' + attributeName + ' not set.');
+                            
+                            if (instance[attributeName] !== null)
+                                throw new Error('instance.' + attributeName + ' not set.');
+                        });
+        
+
+                        it('Setting a date attribute to undefined sets the attribute on the currentState.', () => {
+                            const originalValue = new Date('1999-12-31');
+                            const newValue = undefined;
+                            const attributeName = 'date';
+
+                            const document = new AllFieldsRequiredClass.Model({
+                                [attributeName]: originalValue
+                            });
+                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            
+                            if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
+                                throw new Error();
+            
+                            instance[attributeName] = newValue;
+            
+                            if (instance.currentState[attributeName] !== null)
+                                throw new Error('instance.currentState.' + attributeName + ' not set.');
+                            
+                            if (instance[attributeName] !== null)
+                                throw new Error('instance.' + attributeName + ' not set.');
+                        });
+        
+                    });
+
                 });
+
+                describe('List Attributes', () => {
+
+                    describe('Boolean List Attributes', () => {
+
+                        it('Setting a boolean list attribute sets the list attribute.', () => {
+
+                        });
+
+                        it('Setting a boolean list attribute to empty array sets the list attribute.', () => {
+
+                        });
+
+                        it('Setting a boolean list attribute to null sets the list attribute to empty array.', () => {
+
+                        });
+
+                        it('Setting a boolean list attribute to undefined sets the list attribute to empty array.', () => {
+
+                        });
+        
+                    });
+        
+                    describe('Number List Attributes', () => {
+
+                        it('Setting a number list attribute sets the list attribute.', () => {
+
+                        });
+
+                        it('Setting a number list attribute to empty array sets the list attribute.', () => {
+
+                        });
+
+                        it('Setting a number list attribute to null sets the list attribute to empty array.', () => {
+
+                        });
+
+                        it('Setting a number list attribute to undefined sets the list attribute to empty array.', () => {
+
+                        });
+        
+                    });
+        
+                    describe('String List Attributes', () => {
+
+                        it('Setting a string list attribute sets the list attribute.', () => {
+
+                        });
+
+                        it('Setting a string list attribute to empty array sets the list attribute.', () => {
+
+                        });
+
+                        it('Setting a string list attribute to null sets the list attribute to empty array.', () => {
+
+                        });
+
+                        it('Setting a string list attribute to undefined sets the list attribute to empty array.', () => {
+
+                        });
+        
+                    });
+        
+                    describe('Date List Attributes', () => {
+
+                        it('Setting a date list attribute sets the list attribute.', () => {
+
+                        });
+
+                        it('Setting a date list attribute to empty array sets the list attribute.', () => {
+
+                        });
+
+                        it('Setting a date list attribute to null sets the list attribute to empty array.', () => {
+
+                        });
+
+                        it('Setting a date list attribute to undefined sets the list attribute to empty array.', () => {
+
+                        });
+        
+                    });
+
+                })
+
             });
 
-            it('Attempting to change the id of an instance throws an error.', () => {
-                const instance = new Instance(TestClassWithBoolean);
-                testForError('instance.id = ...', 'Illegal attempt to change the id of an Instance.', () => {
-                    instance.id = TestClassWithNumber;
+            describe('Setting Relationships', () => {
+
+                describe('Singular Relationships', () => {
+
+                    it('Setting a singular relationship to an Instance.', () => {
+
+                    });
+
+                    it('Setting a singular relationship to null.', () => {
+
+                    });
+
+                    it('Setting a singular relationship to undefined.', () => {
+
+                    });
+
                 });
+
+                describe('Non-Singular Relationships', () => {
+
+                    it('Setting a non-singular relationship to an InstanceSet.', () => {
+
+                    });
+
+                    it('Setting a non-singular relationship to null.', () => {
+
+                    });
+
+                    it('Setting a non-singular relationship to undefined.', () => {
+
+                    });
+
+                });
+
             });
 
-            it('Attempting to change the _id of an instance throws an error.', () => {
-                const instance = new Instance(TestClassWithBoolean);
-                testForError('instance._id = ...', 'Illegal attempt to change the _id of an Instance.', () => {
-                    instance._id = TestClassWithNumber;
-                });
-            });
 
         });
 

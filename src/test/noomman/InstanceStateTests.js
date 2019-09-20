@@ -1,4 +1,5 @@
 require("@babel/polyfill");
+const mongoose = require('mongoose');
 
 const InstanceState = require('../../dist/noomman/InstanceState');
 const TestClassModels = require('./helpers/TestClassModels');
@@ -92,8 +93,8 @@ describe('Instance State Tests', () => {
                 booleans: [false, true],
                 number: 17,
                 numbers: [1, 2],
-                class1: 'asdf1234fda4321',
-                class2s: ['asdf1234fda4321', 'fdas0987asdf7890']
+                class1: new mongoose.Types.ObjectId,
+                class2s: [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId]
             };
             
             it('Constructor does not throw an error when called with a ClassModel a Document.', () => {
@@ -115,7 +116,7 @@ describe('Instance State Tests', () => {
                 const instanceState = new InstanceState(AllFieldsRequiredClass, exampleDocument);
                 const instanceReferences = instanceState.instanceReferences;
     
-                if (instanceReferences['class1'].id !== exampleDocument.class1)
+                if (instanceReferences['class1'].id !== exampleDocument.class1.toHexString())
                     throw new Error('Singular relationship was not set correctly.');
             });
     
@@ -124,8 +125,8 @@ describe('Instance State Tests', () => {
                 const instanceSetReferences = instanceState.instanceSetReferences;
     
                 if (!Array.isArray(instanceSetReferences['class2s'].ids) 
-                    || instanceSetReferences['class2s'].ids[0] != exampleDocument['class2s'][0]
-                    || instanceSetReferences['class2s'].ids[1] != exampleDocument['class2s'][1])
+                    || instanceSetReferences['class2s'].ids[0] != exampleDocument['class2s'][0].toHexString()
+                    || instanceSetReferences['class2s'].ids[1] != exampleDocument['class2s'][1].toHexString())
                     throw new Error('Noningular relationship was not set correctly.');
                 
             });
@@ -138,8 +139,8 @@ describe('Instance State Tests', () => {
                     booleans: [false, true],
                     number: 17,
                     numbers: [1, 2],
-                    class1: 'asdf1234fda4321',
-                    class2s: ['asdf1234fda4321', 'fdas0987asdf7890']
+                    class1: new mongoose.Types.ObjectId,
+                    class2s: [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId]
                 };
                 const instanceState = new InstanceState(AllFieldsRequiredClass, exampleDocument);
 
@@ -158,8 +159,8 @@ describe('Instance State Tests', () => {
                     booleans: [false, true],
                     number: 17,
                     numbers: [1, 2],
-                    class1: 'asdf1234fda4321',
-                    class2s: ['asdf1234fda4321', 'fdas0987asdf7890']
+                    class1: new mongoose.Types.ObjectId,
+                    class2s: [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId]
                 };
                 const instanceState = new InstanceState(AllFieldsRequiredClass, exampleDocument);
 
@@ -176,8 +177,8 @@ describe('Instance State Tests', () => {
                     booleans: [false, true],
                     number: 0,
                     numbers: [1, 2],
-                    class1: 'asdf1234fda4321',
-                    class2s: ['asdf1234fda4321', 'fdas0987asdf7890']
+                    class1: new mongoose.Types.ObjectId,
+                    class2s: [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId]
                 };
                 const instanceState = new InstanceState(AllFieldsRequiredClass, exampleDocument);
 
@@ -194,8 +195,8 @@ describe('Instance State Tests', () => {
                     booleans: [false, true],
                     number: 0,
                     numbers: [1, 2],
-                    class1: 'asdf1234fda4321',
-                    class2s: ['asdf1234fda4321', 'fdas0987asdf7890']
+                    class1: new mongoose.Types.ObjectId,
+                    class2s: [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId]
                 };
                 const instanceState = new InstanceState(AllFieldsRequiredClass, exampleDocument);
 
@@ -212,7 +213,7 @@ describe('Instance State Tests', () => {
                     booleans: [false, true],
                     number: 0,
                     numbers: [1, 2],
-                    class2s: ['asdf1234fda4321', 'fdas0987asdf7890']
+                    class2s: [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId]
                 };
                 const instanceState = new InstanceState(AllFieldsRequiredClass, exampleDocument);
 
@@ -229,7 +230,7 @@ describe('Instance State Tests', () => {
                     booleans: [false, true],
                     number: 0,
                     numbers: [1, 2],
-                    class1: 'asdf1234fda4321',
+                    class1: new mongoose.Types.ObjectId,
                 };
                 const instanceState = new InstanceState(AllFieldsRequiredClass, exampleDocument);
 
@@ -240,6 +241,177 @@ describe('Instance State Tests', () => {
            
         });
 
+    });
+
+    describe.skip('InstanceState Traps', () => {
+
+        describe('Get Trap', () => {
+
+            describe('Attributes', () => {
+
+                describe('Non List Attributes', () => {
+                    
+                    it('Getting an attribute', () => {
+
+                    });
+                    
+                    it('Getting an attribute which is null.', () => {
+
+                    });
+                    
+                });
+
+                describe('List Attributes', () => {
+                    
+                    it('Getting a list attribute.', () => {
+
+                    });
+                    
+                    it('Getting a list attribute which is an empty array.', () => {
+
+                    });
+                    
+                    it('Getting a list attribute which is null.', () => {
+
+                    });
+
+                });
+
+            });
+
+            describe('Relationships', () => {
+
+                describe('Singular Relationships', () => {
+                    
+                    it('Getting a singular relationship with Instance set returns Instance.', () => {
+
+                    });
+                    
+                    it('Getting a singular relationship without an Instance set returns Id.', () => {
+
+                    });
+                    
+                    it('Getting a singular relationship with no Id returns null.', () => {
+
+                    });
+
+                });
+
+                describe('Non-Singular Relationships', () => {
+                    
+                    it('Getting a non-singular relationship with InstanceSet set returns InstanceSet.', () => {
+
+                    });
+                    
+                    it('Getting a non-singular relationship without an InstanceSet set returns Ids.', () => {
+
+                    });
+                    
+                    it('Getting a non-singular relationship with no Ids returns empty array.', () => {
+
+                    });
+                    
+                });
+
+            });
+
+        });
+
+        describe('Set Trap', () => {
+
+            describe('Attributes', () => {
+
+                describe('Non List Attributes', () => {
+                    
+                    it('Setting a boolean attribute to false.', () => {
+
+                    });
+                    
+                    it('Setting a boolean attribute to true.', () => {
+
+                    });
+                    
+                    it('Setting a boolean attribute to null.', () => {
+
+                    });
+                    
+                    it('Setting a number attribute.', () => {
+
+                    });
+                    
+                    it('Setting a number attribute to null.', () => {
+
+                    });
+                    
+                    it('Setting a string attribute.', () => {
+
+                    });
+                    
+                    it('Setting a string attribute to empty string.', () => {
+
+                    });
+                    
+                    it('Setting a string attribute to null.', () => {
+
+                    });
+                    
+                    it('Setting a date attribute.', () => {
+
+                    });
+                    
+                    it('Setting a date attribute to null.', () => {
+
+                    });
+                    
+                });
+
+                describe('List Attributes', () => {
+                    
+                    it('Setting a list attribute.', () => {
+
+                    });
+                    
+                    it('Setting a list attribute to empty array.', () => {
+
+                    });
+                    
+                    it('Setting a list attribute to null.', () => {
+
+                    });
+
+                });
+
+            });
+
+            describe('Relationships', () => {
+
+                describe('Singular Relationships', () => {
+                    
+                    it('Setting a singular relationship to an instance.', () => {
+
+                    });
+                    
+                    it('Setting a singular relationship to null.', () => {
+
+                    });
+
+                });
+
+                describe('Non-Singular Relationships', () => {
+                    
+                    it('Setting a non-singular relationship to an instance.', () => {
+
+                    });
+                    
+                    it('Setting a non-singular relationship to null.', () => {
+
+                    });
+                    
+                });
+
+            });
+
+        });
     });
 
     describe('InstanceState.toDocument()', () => {
@@ -370,11 +542,12 @@ describe('Instance State Tests', () => {
             describe('Relationships', () => {
 
                 it('Singular relationships is set.', () => {
+                    const id = new mongoose.Types.ObjectId;
                     const originalDocument = {
-                        class1: 'id1',
+                        class1: id,
                     }
                     const expectedDocument = {
-                        class1: 'id1',
+                        class1: id,
                     }
                     const instanceState = new InstanceState(AllFieldsRequiredClass, originalDocument);
                     const document = instanceState.toDocument();
@@ -385,11 +558,13 @@ describe('Instance State Tests', () => {
                 });
 
                 it('Nonsingular relationship is set.', () => {
+                    const id1 = new mongoose.Types.ObjectId;
+                    const id2 = new mongoose.Types.ObjectId;
                     const originalDocument = {
-                        class2s: ['id1', 'id2'],
+                        class2s: [id1, id2],
                     }
                     const expectedDocument = {
-                        class2s: ['id1', 'id2'],
+                        class2s: [id1, id2],
                     }
                     const instanceState = new InstanceState(AllFieldsRequiredClass, originalDocument);
                     const document = instanceState.toDocument();
@@ -1425,7 +1600,7 @@ describe('Instance State Tests', () => {
 
                     it('Setting a relationship that was empty.', () => {
                         const relationshipName = 'class1';
-                        const relatedId = '1234asdf2134asdf';
+                        const relatedId = new mongoose.Types.ObjectId;
                         const previousDocument = {};
                         const currentDocument = {
                             [relationshipName] : relatedId
@@ -1437,7 +1612,7 @@ describe('Instance State Tests', () => {
                         if (!diff.add || !diff.add[relationshipName])
                             throw new Error('diff.add is missing the relationship change.');
 
-                        if (diff.add[relationshipName] != relatedId)
+                        if (diff.add[relationshipName] != relatedId.toHexString())
                             throw new Error('diff is missing the added instance Id.');
                     });
 
@@ -1447,7 +1622,7 @@ describe('Instance State Tests', () => {
 
                     it('Removing a relationship that was empty.', () => {
                         const relationshipName = 'class1';
-                        const relatedId = '1234asdf2134asdf';
+                        const relatedId = new mongoose.Types.ObjectId;
                         const previousDocument = {
                             [relationshipName] : relatedId
                         }
@@ -1459,7 +1634,7 @@ describe('Instance State Tests', () => {
                         if (!diff.remove || !diff.remove[relationshipName])
                             throw new Error('diff.remove is missing the relationship change.');
 
-                        if (diff.remove[relationshipName] != relatedId)
+                        if (diff.remove[relationshipName] != relatedId.toHexString())
                             throw new Error('diff is missing the added instance Id.');
                     });
 
@@ -1469,8 +1644,8 @@ describe('Instance State Tests', () => {
 
                     it('Changing a relationship to a new id.', () => {
                         const relationshipName = 'class1';
-                        const previousId = '1234asdf2134asdf';
-                        const currentId = '9876asdf6543fdas';
+                        const previousId = new mongoose.Types.ObjectId;
+                        const currentId = new mongoose.Types.ObjectId;
                         const previousDocument = {
                             [relationshipName] : previousId
                         }
@@ -1484,16 +1659,16 @@ describe('Instance State Tests', () => {
                         if (!diff.update || !diff.update[relationshipName])
                             throw new Error('diff.update is missing the relationship change.');
 
-                        if (diff.update[relationshipName].previous != previousId)
+                        if (diff.update[relationshipName].previous != previousId.toHexString())
                             throw new Error('diff previous value is incorect.');
 
-                        if (diff.update[relationshipName].value != currentId)
+                        if (diff.update[relationshipName].value != currentId.toHexString())
                             throw new Error('diff is current value is incorrect.');
 
-                        if (diff.update[relationshipName].remove != previousId)
+                        if (diff.update[relationshipName].remove != previousId.toHexString())
                             throw new Error('diff remove value is incorect.');
 
-                        if (diff.update[relationshipName].insert != currentId)
+                        if (diff.update[relationshipName].insert != currentId.toHexString())
                             throw new Error('diff is insert value is incorrect.');
                     });
 
@@ -1508,7 +1683,7 @@ describe('Instance State Tests', () => {
                     it('Adding ids to a nonsingular relationship that was empty.', () => {
                         const relationshipName = 'class2s';
                         const previousIds = [];
-                        const currentIds = ['9876asdf6543fdas', 'asdfjjkoi902u4u9834j4'];
+                        const currentIds = [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId];
                         const previousDocument = {
                             [relationshipName] : previousIds
                         }
@@ -1522,7 +1697,7 @@ describe('Instance State Tests', () => {
                         if (!diff || !diff.add[relationshipName])
                             throw new Error('Diff did not return with an add.');
 
-                        if (!arraysEqual(currentIds, diff.add[relationshipName]))
+                        if (!arraysEqual(currentIds.map(id => id.toHexString()), diff.add[relationshipName]))
                             throw new Error('Diff did not return the add with the correct ids.');
                     });
                     
@@ -1533,7 +1708,7 @@ describe('Instance State Tests', () => {
 
                     it('Adding ids to a nonsingular relationship that was empty.', () => {
                         const relationshipName = 'class2s';
-                        const previousIds = ['9876asdf6543fdas', 'asdfjjkoi902u4u9834j4'];
+                        const previousIds = [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId];
                         const currentIds = [];
                         const previousDocument = {
                             [relationshipName] : previousIds
@@ -1548,7 +1723,7 @@ describe('Instance State Tests', () => {
                         if (!diff || !diff.remove[relationshipName])
                             throw new Error('Diff did not return with an remove.');
 
-                        if (!arraysEqual(previousIds, diff.remove[relationshipName]))
+                        if (!arraysEqual(previousIds.map(id => id.toHexString()), diff.remove[relationshipName]))
                             throw new Error('Diff did not return the remove with the correct ids.');
                     });
 
@@ -1560,9 +1735,15 @@ describe('Instance State Tests', () => {
 
                         it('Relationship has two ids and we add two more.', () => {
                             const relationshipName = 'class2s';
-                            const previousIds = ['id1', 'id2'];
-                            const currentIds = ['id1', 'id2', 'id3', 'id4'];
-                            const insertIds = ['id3', 'id4'];
+                            const ids = [
+                                new mongoose.Types.ObjectId,
+                                new mongoose.Types.ObjectId,
+                                new mongoose.Types.ObjectId,
+                                new mongoose.Types.ObjectId,
+                            ]
+                            const previousIds = [ids[0], ids[1]];
+                            const currentIds = [ids[0], ids[1], ids[2], ids[3]];
+                            const insertIds = [ids[2], ids[3]];
                             const removeIds = [];
                             const previousDocument = {
                                 [relationshipName] : previousIds
@@ -1577,16 +1758,16 @@ describe('Instance State Tests', () => {
                             if (!diff || !diff.update[relationshipName])
                                 throw new Error('Diff did not return with an update.');
     
-                            if (!arraysEqual(currentIds, diff.update[relationshipName].value))
+                            if (!arraysEqual(currentIds.map(id => id.toHexString()), diff.update[relationshipName].value))
                                 throw new Error('Diff did not return the value with the correct ids.');
     
-                            if (!arraysEqual(previousIds, diff.update[relationshipName].previous))
+                            if (!arraysEqual(previousIds.map(id => id.toHexString()), diff.update[relationshipName].previous))
                                 throw new Error('Diff did not return the previous with the correct ids.');
     
-                            if (!arraysEqual(insertIds, diff.update[relationshipName].insert))
+                            if (!arraysEqual(insertIds.map(id => id.toHexString()), diff.update[relationshipName].insert))
                                 throw new Error('Diff did not return the insert with the correct ids.');
     
-                            if (!arraysEqual(removeIds, diff.update[relationshipName].remove))
+                            if (!arraysEqual(removeIds.map(id => id.toHexString()), diff.update[relationshipName].remove))
                                 throw new Error('Diff did not return the remove with the correct ids.');
 
                         });
@@ -1597,10 +1778,16 @@ describe('Instance State Tests', () => {
 
                         it('Relationship has 4 ids and we remove two.', () => {
                             const relationshipName = 'class2s';
-                            const previousIds = ['id1', 'id2', 'id3', 'id4'];
-                            const currentIds = ['id1', 'id2'];
+                            const ids = [
+                                new mongoose.Types.ObjectId,
+                                new mongoose.Types.ObjectId,
+                                new mongoose.Types.ObjectId,
+                                new mongoose.Types.ObjectId,
+                            ]
+                            const previousIds = [ids[0], ids[1], ids[2], ids[3]];
+                            const currentIds = [ids[0], ids[1]];
                             const insertIds = [];
-                            const removeIds = ['id3', 'id4'];
+                            const removeIds = [ids[2], ids[3]];
                             const previousDocument = {
                                 [relationshipName] : previousIds
                             }
@@ -1614,16 +1801,16 @@ describe('Instance State Tests', () => {
                             if (!diff || !diff.update[relationshipName])
                                 throw new Error('Diff did not return with an update.');
     
-                            if (!arraysEqual(currentIds, diff.update[relationshipName].value))
+                            if (!arraysEqual(currentIds.map(id => id.toHexString()), diff.update[relationshipName].value))
                                 throw new Error('Diff did not return the value with the correct ids.');
     
-                            if (!arraysEqual(previousIds, diff.update[relationshipName].previous))
+                            if (!arraysEqual(previousIds.map(id => id.toHexString()), diff.update[relationshipName].previous))
                                 throw new Error('Diff did not return the previous with the correct ids.');
     
-                            if (!arraysEqual(insertIds, diff.update[relationshipName].insert))
+                            if (!arraysEqual(insertIds.map(id => id.toHexString()), diff.update[relationshipName].insert))
                                 throw new Error('Diff did not return the insert with the correct ids.');
     
-                            if (!arraysEqual(removeIds, diff.update[relationshipName].remove))
+                            if (!arraysEqual(removeIds.map(id => id.toHexString()), diff.update[relationshipName].remove))
                                 throw new Error('Diff did not return the remove with the correct ids.');
                         });
 
@@ -1633,10 +1820,18 @@ describe('Instance State Tests', () => {
 
                         it('Relationship has 4 ids, we remove two and add two more.', () => {
                             const relationshipName = 'class2s';
-                            const previousIds = ['id1', 'id2', 'id3', 'id4'];
-                            const currentIds = ['id1', 'id2', 'id5', 'id6'];
-                            const insertIds = ['id5', 'id6'];
-                            const removeIds = ['id3', 'id4'];
+                            const ids = [
+                                new mongoose.Types.ObjectId,
+                                new mongoose.Types.ObjectId,
+                                new mongoose.Types.ObjectId,
+                                new mongoose.Types.ObjectId,
+                                new mongoose.Types.ObjectId,
+                                new mongoose.Types.ObjectId,
+                            ]
+                            const previousIds = [ids[0], ids[1], ids[2], ids[3]];
+                            const currentIds = [ids[0], ids[1], ids[4], ids[5]];
+                            const insertIds = [ids[4], ids[5]];
+                            const removeIds = [ids[2], ids[3]];
                             const previousDocument = {
                                 [relationshipName] : previousIds
                             }
@@ -1650,16 +1845,16 @@ describe('Instance State Tests', () => {
                             if (!diff || !diff.update[relationshipName])
                                 throw new Error('Diff did not return with an update.');
     
-                            if (!arraysEqual(currentIds, diff.update[relationshipName].value))
+                            if (!arraysEqual(currentIds.map(id => id.toHexString()), diff.update[relationshipName].value))
                                 throw new Error('Diff did not return the value with the correct ids.');
     
-                            if (!arraysEqual(previousIds, diff.update[relationshipName].previous))
+                            if (!arraysEqual(previousIds.map(id => id.toHexString()), diff.update[relationshipName].previous))
                                 throw new Error('Diff did not return the previous with the correct ids.');
     
-                            if (!arraysEqual(insertIds, diff.update[relationshipName].insert))
+                            if (!arraysEqual(insertIds.map(id => id.toHexString()), diff.update[relationshipName].insert))
                                 throw new Error('Diff did not return the insert with the correct ids.');
     
-                            if (!arraysEqual(removeIds, diff.update[relationshipName].remove))
+                            if (!arraysEqual(removeIds.map(id => id.toHexString()), diff.update[relationshipName].remove))
                                 throw new Error('Diff did not return the remove with the correct ids.');
                         });
 

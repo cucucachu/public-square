@@ -46,7 +46,7 @@ class Instance {
 
         return new Proxy(this, {
             set(trapTarget, key, value, receiver) {
-                if (trapTarget.deleted) 
+                if (trapTarget.deleted()) 
                     throw new Error('Illegal Attempt to set a property after instance has been deleted.');
 
                 if (unSettableInstanceProperties.includes(key))
@@ -54,12 +54,21 @@ class Instance {
 
                 if (attributeNames.includes(key)) {
                     const attribute = attributes.filter(attribute => attribute.name === key)[0];
-                    if (attribute.list && !Array.isArray(value)) {
-                        throw new Error('Illegal attempt to set a List Attribute to something other than an Array.');
+
+                    if (value === undefined)
+                        value = null;
+
+                    if (attribute.list) {
+                        if  (!Array.isArray(value) || value !== null) {
+                            throw new Error('Illegal attempt to set a List Attribute to something other than an Array.');
+                        }
                     }
                     if (!attribute.list && Array.isArray(value)) {
-                        throw new Error('Illegal attempt to set an Attribute to an Array.');
+                        if (Array.isArray(value)) {
+                            throw new Error('Illegal attempt to set an Attribute to an Array.');
+                        }
                     }
+
                     trapTarget.currentState[key] = value;
                     return true;
                 }
@@ -67,16 +76,26 @@ class Instance {
                 if (singularRelationshipNames.includes(key)) {
                     if (!classmodel.valueValidForSingularRelationship(value, key)) 
                         throw new Error('Illegal attempt to set a singular relationship to a value which is not an Instance of the correct ClassModel.');
-                    trapTarget.currentState[key].instance = value;
-                    trapTarget.currentState[key].id = value.id;
+                    if (value === null || value === undefined) {
+                        trapTarget.currentState[key] = null;
+                    }
+                    else {
+                        trapTarget.currentState[key] = value;
+                    }
                     return true;
                 }
 
                 if (nonSingularRelationshipNames.inclues(key)) {
                     if (!classmodel.valueValidForNonSingularRelationship(value, key))
                         throw new Error('Illegal attempt to set a non-singular relationship to a value which is not an InstanceSet of the correct ClassModel.');
-                    trapTarget.currentState[key].instanceSet = value;
-                    trapTarget.currentState[key].ids = value.getInstanceIds();
+                    if (value === null || value === undefined) {
+                        trapTarget.currentState[key].instanceSet = null;
+                        trapTarget.currentState[key].ids = [];
+                    }
+                    else {
+                        trapTarget.currentState[key].instanceSet = value;
+                        trapTarget.currentState[key].ids = value.getInstanceIds();
+                    }
                     return true;
                 }
 
@@ -92,26 +111,23 @@ class Instance {
                     if (trapTarget.currentState[key].instance) {
                         return trapTarget.currentState[key].instance;
                     }
-                    else if (trapTarget.currentState[key].id) {
-                        return trapTarget.currentState[key].id;
-                    }
                     else {
                         return null;
                     }
                 }
 
                 if (nonSingularRelationshipNames.includes(key)) {
-                    if (trapTarget.currentState[key].instanceSet) {
-                        return trapTarget.currentState[key].instanceSet;
-                    }
-                    else if (trapTarget.currentState[key].ids) {
-                        return trapTarget.currentState[key].ids;
+                    if (trapTarget.currentState[key]) {
+                        return trapTarget.currentState[key];
                     }
                     else {
                         return null;
                     }
                     
                 }
+
+                if (key === 'id')
+                    return trapTarget._id.toString();
 
                 return Reflect.get(trapTarget, key, receiver);
             },
