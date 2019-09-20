@@ -99,8 +99,8 @@ function objectsEqual(object1, object2) {
     if (typeof(object1) !== 'object' || typeof(object2) !== 'object')
         return false;
 
-    const keys1 = Object.keys(object1);
-    const keys2 = Object.keys(object2);
+    const keys1 = Object.getOwnPropertyNames(object1);
+    const keys2 = Object.getOwnPropertyNames(object2);
 
     if (!arraysEqual(keys1, keys2))
         return false;

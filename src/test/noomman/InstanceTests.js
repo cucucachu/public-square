@@ -12,6 +12,7 @@ const testForError = TestingFunctions.testForError;
 const testForErrorRegex = TestingFunctions.testForErrorRegex;
 const testForErrorAsync = TestingFunctions.testForErrorAsync;
 const arraysEqual = TestingFunctions.arraysEqual;
+const objectsEqual = TestingFunctions.objectsEqual;
 
 // Load all TestClassModels 
 {
@@ -408,7 +409,7 @@ describe('Instance Tests', () => {
                                     });
                                     const instance = new Instance(SingularRelationshipClass, document);
     
-                                    if (instance.currentState.singularRelationship !== objectId.toHexString())
+                                    if (instance.currentState.singularRelationship !== objectId)
                                         throw new Error('Related id is not set correctly.');
                                 });
     
@@ -443,7 +444,7 @@ describe('Instance Tests', () => {
                                     });
                                     const instance = new Instance(SingularRelationshipClass, document);
     
-                                    if (instance.previousState.singularRelationship !== objectId.toHexString())
+                                    if (instance.previousState.singularRelationship !== objectId)
                                         throw new Error('Related id is not set correctly.');
                                 });
     
@@ -496,8 +497,10 @@ describe('Instance Tests', () => {
                                     });
                                     const instance = new Instance(NonSingularRelationshipClass, document);
     
-                                    if (!arraysEqual(instance.currentState.nonSingularRelationship, objectIds.map(id => id.toHexString())))
-                                        throw new Error('Related ids are not set correctly.');
+                                    for (const index in objectIds) {
+                                        if (objectIds[index] !== instance.currentState.nonSingularRelationship[index])
+                                            throw new Error('Related ids are not set correctly.');
+                                    }
                                 });
     
                                 it('Document relationship set to empty array.', () => {
@@ -511,13 +514,11 @@ describe('Instance Tests', () => {
                                 });
     
                                 it('Document relationship not set to empty array', () => {
-                                    const document = new NonSingularRelationshipClass.Model({
-                                    });
+                                    const document = new NonSingularRelationshipClass.Model({});
                                     const instance = new Instance(NonSingularRelationshipClass, document);
     
-                                    if (!arraysEqual(instance.currentState.nonSingularRelationship, []))
+                                    if (!Array.isArray(instance.currentState.nonSingularRelationship) || instance.currentState.nonSingularRelationship.length)
                                         throw new Error('Related ids are not set correctly.');
-    
                                 });
 
                             });
@@ -531,8 +532,10 @@ describe('Instance Tests', () => {
                                     });
                                     const instance = new Instance(NonSingularRelationshipClass, document);
     
-                                    if (!arraysEqual(instance.previousState.nonSingularRelationship, objectIds.map(id => id.toHexString())))
-                                        throw new Error('Related ids are not set correctly.');
+                                    for (const index in objectIds) {
+                                        if (objectIds[index] !== instance.currentState.nonSingularRelationship[index])
+                                            throw new Error('Related ids are not set correctly.');
+                                    }
                                 });
     
                                 it('Document relationship set to empty array.', () => {
@@ -546,13 +549,11 @@ describe('Instance Tests', () => {
                                 });
     
                                 it('Document relationship not set to empty array', () => {
-                                    const document = new NonSingularRelationshipClass.Model({
-                                    });
+                                    const document = new NonSingularRelationshipClass.Model({});
                                     const instance = new Instance(NonSingularRelationshipClass, document);
     
-                                    if (!arraysEqual(instance.previousState.nonSingularRelationship, []))
-                                        throw new Error('Related ids are not set correctly.');
-    
+                                    if (!Array.isArray(instance.previousState.nonSingularRelationship) || instance.previousState.nonSingularRelationship.length)
+                                        throw new Error('Related ids are not set correctly.');    
                                 });
 
                             });
@@ -1520,27 +1521,230 @@ describe('Instance Tests', () => {
 
         });
 
-        // describe('Get Trap', () => {
+        describe('Get Trap', () => {
 
-        //     it('Getting a property that is part of the schema gets the property from the document.', () => {
-        //         const instance = new Instance(TestClassWithNumber, documentOfTestClassWithNumber);
-        //         if (instance.number != 17)
-        //             throw new Error();
-        //     });
+            describe('Getting Attributes', () => {
 
-        //     it('Getting the id of an instance gets the id from the document.', () => {
-        //         const instance = new Instance(TestClassWithNumber);
-        //         if (!instance.id)
-        //             throw new Error('Could not get the id of the instance.');
-        //     });
+                describe('Non-List Attributes', () => {
+                    
+                    it('Can get attributes of each type from an Instance.', () => {
+                        const date = new Date();
+                        const document = new AllAttributesAndRelationshipsClass.Model({
+                            boolean: false,
+                            string: '',
+                            number: 0,
+                            date: date,
+                        });
+                        const instance = new Instance(AllAttributesAndRelationshipsClass, document);
 
-        //     it('Getting the _id of an instance gets the _id from the document.', () => {
-        //         const instance = new Instance(TestClassWithNumber);
-        //         if (!instance._id)
-        //             throw new Error('Could not get the _id of the instance.');
-        //     });
+                        if (instance.boolean !== document.boolean)
+                            throw new Error('instance.boolean does not equal boolean on document.');
 
-        // });
+                        if (instance.string !== document.string)
+                            throw new Error('instance.string does not equal string on document.');
+
+                        if (instance.number !== document.number)
+                            throw new Error('instance.number does not equal number on document.');
+
+                        if (instance.date !== document.date)
+                            throw new Error('instance.date does not equal date on document.');
+                    });
+                    
+                    it('Can get attributes of each type from an Instance when they are null.', () => {
+                        const document = new AllAttributesAndRelationshipsClass.Model({
+                            boolean: null,
+                            number: null,
+                            string: null,
+                            date: null,
+                        });
+                        const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+
+                        if (instance.boolean !== null)
+                            throw new Error('instance.boolean does not equal null.');
+
+                        if (instance.string !== null)
+                            throw new Error('instance.string does not equal null.');
+
+                        if (instance.number !== null)
+                            throw new Error('instance.number does not equal null.');
+
+                        if (instance.date !== null)
+                            throw new Error('instance.date does not equal null.');
+
+                    });
+                    
+                    it('Can get attributes of each type from an Instance when they are not set.', () => {
+                        const document = new AllAttributesAndRelationshipsClass.Model({});
+                        const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+
+                        if (instance.boolean !== null)
+                            throw new Error('instance.boolean does not equal null.');
+
+                        if (instance.string !== null)
+                            throw new Error('instance.string does not equal null.');
+
+                        if (instance.number !== null)
+                            throw new Error('instance.number does not equal null.');
+
+                        if (instance.date !== null)
+                            throw new Error('instance.date does not equal null.');
+                    });
+
+                });
+
+                describe('List Attributes', () => {
+                    
+                    it('Can get list attributes of each type from an Instance.', () => {
+                        const dates = [new Date(), new Date()]
+                        const document = new AllAttributesAndRelationshipsClass.Model({
+                            booleans: [false, true],
+                            strings: ['', 'string'],
+                            numbers: [0, 1, 2],
+                            dates: dates,
+                        });
+                        const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+
+                        for (const item of document.booleans) 
+                            if (!instance.booleans.includes(item))
+                                throw new Error('instance.booleans does not equal booleans on document.');
+
+                        for (const item of document.strings) 
+                            if (!instance.strings.includes(item))
+                                throw new Error('instance.strings does not equal strings on document.');
+
+                        for (const item of document.numbers) 
+                            if (!instance.numbers.includes(item))
+                                throw new Error('instance.numbers does not equal numbers on document.');
+
+                        for (const item of document.dates) 
+                            if (!instance.dates.includes(item))
+                                throw new Error('instance.dates does not equal dates on document.');
+                    });
+                    
+                    it('Can get list attributes of each type from an Instance when they are null. Returns empty array.', () => {
+                        const document = new AllAttributesAndRelationshipsClass.Model({
+                            booleans: null,
+                            strings: null,
+                            numbers: null,
+                            dates: null,
+                        });
+                        const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+
+                        if (!Array.isArray(instance.booleans) || instance.booleans.length)
+                            throw new Error('instance.booleans array is not empty.');
+
+                        if (!Array.isArray(instance.numbers) || instance.numbers.length)
+                            throw new Error('instance.numbers array is not empty.');
+
+                        if (!Array.isArray(instance.strings) || instance.booleans.strings)
+                            throw new Error('instance.strings array is not empty.');
+
+                        if (!Array.isArray(instance.dates) || instance.dates.length)
+                            throw new Error('instance.dates array is not empty.');
+                    });
+                    
+                    it('Can get attributes of each type from an Instance when they are not set. Returns empty array', () => {
+                        const document = new AllAttributesAndRelationshipsClass.Model({});
+                        const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+
+                        if (!Array.isArray(instance.booleans) || instance.booleans.length)
+                            throw new Error('instance.booleans array is not empty.');
+
+                        if (!Array.isArray(instance.numbers) || instance.numbers.length)
+                            throw new Error('instance.numbers array is not empty.');
+
+                        if (!Array.isArray(instance.strings) || instance.booleans.strings)
+                            throw new Error('instance.strings array is not empty.');
+
+                        if (!Array.isArray(instance.dates) || instance.dates.length)
+                            throw new Error('instance.dates array is not empty.');
+
+                    });
+                    
+                });
+
+            });
+
+            describe('Getting Relationships', () => {
+                
+                describe('Singular Relationships', () => {
+
+                    it('Instance returned for singular relationship when set to an Instance.', () => {
+                        const relationshipName = 'class1';
+                        const value = new Instance(CompareClass1);
+                        const document = new AllAttributesAndRelationshipsClass.Model({});
+                        const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+        
+                        instance[relationshipName] = value;
+
+                        if (!instance[relationshipName].equals(value))
+                            throw new Error('instance.' + relationshipName + ' did not return the instance.');
+                    });
+
+                    it('Id returned for singular relationship when set to an id but not an Instance.', () => {
+                        const relationshipName = 'class1';
+                        const value = new Instance(CompareClass1);
+                        const document = new AllAttributesAndRelationshipsClass.Model({
+                            class1: value._id,
+                        });
+                        const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+
+                        if (instance[relationshipName] !== value._id)
+                            throw new Error('instance.' + relationshipName + ' did not return the id.');
+                    });
+
+                    it('Null returned for singular relationship when not set.', () => {
+                        const relationshipName = 'class1';
+                        const value = new Instance(CompareClass1);
+                        const document = new AllAttributesAndRelationshipsClass.Model({});
+                        const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+
+                        if (instance[relationshipName] !== null)
+                            throw new Error('instance.' + relationshipName + ' did not return null.');
+                    });
+
+                });
+                
+                describe('Non-Singular Relationships', () => {
+
+                    it('InstanceSet returned for non-singular relationship when set to an InstanceSet.', () => {
+                        const relationshipName = 'class2s';
+                        const value = new InstanceSet(CompareClass2, [new Instance(CompareClass2)]);
+                        const document = new AllAttributesAndRelationshipsClass.Model({});
+                        const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+        
+                        instance[relationshipName] = value;
+
+                        if (!instance[relationshipName].equals(value))
+                            throw new Error('instance.' + relationshipName + ' did not return InstanceSet.');
+                    });
+
+                    it('Ids array returned for non-singular relationship when set to an array of ids but not an InstanceSet.', () => {
+                        const relationshipName = 'class2s';
+                        const value = new InstanceSet(CompareClass2, [new Instance(CompareClass2)]);
+                        const document = new AllAttributesAndRelationshipsClass.Model({
+                            [relationshipName]: value.map(instance => instance._id),
+                        });
+                        const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+
+                        if (!arraysEqual(instance[relationshipName].map(id => id.toHexString()), value.map(instance => instance.id)))
+                            throw new Error('instance.' + relationshipName + ' did not return Ids array.');
+                    });
+
+                    it('Empty array returned for non-singular relationship when not set.', () => {
+                        const relationshipName = 'class2s';
+                        const document = new AllAttributesAndRelationshipsClass.Model({});
+                        const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+
+                        if (!arraysEqual(instance[relationshipName].map(id => id), []))
+                            throw new Error('instance.' + relationshipName + ' did not return empty array.');
+                    });
+
+                });
+
+            });
+
+        });
 
         // describe('Has Trap', () => {
 
