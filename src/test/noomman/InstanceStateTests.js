@@ -2,6 +2,8 @@ require("@babel/polyfill");
 const mongoose = require('mongoose');
 
 const InstanceState = require('../../dist/noomman/InstanceState');
+const Instance = require('../../dist/noomman/Instance');
+const InstanceSet = require('../../dist/noomman/InstanceSet');
 const TestClassModels = require('./helpers/TestClassModels');
 const TestingFunctions = require('./helpers/TestingFunctions');
 const testForError = TestingFunctions.testForError;
@@ -9,6 +11,8 @@ const arraysEqual = TestingFunctions.arraysEqual;
 const objectsEqual = TestingFunctions.objectsEqual;
 
 var AllAttributesAndRelationshipsClass = TestClassModels.AllAttributesAndRelationshipsClass;
+var CompareClass1 = TestClassModels.CompareClass1;
+var CompareClass2 = TestClassModels.CompareClass2;
 
 describe('Instance State Tests', () => {
 
@@ -266,7 +270,7 @@ describe('Instance State Tests', () => {
 
     });
 
-    describe.skip('InstanceState Traps', () => {
+    describe('InstanceState Traps', () => {
 
         describe('Get Trap', () => {
 
@@ -275,10 +279,24 @@ describe('Instance State Tests', () => {
                 describe('Non List Attributes', () => {
                     
                     it('Getting an attribute', () => {
+                        const date = new Date();
+                        const exampleDocument = {
+                            boolean: true,
+                            number: 1,
+                            string: 'string',
+                            date: date,
+                        };
+                        const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, exampleDocument);
 
+                        if (instanceState.boolean !== true || instanceState.number !== 1 || instanceState.string !== 'string' || instanceState.date !== date)
+                            throw new Error('At least one of the attributes was not returned properly.');
                     });
                     
                     it('Getting an attribute which is null.', () => {
+                        const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
+
+                        if (instanceState.boolean !== null || instanceState.number !== null || instanceState.string !== null || instanceState.date !== null)
+                            throw new Error('At least one of the attributes is not null.');
 
                     });
                     
@@ -287,15 +305,49 @@ describe('Instance State Tests', () => {
                 describe('List Attributes', () => {
                     
                     it('Getting a list attribute.', () => {
+                        const dates = [new Date(), new Date()];
+                        const exampleDocument = {
+                            booleans: [true, false],
+                            numbers: [1, 2, 0],
+                            strings: ['string', 'string2'],
+                            dates: dates,
+                        };
+                        const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, exampleDocument);
+
+                        if (!arraysEqual(exampleDocument.booleans, instanceState.booleans))
+                            throw new Error('booleans list attribute not returned properly.');
+
+                        if (!arraysEqual(exampleDocument.numbers, instanceState.numbers))
+                            throw new Error('numbers list attribute not returned properly.');
+
+                        if (!arraysEqual(exampleDocument.strings, instanceState.strings))
+                            throw new Error('strings list attribute not returned properly.');
+
+                        if (!arraysEqual(exampleDocument.dates, instanceState.dates))
+                            throw new Error('dates list attribute not returned properly.');
 
                     });
                     
                     it('Getting a list attribute which is an empty array.', () => {
+                        const exampleDocument = {
+                            booleans: [],
+                            numbers: [],
+                            strings: [],
+                            dates: [],
+                        };
+                        const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, exampleDocument);
 
-                    });
-                    
-                    it('Getting a list attribute which is null.', () => {
+                        if (!arraysEqual(exampleDocument.booleans, instanceState.booleans))
+                            throw new Error('booleans list attribute not returned properly.');
 
+                        if (!arraysEqual(exampleDocument.numbers, instanceState.numbers))
+                            throw new Error('numbers list attribute not returned properly.');
+
+                        if (!arraysEqual(exampleDocument.strings, instanceState.strings))
+                            throw new Error('strings list attribute not returned properly.');
+
+                        if (!arraysEqual(exampleDocument.dates, instanceState.dates))
+                            throw new Error('dates list attribute not returned properly.');
                     });
 
                 });
@@ -307,14 +359,34 @@ describe('Instance State Tests', () => {
                 describe('Singular Relationships', () => {
                     
                     it('Getting a singular relationship with Instance set returns Instance.', () => {
+                        const instance = new Instance(CompareClass1);
+                        const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
+                        instanceState.class1 = instance;
 
+                        if (!instanceState.class1.equals(instance))
+                            throw new Error('Instance not returned by getter.');
                     });
                     
                     it('Getting a singular relationship without an Instance set returns Id.', () => {
+                        const id = new mongoose.Types.ObjectId;
+                        const document = new AllAttributesAndRelationshipsClass.Model({
+                            class1: id,
+                        });
+                        const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, document);
 
+                        if (id !== instanceState.class1)
+                            throw new Error('Id not returned by getter.');
                     });
                     
                     it('Getting a singular relationship with no Id returns null.', () => {
+                        const id = new mongoose.Types.ObjectId;
+                        const document = new AllAttributesAndRelationshipsClass.Model({
+                            class1: null,
+                        });
+                        const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, document);
+
+                        if (instanceState.class1 !== null)
+                            throw new Error('Getter should have returned null.');
 
                     });
 
@@ -323,15 +395,36 @@ describe('Instance State Tests', () => {
                 describe('Non-Singular Relationships', () => {
                     
                     it('Getting a non-singular relationship with InstanceSet set returns InstanceSet.', () => {
+                        const instance = new Instance(CompareClass2);
+                        const instanceSet = new InstanceSet(CompareClass2, [instance]);
+                        const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
+                        instanceState.class2s = instanceSet;
 
+                        if (!instanceState.class2s.equals(instanceSet))
+                            throw new Error('InstanceSet not returned by getter.');
                     });
                     
                     it('Getting a non-singular relationship without an InstanceSet set returns Ids.', () => {
+                        const ids = [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId]
+                        const document = {
+                            class2s: ids,
+                        }
+                        const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, document);
 
+                        if (!arraysEqual(ids, instanceState.class2s))
+                            throw new Error('Ids not returned by getter.');
                     });
                     
                     it('Getting a non-singular relationship with no Ids returns empty array.', () => {
+                        const ids = [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId]
+                        const document = {
+                            class2s: ids,
+                        }
+                        const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
+                        instanceState.class2s = null;
 
+                        if (!arraysEqual([], instanceState.class2s))
+                            throw new Error('Getter should have returned an empty array.');
                     });
                     
                 });
@@ -347,42 +440,111 @@ describe('Instance State Tests', () => {
                 describe('Non List Attributes', () => {
                     
                     it('Setting a boolean attribute to false.', () => {
+                        const attribute = 'boolean';
+                        const value = false;
+                        const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
+                        instanceState[attribute] = value;
 
+                        if (instanceState[attribute] !== value) 
+                            throw new Error('Attribute not set.');
                     });
                     
                     it('Setting a boolean attribute to true.', () => {
+                        const attribute = 'boolean';
+                        const value = true;
+                        const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
+                        instanceState[attribute] = value;
+
+                        if (instanceState[attribute] !== value) 
+                            throw new Error('Attribute not set.');
 
                     });
                     
                     it('Setting a boolean attribute to null.', () => {
+                        const attribute = 'boolean';
+                        const value = null;
+                        const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
+                        instanceState[attribute] = value;
+
+                        if (instanceState[attribute] !== value) 
+                            throw new Error('Attribute not set.');
 
                     });
                     
                     it('Setting a number attribute.', () => {
+                        const attribute = 'number';
+                        const value = 0;
+                        const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
+                        instanceState[attribute] = value;
+
+                        if (instanceState[attribute] !== value) 
+                            throw new Error('Attribute not set.');
 
                     });
                     
                     it('Setting a number attribute to null.', () => {
+                        const attribute = 'number';
+                        const value = null;
+                        const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
+                        instanceState[attribute] = value;
+
+                        if (instanceState[attribute] !== value) 
+                            throw new Error('Attribute not set.');
 
                     });
                     
                     it('Setting a string attribute.', () => {
+                        const attribute = 'string';
+                        const value = 'null';
+                        const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
+                        instanceState[attribute] = value;
+
+                        if (instanceState[attribute] !== value) 
+                            throw new Error('Attribute not set.');
 
                     });
                     
                     it('Setting a string attribute to empty string.', () => {
+                        const attribute = 'string';
+                        const value = '';
+                        const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
+                        instanceState[attribute] = value;
+
+                        if (instanceState[attribute] !== value) 
+                            throw new Error('Attribute not set.');
 
                     });
                     
                     it('Setting a string attribute to null.', () => {
+                        const attribute = 'string';
+                        const value = null;
+                        const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
+                        instanceState[attribute] = value;
+
+                        if (instanceState[attribute] !== value) 
+                            throw new Error('Attribute not set.');
 
                     });
                     
                     it('Setting a date attribute.', () => {
+                        const attribute = 'date';
+                        const value = new Date();
+                        const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
+                        instanceState[attribute] = value;
+
+                        if (instanceState[attribute] !== value) 
+                            throw new Error('Attribute not set.');
 
                     });
                     
                     it('Setting a date attribute to null.', () => {
+                        const attribute = 'date';
+                        const value = null;
+                        const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
+                        instanceState[attribute] = value;
+
+                        if (instanceState[attribute] !== value) 
+                            throw new Error('Attribute not set.');
 
                     });
                     
@@ -391,15 +553,33 @@ describe('Instance State Tests', () => {
                 describe('List Attributes', () => {
                     
                     it('Setting a list attribute.', () => {
+                        const attribute = 'booleans';
+                        const value = [true, false];
+                        const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
+                        instanceState[attribute] = value;
 
+                        if (!arraysEqual(instanceState[attribute], value)) 
+                            throw new Error('Attribute not set.');
                     });
                     
                     it('Setting a list attribute to empty array.', () => {
+                        const attribute = 'booleans';
+                        const value = [];
+                        const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
+                        instanceState[attribute] = value;
 
+                        if (!arraysEqual(instanceState[attribute], value)) 
+                            throw new Error('Attribute not set.');
                     });
                     
-                    it('Setting a list attribute to null.', () => {
+                    it('Setting a list attribute to null sets to empty array.', () => {
+                        const attribute = 'booleans';
+                        const value = null;
+                        const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
+                        instanceState[attribute] = value;
 
+                        if (!arraysEqual(instanceState.attributes[attribute], [])) 
+                            throw new Error('Attribute not set.');
                     });
 
                 });
@@ -411,10 +591,30 @@ describe('Instance State Tests', () => {
                 describe('Singular Relationships', () => {
                     
                     it('Setting a singular relationship to an instance.', () => {
+                        const instance = new Instance(CompareClass1);
+                        const id = instance._id;
+                        const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
+                        instanceState.class1 = instance;
 
+                        if (!instanceState.instanceReferences.class1.instance.equals(instance))
+                            throw new Error('Related instance not set.');
+
+                        if (instanceState.instanceReferences.class1._id !== id)
+                            throw new Error('Related instance id not set.');
                     });
                     
                     it('Setting a singular relationship to null.', () => {
+                        const instance = new Instance(CompareClass1);
+                        const id = instance._id;
+                        const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
+                        instanceState.class1 = instance;
+                        instanceState.class1 = null;
+
+                        if (instanceState.instanceReferences.class1.instance !== null)
+                            throw new Error('Related instance not set.');
+
+                        if (instanceState.instanceReferences.class1._id !== null)
+                            throw new Error('Related instance id not set.');
 
                     });
 
@@ -423,11 +623,36 @@ describe('Instance State Tests', () => {
                 describe('Non-Singular Relationships', () => {
                     
                     it('Setting a non-singular relationship to an instance.', () => {
+                        const instance1 = new Instance(CompareClass2);
+                        const instance2 = new Instance(CompareClass2);
+                        const instances = [instance1, instance2];
+                        const instanceSet = new InstanceSet(CompareClass2, instances);
+                        const ids = instances.map(instance => instance._id);
+                        const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
+                        instanceState.class2s = instanceSet;
 
+                        if (!instanceState.instanceSetReferences.class2s.instanceSet.equals(instanceSet))
+                            throw new Error('Related InstanceSet not set.');
+
+                        if (!arraysEqual(instanceState.instanceSetReferences.class2s._ids, ids))
+                            throw new Error('Related instance ids not set.');
                     });
                     
                     it('Setting a non-singular relationship to null.', () => {
+                        const instance1 = new Instance(CompareClass2);
+                        const instance2 = new Instance(CompareClass2);
+                        const instances = [instance1, instance2];
+                        const instanceSet = new InstanceSet(CompareClass2, instances);
+                        const ids = instances.map(instance => instance._id);
+                        const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
+                        instanceState.class2s = instanceSet;
+                        instanceState.class2s = null;
 
+                        if (instanceState.instanceSetReferences.class2s.instanceSet !== null)
+                            throw new Error('Related InstanceSet not set.');
+
+                        if (!arraysEqual(instanceState.instanceSetReferences.class2s._ids, []))
+                            throw new Error('Related instance ids not set.');
                     });
                     
                 });
@@ -1720,7 +1945,7 @@ describe('Instance State Tests', () => {
                         if (!diff || !diff.add[relationshipName])
                             throw new Error('Diff did not return with an add.');
 
-                        if (!arraysEqual(currentIds.map(id => id.toHexString()), diff.add[relationshipName]))
+                        if (!arraysEqual(currentIds, diff.add[relationshipName]))
                             throw new Error('Diff did not return the add with the correct ids.');
                     });
                     
@@ -1746,7 +1971,7 @@ describe('Instance State Tests', () => {
                         if (!diff || !diff.remove[relationshipName])
                             throw new Error('Diff did not return with an remove.');
 
-                        if (!arraysEqual(previousIds.map(id => id.toHexString()), diff.remove[relationshipName]))
+                        if (!arraysEqual(previousIds, diff.remove[relationshipName]))
                             throw new Error('Diff did not return the remove with the correct ids.');
                     });
 
@@ -1781,16 +2006,16 @@ describe('Instance State Tests', () => {
                             if (!diff || !diff.update[relationshipName])
                                 throw new Error('Diff did not return with an update.');
     
-                            if (!arraysEqual(currentIds.map(id => id.toHexString()), diff.update[relationshipName].value))
+                            if (!arraysEqual(currentIds, diff.update[relationshipName].value))
                                 throw new Error('Diff did not return the value with the correct ids.');
     
-                            if (!arraysEqual(previousIds.map(id => id.toHexString()), diff.update[relationshipName].previous))
+                            if (!arraysEqual(previousIds, diff.update[relationshipName].previous))
                                 throw new Error('Diff did not return the previous with the correct ids.');
     
-                            if (!arraysEqual(insertIds.map(id => id.toHexString()), diff.update[relationshipName].insert))
+                            if (!arraysEqual(insertIds, diff.update[relationshipName].insert))
                                 throw new Error('Diff did not return the insert with the correct ids.');
     
-                            if (!arraysEqual(removeIds.map(id => id.toHexString()), diff.update[relationshipName].remove))
+                            if (!arraysEqual(removeIds, diff.update[relationshipName].remove))
                                 throw new Error('Diff did not return the remove with the correct ids.');
 
                         });
@@ -1824,16 +2049,16 @@ describe('Instance State Tests', () => {
                             if (!diff || !diff.update[relationshipName])
                                 throw new Error('Diff did not return with an update.');
     
-                            if (!arraysEqual(currentIds.map(id => id.toHexString()), diff.update[relationshipName].value))
+                            if (!arraysEqual(currentIds, diff.update[relationshipName].value))
                                 throw new Error('Diff did not return the value with the correct ids.');
     
-                            if (!arraysEqual(previousIds.map(id => id.toHexString()), diff.update[relationshipName].previous))
+                            if (!arraysEqual(previousIds, diff.update[relationshipName].previous))
                                 throw new Error('Diff did not return the previous with the correct ids.');
     
-                            if (!arraysEqual(insertIds.map(id => id.toHexString()), diff.update[relationshipName].insert))
+                            if (!arraysEqual(insertIds, diff.update[relationshipName].insert))
                                 throw new Error('Diff did not return the insert with the correct ids.');
     
-                            if (!arraysEqual(removeIds.map(id => id.toHexString()), diff.update[relationshipName].remove))
+                            if (!arraysEqual(removeIds, diff.update[relationshipName].remove))
                                 throw new Error('Diff did not return the remove with the correct ids.');
                         });
 
@@ -1868,16 +2093,16 @@ describe('Instance State Tests', () => {
                             if (!diff || !diff.update[relationshipName])
                                 throw new Error('Diff did not return with an update.');
     
-                            if (!arraysEqual(currentIds.map(id => id.toHexString()), diff.update[relationshipName].value))
+                            if (!arraysEqual(currentIds, diff.update[relationshipName].value))
                                 throw new Error('Diff did not return the value with the correct ids.');
     
-                            if (!arraysEqual(previousIds.map(id => id.toHexString()), diff.update[relationshipName].previous))
+                            if (!arraysEqual(previousIds, diff.update[relationshipName].previous))
                                 throw new Error('Diff did not return the previous with the correct ids.');
     
-                            if (!arraysEqual(insertIds.map(id => id.toHexString()), diff.update[relationshipName].insert))
+                            if (!arraysEqual(insertIds, diff.update[relationshipName].insert))
                                 throw new Error('Diff did not return the insert with the correct ids.');
     
-                            if (!arraysEqual(removeIds.map(id => id.toHexString()), diff.update[relationshipName].remove))
+                            if (!arraysEqual(removeIds, diff.update[relationshipName].remove))
                                 throw new Error('Diff did not return the remove with the correct ids.');
                         });
 

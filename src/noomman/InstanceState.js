@@ -14,49 +14,55 @@ class InstanceState {
 
         if (!classModel)
             throw new Error('new InstanceState(): First argument \'classModel\' is required.');
+        
+        const attributes = classModel.getAttributes();
+        const singularRelationships = classModel.getSingularRelationships();
+        const nonSingularRelationships = classModel.getNonSingularRelationships();
 
-        for (const attribute of classModel.getAttributes()) {
+        for (const attribute of attributes) {
             if (attribute.list)
                 this.attributes[attribute.name] = (document && document[attribute.name]) ? document[attribute.name] : [];
             else {
                 this.attributes[attribute.name] = (document && document[attribute.name] !== undefined) ? document[attribute.name] : null;
             }
         }
-        for (const singularRelationship of classModel.getSingularRelationships()) {
+        for (const singularRelationship of singularRelationships) {
             const instanceReference = new InstanceReference();
             if (document && document[singularRelationship.name])
-                instanceReference.id = document[singularRelationship.name].toHexString();
+                instanceReference._id = document[singularRelationship.name];
             this.instanceReferences[singularRelationship.name] = instanceReference;
         }
-        for (const nonSingularRelationship of classModel.getNonSingularRelationships()) {
+        for (const nonSingularRelationship of nonSingularRelationships) {
             const instanceSetReference = new InstanceSetReference();
             if (document && document[nonSingularRelationship.name])
-                instanceSetReference.ids = document[nonSingularRelationship.name].map(id => id.toHexString());
+                instanceSetReference._ids = document[nonSingularRelationship.name];
             this.instanceSetReferences[nonSingularRelationship.name] = instanceSetReference;
         }
 
         return new Proxy(this, {
             set(trapTarget, key, value, receiver) {
                 if (key in trapTarget.attributes) {
+                    if (attributes.filter(attribute => attribute.name === key)[0].list && value === null)
+                        value = [];
                     trapTarget.attributes[key] = value;
                 }
                 else if (key in trapTarget.instanceReferences) {
                     if (value === null) {
-                        trapTarget.instanceReferences[key].id = null;
+                        trapTarget.instanceReferences[key]._id = null;
                         trapTarget.instanceReferences[key].instance = null;
                     }
                     else {
-                        trapTarget.instanceReferences[key].id = value.id;
+                        trapTarget.instanceReferences[key]._id = value._id;
                         trapTarget.instanceReferences[key].instance = value;
                     }
                 }
                 else if (key in trapTarget.instanceSetReferences) {
                     if (value === null) {
-                        trapTarget.instanceSetReferences[key].ids = [];
+                        trapTarget.instanceSetReferences[key]._ids = [];
                         trapTarget.instanceSetReferences[key].instanceSet = null;
                     }
                     else {
-                        trapTarget.instanceSetReferences[key].ids = value.getInstanceIds();
+                        trapTarget.instanceSetReferences[key]._ids = value.getInstanceIds().map(id => mongoose.Types.ObjectId.createFromHexString(id));
                         trapTarget.instanceSetReferences[key].instanceSet = value;
                     }
                 }
@@ -71,10 +77,10 @@ class InstanceState {
                     return trapTarget.attributes[key];
                 }
                 else if (key in trapTarget.instanceReferences) {
-                    return trapTarget.instanceReferences[key].instance ? trapTarget.instanceReferences[key].instance : trapTarget.instanceReferences[key].id;
+                    return trapTarget.instanceReferences[key].instance ? trapTarget.instanceReferences[key].instance : trapTarget.instanceReferences[key]._id;
                 }
                 else if (key in trapTarget.instanceSetReferences) {
-                    return trapTarget.instanceSetReferences[key].instanceSet ? trapTarget.instanceSetReferences[key].instanceSet : trapTarget.instanceSetReferences[key].ids;
+                    return trapTarget.instanceSetReferences[key].instanceSet ? trapTarget.instanceSetReferences[key].instanceSet : trapTarget.instanceSetReferences[key]._ids;
                 }
                 else {
                     return Reflect.get(trapTarget, key, receiver);
@@ -128,14 +134,14 @@ class InstanceState {
         for (const relationshipName in this.instanceReferences) {
             const relationship = this.instanceReferences[relationshipName];
             if (!relationship.isEmpty())
-                document[relationshipName] = new mongoose.Types.ObjectId(relationship.id);
+                document[relationshipName] = relationship._id;
         }
 
         for (const relationshipName in this.instanceSetReferences) {
             const relationship = this.instanceSetReferences[relationshipName];
 
             if (!relationship.isEmpty())
-                document[relationshipName] = relationship.ids.map(id => new mongoose.Types.ObjectId(id));
+                document[relationshipName] = relationship._ids;
         }
 
         return document;        

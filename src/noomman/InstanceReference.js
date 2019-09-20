@@ -3,8 +3,17 @@ require('@babel/polyfill');
 class InstanceReference {
 
     constructor() {
-        this.id = null;
+        this._id = null;
         this.instance = null;
+
+        return new Proxy(this, {
+            get(trapTarget, key, value) {
+                if (key === 'id') {
+                    return trapTarget._id !== null ? trapTarget._id.toHexString() : null;;
+                }
+                return Reflect.get(trapTarget, key, value)
+            }
+        });
     }
 
     equals(that) {
@@ -12,7 +21,7 @@ class InstanceReference {
     }
 
     isEmpty() {
-        return this.id === null;
+        return this._id === null;
     }
 
     diff(that) {
@@ -24,20 +33,20 @@ class InstanceReference {
         }
         if (!this.isEmpty() && that.isEmpty()) {
             return {
-                add: this.id,
+                add: this._id,
             }
         }
         if (this.isEmpty() && !that.isEmpty()) {
             return {
-                remove: that.id,
+                remove: that._id,
             }
         }
         return {
             update: {
-                value: this.id,
-                previous: that.id,
-                insert: this.id,
-                remove: that.id,
+                value: this._id,
+                previous: that._id,
+                insert: this._id,
+                remove: that._id,
             }
         }
     }

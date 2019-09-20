@@ -5,21 +5,30 @@ const SuperSet = require('./SuperSet');
 class InstanceSetReference {
 
     constructor() {
-        this.ids = [];
+        this._ids = [];
         this.instanceSet = null;
+
+        return new Proxy(this, {
+            get(trapTarget, key, value) {
+                if (key === 'ids') {
+                    return trapTarget._ids != null ? trapTarget._ids.map(id => id.toHexString()) : [];
+                }
+                return Reflect.get(trapTarget, key, value)
+            }
+        });
     }
 
     equals(that) {
-        if ((!this.ids && that.ids) || (this.ids && !that.ids))
+        if ((!this._ids && that._ids) || (this._ids && !that._ids))
             return false;
 
-        if (!this.ids && !that.ids)
+        if (!this._ids && !that._ids)
             return true;
 
-        if (this.ids.length != that.ids.length)
+        if (this._ids.length != that._ids.length)
             return false;
 
-        if (this.ids.length == 0 && that.ids.length == 0)
+        if (this._ids.length == 0 && that._ids.length == 0)
             return true;
 
         for (const id of this.ids) {
@@ -30,7 +39,7 @@ class InstanceSetReference {
     }
 
     isEmpty() {
-        return this.ids.length === 0;
+        return this._ids.length === 0;
     }
 
     diff(that) {
@@ -39,17 +48,17 @@ class InstanceSetReference {
         }
         if (!this.isEmpty() && that.isEmpty()) {
             return {
-                add: this.ids,
+                add: this._ids,
             }
         }
         if (this.isEmpty() && !that.isEmpty()) {
             return {
-                remove: that.ids,
+                remove: that._ids,
             }
         }
         
-        const thisSet = new SuperSet(this.ids);
-        const thatSet = new SuperSet(that.ids);
+        const thisSet = new SuperSet(this._ids);
+        const thatSet = new SuperSet(that._ids);
 
         if (thisSet.equals(thatSet))
             return {};
@@ -59,8 +68,8 @@ class InstanceSetReference {
 
         return {
             update: {
-                value: this.ids,
-                previous: that.ids,
+                value: this._ids,
+                previous: that._ids,
                 insert: [...toInsert],
                 remove: [...toRemove],
             }

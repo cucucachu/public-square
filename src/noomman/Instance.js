@@ -57,10 +57,6 @@ class Instance {
 
                 if (attributeNames.includes(key)) {
                     classModel.validateAttribute(key, value);
-
-                    if (attributes.filter(attribute => attribute.name === key)[0].list && value === null)
-                        value = [];
-
                     trapTarget.currentState[key] = value;
                     return true;
                 }
