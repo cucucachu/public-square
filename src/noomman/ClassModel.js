@@ -353,7 +353,7 @@ class ClassModel {
             else if (type === Date) {
                 for (const item of value) {
                     if (item !== null && !ClassModel.valueIsDate(item))
-                        throw new Error('Illegal attempt to set a Date List Attribute to an array containing non Date element(s).');
+                        throw new Error('Illegal attempt to set a Date List Attribute to an array containing non-Date element(s).');
                 }
             }
         }

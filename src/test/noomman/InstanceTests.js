@@ -23,6 +23,7 @@ const arraysEqual = TestingFunctions.arraysEqual;
     var TestClassWithNumber = TestClassModels.TestClassWithNumber;
     var TestClassWithBoolean = TestClassModels.TestClassWithBoolean;
     var TestClassWithAllSimpleFields = TestClassModels.TestClassWithAllSimpleFields;
+    var AllAttributesAndRelationshipsClass = TestClassModels.AllAttributesAndRelationshipsClass;
 
     // Validation Classes
     var AllFieldsRequiredClass = TestClassModels.AllFieldsRequiredClass;
@@ -233,10 +234,10 @@ describe('Instance Tests', () => {
         
                             it('List Document attributes are set on current instance state when document given.', () => {
                                 const booleans = [false, true];
-                                const document = new AllFieldsRequiredClass.Model({
+                                const document = new AllAttributesAndRelationshipsClass.Model({
                                     booleans: booleans,
                                 });
-                                const instance = new Instance(AllFieldsRequiredClass, document);
+                                const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                                 if (!arraysEqual(booleans, instance.currentState.booleans))
                                     throw new Error('Property not set on current instance state.');
@@ -244,10 +245,10 @@ describe('Instance Tests', () => {
             
                             it('List document attributes are set to empty array when document given with empty array.', () => {
                                 const booleans = [];
-                                const document = new AllFieldsRequiredClass.Model({
+                                const document = new AllAttributesAndRelationshipsClass.Model({
                                     booleans: booleans,
                                 });
-                                const instance = new Instance(AllFieldsRequiredClass, document);
+                                const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                                 if (!arraysEqual(booleans, instance.currentState.booleans))
                                     throw new Error('Property not set on current instance state.');
@@ -255,18 +256,18 @@ describe('Instance Tests', () => {
             
                             it('List document attributes are set to empty array when document given with attribute set to null.', () => {
                                 const booleans = null;
-                                const document = new AllFieldsRequiredClass.Model({
+                                const document = new AllAttributesAndRelationshipsClass.Model({
                                     booleans: booleans,
                                 });
-                                const instance = new Instance(AllFieldsRequiredClass, document);
+                                const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                                 if (!arraysEqual([], instance.currentState.booleans))
                                     throw new Error('Property not set on current instance state.');
                             });
             
                             it('List document attributes are set to empty array when document given with attribute not set.', () => {
-                                const document = new AllFieldsRequiredClass.Model({});
-                                const instance = new Instance(AllFieldsRequiredClass, document);
+                                const document = new AllAttributesAndRelationshipsClass.Model({});
+                                const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                                 if (!arraysEqual([], instance.currentState.booleans))
                                     throw new Error('Property not set on current instance state.');
@@ -296,10 +297,10 @@ describe('Instance Tests', () => {
         
                             it('List Document attributes are set on previous instance state when document given.', () => {
                                 const booleans = [false, true];
-                                const document = new AllFieldsRequiredClass.Model({
+                                const document = new AllAttributesAndRelationshipsClass.Model({
                                     booleans: booleans,
                                 });
-                                const instance = new Instance(AllFieldsRequiredClass, document);
+                                const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                                 if (!arraysEqual(booleans, instance.previousState.booleans))
                                     throw new Error('Property not set on current instance state.');
@@ -307,10 +308,10 @@ describe('Instance Tests', () => {
             
                             it('List document attributes are set to empty array on previous instance state when document given with empty array.', () => {
                                 const booleans = [];
-                                const document = new AllFieldsRequiredClass.Model({
+                                const document = new AllAttributesAndRelationshipsClass.Model({
                                     booleans: booleans,
                                 });
-                                const instance = new Instance(AllFieldsRequiredClass, document);
+                                const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                                 if (!arraysEqual(booleans, instance.previousState.booleans))
                                     throw new Error('Property not set on previous instance state.');
@@ -318,18 +319,18 @@ describe('Instance Tests', () => {
             
                             it('List document attributes are set to empty array when document given with attribute set to null.', () => {
                                 const booleans = null;
-                                const document = new AllFieldsRequiredClass.Model({
+                                const document = new AllAttributesAndRelationshipsClass.Model({
                                     booleans: booleans,
                                 });
-                                const instance = new Instance(AllFieldsRequiredClass, document);
+                                const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                                 if (!arraysEqual([], instance.previousState.booleans))
                                     throw new Error('Property not set on previous instance state.');
                             });
             
                             it('List document attributes are set to empty array when document given with attribute not set.', () => {
-                                const document = new AllFieldsRequiredClass.Model({});
-                                const instance = new Instance(AllFieldsRequiredClass, document);
+                                const document = new AllAttributesAndRelationshipsClass.Model({});
+                                const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                                 if (!arraysEqual([], instance.previousState.booleans))
                                     throw new Error('Property not set on previous instance state.');
@@ -356,7 +357,7 @@ describe('Instance Tests', () => {
                         });
 
                         it('Boolean list attributes are set to empty array when no document given.', () => {
-                            const instance = new Instance(AllFieldsRequiredClass);
+                            const instance = new Instance(AllAttributesAndRelationshipsClass);
                             const attribute = 'booleans';
                             
                             if (instance.currentState[attribute] === undefined)
@@ -367,7 +368,7 @@ describe('Instance Tests', () => {
                         });
 
                         it('Number list attributes are set to empty array when no document given.', () => {
-                            const instance = new Instance(AllFieldsRequiredClass);
+                            const instance = new Instance(AllAttributesAndRelationshipsClass);
                             const attribute = 'numbers';
                             
                             if (instance.currentState[attribute] === undefined)
@@ -378,7 +379,7 @@ describe('Instance Tests', () => {
                         });
 
                         it('String list attributes are set to empty array when no document given.', () => {
-                            const instance = new Instance(AllFieldsRequiredClass);
+                            const instance = new Instance(AllAttributesAndRelationshipsClass);
                             const attribute = 'strings';
                             
                             if (instance.currentState[attribute] === undefined)
@@ -621,8 +622,8 @@ describe('Instance Tests', () => {
                         it('Attempting to set a non list attribute to an array.', () => {
                             const attributeName = 'boolean';
                             const value = [];
-                            const document = new AllFieldsRequiredClass.Model({});
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set an Attribute to an Array.';
 
                             testForError('Instance Set Trap', expectedErrorMessage, () => {
@@ -633,8 +634,8 @@ describe('Instance Tests', () => {
                         it('Attempting to set a boolean attribute to something other than a boolean.', () => {
                             const attributeName = 'boolean';
                             const value = 0;
-                            const document = new AllFieldsRequiredClass.Model({});
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set a Boolean Attribute to something other than a Boolean.';
 
                             testForError('Instance Set Trap', expectedErrorMessage, () => {
@@ -645,8 +646,8 @@ describe('Instance Tests', () => {
                         it('Attempting to set a number attribute to something other than a number.', () => {
                             const attributeName = 'number';
                             const value = false;
-                            const document = new AllFieldsRequiredClass.Model({});
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set a Number Attribute to something other than a Number.';
 
                             testForError('Instance Set Trap', expectedErrorMessage, () => {
@@ -657,8 +658,8 @@ describe('Instance Tests', () => {
                         it('Attempting to set a string attribute to something other than a string.', () => {
                             const attributeName = 'string';
                             const value = false;
-                            const document = new AllFieldsRequiredClass.Model({});
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set a String Attribute to something other than a String.';
 
                             testForError('Instance Set Trap', expectedErrorMessage, () => {
@@ -669,8 +670,8 @@ describe('Instance Tests', () => {
                         it('Attempting to set a date attribute to something other than a date.', () => {
                             const attributeName = 'date';
                             const value = '1999-01-01';
-                            const document = new AllFieldsRequiredClass.Model({});
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set a Date Attribute to something other than a Date.';
 
                             testForError('Instance Set Trap', expectedErrorMessage, () => {
@@ -684,8 +685,8 @@ describe('Instance Tests', () => {
                         it('Attempting to set a list attribute to a single value.', () => {
                             const attributeName = 'booleans';
                             const value = true;
-                            const document = new AllFieldsRequiredClass.Model({});
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set a List Attribute to something other than an Array.';
 
                             testForError('Instance Set Trap', expectedErrorMessage, () => {
@@ -696,8 +697,8 @@ describe('Instance Tests', () => {
                         it('Attempting to set a boolean list attribute to an array of something other than booleans.', () => {
                             const attributeName = 'booleans';
                             const value = [true, 1];
-                            const document = new AllFieldsRequiredClass.Model({});
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set a Boolean List Attribute to an array containing non-Boolean element(s).';
 
                             testForError('Instance Set Trap', expectedErrorMessage, () => {
@@ -708,8 +709,8 @@ describe('Instance Tests', () => {
                         it('Attempting to set a number list attribute to an array of something other than numbers.', () => {
                             const attributeName = 'numbers';
                             const value = [1, 234, '14'];
-                            const document = new AllFieldsRequiredClass.Model({});
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set a Number List Attribute to an array containing non-Number element(s).';
 
                             testForError('Instance Set Trap', expectedErrorMessage, () => {
@@ -720,8 +721,8 @@ describe('Instance Tests', () => {
                         it('Attempting to set a string list attribute to an array of something other than strings.', () => {
                             const attributeName = 'strings';
                             const value = ['1', '2', 'word', 'This is a sentence.', 5];
-                            const document = new AllFieldsRequiredClass.Model({});
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set a String List Attribute to an array containing non-String element(s).';
 
                             testForError('Instance Set Trap', expectedErrorMessage, () => {
@@ -729,12 +730,12 @@ describe('Instance Tests', () => {
                             });            
                         });
     
-                        it.skip('Attempting to set a date list attribute to an array of something other than dates.', () => {
-                            const attributeName = 'booleans';
-                            const value = true;
-                            const document = new AllFieldsRequiredClass.Model({});
-                            const instance = new Instance(AllFieldsRequiredClass, document);
-                            const expectedErrorMessage = '';
+                        it('Attempting to set a date list attribute to an array of something other than dates.', () => {
+                            const attributeName = 'dates';
+                            const value = [new Date(), {some: 'object'}];
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+                            const expectedErrorMessage = 'Illegal attempt to set a Date List Attribute to an array containing non-Date element(s).';
 
                             testForError('Instance Set Trap', expectedErrorMessage, () => {
                                 instance[attributeName] = value;
@@ -752,8 +753,8 @@ describe('Instance Tests', () => {
                         it('Attempting to set a singular relationship to something that is not an Instance.', () => {
                             const relationshipName = 'class1';
                             const value = 'fake id';
-                            const document = new AllFieldsRequiredClass.Model({});
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set a singular relationship to a value which is not an Instance of the correct ClassModel.';
 
                             testForError('Instance Set Trap', expectedErrorMessage, () => {
@@ -764,8 +765,8 @@ describe('Instance Tests', () => {
                         it('Attempting to set a singular relationship to an Instance of a different class.', () => {
                             const relationshipName = 'class1';
                             const value = new Instance(SuperClass);
-                            const document = new AllFieldsRequiredClass.Model({});
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set a singular relationship to a value which is not an Instance of the correct ClassModel.';
 
                             testForError('Instance Set Trap', expectedErrorMessage, () => {
@@ -775,9 +776,9 @@ describe('Instance Tests', () => {
     
                         it('Attempting to set a singular relationship to an InstanceSet.', () => {
                             const relationshipName = 'class1';
-                            const value = new InstanceSet(AllFieldsRequiredClass);
-                            const document = new AllFieldsRequiredClass.Model({});
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const value = new InstanceSet(AllAttributesAndRelationshipsClass);
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set a singular relationship to a value which is not an Instance of the correct ClassModel.';
 
                             testForError('Instance Set Trap', expectedErrorMessage, () => {
@@ -792,8 +793,8 @@ describe('Instance Tests', () => {
                         it('Attempting to set a non-singular relationship to something that is not an InstanceSet.', () => {
                             const relationshipName = 'class2s';
                             const value = ['fake id', 'fake id2'];
-                            const document = new AllFieldsRequiredClass.Model({});
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set a non-singular relationship to a value which is not an InstanceSet of the correct ClassModel.';
 
                             testForError('Instance Set Trap', expectedErrorMessage, () => {
@@ -804,8 +805,8 @@ describe('Instance Tests', () => {
                         it('Attempting to set a non-singular relationship to an InstanceSet of a different class.', () => {
                             const relationshipName = 'class2s';
                             const value = new InstanceSet(SuperClass);
-                            const document = new AllFieldsRequiredClass.Model({});
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set a non-singular relationship to a value which is not an InstanceSet of the correct ClassModel.';
 
                             testForError('Instance Set Trap', expectedErrorMessage, () => {
@@ -816,8 +817,8 @@ describe('Instance Tests', () => {
                         it('Attempting to set a non-singular relationship to an Instance.', () => {
                             const relationshipName = 'class2s';
                             const value = new Instance(CompareClass2);
-                            const document = new AllFieldsRequiredClass.Model({});
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set a non-singular relationship to a value which is not an InstanceSet of the correct ClassModel.';
 
                             testForError('Instance Set Trap', expectedErrorMessage, () => {
@@ -900,10 +901,10 @@ describe('Instance Tests', () => {
                             const newValue = 3;
                             const attributeName = 'number';
 
-                            const document = new AllFieldsRequiredClass.Model({
+                            const document = new AllAttributesAndRelationshipsClass.Model({
                                 [attributeName]: originalValue
                             });
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             
                             if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
                                 throw new Error();
@@ -922,10 +923,10 @@ describe('Instance Tests', () => {
                             const newValue = 0;
                             const attributeName = 'number';
 
-                            const document = new AllFieldsRequiredClass.Model({
+                            const document = new AllAttributesAndRelationshipsClass.Model({
                                 [attributeName]: originalValue
                             });
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             
                             if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
                                 throw new Error();
@@ -944,10 +945,10 @@ describe('Instance Tests', () => {
                             const newValue = null;
                             const attributeName = 'number';
 
-                            const document = new AllFieldsRequiredClass.Model({
+                            const document = new AllAttributesAndRelationshipsClass.Model({
                                 [attributeName]: originalValue
                             });
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             
                             if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
                                 throw new Error();
@@ -966,10 +967,10 @@ describe('Instance Tests', () => {
                             const newValue = undefined;
                             const attributeName = 'number';
 
-                            const document = new AllFieldsRequiredClass.Model({
+                            const document = new AllAttributesAndRelationshipsClass.Model({
                                 [attributeName]: originalValue
                             });
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             
                             if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
                                 throw new Error();
@@ -992,10 +993,10 @@ describe('Instance Tests', () => {
                             const newValue = 'some value';
                             const attributeName = 'string';
 
-                            const document = new AllFieldsRequiredClass.Model({
+                            const document = new AllAttributesAndRelationshipsClass.Model({
                                 [attributeName]: originalValue
                             });
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             
                             if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
                                 throw new Error();
@@ -1014,10 +1015,10 @@ describe('Instance Tests', () => {
                             const newValue = '';
                             const attributeName = 'string';
 
-                            const document = new AllFieldsRequiredClass.Model({
+                            const document = new AllAttributesAndRelationshipsClass.Model({
                                 [attributeName]: originalValue
                             });
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             
                             if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
                                 throw new Error();
@@ -1036,10 +1037,10 @@ describe('Instance Tests', () => {
                             const newValue = null;
                             const attributeName = 'string';
 
-                            const document = new AllFieldsRequiredClass.Model({
+                            const document = new AllAttributesAndRelationshipsClass.Model({
                                 [attributeName]: originalValue
                             });
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             
                             if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
                                 throw new Error();
@@ -1058,10 +1059,10 @@ describe('Instance Tests', () => {
                             const newValue = undefined;
                             const attributeName = 'string';
 
-                            const document = new AllFieldsRequiredClass.Model({
+                            const document = new AllAttributesAndRelationshipsClass.Model({
                                 [attributeName]: originalValue
                             });
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             
                             if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
                                 throw new Error();
@@ -1084,10 +1085,10 @@ describe('Instance Tests', () => {
                             const newValue = new Date();
                             const attributeName = 'date';
 
-                            const document = new AllFieldsRequiredClass.Model({
+                            const document = new AllAttributesAndRelationshipsClass.Model({
                                 [attributeName]: originalValue
                             });
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             
                             if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
                                 throw new Error();
@@ -1106,10 +1107,10 @@ describe('Instance Tests', () => {
                             const newValue = null;
                             const attributeName = 'date';
 
-                            const document = new AllFieldsRequiredClass.Model({
+                            const document = new AllAttributesAndRelationshipsClass.Model({
                                 [attributeName]: originalValue
                             });
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             
                             if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
                                 throw new Error();
@@ -1129,10 +1130,10 @@ describe('Instance Tests', () => {
                             const newValue = undefined;
                             const attributeName = 'date';
 
-                            const document = new AllFieldsRequiredClass.Model({
+                            const document = new AllAttributesAndRelationshipsClass.Model({
                                 [attributeName]: originalValue
                             });
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             
                             if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
                                 throw new Error();
@@ -1157,8 +1158,8 @@ describe('Instance Tests', () => {
                         it('Setting a boolean list attribute sets the list attribute.', () => {
                             const attributeName = 'booleans';
                             const value = [true, false];
-                            const document = new AllFieldsRequiredClass.Model({});
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                             instance[attributeName] = value;
             
@@ -1172,8 +1173,8 @@ describe('Instance Tests', () => {
                         it('Setting a boolean list attribute to empty array sets the list attribute.', () => {
                             const attributeName = 'booleans';
                             const value = [];
-                            const document = new AllFieldsRequiredClass.Model({});
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                             instance[attributeName] = value;
             
@@ -1187,31 +1188,31 @@ describe('Instance Tests', () => {
                         it('Setting a boolean list attribute to null sets the list attribute to empty array.', () => {
                             const attributeName = 'booleans';
                             const value = null;
-                            const document = new AllFieldsRequiredClass.Model({});
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                             instance[attributeName] = value;
             
-                            if (instance.currentState[attributeName] !== value)
-                            throw new Error('instance.currentState' + attributeName + ' not set.');
+                            if (!arraysEqual(instance.currentState[attributeName], []))
+                                throw new Error('instance.currentState' + attributeName + ' not set.');
                             
-                            if (instance[attributeName] !== value)
-                            throw new Error('instance.' + attributeName + ' not set.');
+                            if (!arraysEqual(instance[attributeName], []))
+                                throw new Error('instance.' + attributeName + ' not set.');
                         });
 
                         it('Setting a boolean list attribute to undefined sets the list attribute to empty array.', () => {
                             const attributeName = 'booleans';
                             const value = undefined;
-                            const document = new AllFieldsRequiredClass.Model({});
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                             instance[attributeName] = value;
             
-                            if (instance.currentState[attributeName] !== null)
-                            throw new Error('instance.currentState' + attributeName + ' not set.');
+                            if (!arraysEqual(instance.currentState[attributeName], []))
+                                throw new Error('instance.currentState' + attributeName + ' not set.');
                             
-                            if (instance[attributeName] !== null)
-                            throw new Error('instance.' + attributeName + ' not set.');
+                            if (!arraysEqual(instance[attributeName], []))
+                                throw new Error('instance.' + attributeName + ' not set.');
                         });
         
                     });
@@ -1221,8 +1222,8 @@ describe('Instance Tests', () => {
                         it('Setting a number list attribute sets the list attribute.', () => {
                             const attributeName = 'numbers';
                             const value = [0, 14];
-                            const document = new AllFieldsRequiredClass.Model({});
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                             instance[attributeName] = value;
             
@@ -1236,8 +1237,8 @@ describe('Instance Tests', () => {
                         it('Setting a number list attribute to empty array sets the list attribute.', () => {
                             const attributeName = 'numbers';
                             const value = [];
-                            const document = new AllFieldsRequiredClass.Model({});
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                             instance[attributeName] = value;
             
@@ -1251,31 +1252,31 @@ describe('Instance Tests', () => {
                         it('Setting a number list attribute to null sets the list attribute to empty array.', () => {
                             const attributeName = 'numbers';
                             const value = null;
-                            const document = new AllFieldsRequiredClass.Model({});
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                             instance[attributeName] = value;
             
-                            if (instance.currentState[attributeName] !== value)
-                            throw new Error('instance.currentState' + attributeName + ' not set.');
+                            if (!arraysEqual(instance.currentState[attributeName], []))
+                                throw new Error('instance.currentState' + attributeName + ' not set.');
                             
-                            if (instance[attributeName] !== value)
-                            throw new Error('instance.' + attributeName + ' not set.');
+                            if (!arraysEqual(instance[attributeName], []))
+                                throw new Error('instance.' + attributeName + ' not set.');
                         });
 
                         it('Setting a number list attribute to undefined sets the list attribute to empty array.', () => {
                             const attributeName = 'numbers';
                             const value = undefined;
-                            const document = new AllFieldsRequiredClass.Model({});
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                             instance[attributeName] = value;
             
-                            if (instance.currentState[attributeName] !== null)
-                            throw new Error('instance.currentState' + attributeName + ' not set.');
+                            if (!arraysEqual(instance.currentState[attributeName], []))
+                                throw new Error('instance.currentState' + attributeName + ' not set.');
                             
-                            if (instance[attributeName] !== null)
-                            throw new Error('instance.' + attributeName + ' not set.');
+                            if (!arraysEqual(instance[attributeName], []))
+                                throw new Error('instance.' + attributeName + ' not set.');
                         });
         
                     });
@@ -1285,8 +1286,8 @@ describe('Instance Tests', () => {
                         it('Setting a string list attribute sets the list attribute.', () => {
                             const attributeName = 'strings';
                             const value = ['0', 'true', 'word', 'This is a senence.'];
-                            const document = new AllFieldsRequiredClass.Model({});
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                             instance[attributeName] = value;
             
@@ -1300,8 +1301,8 @@ describe('Instance Tests', () => {
                         it('Setting a string list attribute to empty array sets the list attribute.', () => {
                             const attributeName = 'strings';
                             const value = [];
-                            const document = new AllFieldsRequiredClass.Model({});
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                             instance[attributeName] = value;
             
@@ -1315,51 +1316,96 @@ describe('Instance Tests', () => {
                         it('Setting a string list attribute to null sets the list attribute to empty array.', () => {
                             const attributeName = 'strings';
                             const value = null;
-                            const document = new AllFieldsRequiredClass.Model({});
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                             instance[attributeName] = value;
             
-                            if (instance.currentState[attributeName] !== value)
-                            throw new Error('instance.currentState' + attributeName + ' not set.');
+                            if (!arraysEqual(instance.currentState[attributeName], []))
+                                throw new Error('instance.currentState' + attributeName + ' not set.');
                             
-                            if (instance[attributeName] !== value)
-                            throw new Error('instance.' + attributeName + ' not set.');
+                            if (!arraysEqual(instance[attributeName], []))
+                                throw new Error('instance.' + attributeName + ' not set.');
                         });
 
                         it('Setting a string list attribute to undefined sets the list attribute to empty array.', () => {
                             const attributeName = 'strings';
                             const value = undefined;
-                            const document = new AllFieldsRequiredClass.Model({});
-                            const instance = new Instance(AllFieldsRequiredClass, document);
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                             instance[attributeName] = value;
             
-                            if (instance.currentState[attributeName] !== null)
-                            throw new Error('instance.currentState' + attributeName + ' not set.');
+                            if (!arraysEqual(instance.currentState[attributeName], []))
+                                throw new Error('instance.currentState' + attributeName + ' not set.');
                             
-                            if (instance[attributeName] !== null)
-                            throw new Error('instance.' + attributeName + ' not set.');
+                            if (!arraysEqual(instance[attributeName], []))
+                                throw new Error('instance.' + attributeName + ' not set.');
                         });
         
                     });
         
-                    describe.skip('Date List Attributes', () => {
+                    describe('Date List Attributes', () => {
 
                         it('Setting a date list attribute sets the list attribute.', () => {
-
+                            const attributeName = 'dates';
+                            const value = [new Date(), new Date('2019-01-01')];
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+            
+                            instance[attributeName] = value;
+            
+                            if (!arraysEqual(instance.currentState[attributeName], value))
+                            throw new Error('instance.currentState' + attributeName + ' not set.');
+                            
+                            if (!arraysEqual(instance[attributeName], value))
+                                throw new Error('instance.' + attributeName + ' not set.');
                         });
 
                         it('Setting a date list attribute to empty array sets the list attribute.', () => {
+                            const attributeName = 'dates';
+                            const value = [];
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+            
+                            instance[attributeName] = value;
+            
+                            if (!arraysEqual(instance.currentState[attributeName], value))
+                            throw new Error('instance.currentState' + attributeName + ' not set.');
+                            
+                            if (!arraysEqual(instance[attributeName], value))
+                                throw new Error('instance.' + attributeName + ' not set.');
 
                         });
 
                         it('Setting a date list attribute to null sets the list attribute to empty array.', () => {
-
+                            const attributeName = 'dates';
+                            const value = null;
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+            
+                            instance[attributeName] = value;
+            
+                            if (!arraysEqual(instance.currentState[attributeName], []))
+                                throw new Error('instance.currentState' + attributeName + ' not set.');
+                            
+                            if (!arraysEqual(instance[attributeName], []))
+                                throw new Error('instance.' + attributeName + ' not set.');
                         });
 
                         it('Setting a date list attribute to undefined sets the list attribute to empty array.', () => {
-
+                            const attributeName = 'dates';
+                            const value = undefined;
+                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+            
+                            instance[attributeName] = value;
+            
+                            if (!arraysEqual(instance.currentState[attributeName], []))
+                                throw new Error('instance.currentState' + attributeName + ' not set.');
+                            
+                            if (!arraysEqual(instance[attributeName], []))
+                                throw new Error('instance.' + attributeName + ' not set.');
                         });
         
                     });
@@ -1375,8 +1421,8 @@ describe('Instance Tests', () => {
                     it('Setting a singular relationship to an Instance.', () => {
                         const relationshipName = 'class1';
                         const value = new Instance(CompareClass1);
-                        const document = new AllFieldsRequiredClass.Model({});
-                        const instance = new Instance(AllFieldsRequiredClass, document);
+                        const document = new AllAttributesAndRelationshipsClass.Model({});
+                        const instance = new Instance(AllAttributesAndRelationshipsClass, document);
         
                         instance[relationshipName] = value;
         
@@ -1390,8 +1436,8 @@ describe('Instance Tests', () => {
                     it('Setting a singular relationship to null.', () => {
                         const relationshipName = 'class1';
                         const value = null;
-                        const document = new AllFieldsRequiredClass.Model({});
-                        const instance = new Instance(AllFieldsRequiredClass, document);
+                        const document = new AllAttributesAndRelationshipsClass.Model({});
+                        const instance = new Instance(AllAttributesAndRelationshipsClass, document);
         
                         instance[relationshipName] = value;
         
@@ -1406,8 +1452,8 @@ describe('Instance Tests', () => {
                     it('Setting a singular relationship to undefined.', () => {
                         const relationshipName = 'class1';
                         const value = undefined;
-                        const document = new AllFieldsRequiredClass.Model({});
-                        const instance = new Instance(AllFieldsRequiredClass, document);
+                        const document = new AllAttributesAndRelationshipsClass.Model({});
+                        const instance = new Instance(AllAttributesAndRelationshipsClass, document);
         
                         instance[relationshipName] = value;
         
@@ -1425,8 +1471,8 @@ describe('Instance Tests', () => {
                     it('Setting a non-singular relationship to an InstanceSet.', () => {
                         const relationshipName = 'class2s';
                         const value = new InstanceSet(CompareClass2, [new Instance(CompareClass2)]);
-                        const document = new AllFieldsRequiredClass.Model({});
-                        const instance = new Instance(AllFieldsRequiredClass, document);
+                        const document = new AllAttributesAndRelationshipsClass.Model({});
+                        const instance = new Instance(AllAttributesAndRelationshipsClass, document);
         
                         instance[relationshipName] = value;
         
@@ -1440,8 +1486,8 @@ describe('Instance Tests', () => {
                     it('Setting a non-singular relationship to null.', () => {
                         const relationshipName = 'class2s';
                         const value = null;
-                        const document = new AllFieldsRequiredClass.Model({});
-                        const instance = new Instance(AllFieldsRequiredClass, document);
+                        const document = new AllAttributesAndRelationshipsClass.Model({});
+                        const instance = new Instance(AllAttributesAndRelationshipsClass, document);
         
                         instance[relationshipName] = value;
         
@@ -1455,8 +1501,8 @@ describe('Instance Tests', () => {
                     it('Setting a non-singular relationship to undefined.', () => {
                         const relationshipName = 'class2s';
                         const value = undefined;
-                        const document = new AllFieldsRequiredClass.Model({});
-                        const instance = new Instance(AllFieldsRequiredClass, document);
+                        const document = new AllAttributesAndRelationshipsClass.Model({});
+                        const instance = new Instance(AllAttributesAndRelationshipsClass, document);
         
                         instance[relationshipName] = value;
         

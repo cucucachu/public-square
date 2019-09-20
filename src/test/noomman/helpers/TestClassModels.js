@@ -100,7 +100,47 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                     type: [Number]
                 }
             }
-        });    
+        });       
+
+        var AllAttributesAndRelationshipsClass = new ClassModel({
+            accessControlled: false,
+            updateControlled: false,
+            className: 'AllAttributesAndRelationshipsClass', 
+            schema: {
+                string: {
+                    type:String
+                },
+                strings: {
+                    type:[String]
+                },
+                date: {
+                    type: Date
+                },
+                dates: {
+                    type: [Date]
+                },
+                boolean: {
+                    type: Boolean
+                },
+                booleans: {
+                    type: [Boolean]
+                },
+                number: {
+                    type: Number
+                },
+                numbers: {
+                    type: [Number]
+                },
+                class1: {
+                    type: Schema.Types.ObjectId,
+                    ref: 'CompareClass1'
+                },
+                class2s: {
+                    type: [Schema.Types.ObjectId],
+                    ref: 'CompareClass2'
+                }
+            }
+        });
         
         var AbstractClass = new ClassModel({
             className: 'AbstractClass',
@@ -793,6 +833,7 @@ module.exports = {
     TestClassWithNumber,
     TestClassWithBoolean,
     TestClassWithAllSimpleFields,
+    AllAttributesAndRelationshipsClass,
     AbstractClass,
     AllFieldsRequiredClass,
     AllFieldsMutexClass,

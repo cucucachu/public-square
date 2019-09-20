@@ -8,7 +8,7 @@ const testForError = TestingFunctions.testForError;
 const arraysEqual = TestingFunctions.arraysEqual;
 const objectsEqual = TestingFunctions.objectsEqual;
 
-var AllFieldsRequiredClass = TestClassModels.AllFieldsRequiredClass;
+var AllAttributesAndRelationshipsClass = TestClassModels.AllAttributesAndRelationshipsClass;
 
 describe('Instance State Tests', () => {
 
@@ -24,14 +24,14 @@ describe('Instance State Tests', () => {
         describe('InstanceState.contructor() Called With a ClassModel Only', () => {
             
             it('Constructor works when called with a ClassModel and no document.', () => {
-                const instanceState = new InstanceState(AllFieldsRequiredClass);
+                const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
             });
     
             it('Constructor works when called with a ClassModel and no document. Attributes set correctly.', () => {
-                const instanceState = new InstanceState(AllFieldsRequiredClass);
+                const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
                 const attributes = instanceState.attributes;
-                const expectedAttributes = ['string', 'strings', 'date', 'boolean', 'booleans', 'number', 'numbers'];
-                const expectedListAttributes = ['strings', 'booleans', 'numbers'];
+                const expectedAttributes = ['string', 'strings', 'date', 'dates', 'boolean', 'booleans', 'number', 'numbers'];
+                const expectedListAttributes = ['strings', 'dates', 'booleans', 'numbers'];
     
                 if (Object.keys(attributes).length != expectedAttributes.length)
                     throw new Error('instanceState.attributes returned the wrong number of attributes.');
@@ -52,7 +52,7 @@ describe('Instance State Tests', () => {
             });
     
             it('Constructor works when called with a ClassModel and no document. InstanceReferences set correclty.', () => {
-                const instanceState = new InstanceState(AllFieldsRequiredClass);
+                const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
                 const instanceReferences = instanceState.instanceReferences;
                 const expectedSingularRelationships = ['class1'];
     
@@ -67,7 +67,7 @@ describe('Instance State Tests', () => {
             });
     
             it('Constructor works when called with a ClassModel and no document. InstanceSetReferences set correctly.', () => {
-                const instanceState = new InstanceState(AllFieldsRequiredClass);
+                const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
                 const instanceSetReferences = instanceState.instanceSetReferences;
                 const expectedNonSingularRelationships = ['class2s'];
     
@@ -89,6 +89,7 @@ describe('Instance State Tests', () => {
                 string: 'string', 
                 strings: ['red', 'blue'],
                 date: new Date(),
+                dates: [new Date(), new Date()],
                 boolean: true,
                 booleans: [false, true],
                 number: 17,
@@ -98,11 +99,11 @@ describe('Instance State Tests', () => {
             };
             
             it('Constructor does not throw an error when called with a ClassModel a Document.', () => {
-                new InstanceState(AllFieldsRequiredClass, exampleDocument);
+                new InstanceState(AllAttributesAndRelationshipsClass, exampleDocument);
             });
     
             it('Constructor works when called with a ClassModel and a document. Attributes set correctly.', () => {
-                const instanceState = new InstanceState(AllFieldsRequiredClass, exampleDocument);
+                const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, exampleDocument);
                 const attributes = instanceState.attributes;
                 const expectedAttributes = ['string', 'strings', 'date', 'boolean', 'booleans', 'number', 'numbers'];
     
@@ -113,7 +114,7 @@ describe('Instance State Tests', () => {
             });
     
             it('Constructor works when called with a ClassModel and a document. InstanceReferences set correclty.', () => {
-                const instanceState = new InstanceState(AllFieldsRequiredClass, exampleDocument);
+                const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, exampleDocument);
                 const instanceReferences = instanceState.instanceReferences;
     
                 if (instanceReferences['class1'].id !== exampleDocument.class1.toHexString())
@@ -121,7 +122,7 @@ describe('Instance State Tests', () => {
             });
     
             it('Constructor works when called with a ClassModel and a document. InstanceSetReferences set correctly.', () => {
-                const instanceState = new InstanceState(AllFieldsRequiredClass, exampleDocument);
+                const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, exampleDocument);
                 const instanceSetReferences = instanceState.instanceSetReferences;
     
                 if (!Array.isArray(instanceSetReferences['class2s'].ids) 
@@ -135,6 +136,7 @@ describe('Instance State Tests', () => {
                 const exampleDocument = {
                     strings: ['red', 'blue'],
                     date: new Date(),
+                    dates: [new Date(), new Date()],
                     boolean: true,
                     booleans: [false, true],
                     number: 17,
@@ -142,12 +144,28 @@ describe('Instance State Tests', () => {
                     class1: new mongoose.Types.ObjectId,
                     class2s: [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId]
                 };
-                const instanceState = new InstanceState(AllFieldsRequiredClass, exampleDocument);
+                const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, exampleDocument);
 
                 if (instanceState.attributes['string'] === undefined || instanceState.attributes['string'] !== null)
                     throw new Error('The \'string\' attribute should be set to null, but isn\'t.');
-                
+            });
 
+            it('If an list attribute is undefined on the given document, then it is set to an empty array.', () => {
+                const exampleDocument = {
+                    string: 'string',
+                    date: new Date(),
+                    dates: [new Date(), new Date()],
+                    boolean: true,
+                    booleans: [false, true],
+                    number: 17,
+                    numbers: [1, 2],
+                    class1: new mongoose.Types.ObjectId,
+                    class2s: [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId]
+                };
+                const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, exampleDocument);
+
+                if (!arraysEqual(instanceState.attributes['strings'], []))
+                    throw new Error('The \'strings\' attribute should be set to [], but isn\'t.');
             });
 
             it('If an singular boolean attribute is set to false on the given document, then it is set to false on the InstanceState.', () => {
@@ -155,6 +173,7 @@ describe('Instance State Tests', () => {
                     string: 'string',
                     strings: ['red', 'blue'],
                     date: new Date(),
+                    dates: [new Date(), new Date()],
                     boolean: false,
                     booleans: [false, true],
                     number: 17,
@@ -162,7 +181,7 @@ describe('Instance State Tests', () => {
                     class1: new mongoose.Types.ObjectId,
                     class2s: [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId]
                 };
-                const instanceState = new InstanceState(AllFieldsRequiredClass, exampleDocument);
+                const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, exampleDocument);
 
                 if (instanceState.attributes['boolean'] === undefined || instanceState.attributes['boolean'] === null || instanceState.attributes['boolean'] !== false)
                     throw new Error('The \'boolean\' attribute should be set to false, but isn\'t.');
@@ -173,6 +192,7 @@ describe('Instance State Tests', () => {
                     string: 'string',
                     strings: ['red', 'blue'],
                     date: new Date(),
+                    dates: [new Date(), new Date()],
                     boolean: true,
                     booleans: [false, true],
                     number: 0,
@@ -180,7 +200,7 @@ describe('Instance State Tests', () => {
                     class1: new mongoose.Types.ObjectId,
                     class2s: [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId]
                 };
-                const instanceState = new InstanceState(AllFieldsRequiredClass, exampleDocument);
+                const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, exampleDocument);
 
                 if (instanceState.attributes['number'] === undefined || instanceState.attributes['number'] === null || instanceState.attributes['number'] !== 0)
                     throw new Error('The \'number\' attribute should be set to 0, but isn\'t.');
@@ -191,6 +211,7 @@ describe('Instance State Tests', () => {
                     string: '',
                     strings: ['red', 'blue'],
                     date: new Date(),
+                    dates: [new Date(), new Date()],
                     boolean: true,
                     booleans: [false, true],
                     number: 0,
@@ -198,7 +219,7 @@ describe('Instance State Tests', () => {
                     class1: new mongoose.Types.ObjectId,
                     class2s: [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId]
                 };
-                const instanceState = new InstanceState(AllFieldsRequiredClass, exampleDocument);
+                const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, exampleDocument);
 
                 if (instanceState.attributes['string'] === undefined || instanceState.attributes['string'] === null || instanceState.attributes['string'] !== '')
                     throw new Error('The \'string\' attribute should be set to "", but isn\'t.');
@@ -209,13 +230,14 @@ describe('Instance State Tests', () => {
                     string: 'string',
                     strings: ['red', 'blue'],
                     date: new Date(),
+                    dates: [new Date(), new Date()],
                     boolean: true,
                     booleans: [false, true],
                     number: 0,
                     numbers: [1, 2],
                     class2s: [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId]
                 };
-                const instanceState = new InstanceState(AllFieldsRequiredClass, exampleDocument);
+                const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, exampleDocument);
 
                 if (instanceState.instanceReferences['class1'] === undefined || !instanceState.instanceReferences['class1'].isEmpty())
                     throw new Error('The \'class1\' Instance Reference should be set to an empty Isntance Reference, but isn\'t.');
@@ -226,13 +248,14 @@ describe('Instance State Tests', () => {
                     string: 'string',
                     strings: ['red', 'blue'],
                     date: new Date(),
+                    dates: [new Date(), new Date()],
                     boolean: true,
                     booleans: [false, true],
                     number: 0,
                     numbers: [1, 2],
                     class1: new mongoose.Types.ObjectId,
                 };
-                const instanceState = new InstanceState(AllFieldsRequiredClass, exampleDocument);
+                const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, exampleDocument);
 
                 if (instanceState.instanceSetReferences['class2s'] === undefined || !instanceState.instanceSetReferences['class2s'].isEmpty())
                     throw new Error('The \'class2s\' Instance Reference should be set to an empty IsntanceSetReference, but isn\'t.');
@@ -439,7 +462,7 @@ describe('Instance State Tests', () => {
                         number: 1212,
                         numbers: [0, 1, 2],
                     }
-                    const instanceState = new InstanceState(AllFieldsRequiredClass, originalDocument);
+                    const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, originalDocument);
                     const document = instanceState.toDocument();
     
                     if (!objectsEqual(document, expectedDocument))
@@ -468,7 +491,7 @@ describe('Instance State Tests', () => {
                         number: 1212,
                         numbers: [0, 1, 2],
                     }
-                    const instanceState = new InstanceState(AllFieldsRequiredClass, originalDocument);
+                    const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, originalDocument);
                     const document = instanceState.toDocument();
     
                     if (!objectsEqual(document, expectedDocument))
@@ -494,7 +517,7 @@ describe('Instance State Tests', () => {
                         number: 1212,
                         numbers: [0, 1, 2],
                     }
-                    const instanceState = new InstanceState(AllFieldsRequiredClass, originalDocument);
+                    const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, originalDocument);
                     const document = instanceState.toDocument();
     
                     if (!objectsEqual(document, expectedDocument))
@@ -525,7 +548,7 @@ describe('Instance State Tests', () => {
                         number: 0,
                         numbers: [0, 0, 0],
                     }
-                    const instanceState = new InstanceState(AllFieldsRequiredClass, originalDocument);
+                    const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, originalDocument);
                     const document = instanceState.toDocument();
     
                     if (!objectsEqual(document, expectedDocument))
@@ -549,7 +572,7 @@ describe('Instance State Tests', () => {
                     const expectedDocument = {
                         class1: id,
                     }
-                    const instanceState = new InstanceState(AllFieldsRequiredClass, originalDocument);
+                    const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, originalDocument);
                     const document = instanceState.toDocument();
     
                     if (!objectsEqual(document, expectedDocument))
@@ -566,7 +589,7 @@ describe('Instance State Tests', () => {
                     const expectedDocument = {
                         class2s: [id1, id2],
                     }
-                    const instanceState = new InstanceState(AllFieldsRequiredClass, originalDocument);
+                    const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, originalDocument);
                     const document = instanceState.toDocument();
     
                     if (!objectsEqual(document, expectedDocument))
@@ -584,7 +607,7 @@ describe('Instance State Tests', () => {
                     }
                     const expectedDocument = {
                     }
-                    const instanceState = new InstanceState(AllFieldsRequiredClass, originalDocument);
+                    const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, originalDocument);
                     const document = instanceState.toDocument();
     
                     if (!objectsEqual(document, expectedDocument))
@@ -597,7 +620,7 @@ describe('Instance State Tests', () => {
                     }
                     const expectedDocument = {
                     }
-                    const instanceState = new InstanceState(AllFieldsRequiredClass, originalDocument);
+                    const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, originalDocument);
                     const document = instanceState.toDocument();
     
                     if (!objectsEqual(document, expectedDocument))
@@ -611,7 +634,7 @@ describe('Instance State Tests', () => {
                     }
                     const expectedDocument = {
                     }
-                    const instanceState = new InstanceState(AllFieldsRequiredClass, originalDocument);
+                    const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, originalDocument);
                     const document = instanceState.toDocument();
     
                     if (!objectsEqual(document, expectedDocument))
@@ -625,7 +648,7 @@ describe('Instance State Tests', () => {
                     }
                     const expectedDocument = {
                     }
-                    const instanceState = new InstanceState(AllFieldsRequiredClass, originalDocument);
+                    const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, originalDocument);
                     const document = instanceState.toDocument();
     
                     if (!objectsEqual(document, expectedDocument))
@@ -638,7 +661,7 @@ describe('Instance State Tests', () => {
                     }
                     const expectedDocument = {
                     }
-                    const instanceState = new InstanceState(AllFieldsRequiredClass, originalDocument);
+                    const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, originalDocument);
                     const document = instanceState.toDocument();
     
                     if (!objectsEqual(document, expectedDocument))
@@ -667,8 +690,8 @@ describe('Instance State Tests', () => {
                         const currentDocument = { 
                             [attributeName]: attributeValue,
                         }
-                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
     
                         if (!diff.add || diff.add[attributeName] === undefined || diff.add[attributeName] !== attributeValue)
@@ -683,8 +706,8 @@ describe('Instance State Tests', () => {
                         const currentDocument = { 
                             [attributeName]: attributeValue,
                         }
-                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
     
                         if (!diff.add || diff.add[attributeName] === undefined || diff.add[attributeName] !== attributeValue)
@@ -699,8 +722,8 @@ describe('Instance State Tests', () => {
                         const currentDocument = { 
                             [attributeName]: attributeValue,
                         }
-                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
     
                         if (!diff.add || diff.add[attributeName] === undefined || diff.add[attributeName] !== attributeValue)
@@ -714,8 +737,8 @@ describe('Instance State Tests', () => {
                         const currentDocument = { 
                             [attributeName]: attributeValue,
                         }
-                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
     
                         if (!diff.add || diff.add[attributeName] === undefined || diff.add[attributeName] !== attributeValue)
@@ -729,8 +752,8 @@ describe('Instance State Tests', () => {
                         const currentDocument = { 
                             [attributeName]: attributeValue,
                         }
-                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
     
                         if (!diff.add || diff.add[attributeName] === undefined || diff.add[attributeName] !== attributeValue)
@@ -744,8 +767,8 @@ describe('Instance State Tests', () => {
                         const currentDocument = { 
                             [attributeName]: attributeValue,
                         }
-                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
     
                         if (!diff.add || diff.add[attributeName] === undefined || diff.add[attributeName] !== attributeValue)
@@ -759,8 +782,8 @@ describe('Instance State Tests', () => {
                         const currentDocument = { 
                             [attributeName]: attributeValue,
                         }
-                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
     
                         if (!diff.add || diff.add[attributeName] === undefined || diff.add[attributeName] !== attributeValue)
@@ -778,8 +801,8 @@ describe('Instance State Tests', () => {
                             [attributeName]: attributeValue,
                         };
                         const currentDocument = {};
-                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
     
                         if (!diff.remove || diff.remove[attributeName] === undefined || diff.remove[attributeName] !== attributeValue)
@@ -793,8 +816,8 @@ describe('Instance State Tests', () => {
                             [attributeName]: attributeValue,
                         };
                         const currentDocument = {};
-                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
     
                         if (!diff.remove || diff.remove[attributeName] === undefined || diff.remove[attributeName] !== attributeValue)
@@ -808,8 +831,8 @@ describe('Instance State Tests', () => {
                             [attributeName]: attributeValue,
                         };
                         const currentDocument = {};
-                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
     
                         if (!diff.remove || diff.remove[attributeName] === undefined || diff.remove[attributeName] !== attributeValue)
@@ -823,8 +846,8 @@ describe('Instance State Tests', () => {
                             [attributeName]: attributeValue,
                         };
                         const currentDocument = {};
-                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
     
                         if (!diff.remove || diff.remove[attributeName] === undefined || diff.remove[attributeName] !== attributeValue)
@@ -838,8 +861,8 @@ describe('Instance State Tests', () => {
                             [attributeName]: attributeValue,
                         };
                         const currentDocument = {};
-                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
     
                         if (!diff.remove || diff.remove[attributeName] === undefined || diff.remove[attributeName] !== attributeValue)
@@ -853,8 +876,8 @@ describe('Instance State Tests', () => {
                             [attributeName]: attributeValue,
                         };
                         const currentDocument = {};
-                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
     
                         if (!diff.remove || diff.remove[attributeName] === undefined || diff.remove[attributeName] !== attributeValue)
@@ -868,8 +891,8 @@ describe('Instance State Tests', () => {
                             [attributeName]: attributeValue,
                         };
                         const currentDocument = {};
-                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
 
                         if (!diff.remove || diff.remove[attributeName] === undefined || diff.remove[attributeName] !== attributeValue)
@@ -892,8 +915,8 @@ describe('Instance State Tests', () => {
                             const currentDocument = { 
                                 [attributeName]: currentValue,
                             };
-                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
         
                             if (!diff.update || diff.update[attributeName] === undefined)
@@ -913,8 +936,8 @@ describe('Instance State Tests', () => {
                             const currentDocument = { 
                                 [attributeName]: currentValue,
                             };
-                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
     
                             if (!diff.update || diff.update[attributeName] === undefined)
@@ -934,8 +957,8 @@ describe('Instance State Tests', () => {
                             const currentDocument = { 
                                 [attributeName]: currentValue,
                             };
-                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
         
                             if (!diff.update || diff.update[attributeName] === undefined)
@@ -955,8 +978,8 @@ describe('Instance State Tests', () => {
                             const currentDocument = { 
                                 [attributeName]: currentValue,
                             };
-                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
         
                             if (!diff.update || diff.update[attributeName] === undefined)
@@ -976,8 +999,8 @@ describe('Instance State Tests', () => {
                             const currentDocument = { 
                                 [attributeName]: currentValue,
                             };
-                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
         
                             if (!diff.update || diff.update[attributeName] === undefined)
@@ -997,8 +1020,8 @@ describe('Instance State Tests', () => {
                             const currentDocument = { 
                                 [attributeName]: currentValue,
                             };
-                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
         
                             if (!diff.update || diff.update[attributeName] === undefined)
@@ -1018,8 +1041,8 @@ describe('Instance State Tests', () => {
                             const currentDocument = { 
                                 [attributeName]: currentValue,
                             };
-                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
         
                             if (!diff.update || diff.update[attributeName] === undefined)
@@ -1039,8 +1062,8 @@ describe('Instance State Tests', () => {
                             const currentDocument = { 
                                 [attributeName]: currentValue,
                             };
-                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
         
                             if (!diff.update || diff.update[attributeName] === undefined)
@@ -1064,8 +1087,8 @@ describe('Instance State Tests', () => {
                             const currentDocument = { 
                                 [attributeName]: currentValue,
                             };
-                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
         
                             if (!diff.update && diff.update[attributeName] !== undefined)
@@ -1082,8 +1105,8 @@ describe('Instance State Tests', () => {
                             const currentDocument = { 
                                 [attributeName]: currentValue,
                             };
-                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
         
                             if (!diff.update && diff.update[attributeName] !== undefined)
@@ -1100,8 +1123,8 @@ describe('Instance State Tests', () => {
                             const currentDocument = { 
                                 [attributeName]: currentValue,
                             };
-                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
         
                             if (!diff.update && diff.update[attributeName] !== undefined)
@@ -1118,8 +1141,8 @@ describe('Instance State Tests', () => {
                             const currentDocument = { 
                                 [attributeName]: currentValue,
                             };
-                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
         
                             if (!diff.update && diff.update[attributeName] !== undefined)
@@ -1136,8 +1159,8 @@ describe('Instance State Tests', () => {
                             const currentDocument = { 
                                 [attributeName]: currentValue,
                             };
-                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
         
                             if (!diff.update && diff.update[attributeName] !== undefined)
@@ -1154,8 +1177,8 @@ describe('Instance State Tests', () => {
                             const currentDocument = { 
                                 [attributeName]: currentValue,
                             };
-                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
         
                             if (!diff.update && diff.update[attributeName] !== undefined)
@@ -1172,8 +1195,8 @@ describe('Instance State Tests', () => {
                             const currentDocument = { 
                                 [attributeName]: currentValue,
                             };
-                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
         
                             if (!diff.update && diff.update[attributeName] !== undefined)
@@ -1197,8 +1220,8 @@ describe('Instance State Tests', () => {
                         const currentDocument = { 
                             [attributeName]: attributeValue,
                         }
-                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
 
                         if (!arraysEqual(diff.add[attributeName], attributeValue))
@@ -1213,8 +1236,8 @@ describe('Instance State Tests', () => {
                         const currentDocument = { 
                             [attributeName]: attributeValue,
                         }
-                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
 
 
@@ -1229,8 +1252,8 @@ describe('Instance State Tests', () => {
                         const currentDocument = { 
                             [attributeName]: attributeValue,
                         }
-                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
 
                         if (!arraysEqual(diff.add[attributeName], attributeValue))
@@ -1248,8 +1271,8 @@ describe('Instance State Tests', () => {
                             [attributeName]: attributeValue,
                         };
                         const currentDocument = {};
-                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
 
                         if (!arraysEqual(diff.remove[attributeName], attributeValue))
@@ -1263,8 +1286,8 @@ describe('Instance State Tests', () => {
                             [attributeName]: attributeValue,
                         };
                         const currentDocument = {};
-                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
 
 
@@ -1279,8 +1302,8 @@ describe('Instance State Tests', () => {
                             [attributeName]: attributeValue,
                         };
                         const currentDocument = {};
-                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
 
 
@@ -1306,8 +1329,8 @@ describe('Instance State Tests', () => {
                             const currentDocument = { 
                                 [attributeName]: currentValue,
                             }
-                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
     
                             if (!diff.update || !diff.update[attributeName])
@@ -1338,8 +1361,8 @@ describe('Instance State Tests', () => {
                             const currentDocument = { 
                                 [attributeName]: currentValue,
                             }
-                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
         
                             if (!arraysEqual(currentValue, diff.update[attributeName].value))
@@ -1367,8 +1390,8 @@ describe('Instance State Tests', () => {
                             const currentDocument = { 
                                 [attributeName]: currentValue,
                             }
-                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
         
                             if (!arraysEqual(currentValue, diff.update[attributeName].value))
@@ -1400,8 +1423,8 @@ describe('Instance State Tests', () => {
                             const currentDocument = { 
                                 [attributeName]: currentValue,
                             }
-                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
     
                             if (!diff.update || !diff.update[attributeName])
@@ -1432,8 +1455,8 @@ describe('Instance State Tests', () => {
                             const currentDocument = { 
                                 [attributeName]: currentValue,
                             }
-                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
     
                             if (!diff.update || !diff.update[attributeName])
@@ -1464,8 +1487,8 @@ describe('Instance State Tests', () => {
                             const currentDocument = { 
                                 [attributeName]: currentValue,
                             }
-                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
     
                             if (!diff.update || !diff.update[attributeName])
@@ -1500,8 +1523,8 @@ describe('Instance State Tests', () => {
                             const currentDocument = { 
                                 [attributeName]: currentValue,
                             }
-                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
     
                             if (!diff.update || !diff.update[attributeName])
@@ -1532,8 +1555,8 @@ describe('Instance State Tests', () => {
                             const currentDocument = { 
                                 [attributeName]: currentValue,
                             }
-                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
     
                             if (!diff.update || !diff.update[attributeName])
@@ -1564,8 +1587,8 @@ describe('Instance State Tests', () => {
                             const currentDocument = { 
                                 [attributeName]: currentValue,
                             }
-                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
     
                             if (!diff.update || !diff.update[attributeName])
@@ -1605,8 +1628,8 @@ describe('Instance State Tests', () => {
                         const currentDocument = {
                             [relationshipName] : relatedId
                         }
-                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
 
                         if (!diff.add || !diff.add[relationshipName])
@@ -1627,8 +1650,8 @@ describe('Instance State Tests', () => {
                             [relationshipName] : relatedId
                         }
                         const currentDocument = {};
-                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
 
                         if (!diff.remove || !diff.remove[relationshipName])
@@ -1652,8 +1675,8 @@ describe('Instance State Tests', () => {
                         const currentDocument = {
                             [relationshipName] : currentId
                         };
-                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
 
                         if (!diff.update || !diff.update[relationshipName])
@@ -1690,8 +1713,8 @@ describe('Instance State Tests', () => {
                         const currentDocument = {
                             [relationshipName] : currentIds
                         };
-                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
 
                         if (!diff || !diff.add[relationshipName])
@@ -1716,8 +1739,8 @@ describe('Instance State Tests', () => {
                         const currentDocument = {
                             [relationshipName] : currentIds
                         };
-                        const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                        const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                        const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                        const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
 
                         if (!diff || !diff.remove[relationshipName])
@@ -1751,8 +1774,8 @@ describe('Instance State Tests', () => {
                             const currentDocument = {
                                 [relationshipName] : currentIds
                             };
-                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
     
                             if (!diff || !diff.update[relationshipName])
@@ -1794,8 +1817,8 @@ describe('Instance State Tests', () => {
                             const currentDocument = {
                                 [relationshipName] : currentIds
                             };
-                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
     
                             if (!diff || !diff.update[relationshipName])
@@ -1838,8 +1861,8 @@ describe('Instance State Tests', () => {
                             const currentDocument = {
                                 [relationshipName] : currentIds
                             };
-                            const previousInstanceState = new InstanceState(AllFieldsRequiredClass, previousDocument);
-                            const currentInstanceState = new InstanceState(AllFieldsRequiredClass, currentDocument);
+                            const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
+                            const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
     
                             if (!diff || !diff.update[relationshipName])
