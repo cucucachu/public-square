@@ -91,23 +91,8 @@ class Instance {
             },
 
             has(trapTarget, key) {
-                if (attributeNames.includes(key)) {
-                    const attribute = attributes.filter(attribute => attribute.name === key)[0];
-                    if (attribute.list) {
-                        return trapTarget.currentState[key].length > 0;
-                    }
-                    else {
-                        return trapTarget.currentState[key] !== null;
-                    }
-                }
-
-                if (singularRelationshipNames.inclues(key)) {
-                    return (trapTarget.currentState[key].id !== null);
-                }
-
-                if (nonSingularRelationshipNames.inclues(key)) {
-                    return (trapTarget.currentState[key].ids !== null && trapTarget.currentState[key].ids.length);
-                }
+                if (documentProperties.includes(key))
+                    return key in trapTarget.currentState;
 
                 return Reflect.has(trapTarget, key);
             },
@@ -116,29 +101,8 @@ class Instance {
                 if (unSettableInstanceProperties.includes(key) || instanceMethods.includes(key) || Object.keys(trapTarget).includes(key)) {
                     throw new Error('Illegal attempt to delete the ' + key + ' property of an Instance.');
                 }
-
-                if (attributeNames.includes(key)) {
-                    const attribute = attributes.filter(attribute => attribute.name === key)[0];
-                    if (attribute.list) {
-                        trapTarget.currentState[key] = [];
-                        return true;
-                    }
-                    else {
-                        trapTarget.currentState[key] = null;
-                        return true;
-                    }
-                }
-
-                if (singularRelationshipNames.includes(key)) {
-                    trapTarget.currentState[key].instance = null;
-                    trapTarget.currentState[key].id = null;
-                    return true;
-                }
-
-                if (nonSingularRelationshipNames.includes(key)) {
-                    trapTarget.currentState[key].instanceSet = null;
-                    trapTarget.currentState[key].ids = [];
-                    return true;
+                if (documentProperties.includes(key)){
+                    return delete trapTarget.currentState[key];
                 }
 
                 return Reflect.deleteProperty(trapTarget, key);
@@ -188,8 +152,11 @@ class Instance {
             },
 
             has(trapTarget, key) {
-                if (documentProperties.includes(key))
-                    return key in trapTarget[doc]
+                console.log('Instance Has Trap called.');
+                if (documentProperties.includes(key)) {
+                    console.log('Calling Instance State has trap.');
+                    return (key in trapTarget.currentState);
+                }
                 
                 return Reflect.has(trapTarget, key);
             },

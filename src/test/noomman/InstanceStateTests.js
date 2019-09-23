@@ -660,6 +660,96 @@ describe('Instance State Tests', () => {
             });
 
         });
+
+        describe('Has Trap', () => {
+
+            it('Checking for attributes of the ClassModel returns true.', () => {
+                const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
+                const expectedProperties = ['string', 'strings', 'number', 'numbers', 'boolean', 'booleans'];
+                for (const property of expectedProperties) {
+                    if (!(property in instanceState)) {
+                        throw new Error('Has did not return true for property ' + property + '.');
+                    }
+                }
+            });
+
+            it('Checking for relationsihps of the ClassModel returns true.', () => {
+                const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
+                const expectedProperties = ['class1', 'class2s'];
+                for (const property of expectedProperties) {
+                    if (!(property in instanceState)) {
+                        throw new Error('Has did not return true for property ' + property + '.');
+                    }
+                }
+            });
+
+        });
+
+        describe('Delete Trap', () => {
+
+            it('Deleting an attribute sets it to null.', () => {
+                const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
+                instanceState.boolean = true;
+                delete instanceState.boolean;
+
+                if (instanceState.boolean !== null)
+                    throw new Error('Attribute not set to null.');
+            });
+
+            it('Deleting a list attribute sets it to empty array.', () => {
+                const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
+                instanceState.booleans = [true, false];
+                delete instanceState.booleans;
+                
+                if (!Array.isArray(instanceState.booleans) || instanceState.booleans.length !== 0)
+                    throw new Error('List attribute not set to empty array.');
+            });
+
+            it('Deleting a singular relationship (set by document) sets instanceReference.instance and instanceReference._id to null.', () => {
+                const document = new AllAttributesAndRelationshipsClass.Model({
+                    class1: new mongoose.Types.ObjectId, 
+                });
+                const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, document);
+                delete instanceState.class1;
+                
+                if (!instanceState.instanceReferences['class1'] || instanceState.instanceReferences['class1']._id !== null || instanceState.instanceReferences['class1'].instance !== null)
+                    throw new Error('Singular relationship did not set the instance reference correctly.');
+
+            });
+
+            it('Deleting a singular relationship (set to instance) sets instanceReference.instance and instanceReference._id to null.', () => {
+                const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
+                instanceState.class1 = new Instance(CompareClass1);
+                delete instanceState.class1;
+                
+                if (!instanceState.instanceReferences['class1'] || instanceState.instanceReferences['class1']._id !== null || instanceState.instanceReferences['class1'].instance !== null)
+                    throw new Error('Singular relationship did not set the instance reference correctly.');
+
+            });
+
+            it('Deleting a non-singular relationship (set by document) sets instanceSetReference.instanceSet to null and instanceSetReference._ids to empty string.', () => {
+                const document = new AllAttributesAndRelationshipsClass.Model({
+                    class2s: [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId], 
+                });
+                const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, document);
+                delete instanceState.class2s;
+                
+                if (!instanceState.instanceSetReferences['class2s'] || !Array.isArray(instanceState.instanceSetReferences['class2s']._ids) ||
+                    instanceState.instanceSetReferences['class2s']._ids.length !== 0 || instanceState.instanceSetReferences['class2s'].instanceSet !== null)
+                    throw new Error('Non-singular relationship did not set the instanceSet reference correctly.');
+            });
+
+            it('Deleting a non-singular relationship (set to InstanceSet) sets instanceSetReference.instanceSet to null and instanceSetReference._ids to empty string.', () => {
+                const instanceState = new InstanceState(AllAttributesAndRelationshipsClass);
+                instanceState.class2s = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
+                delete instanceState.class2s;
+                
+                if (!instanceState.instanceSetReferences['class2s'] || !Array.isArray(instanceState.instanceSetReferences['class2s']._ids) ||
+                    instanceState.instanceSetReferences['class2s']._ids.length !== 0 || instanceState.instanceSetReferences['class2s'].instanceSet !== null)
+                    throw new Error('Non-singular relationship did not set the instanceSet reference correctly.');
+            });
+
+        });
     });
 
     describe('InstanceState.toDocument()', () => {

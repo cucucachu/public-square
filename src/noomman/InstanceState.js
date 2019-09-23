@@ -89,6 +89,33 @@ class InstanceState {
             
             has(trapTarget, key) {
                 return ((key in trapTarget.attributes) || (key in trapTarget.instanceReferences) || (key in trapTarget.instanceSetReferences))
+            },
+
+            deleteProperty(trapTarget, key) {
+                if (attributes.map(attribute => attribute.name).includes(key)) {
+                    const attribute = attributes.filter(attribute => attribute.name === key)[0];
+                    if (attribute.list) {
+                        trapTarget.attributes[key] = [];
+                        return true;
+                    }
+                    else {
+                        trapTarget.attributes[key] = null;
+                        return true;
+                    }
+                }
+
+                if (singularRelationships.map(relationship => relationship.name).includes(key)) {
+                    trapTarget.instanceReferences[key].instance = null;
+                    trapTarget.instanceReferences[key]._id = null;
+                    return true;
+                }
+
+                if (nonSingularRelationships.map(relationship => relationship.name).includes(key)) {
+                    trapTarget.instanceSetReferences[key].instanceSet = null;
+                    trapTarget.instanceSetReferences[key]._ids = [];
+                    return true;
+                }
+
             }
         });
     }

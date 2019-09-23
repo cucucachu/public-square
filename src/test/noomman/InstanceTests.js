@@ -1746,74 +1746,106 @@ describe('Instance Tests', () => {
 
         });
 
-        // describe('Has Trap', () => {
+        describe('Has Trap', () => {
 
-        //     it('Checking for a property that is part of the schema checks for the property on the document.', () => {
-        //         const instance = new Instance(TestClassWithNumber, documentOfTestClassWithNumber);
-        //         if (!('number' in instance))
-        //             throw new Error();
-        //     });
+            it('Checking for attributes of the ClassModel returns true.', () => {
+                const instance = new Instance(AllAttributesAndRelationshipsClass);
+                const expectedProperties = ['string', 'strings', 'number', 'numbers', 'boolean', 'booleans'];
+                for (const property of expectedProperties) {
+                    if (!(property in instance)) {
+                        throw new Error('Has did not return true for property ' + property + '.');
+                    }
+                }
+            });
 
-        // });
+            it('Checking for relationsihps of the ClassModel returns true.', () => {
+                const instance = new Instance(AllAttributesAndRelationshipsClass);
+                const expectedProperties = ['class1', 'class2s'];
+                for (const property of expectedProperties) {
+                    if (!(property in instance)) {
+                        throw new Error('Has did not return true for property ' + property + '.');
+                    }
+                }
+            });
 
-        // describe('Delete Trap', () => {
+        });
 
-        //     it('Deleting a property that is part of the schema deletes the property from the document.', () => {
-        //         const testDocument = new TestClassWithNumber.Model({
-        //             number: 17
-        //         });
-        //         const instance = new Instance(TestClassWithNumber, testDocument);
+        describe('Delete Trap', () => {
+
+            it('Deleting an attribute sets it to null.', () => {
+                const instance = new Instance(AllAttributesAndRelationshipsClass);
+                instance.boolean = true;
+                delete instance.boolean;
+
+                if (instance.boolean !== null)
+                    throw new Error('Attribute not set to null.');
+            });
+
+            it('Deleting a list attribute sets it to empty array.', () => {
+                const instance = new Instance(AllAttributesAndRelationshipsClass);
+                instance.booleans = [true, false];
+                delete instance.booleans;
                 
-        //         if (instance.number != 17)
-        //             throw new Error('Instance.number should initially be 17.');
+                if (!Array.isArray(instance.booleans) || instance.booleans.length !== 0)
+                    throw new Error('List attribute not set to empty array.');
+            });
 
-        //         delete instance.number;
-
-        //         if (instance.number != undefined)
-        //             throw new Error('Instance.number was not deleted. It\'s value is ' + instance.number);
+            it('Deleting a singular relationship (set by document) sets instanceReference.instance and instanceReference._id to null.', () => {
+                const document = new AllAttributesAndRelationshipsClass.Model({
+                    class1: new mongoose.Types.ObjectId, 
+                });
+                const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+                delete instance.class1;
                 
-        //         if (instance.getDocumentProperty('number') != undefined)
-        //             throw new Error('Instance.number was deleted, but number was not deleted from the underlying document.');
-        //     });
+                if (instance['class1'] !== null)
+                    throw new Error('Delete did not set the relationship to null.');
 
-        //     it('Deleting the class model of an instance throws an error.', () => {
-        //         const instance = new Instance(TestClassWithNumber);
+            });
+
+            it('Deleting a singular relationship (set to instance) sets instanceReference.instance and instanceReference._id to null.', () => {
+                const instance = new Instance(AllAttributesAndRelationshipsClass);
+                instance.class1 = new Instance(CompareClass1);
+                delete instance.class1;
                 
-        //         testForError('delete instance.classModel', 'Illegal attempt to delete the classModel property of an Instance.', () => {
-        //             delete instance.classModel;
-        //         })
-        //     });
+                if (instance['class1'] !== null)
+                    throw new Error('Delete did not set the relationship to null.');
 
-        //     it('Deleting the save method of an instance throws an error.', () => {
-        //         const instance = new Instance(TestClassWithNumber);
+            });
+
+            it('Deleting a non-singular relationship (set by document) sets instanceSetReference.instanceSet to null and instanceSetReference._ids to empty string.', () => {
+                const document = new AllAttributesAndRelationshipsClass.Model({
+                    class2s: [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId], 
+                });
+                const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+                delete instance.class2s;
                 
-        //         testForError('delete instance.classModel', 'Illegal attempt to delete the save property of an Instance.', () => {
-        //             delete instance.save;
-        //         })
-        //     });
+                if (!Array.isArray(instance['class2s']) || instance['class2s'].length !== 0)
+                    throw new Error('Non-singular relationship did delete properly.');
+            });
 
-        //     it('Deleting the saved property of an instance throws an error.', () => {
-        //         const instance = new Instance(TestClassWithNumber);
+            it('Deleting a non-singular relationship (set to InstanceSet) sets instanceSetReference.instanceSet to null and instanceSetReference._ids to empty string.', () => {
+                const instance = new Instance(AllAttributesAndRelationshipsClass);
+                instance.class2s = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
+                delete instance.class2s;
                 
-        //         testForError('delete instance.classModel', 'Illegal attempt to delete the saved property of an Instance.', () => {
-        //             delete instance.saved;
-        //         })
-        //     });
+                if (!Array.isArray(instance['class2s']) || instance['class2s'].length !== 0)
+                    throw new Error('Non-singular relationship did delete properly.');
+            });
 
-        // });
+        });
 
-        // describe('OwnKeys trap', () => {
+        describe('OwnKeys trap', () => {
 
-        //     it('Object.getOwnPropertySymbols() returns nothing.', () => {
-        //         const instance = new Instance(TestClassWithNumber);
-        //         const symbols = Object.getOwnPropertySymbols(instance);
+            it('Object.getOwnPropertySymbols() returns nothing.', () => {
+                const instance = new Instance(TestClassWithNumber);
+                const symbols = Object.getOwnPropertySymbols(instance);
 
-        //         if (symbols.length) {
-        //             throw new Error('Found these symbols: ' + symbols.map(symbol => String(symbol)));
-        //         }
-        //     });
+                if (symbols.length) {
+                    throw new Error('Found these symbols: ' + symbols.map(symbol => String(symbol)));
+                }
+            });
 
-        // });
+        });
 
     });
 
