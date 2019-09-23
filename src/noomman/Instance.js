@@ -212,6 +212,14 @@ class Instance {
     }
 
     assign(object) {
+        const documentProperties = this.classModel.getDocumentPropertyNames();
+        for (const key in object) {
+            if (documentProperties.includes(key))
+                this[key] = object[key];
+        }
+    }
+
+    assign2(object) {
         const documentProperties = Object.keys(this.classModel.schema);
         for (const key in object) {
             if (documentProperties.includes(key))

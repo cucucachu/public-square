@@ -1849,35 +1849,81 @@ describe('Instance Tests', () => {
 
     });
 
-    // describe('instance.assign()', () => {
+    describe('instance.assign()', () => {
 
-    //     it('instance.assign assigns all fields.', () => {
-    //         const instance = new Instance(TestClassWithAllSimpleFields);
-    //         const objectToAssign = {
-    //             string: 'String',
-    //             strings: ['String', 'String'],
-    //             date: new Date(),
-    //             boolean: true,
-    //             booleans: [true, false],
-    //             number: 17,
-    //             numbers: [1, 2, 3]
-    //         }
-    //         instance.assign(objectToAssign);
-    //         for (const key in objectToAssign) {
-    //             if (Array.isArray(objectToAssign[key])) {
-    //                 for (const index in objectToAssign[key]) {
-    //                     if (objectToAssign[key][index] != instance[key][index]) {
-    //                         throw new Error('Values for key ' + key + ' were not assigned');
-    //                     }
-    //                 }
-    //             }
-    //             else if (objectToAssign[key] != instance[key]) {
-    //                 throw new Error('Values for key ' + key + ' were not assigned');
-    //             }
-    //         }
-    //     });
+        it('instance.assign assigns all attributes.', () => {
+            const instance = new Instance(AllAttributesAndRelationshipsClass);
+            const objectToAssign = {
+                string: 'String',
+                strings: ['String', 'String'],
+                date: new Date(),
+                dates: [new Date(), new Date()],
+                boolean: true,
+                booleans: [true, false],
+                number: 17,
+                numbers: [1, 2, 3],
+            }
+            instance.assign(objectToAssign);
 
-    // });
+            for (const key in objectToAssign) {
+                if (Array.isArray(objectToAssign[key])) {
+                    for (const index in objectToAssign[key]) {
+                        if (objectToAssign[key][index] != instance[key][index]) {
+                            throw new Error('Values for key ' + key + ' were not assigned');
+                        }
+                    }
+                }
+                else if (objectToAssign[key] != instance[key]) {
+                    throw new Error('Values for key ' + key + ' were not assigned');
+                }
+            }
+        });
+
+        it('instance.assign assigns singular relationships.', () => {
+            const instance = new Instance(AllAttributesAndRelationshipsClass);
+            const objectToAssign = {
+                class1: new Instance(CompareClass1),
+            }
+            instance.assign(objectToAssign);
+
+            if (instance.class1 !== objectToAssign.class1)
+                throw new Error('Assign did not assign the relationship correclty.');
+        });
+
+        it('instance.assign assigns non-singular relationships.', () => {
+            const instance = new Instance(AllAttributesAndRelationshipsClass);
+            const objectToAssign = {
+                class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]),
+            }
+            instance.assign(objectToAssign);
+
+            if (instance.class2s !== objectToAssign.class2s)
+                throw new Error('Assign did not assign the relationship correclty.');
+        });
+
+        it('instance.assign throws errors when assigning wrong attribute types.', () => {
+            const instance = new Instance(AllAttributesAndRelationshipsClass);
+            const objectToAssign = {
+                boolean: 0,
+            }
+            const expectedErrorMessage = 'Illegal attempt to set a Boolean Attribute to something other than a Boolean.';
+            testForError('instance.assign()', expectedErrorMessage, () => {
+                instance.assign(objectToAssign);
+            });
+        });
+
+        it('instance.assign throws errors when assigning an objectID to a singular relationship.', () => {
+            const instance = new Instance(AllAttributesAndRelationshipsClass);
+            const objectToAssign = {
+                class1: new mongoose.Types.ObjectId,
+            }
+            const expectedErrorMessage = 'Illegal attempt to set a singular relationship to a value which is not an Instance of the correct ClassModel.';
+            testForError('instance.assign()', expectedErrorMessage, () => {
+                instance.assign(objectToAssign);
+            });
+        });
+
+    });
 
     // describe('instance.validate()', () => {
 

@@ -305,6 +305,14 @@ class ClassModel {
         return relationships;
     }
 
+    getDocumentProperties() {
+        return this.getAttributes().concat(this.getSingularRelationships(), this.getNonSingularRelationships());
+    }
+
+    getDocumentPropertyNames() {
+        return this.getDocumentProperties().map(property => property.name);
+    }
+
     static valueIsBoolean(value) {
         return (value === true || value === false);
     }
