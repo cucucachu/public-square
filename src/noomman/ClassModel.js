@@ -231,12 +231,25 @@ class ClassModel {
         return false; 
     }
 
+    isAttribute(name) {
+        return this.getAttributes().map(attribute => attribute.name).includes(name);
+    }
+
     static isSingularRelationship(object) {
         if (Array.isArray(object.type))
             return false;
         if (object.type === Schema.Types.ObjectId)
             return true;
         return false;
+    }
+
+    isSingularRelationship(name) {
+        return this.getSingularRelationships().map(relationship => relationship.name).includes(name);
+    }
+
+
+    isNonSingularRelationship(name) {
+        return this.getNonSingularRelationships().map(relationship => relationship.name).includes(name);
     }
 
 

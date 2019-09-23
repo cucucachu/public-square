@@ -294,33 +294,36 @@ class Instance {
 
     /*
      * Defines what it means for a property to be set. Valid values that count as 'set' are as follows:
-     * boolean: True
+     * boolean: True or False
      * number: Any value including 0.
-     * string: Any thing of type string, excluding an empty string.
+     * string: Any thing of type string.
      * Array: Any array with a length greater than 0.
      * Object/Relationship: Any Value
      */
     propertyIsSet(key) {
-        let schema = this.classModel.schema;
+        const property = this.classModel.getDocumentProperties().filter(property => property.name === key)[0];
 
-        if (Array.isArray(schema[key].type))
-            return this[key].length ? true : false;
-
-        if (schema[key].type == Number)
-            return (this[key] || this[key] == 0);
-
-        if (schema[key].type == String)
-            return this[key] ? true : false;
-        
-        return this[key] ? true : false;
+        if (this.classModel.isAttribute(key) && property.list) {
+            if (!Array.isArray(this[key]) || this[key].length === 0) {
+                return false;
+            }
+        }
+        else if (this.classModel.isNonSingularRelationship(key)) {
+            if (Array.isArray(this[key]) && this[key].length === 0)
+                return false;
+        }
+        else {
+            if (this[key] === null)
+                return false;
+        }
+        return true;
     }
 
     // Validations
     validate() {
         this.requiredValidation();
-        this.requiredGroupValidation();
-        this.mutexValidation();
-        this[doc].validateSync();
+        //this.requiredGroupValidation();
+        //this.mutexValidation();
     }
 
     mutexValidation() {
@@ -350,13 +353,108 @@ class Instance {
     }
 
     requiredValidation() {
+        let documentProperties = this.classModel.getDocumentProperties();
+        let message = '';
+        let valid = true;
+
+        for (const documentProperty of documentProperties) {
+            if (!documentProperty.required)
+                continue;
+            if (!this.propertyIsSet(documentProperty.name)) {
+                valid = false;
+                message += this.classModel.className + ' validation failed: ' + documentProperty.name + ': Path \`' + documentProperty.name + '\` is required.'
+            }
+        }
+
+        if (!valid)
+            throw new Error(message);
+    }
+
+    requiredGroupValidation() {
+        let requiredGroups = [];
+        let message = '';
+        let classModel = this.classModel;
+        let schema = classModel.schema;
+
+        // Iterate through the schema to find required groups.
+        Object.keys(schema).forEach(key => {
+            if (schema[key].requiredGroup && !requiredGroups.includes(schema[key].requiredGroup))
+                requiredGroups.push(schema[key].requiredGroup);
+        });
+
+        // Iterate through the instance members to check that at least one member for each required group is set.
+        Object.keys(schema).forEach(key => {
+            if (schema[key].requiredGroup && this.propertyIsSet(key))
+                requiredGroups = requiredGroups.filter(value => { return value != schema[key].requiredGroup; });
+        });
+
+        if (requiredGroups.length) {
+            message = 'Required Group violations found for requirement group(s): ';
+            requiredGroups.forEach(function(requiredGroup) {
+                message += ' ' + requiredGroup;
+            });
+
+            throw new Error(message);
+        }
+    }
+
+    propertyIsSet2(key) {
+        let schema = this.classModel.schema;
+
+        if (Array.isArray(schema[key].type))
+            return this[key].length ? true : false;
+
+        if (schema[key].type == Number)
+            return (this[key] || this[key] == 0);
+
+        if (schema[key].type == String)
+            return this[key] ? true : false;
+        
+        return this[key] ? true : false;
+    }
+
+    // Validations
+    validate2() {
+        this.requiredValidation2();
+        this.requiredGroupValidation2();
+        this.mutexValidation2();
+        this[doc].validateSync();
+    }
+
+    mutexValidation2() {
+        let muti = [];
+        let violations = [];
+        let message = '';
+        let classModel = this.classModel;
+        let schema = classModel.schema;
+
+        Object.keys(schema).forEach(key => {
+            if (schema[key].mutex && this.propertyIsSet2(key))
+                    if (muti.includes(schema[key].mutex))
+                        violations.push(schema[key].mutex);
+                    else
+                        muti.push(schema[key].mutex);
+        });
+
+        if (violations.length) {
+            message = 'Mutex violations found for instance ' + this.id + '.';
+            Object.keys(schema).forEach(key => {
+                if (violations.includes(schema[key].mutex) && this.propertyIsSet2(key)) {
+                            message += ' Field ' + key + ' with mutex \'' + schema[key].mutex + '\'.'
+                }
+            });
+            throw new Error(message);
+        }
+    }
+
+    requiredValidation2() {
         let message = '';
         let valid = true;
         let schema = this.classModel.schema;
 
         // Iterate through the schema to find required groups.
         Object.keys(schema).forEach(key => {
-            if (schema[key].required && !this.propertyIsSet(key)) {
+            if (schema[key].required && !this.propertyIsSet2(key)) {
                 valid = false;
                 message += this.classModel.className + ' validation failed: ' + key + ': Path \`' + key + '\` is required.'
             }
@@ -366,7 +464,7 @@ class Instance {
             throw new Error(message);
     }
 
-    requiredGroupValidation() {
+    requiredGroupValidation2() {
         let requiredGroups = [];
         let message = '';
         let classModel = this.classModel;
