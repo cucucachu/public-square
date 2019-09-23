@@ -2224,9 +2224,30 @@ describe('Instance Tests', () => {
 
             });
 
+            it('All fields are required. All but class2s are set. Class2s set to empty instance set. Error thrown.', () => {
+                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: class2s: Path `class2s` is required.';
+                const instance = new Instance(AllFieldsRequiredClass);
+                instance.assign({
+                    string: 'String',
+                    strings: ['String'],
+                    date: new Date(),
+                    boolean: true,
+                    booleans: [true],
+                    number: 1,
+                    numbers: [1],
+                    class1: new Instance(CompareClass1),
+                    class2: new InstanceSet(CompareClass2),
+                });
+
+                testForError('instance.validate()', expectedErrorMessage, () => {
+                    instance.validate();
+                });
+
+            });
+
         });
 
-        describe.skip('Required Group Validation', () => {
+        describe('Required Group Validation', () => {
                 
             it('Multiple fields (one of each type) share a required group no fields are set. Error thrown.', () => {
                 const expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
@@ -2237,30 +2258,22 @@ describe('Instance Tests', () => {
                 });
             });
                 
-            it('Multiple fields (one of each type) share a required group boolean is set to false. Error thrown.', () => {
-                const expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
+            it('Multiple fields (one of each type) share a required group boolean is set to false. No error thrown.', () => {
                 const instance = new Instance(AllFieldsInRequiredGroupClass);
                 instance.boolean = false;
-    
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
-                });
+                instance.validate();
             });
                 
-            it('Multiple fields (one of each type) share a required group string is set to "". Error thrown.', () => {
-                const expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
+            it('Multiple fields (one of each type) share a required group string is set to "". No error thrown.', () => {
                 const instance = new Instance(AllFieldsInRequiredGroupClass);
                 instance.string = '';
-    
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
-                });
+                instance.validate();
             });
                 
-            it('Multiple fields (one of each type) share a required group class2s is set to empty array. Error thrown.', () => {
+            it('Multiple fields (one of each type) share a required group class2s is set to empty instance set. Error thrown.', () => {
                 const expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
                 const instance = new Instance(AllFieldsInRequiredGroupClass);
-                instance.class2s = [];
+                instance.class2s = new InstanceSet(CompareClass2);
     
                 testForError('instance.validate()', expectedErrorMessage, () => {
                     instance.validate();
@@ -2325,14 +2338,14 @@ describe('Instance Tests', () => {
             
             it('Multiple fields (one of each type) share a required group and class1 is set. No error thrown.', () => {
                 const instance = new Instance(AllFieldsInRequiredGroupClass);
-                instance.class1 = (new Instance(CompareClass1)).id;
+                instance.class1 = new Instance(CompareClass1);
 
                 instance.validate();
             });
             
             it('Multiple fields (one of each type) share a required group and class2s is set. No error thrown.', () => {
                 const instance = new Instance(AllFieldsInRequiredGroupClass);
-                instance.class2s = [(new Instance(CompareClass2)).id];
+                instance.class2s = new InstanceSet(CompareClass2, [new Instance(CompareClass2)]);
 
                 instance.validate();
             });

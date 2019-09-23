@@ -300,20 +300,22 @@ class Instance {
      * Array: Any array with a length greater than 0.
      * Object/Relationship: Any Value
      */
-    propertyIsSet(key) {
-        const property = this.classModel.getDocumentProperties().filter(property => property.name === key)[0];
+    propertyIsSet(propertyName) {
+        const property = this.classModel.getDocumentProperties().filter(property => property.name === propertyName)[0];
 
-        if (this.classModel.isAttribute(key) && property.list) {
-            if (!Array.isArray(this[key]) || this[key].length === 0) {
+        if (this.classModel.isAttribute(propertyName) && property.list) {
+            if (!Array.isArray(this[propertyName]) || this[propertyName].length === 0) {
                 return false;
             }
         }
-        else if (this.classModel.isNonSingularRelationship(key)) {
-            if (Array.isArray(this[key]) && this[key].length === 0)
+        else if (this.classModel.isNonSingularRelationship(propertyName)) {
+            if (Array.isArray(this[propertyName]) && this[propertyName].length === 0)
+                return false;
+            if (this[propertyName] !== null && this[propertyName].size === 0)
                 return false;
         }
         else {
-            if (this[key] === null)
+            if (this[propertyName] === null)
                 return false;
         }
         return true;
@@ -321,8 +323,9 @@ class Instance {
 
     // Validations
     validate() {
+        this.currentState.sync();
         this.requiredValidation();
-        //this.requiredGroupValidation();
+        this.requiredGroupValidation();
         //this.mutexValidation();
     }
 
@@ -373,20 +376,19 @@ class Instance {
     requiredGroupValidation() {
         let requiredGroups = [];
         let message = '';
-        let classModel = this.classModel;
-        let schema = classModel.schema;
+        let properties = this.classModel.getDocumentProperties();
 
-        // Iterate through the schema to find required groups.
-        Object.keys(schema).forEach(key => {
-            if (schema[key].requiredGroup && !requiredGroups.includes(schema[key].requiredGroup))
-                requiredGroups.push(schema[key].requiredGroup);
-        });
+        for (const property of properties) {
+            if (property.requiredGroup && !requiredGroups.includes(property.requiredGroup)) {
+                requiredGroups.push(property.requiredGroup);
+            }
+        }
 
-        // Iterate through the instance members to check that at least one member for each required group is set.
-        Object.keys(schema).forEach(key => {
-            if (schema[key].requiredGroup && this.propertyIsSet(key))
-                requiredGroups = requiredGroups.filter(value => { return value != schema[key].requiredGroup; });
-        });
+        for (const property of properties) {
+            if (property.requiredGroup && this.propertyIsSet(property.name)) {
+                requiredGroups = requiredGroups.filter(group => group !== property.requiredGroup);
+            }
+        }
 
         if (requiredGroups.length) {
             message = 'Required Group violations found for requirement group(s): ';

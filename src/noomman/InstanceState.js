@@ -62,7 +62,7 @@ class InstanceState {
                         trapTarget.instanceSetReferences[key].instanceSet = null;
                     }
                     else {
-                        trapTarget.instanceSetReferences[key]._ids = value.getInstanceIds().map(id => mongoose.Types.ObjectId.createFromHexString(id));
+                        trapTarget.instanceSetReferences[key]._ids = value.map(instance => instance._ids);
                         trapTarget.instanceSetReferences[key].instanceSet = value;
                     }
                 }
@@ -120,7 +120,16 @@ class InstanceState {
         });
     }
 
+    sync() {
+        for (const instanceSetReference in this.instanceSetReferences) {
+            this.instanceSetReferences[instanceSetReference].sync();
+        }
+    }
+
     equals(that) {
+        this.sync();
+        that.sync();
+
         for (attributeName in this.attributes) {
             if (this.attributes[attributeName] !== that.attributes[attributeName])
                 return false;
@@ -148,6 +157,7 @@ class InstanceState {
     }
 
     toDocument() {
+        this.sync();
         const document = {};
 
         for (const attributeName in this.attributes) {
@@ -175,6 +185,8 @@ class InstanceState {
     }
 
     diff(that) {
+        this.sync();
+        that.sync();
         const diffObject = {
             add: {},
             remove: {},

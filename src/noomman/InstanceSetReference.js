@@ -18,7 +18,15 @@ class InstanceSetReference {
         });
     }
 
+    sync() {
+        if (this.instanceSet) {
+            this._ids = this.instanceSet.map(instance => instance._id);
+        }
+    }
+
     equals(that) {
+        this.sync();
+        that.sync();
         if ((!this._ids && that._ids) || (this._ids && !that._ids))
             return false;
 
@@ -39,10 +47,13 @@ class InstanceSetReference {
     }
 
     isEmpty() {
+        this.sync();
         return this._ids.length === 0;
     }
 
     diff(that) {
+        this.sync();
+        that.sync();
         if (this.isEmpty() && that.isEmpty()) {
             return {};
         }
