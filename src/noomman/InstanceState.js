@@ -19,6 +19,8 @@ class InstanceState {
         const singularRelationships = classModel.getSingularRelationships();
         const nonSingularRelationships = classModel.getNonSingularRelationships();
 
+        this.classModel = classModel;
+
         for (const attribute of attributes) {
             if (attribute.list)
                 this.attributes[attribute.name] = (document && document[attribute.name]) ? document[attribute.name] : [];
@@ -130,18 +132,65 @@ class InstanceState {
         this.sync();
         that.sync();
 
-        for (attributeName in this.attributes) {
-            if (this.attributes[attributeName] !== that.attributes[attributeName])
+        for (const attributeName in this.attributes) {
+            const attributeDefinition = this.classModel.getAttribute(attributeName);
+            const thisAttribute = this.attributes[attributeName];
+            const thatAttribute = that.attributes[attributeName];
+
+            if (attributeDefinition.list) {
+                const thisArray = [...thisAttribute];
+                const thatArray = [...thatAttribute];
+
+                if (thisArray.length !== thatArray.length) {
+                    return false;
+                }
+                for (const index in thisArray) {
+                    if (attributeDefinition.type === Date) {
+                        if (!moment(thisArray[index]).isSame(thatArray[index])) {
+                            return false;
+                        }
+                    }
+                    else {
+                        if (thisArray[index] !== thatArray[index]) {
+                            return false;
+                        }
+                    }
+                }
+            }
+            else {
+                if (attributeDefinition.type === Date) {
+                    if (!moment(thisAttribute).isSame(thatAttribute)) {
+                        return false;
+                    }
+                }
+                else {
+                    if (thisAttribute !== thatAttribute) {
+                        return false;
+                    }
+                }
+
+            }
+        }
+        for (const singularRelationshipName in this.instanceReferences) {
+            if (this.instanceReferences[singularRelationshipName].id !== that.instanceReferences[singularRelationshipName].id) {
+                console.log('singular relationships not equal.');
                 return false;
+            }
         }
-        for (singularRelationshipName in this.instanceReferences) {
-            if (!this.instanceReferences[singularRelationshipName].equals(that.instanceReferences[singularRelationshipName]))
-                return false
-        }
-        for (nonSingularRelationshipName in this.instanceSetReferences) {
-            if (!this.instanceSetReferences[nonSingularRelationshipName].equals(that.instanceSetReferences[nonSingularRelationshipName]))
+        for (const nonSingularRelationshipName in this.instanceSetReferences) {
+            const theseIds = this.instanceSetReferences[nonSingularRelationshipName].ids;
+            const thoseIds = that.instanceSetReferences[nonSingularRelationshipName].ids;
+
+            if (theseIds.length != thoseIds.length){
                 return false;
+            }
+            for (const id of theseIds) {
+                if (!thoseIds.includes(id))
+                    return false;
+            }
+
         }
+
         return true;
     }
 

@@ -26,9 +26,11 @@ class Instance {
             this.__t = document.__t;
             this.previousState = new InstanceState(classModel, document);
             this.currentState = new InstanceState(classModel, document);
+            this[doc] = document;
         }
         else {
-            this._id = new mongoose.Types.ObjectId;
+            this[doc] = new this.classModel.Model();
+            this._id = this[doc]._id;
             this.__t = classModel.discrinatorSuperClass ? classModel.discriminatorSuperClass.className : undefined;
             this.previousState = null;
             this.currentState = new InstanceState(classModel);
@@ -243,7 +245,75 @@ class Instance {
      * @return Promise which when resolved returns the related instance if relationship is singular, or an Array of the related 
      *           instances if the relationship is non-singular.
      */ 
-    async walk(relationship, filter=null, ...accessControlMethodParameters) {
+    async walk(relationshipName, filter=null, ...accessControlMethodParameters) {
+        if (!relationshipName)
+            throw new Error('instance.walk() called with insufficient arguments. Should be walk(relationshipName, <optional>filter).');
+        
+        if (typeof(relationshipName) != 'string')
+            throw new Error('instance.walk(): First argument needs to be a String representing the name of the relationship.');
+        
+        if (!(relationshipName in this.classModel.schema))
+            throw new Error('instance.walk(): First argument needs to be a relationship property in ' + this.classModel.className + '\'s schema.');
+        
+        if (!this.classModel.propertyIsARelationship(relationshipName))
+            throw new Error('instance.walk(): property "' + relationshipName + '" is not a relationship.');
+        
+        if (filter && typeof(filter) !== "object")
+            throw new Error('instance.walk(): Second argument needs to be an object.');
+    
+        const relationshipDefinition = this.classModel.getRelationship(relationshipName);
+        const relatedClass = this.classModel.getRelatedClassModel(relationshipName);
+        const noFilter = filter ? false : true;
+        filter = filter ? filter : {}
+
+            // If relationship is to a singular instance, use findOne()
+        if (relationshipDefinition.singular) {
+            if (this[relationshipName] == null) {
+                return null;
+            }
+            else {
+                if (this[relationshipName] instanceof Instance && noFilter) {
+                    return this[relationshipName];
+                }
+                else {
+                    const id = this[relationshipName] instanceof Instance ? this[relationshipName]._id : this[relationshipName];
+                    Object.assign(filter, {
+                        _id: id,
+                    });
+                    const relatedInstance = await relatedClass.findOne(filter, ...accessControlMethodParameters);
+                    
+                    if (noFilter)
+                        this[relationshipName] = relatedInstance;
+    
+                    return relatedInstance;
+                }
+            }
+        }
+        // If nonsingular, use find()
+        else {
+            if (this[relationshipName] == null || this[relationshipName].length == 0) {
+                return [];
+            }
+            else {
+                if (!Array.isArray(this[relationshipName]) && noFilter) {
+                    return this[relationshipName];
+                }
+                else {
+                    const ids = !Array.isArray(this[relationshipName]) ? this[relationshipName].getObjectIds() : this[relationshipName];
+                    Object.assign(filter, {
+                        _id: {$in: ids}
+                    });
+                    const relatedInstanceSet = await relatedClass.find(filter, ...accessControlMethodParameters);
+                    if (noFilter)
+                        this[relationshipName] = relatedInstanceSet;
+
+                    return relatedInstanceSet;
+                }
+            }
+        }
+    }
+
+    async walk2(relationship, filter=null, ...accessControlMethodParameters) {
         if (!relationship)
             throw new Error('instance.walk() called with insufficient arguments. Should be walk(relationship, <optional>filter).');
         
@@ -326,31 +396,31 @@ class Instance {
         this.currentState.sync();
         this.requiredValidation();
         this.requiredGroupValidation();
-        //this.mutexValidation();
+        this.mutexValidation();
     }
 
     mutexValidation() {
-        let muti = [];
-        let violations = [];
+        const muti = [];
+        const violations = [];
         let message = '';
-        let classModel = this.classModel;
-        let schema = classModel.schema;
+        const properties = this.classModel.getDocumentProperties();
 
-        Object.keys(schema).forEach(key => {
-            if (schema[key].mutex && this.propertyIsSet(key))
-                    if (muti.includes(schema[key].mutex))
-                        violations.push(schema[key].mutex);
-                    else
-                        muti.push(schema[key].mutex);
-        });
+        for (const property of properties) {
+            if (property.mutex && this.propertyIsSet(property.name)) {
+                if (muti.includes(property.mutex)) 
+                    violations.push(property.mutex);
+                else 
+                    muti.push(property.mutex);
+            }
+        }
 
         if (violations.length) {
             message = 'Mutex violations found for instance ' + this.id + '.';
-            Object.keys(schema).forEach(key => {
-                if (violations.includes(schema[key].mutex) && this.propertyIsSet(key)) {
-                            message += ' Field ' + key + ' with mutex \'' + schema[key].mutex + '\'.'
+            for (const property of properties) {
+                if (violations.includes(property.mutex) && this.propertyIsSet(property.name)) {
+                    message += ' Field ' + property.name + ' with mutex \'' + property.mutex + '\'.';
                 }
-            });
+            }
             throw new Error(message);
         }
     }
@@ -494,9 +564,38 @@ class Instance {
         }
     }
 
+    syncDocument() {
+        for (const property of this.classModel.getDocumentProperties()){
+            delete this[doc][property.name];
+        }
+        
+        Object.assign(this[doc], this.currentState.toDocument());
+    }
+
     // Update and Delete Methods Methods
 
     async save(...updateControlMethodParameters) {
+        if (this.deleted()) 
+            throw new Error('instance.save(): You cannot save an instance which has been deleted.');
+        
+        try {
+            this.validate();
+            await this.classModel.updateControlCheck(this, ...updateControlMethodParameters);
+        }
+        catch (error) {
+            throw new Error('Caught validation error when attempting to save Instance: ' + error.message);
+        }
+
+        this.syncDocument();
+
+        await this[doc].save({validateBeforeSave: false});
+
+        this.previousState = new InstanceState(this.classModel, this.currentState.toDocument());
+
+        return this;
+    }
+
+    async save2(...updateControlMethodParameters) {
         if (this.deleted) 
             throw new Error('instance.save(): You cannot save an instance which has been deleted.');
         
@@ -523,6 +622,19 @@ class Instance {
     }
 
     async delete() {
+        if (!this.saved())
+            throw new Error('instance.delete(): You cannot delete an instance which hasn\'t been saved yet');
+
+        this.syncDocument();
+
+        await this.classModel.delete(this[doc]);
+
+        this.currentState = null;
+
+        return true;
+    }
+
+    async delete2() {
         if (!this.saved)
             throw new Error('instance.delete(): You cannot delete an instance which hasn\'t been saved yet');
 
@@ -535,12 +647,14 @@ class Instance {
         return classModel.isInstanceOfThisClass(this);
     }
 
-    equals(instance) {
-        if (!(instance instanceof Instance))
+    equals(that) {
+        if (!(that instanceof Instance))
             throw new Error('instance.equals called with something that is not an instance.');
-        if (instance.classModel !== this.classModel)
+        if (that.classModel !== this.classModel)
             return false;
-        if (instance.id != this.id)
+        if (that.id != this.id)
+            return false;
+        if (!this.currentState.equals(that.currentState))
             return false;
         return true;
     }

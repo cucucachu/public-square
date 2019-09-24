@@ -261,6 +261,15 @@ class ClassModel {
         return false;
     }
 
+    attributeIsListAttribute(attributeName) {
+        const attribute = this.getAttributes().filter(attribute => attribute.name === attributeName)[0];
+        return attribute.list;
+    }
+
+    getAttribute(attributeName) {
+        return this.getAttributes().filter(attribute => attribute.name === attributeName)[0]
+    }
+
     getAttributes() {
         const attributes = [];
         for (const key in this.schema) {
@@ -294,6 +303,7 @@ class ClassModel {
                     name: key,
                     toClass: this.schema[key].ref,
                     type: this.schema[key].type,
+                    singular: true,
                     mutex: this.schema[key].mutex,
                     required: this.schema[key].required,
                     requiredGroup: this.schema[key].requiredGroup,
@@ -310,12 +320,18 @@ class ClassModel {
                     name: key,
                     toClass: this.schema[key].ref,
                     type: this.schema[key].type,
+                    singular: false,
                     mutex: this.schema[key].mutex,
                     required: this.schema[key].required,
                     requiredGroup: this.schema[key].requiredGroup,
                 });
         }
         return relationships;
+    }
+
+    getRelationship(relationshipName) {
+        const allRelationships = this.getSingularRelationships().concat(this.getNonSingularRelationships());
+        return allRelationships.filter(relationship => relationship.name === relationshipName)[0];
     }
 
     getDocumentProperties() {

@@ -275,6 +275,10 @@ class InstanceSet extends SuperSet {
         return this.map(instance => instance.id);
     }
 
+    getObjectIds() {
+        return this.map(instance => instance._id);
+    }
+
     isInstanceSetOf(classModel) {
         return classModel.isInstanceSetOfThisClass(this);
     }
