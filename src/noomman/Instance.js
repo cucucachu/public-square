@@ -614,6 +614,15 @@ class Instance {
     }
 
     async saveWithoutValidation() {
+        if (this.deleted()) 
+            throw new Error('instance.save(): You cannot save an instance which has been deleted.');
+        this.syncDocument();
+        await this[doc].save({validateBeforeSave: false});
+        this.previousState = new InstanceState(this.classModel, this.currentState.toDocument());
+        return this;
+    }
+
+    async saveWithoutValidation2() {
         if (this.deleted) 
             throw new Error('instance.save(): You cannot save an instance which has been deleted.');
         await this[doc].save({validateBeforeSave: false});

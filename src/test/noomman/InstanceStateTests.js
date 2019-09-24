@@ -622,7 +622,7 @@ describe('Instance State Tests', () => {
 
                 describe('Non-Singular Relationships', () => {
                     
-                    it('Setting a non-singular relationship to an instance.', () => {
+                    it.only('Setting a non-singular relationship to an instance.', () => {
                         const instance1 = new Instance(CompareClass2);
                         const instance2 = new Instance(CompareClass2);
                         const instances = [instance1, instance2];

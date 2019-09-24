@@ -64,7 +64,7 @@ class InstanceState {
                         trapTarget.instanceSetReferences[key].instanceSet = null;
                     }
                     else {
-                        trapTarget.instanceSetReferences[key]._ids = value.map(instance => instance._ids);
+                        trapTarget.instanceSetReferences[key]._ids = value.map(instance => instance._id);
                         trapTarget.instanceSetReferences[key].instanceSet = value;
                     }
                 }
