@@ -116,70 +116,6 @@ class Instance {
         });
     }
 
-    // Constructs an instance of Instance. 
-    // Should only be called by ClassModel methods, not in outside code.
-    constructor2(classModel, document=null, saved=false) {
-        this.constructorValidations(classModel, document, saved);
-
-        this.classModel = classModel;
-        this[doc] = document ? document : new classModel.Model({ _id: new mongoose.Types.ObjectId });
-        this.saved = saved;
-        this.deleted = false;
-
-        const documentProperties = Object.keys(this.classModel.schema).concat(['id', '_id', '__t']);
-        const unSettableInstanceProperties = ['classModel', doc, 'id', '_id', '__t']; 
-        const instanceMethods = Object.getOwnPropertyNames(Object.getPrototypeOf(this)); 
-
-        return new Proxy(this, {
-            set(trapTarget, key, value, receiver) {
-                if (this.deleted) 
-                    throw new Error('Illegal Attempt to set a property after instance has been deleted.');
-
-                if (unSettableInstanceProperties.includes(key))
-                    throw new Error('Illegal attempt to change the ' + key + ' of an Instance.');
-
-                if (documentProperties.includes(key)) {
-                    trapTarget[doc][key] = value;
-                    return true;
-                }
-
-                return Reflect.set(trapTarget, key, value, receiver);
-            },
-
-            get(trapTarget, key, receiver) {
-                if (documentProperties.includes(key))
-                    return trapTarget[doc][key];
-
-                return Reflect.get(trapTarget, key, receiver);
-            },
-
-            has(trapTarget, key) {
-                console.log('Instance Has Trap called.');
-                if (documentProperties.includes(key)) {
-                    console.log('Calling Instance State has trap.');
-                    return (key in trapTarget.currentState);
-                }
-                
-                return Reflect.has(trapTarget, key);
-            },
-
-            deleteProperty(trapTarget, key) {
-                if (unSettableInstanceProperties.includes(key) || instanceMethods.includes(key) || Object.keys(trapTarget).includes(key)) 
-                    throw new Error('Illegal attempt to delete the ' + key + ' property of an Instance.');
-
-                if (documentProperties.includes(key)) {
-                    trapTarget[doc][key] = undefined;
-                    return true;
-                }
-                return Reflect.deleteProperty(trapTarget, key);
-            },
-
-            ownKeys(trapTarget) {
-                return Reflect.ownKeys(trapTarget).filter(key => typeof key !== 'symbol');
-            }
-        });
-    }
-
     constructorValidations(classModel, document) {
         if (!classModel) 
             throw new Error('Instance.constructor(), parameter classModel is required.');
@@ -215,14 +151,6 @@ class Instance {
 
     assign(object) {
         const documentProperties = this.classModel.getDocumentPropertyNames();
-        for (const key in object) {
-            if (documentProperties.includes(key))
-                this[key] = object[key];
-        }
-    }
-
-    assign2(object) {
-        const documentProperties = Object.keys(this.classModel.schema);
         for (const key in object) {
             if (documentProperties.includes(key))
                 this[key] = object[key];
@@ -309,53 +237,6 @@ class Instance {
 
                     return relatedInstanceSet;
                 }
-            }
-        }
-    }
-
-    async walk2(relationship, filter=null, ...accessControlMethodParameters) {
-        if (!relationship)
-            throw new Error('instance.walk() called with insufficient arguments. Should be walk(relationship, <optional>filter).');
-        
-        if (typeof(relationship) != 'string')
-            throw new Error('instance.walk(): First argument needs to be a String representing the name of the relationship.');
-        
-        if (!(relationship in this.classModel.schema))
-            throw new Error('instance.walk(): First argument needs to be a relationship property in ' + this.classModel.className + '\'s schema.');
-        
-        if (!this.classModel.propertyIsARelationship(relationship))
-            throw new Error('instance.walk(): property "' + relationship + '" is not a relationship.');
-        
-        if (filter && typeof(filter) !== "object")
-            throw new Error('instance.walk(): Second argument needs to be an object.');
-    
-        const relatedClass = this.classModel.getRelatedClassModel(relationship);
-        const singular = this.classModel.schema[relationship].type == mongoose.Schema.Types.ObjectId;
-        filter = filter ? filter : {}
-
-            // If relationship is to a singular instance, use findOne()
-        if (singular) {
-            if (this[relationship] == null) {
-                return null;
-            }
-            else {
-                Object.assign(filter, {
-                    _id: this[relationship],
-                });
-                return relatedClass.findOne(filter, ...accessControlMethodParameters);
-            }
-        }
-        // If nonsingular, use find()
-        else {
-            if (this[relationship] == null || this[relationship].length == 0) {
-                return [];
-            }
-            else {
-                Object.assign(filter, {
-                    _id: {$in: this[relationship]}
-                });
-
-                return relatedClass.find(filter, ...accessControlMethodParameters);
             }
         }
     }
@@ -470,111 +351,12 @@ class Instance {
         }
     }
 
-    propertyIsSet2(key) {
-        let schema = this.classModel.schema;
-
-        if (Array.isArray(schema[key].type))
-            return this[key].length ? true : false;
-
-        if (schema[key].type == Number)
-            return (this[key] || this[key] == 0);
-
-        if (schema[key].type == String)
-            return this[key] ? true : false;
-        
-        return this[key] ? true : false;
-    }
-
-    // Validations
-    validate2() {
-        this.requiredValidation2();
-        this.requiredGroupValidation2();
-        this.mutexValidation2();
-        this[doc].validateSync();
-    }
-
-    mutexValidation2() {
-        let muti = [];
-        let violations = [];
-        let message = '';
-        let classModel = this.classModel;
-        let schema = classModel.schema;
-
-        Object.keys(schema).forEach(key => {
-            if (schema[key].mutex && this.propertyIsSet2(key))
-                    if (muti.includes(schema[key].mutex))
-                        violations.push(schema[key].mutex);
-                    else
-                        muti.push(schema[key].mutex);
-        });
-
-        if (violations.length) {
-            message = 'Mutex violations found for instance ' + this.id + '.';
-            Object.keys(schema).forEach(key => {
-                if (violations.includes(schema[key].mutex) && this.propertyIsSet2(key)) {
-                            message += ' Field ' + key + ' with mutex \'' + schema[key].mutex + '\'.'
-                }
-            });
-            throw new Error(message);
-        }
-    }
-
-    requiredValidation2() {
-        let message = '';
-        let valid = true;
-        let schema = this.classModel.schema;
-
-        // Iterate through the schema to find required groups.
-        Object.keys(schema).forEach(key => {
-            if (schema[key].required && !this.propertyIsSet2(key)) {
-                valid = false;
-                message += this.classModel.className + ' validation failed: ' + key + ': Path \`' + key + '\` is required.'
-            }
-        });
-
-        if (!valid)
-            throw new Error(message);
-    }
-
-    requiredGroupValidation2() {
-        let requiredGroups = [];
-        let message = '';
-        let classModel = this.classModel;
-        let schema = classModel.schema;
-
-        // Iterate through the schema to find required groups.
-        Object.keys(schema).forEach(key => {
-            if (schema[key].requiredGroup && !requiredGroups.includes(schema[key].requiredGroup))
-                requiredGroups.push(schema[key].requiredGroup);
-        });
-
-        // Iterate through the instance members to check that at least one member for each required group is set.
-        Object.keys(schema).forEach(key => {
-            if (schema[key].requiredGroup && this.propertyIsSet(key))
-                requiredGroups = requiredGroups.filter(value => { return value != schema[key].requiredGroup; });
-        });
-
-        if (requiredGroups.length) {
-            message = 'Required Group violations found for requirement group(s): ';
-            requiredGroups.forEach(function(requiredGroup) {
-                message += ' ' + requiredGroup;
-            });
-
-            throw new Error(message);
-        }
-    }
-
     syncDocument() {
         for (const property of this.classModel.getDocumentProperties()){
             delete this[doc][property.name];
         }
         
         Object.assign(this[doc], this.currentState.toDocument());
-    }
-
-    get__t() {
-        this.syncDocument();
-        return this[doc].__t;
     }
 
     // Update and Delete Methods Methods
@@ -600,38 +382,12 @@ class Instance {
         return this;
     }
 
-    async save2(...updateControlMethodParameters) {
-        if (this.deleted) 
-            throw new Error('instance.save(): You cannot save an instance which has been deleted.');
-        
-        try {
-            this.validate();
-            await this.classModel.updateControlCheck(this, ...updateControlMethodParameters);
-        }
-        catch (error) {
-            throw new Error('Caught validation error when attempting to save Instance: ' + error.message);
-        }
-
-        await this[doc].save({validateBeforeSave: false});
-        this.saved = true;
-
-        return this;
-    }
-
     async saveWithoutValidation() {
         if (this.deleted()) 
             throw new Error('instance.save(): You cannot save an instance which has been deleted.');
         this.syncDocument();
         await this[doc].save({validateBeforeSave: false});
         this.previousState = new InstanceState(this.classModel, this.currentState.toDocument());
-        return this;
-    }
-
-    async saveWithoutValidation2() {
-        if (this.deleted) 
-            throw new Error('instance.save(): You cannot save an instance which has been deleted.');
-        await this[doc].save({validateBeforeSave: false});
-        this.saved = true;
         return this;
     }
 
@@ -645,15 +401,6 @@ class Instance {
 
         this.currentState = null;
 
-        return true;
-    }
-
-    async delete2() {
-        if (!this.saved)
-            throw new Error('instance.delete(): You cannot delete an instance which hasn\'t been saved yet');
-
-        await this.classModel.delete(this[doc]);
-        this.deleted = true;
         return true;
     }
 
