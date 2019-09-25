@@ -1896,89 +1896,149 @@ describe('InstanceSet Tests', () => {
     
             });
     
-            describe.skip('Walking Relationships', () => {
+            describe('Walking Relationships', () => {
+
+                describe('Relationships Already Populated', () => {
     
-                describe('Walking Relationships on InstanceSets with Only One Instance', () => {
+                    describe('Walking Relationships on InstanceSets with Only One Instance', () => {
+        
+                        it('Walking a singular relationship.', async () => {
+                            const instanceSet = new InstanceSet(SingularRelationshipClass, [
+                                instanceOfSingularRelationshipClassA
+                            ]);
+                            const expectedInstanceSet = new InstanceSet(NonSingularRelationshipClass, [
+                                instanceOfNonSingularRelationshipClass
+                            ]);
+                            const returnedInstanceSet = await instanceSet.walk('singularRelationship');
+                            
+                            if (!expectedInstanceSet.equals(returnedInstanceSet))
+                                throw new Error('walk() did not return the correct InstanceSet.');
+                        });
     
-                    it('Walking a singular relationship.', async () => {
-                        const instanceSet = new InstanceSet(SingularRelationshipClass, [
-                            instanceOfSingularRelationshipClassA
-                        ]);
-                        const expectedInstanceSet = new InstanceSet(NonSingularRelationshipClass, [
-                            instanceOfNonSingularRelationshipClass
-                        ]);
-                        const returnedInstanceSet = await instanceSet.walk('singularRelationship');
-                        
-                        if (!expectedInstanceSet.equals(returnedInstanceSet))
-                            throw new Error('walk() did not return the correct InstanceSet.');
+                        it('Walking a nonsingular relationship.', async () => {
+                            const instanceSet = new InstanceSet(NonSingularRelationshipClass, [
+                                instanceOfNonSingularRelationshipClass
+                            ]);
+                            const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
+                                instanceOfSingularRelationshipClassA,
+                                instanceOfSingularRelationshipClassB
+                            ]);
+                            const returnedInstanceSet = await instanceSet.walk('nonSingularRelationship');
+            
+                            if (!expectedInstanceSet.equals(returnedInstanceSet))
+                                throw new Error('walk() did not return the correct InstanceSet.');
+                        });
+            
+                        it('Walking a singular relationship by calling walk() from the super class.', async () => {
+                            const instanceSet = new InstanceSet(SingularRelationshipClass, [
+                                instanceOfSubClassOfSingularRelationshipClassA
+                            ]);
+                            const expectedInstanceSet = new InstanceSet(NonSingularRelationshipClass, [
+                                instanceOfSubClassOfNonSingularRelationshipClass
+                            ]);
+                            const returnedInstanceSet = await instanceSet.walk('singularRelationship');
+            
+                            if (!expectedInstanceSet.equals(returnedInstanceSet))
+                                throw new Error('walk() did not return the correct InstanceSet.');
+                        });
+            
+                        it('Walking a nonsingular relationship by calling walk() from the super class.', async () => {
+                            const instanceSet = new InstanceSet(NonSingularRelationshipClass, [
+                                instanceOfSubClassOfNonSingularRelationshipClass
+                            ]);
+                            const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
+                                instanceOfSubClassOfSingularRelationshipClassA,
+                                instanceOfSubClassOfSingularRelationshipClassB
+                            ]);
+                            const returnedInstanceSet = await instanceSet.walk('nonSingularRelationship');
+            
+                            if (!expectedInstanceSet.equals(returnedInstanceSet))
+                                throw new Error('walk() did not return the correct InstanceSet.');
+                        });
+            
+                        it('Walking a nonsingular relationship by calling walk() from the super class.', async () => {
+                            const instanceSet = new InstanceSet(NonSingularRelationshipClass, [
+                                instanceOfSubClassOfNonSingularRelationshipClass
+                            ]);
+                            const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
+                                instanceOfSubClassOfSingularRelationshipClassA
+                            ]);
+                            const filter = { boolean: true };
+            
+                            const returnedInstanceSet = await instanceSet.walk('nonSingularRelationship', filter);
+            
+                            if (!expectedInstanceSet.equals(returnedInstanceSet))
+                                throw new Error('walk() did not return the correct InstanceSet.');
+                        });
+        
                     });
         
-                    it('Walking a nonsingular relationship.', async () => {
-                        const instanceSet = new InstanceSet(NonSingularRelationshipClass, [
-                            instanceOfNonSingularRelationshipClass
-                        ]);
-                        const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
-                            instanceOfSingularRelationshipClassA,
-                            instanceOfSingularRelationshipClassB
-                        ]);
-                        const returnedInstanceSet = await instanceSet.walk('nonSingularRelationship');
+                    describe('Walking Relationships On InstanceSets with Multiple Instances', () => {
+            
+                        it('Walking a singular relationship by calling walk() from the super class.', async () => {
+                            const instanceSet = new InstanceSet(SingularRelationshipClass, [
+                                instanceOfSingularRelationshipClassA,
+                                instanceOfSingularRelationshipClassB,
+                                instanceOfSubClassOfSingularRelationshipClassA,
+                                instanceOfSubClassOfSingularRelationshipClassB
+                            ]);
+                            const expectedInstanceSet = new InstanceSet(NonSingularRelationshipClass, [
+                                instanceOfNonSingularRelationshipClass,
+                                instanceOfSubClassOfNonSingularRelationshipClass
+                            ]);
+                            const returnedInstanceSet = await instanceSet.walk('singularRelationship');
+            
+                            if (!expectedInstanceSet.equals(returnedInstanceSet))
+                                throw new Error('walk() did not return the correct InstanceSet.');
+                        });
+            
+                        it('Walking a non singular relationship by calling walk() from the super class.', async () => {
+                            const instanceSet = new InstanceSet(NonSingularRelationshipClass, [
+                                instanceOfNonSingularRelationshipClass,
+                                instanceOfSubClassOfNonSingularRelationshipClass
+                            ]);
+                            const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
+                                instanceOfSingularRelationshipClassA,
+                                instanceOfSingularRelationshipClassB,
+                                instanceOfSubClassOfSingularRelationshipClassA,
+                                instanceOfSubClassOfSingularRelationshipClassB
+                            ]);
+                            const returnedInstanceSet = await instanceSet.walk('nonSingularRelationship');
+            
+                            if (!expectedInstanceSet.equals(returnedInstanceSet))
+                                throw new Error('walk() did not return the correct InstanceSet.');
+                        });
+            
+                        it('Walking a non singular relationship by calling walk() from the super class with filtering.', async () => {
+                            const instanceSet = new InstanceSet(NonSingularRelationshipClass, [
+                                instanceOfNonSingularRelationshipClass,
+                                instanceOfSubClassOfNonSingularRelationshipClass
+                            ]);
+                            const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
+                                instanceOfSingularRelationshipClassA,
+                                instanceOfSubClassOfSingularRelationshipClassA,
+                            ]);
+                            const filter = { boolean: true };
         
-                        if (!expectedInstanceSet.equals(returnedInstanceSet))
-                            throw new Error('walk() did not return the correct InstanceSet.');
+                            const returnedInstanceSet = await instanceSet.walk('nonSingularRelationship', filter);
+            
+                            if (!expectedInstanceSet.equals(returnedInstanceSet))
+                                throw new Error('walk() did not return the correct InstanceSet.');
+                        });
+        
                     });
-        
-                    it('Walking a singular relationship by calling walk() from the super class.', async () => {
-                        const instanceSet = new InstanceSet(SingularRelationshipClass, [
-                            instanceOfSubClassOfSingularRelationshipClassA
-                        ]);
-                        const expectedInstanceSet = new InstanceSet(NonSingularRelationshipClass, [
-                            instanceOfSubClassOfNonSingularRelationshipClass
-                        ]);
-                        const returnedInstanceSet = await instanceSet.walk('singularRelationship');
-        
-                        if (!expectedInstanceSet.equals(returnedInstanceSet))
-                            throw new Error('walk() did not return the correct InstanceSet.');
-                    });
-        
-                    it('Walking a nonsingular relationship by calling walk() from the super class.', async () => {
-                        const instanceSet = new InstanceSet(NonSingularRelationshipClass, [
-                            instanceOfSubClassOfNonSingularRelationshipClass
-                        ]);
-                        const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
-                            instanceOfSubClassOfSingularRelationshipClassA,
-                            instanceOfSubClassOfSingularRelationshipClassB
-                        ]);
-                        const returnedInstanceSet = await instanceSet.walk('nonSingularRelationship');
-        
-                        if (!expectedInstanceSet.equals(returnedInstanceSet))
-                            throw new Error('walk() did not return the correct InstanceSet.');
-                    });
-        
-                    it('Walking a nonsingular relationship by calling walk() from the super class.', async () => {
-                        const instanceSet = new InstanceSet(NonSingularRelationshipClass, [
-                            instanceOfSubClassOfNonSingularRelationshipClass
-                        ]);
-                        const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
-                            instanceOfSubClassOfSingularRelationshipClassA
-                        ]);
-                        const filter = { boolean: true };
-        
-                        const returnedInstanceSet = await instanceSet.walk('nonSingularRelationship', filter);
-        
-                        if (!expectedInstanceSet.equals(returnedInstanceSet))
-                            throw new Error('walk() did not return the correct InstanceSet.');
-                    });
-    
+
                 });
-    
-                describe('Walking Relationships On InstanceSets with Multiple Instances', () => {
-        
+
+                describe('Relationships Not Populated', () => {
+            
                     it('Walking a singular relationship by calling walk() from the super class.', async () => {
+                        const instance1 = new Instance(SingularRelationshipClass, documentOfSingularRelationshipClassA);
+                        const instance2 = new Instance(SingularRelationshipClass, documentOfSingularRelationshipClassB);
+                        const instance3 = new Instance(SubClassOfSingularRelationshipClass, documentOfSubClassOfSingularRelationshipClassA);
+                        const instance4 = new Instance(SubClassOfSingularRelationshipClass, documentOfSubClassOfSingularRelationshipClassB);
                         const instanceSet = new InstanceSet(SingularRelationshipClass, [
-                            instanceOfSingularRelationshipClassA,
-                            instanceOfSingularRelationshipClassB,
-                            instanceOfSubClassOfSingularRelationshipClassA,
-                            instanceOfSubClassOfSingularRelationshipClassB
+                            instance1, instance2, instance3, instance4
                         ]);
                         const expectedInstanceSet = new InstanceSet(NonSingularRelationshipClass, [
                             instanceOfNonSingularRelationshipClass,
@@ -1991,10 +2051,9 @@ describe('InstanceSet Tests', () => {
                     });
         
                     it('Walking a non singular relationship by calling walk() from the super class.', async () => {
-                        const instanceSet = new InstanceSet(NonSingularRelationshipClass, [
-                            instanceOfNonSingularRelationshipClass,
-                            instanceOfSubClassOfNonSingularRelationshipClass
-                        ]);
+                        const instance1 = new Instance(NonSingularRelationshipClass, documentOfNonSingularRelationshipClass);
+                        const instance2 = new Instance(SubClassOfNonSingularRelationshipClass, documentOfSubClassOfNonSingularRelationshipClass);
+                        const instanceSet = new InstanceSet(NonSingularRelationshipClass, [instance1, instance2]);
                         const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
                             instanceOfSingularRelationshipClassA,
                             instanceOfSingularRelationshipClassB,
@@ -2008,10 +2067,9 @@ describe('InstanceSet Tests', () => {
                     });
         
                     it('Walking a non singular relationship by calling walk() from the super class with filtering.', async () => {
-                        const instanceSet = new InstanceSet(NonSingularRelationshipClass, [
-                            instanceOfNonSingularRelationshipClass,
-                            instanceOfSubClassOfNonSingularRelationshipClass
-                        ]);
+                        const instance1 = new Instance(NonSingularRelationshipClass, documentOfNonSingularRelationshipClass);
+                        const instance2 = new Instance(SubClassOfNonSingularRelationshipClass, documentOfSubClassOfNonSingularRelationshipClass);
+                        const instanceSet = new InstanceSet(NonSingularRelationshipClass, [instance1, instance2]);
                         const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
                             instanceOfSingularRelationshipClassA,
                             instanceOfSubClassOfSingularRelationshipClassA,
@@ -2023,116 +2081,170 @@ describe('InstanceSet Tests', () => {
                         if (!expectedInstanceSet.equals(returnedInstanceSet))
                             throw new Error('walk() did not return the correct InstanceSet.');
                     });
+
+                });
+
+                describe('Mix of Populated and Unpopulated Relationships', () => {
+            
+                    it('Walking a singular relationship by calling walk() from the super class.', async () => {
+                        const instance1 = instanceOfSingularRelationshipClassA;
+                        const instance2 = new Instance(SingularRelationshipClass, documentOfSingularRelationshipClassB);
+                        const instance3 = instanceOfSubClassOfSingularRelationshipClassA;
+                        const instance4 = new Instance(SubClassOfSingularRelationshipClass, documentOfSubClassOfSingularRelationshipClassB);
+                        const instanceSet = new InstanceSet(SingularRelationshipClass, [
+                            instance1, instance2, instance3, instance4
+                        ]);
+                        const expectedInstanceSet = new InstanceSet(NonSingularRelationshipClass, [
+                            instanceOfNonSingularRelationshipClass,
+                            instanceOfSubClassOfNonSingularRelationshipClass
+                        ]);
+                        const returnedInstanceSet = await instanceSet.walk('singularRelationship');
+        
+                        if (!expectedInstanceSet.equals(returnedInstanceSet))
+                            throw new Error('walk() did not return the correct InstanceSet.');
+                    });
+        
+                    it('Walking a non singular relationship by calling walk() from the super class.', async () => {
+                        const instance1 = new Instance(NonSingularRelationshipClass, documentOfNonSingularRelationshipClass);
+                        const instance2 = instanceOfSubClassOfNonSingularRelationshipClass;
+                        const instanceSet = new InstanceSet(NonSingularRelationshipClass, [instance1, instance2]);
+                        const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
+                            instanceOfSingularRelationshipClassA,
+                            instanceOfSingularRelationshipClassB,
+                            instanceOfSubClassOfSingularRelationshipClassA,
+                            instanceOfSubClassOfSingularRelationshipClassB
+                        ]);
+                        const returnedInstanceSet = await instanceSet.walk('nonSingularRelationship');
+        
+                        if (!expectedInstanceSet.equals(returnedInstanceSet))
+                            throw new Error('walk() did not return the correct InstanceSet.');
+                    });
+        
+                    it('Walking a non singular relationship by calling walk() from the super class with filtering.', async () => {
+                        const instance1 = instanceOfNonSingularRelationshipClass;
+                        const instance2 = new Instance(SubClassOfNonSingularRelationshipClass, documentOfSubClassOfNonSingularRelationshipClass);
+                        const instanceSet = new InstanceSet(NonSingularRelationshipClass, [instance1, instance2]);
+                        const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
+                            instanceOfSingularRelationshipClassA,
+                            instanceOfSubClassOfSingularRelationshipClassA,
+                        ]);
+                        const filter = { boolean: true };
     
+                        const returnedInstanceSet = await instanceSet.walk('nonSingularRelationship', filter);
+        
+                        if (!expectedInstanceSet.equals(returnedInstanceSet))
+                            throw new Error('walk() did not return the correct InstanceSet.');
+                    });
+
                 });
     
             });
     
         });
 
-        // describe('InstanceSet.delete()', () => {
+        describe('InstanceSet.delete()', () => {
 
-        //     after(async() => {
-        //         SuperClass.clear();
-        //     });
+            after(async() => {
+                SuperClass.clear();
+            });
 
-        //     it('InstanceSet.delete() throws an error if any instance in the InstanceSet has not been saved. No Instances deleted.', async () => {
-        //         const instance1 = new Instance(SuperClass);
-        //         const instance2 = new Instance(SuperClass);
-        //         const instanceSet = new InstanceSet(SuperClass, [instance1, instance2]);
-        //         const expectedErrorMessage = 'Attempt to delete an InstanceSet containing unsaved Instances.';
+            it('InstanceSet.delete() throws an error if any instance in the InstanceSet has not been saved. No Instances deleted.', async () => {
+                const instance1 = new Instance(SuperClass);
+                const instance2 = new Instance(SuperClass);
+                const instanceSet = new InstanceSet(SuperClass, [instance1, instance2]);
+                const expectedErrorMessage = 'Attempt to delete an InstanceSet containing unsaved Instances.';
 
-        //         await instance1.save();
+                await instance1.save();
 
-        //         await testForErrorAsync('instanceSet.delete()', expectedErrorMessage, async () => {
-        //             return instanceSet.delete();
-        //         });
+                await testForErrorAsync('instanceSet.delete()', expectedErrorMessage, async () => {
+                    return instanceSet.delete();
+                });
 
-        //         const instanceFound = await SuperClass.findById(instance1.id);
+                const instanceFound = await SuperClass.findById(instance1.id);
 
-        //         if (!instanceFound) 
-        //             throw new Error('instanceSet.delete() threw an error, but the instance was deleted anyway.');
+                if (!instanceFound) 
+                    throw new Error('instanceSet.delete() threw an error, but the instance was deleted anyway.');
 
-        //     });
+            });
 
-        //     it('InstanceSet.delete() deletes all the instances in an InstanceSet.', async () => {
-        //         const instance1 = new Instance(SuperClass);
-        //         const instance2 = new Instance(SuperClass);
-        //         const instanceSet = new InstanceSet(SuperClass, [instance1, instance2]);
-        //         await instanceSet.save();
-        //         await instanceSet.delete();
+            it('InstanceSet.delete() deletes all the instances in an InstanceSet.', async () => {
+                const instance1 = new Instance(SuperClass);
+                const instance2 = new Instance(SuperClass);
+                const instanceSet = new InstanceSet(SuperClass, [instance1, instance2]);
+                await instanceSet.save();
+                await instanceSet.delete();
 
-        //         const instancesFound = await SuperClass.find({ _id: { $in: instanceSet.getInstanceIds() } });
+                const instancesFound = await SuperClass.find({ _id: { $in: instanceSet.getInstanceIds() } });
 
-        //         if (!instancesFound.isEmpty())
-        //             throw new Error('instanceSet.delete() did not throw an error, but the instances were not deleted.');
+                if (!instancesFound.isEmpty())
+                    throw new Error('instanceSet.delete() did not throw an error, but the instances were not deleted.');
 
-        //         instanceSet.forEach(instance => {
-        //             if (instance.deleted == false)
-        //                 throw new Error('Not all of the instances were marked deleted.');
-        //         });
-        //     });
+                instanceSet.forEach(instance => {
+                    if (instance.deleted() !== true)
+                        throw new Error('Not all of the instances were marked deleted.');
+                });
+            });
 
-        //     it('InstanceSet.delete() deletes all the instances in a set containing sub class and discriminated instances.', async () => {
-        //         const instance1 = new Instance(SuperClass);
-        //         const instance2 = new Instance(SubClassOfSuperClass);
-        //         const instance3 = new Instance(DiscriminatedSubClassOfSuperClass);
-        //         const instance4 = new Instance(SubClassOfDiscriminatedSubClassOfSuperClass);
-        //         const instance5 = new Instance(SubClassOfSubClassOfSuperClass);
-        //         const instance6 = new Instance(SubClassOfAbstractSubClassOfSuperClass);
-        //         const instances = [instance1, instance2, instance3, instance4, instance5, instance6];
-        //         const instanceSet = new InstanceSet(SuperClass, instances);
-        //         await instanceSet.save();                
-        //         await instanceSet.delete();
+            it('InstanceSet.delete() deletes all the instances in a set containing sub class and discriminated instances.', async () => {
+                const instance1 = new Instance(SuperClass);
+                const instance2 = new Instance(SubClassOfSuperClass);
+                const instance3 = new Instance(DiscriminatedSubClassOfSuperClass);
+                const instance4 = new Instance(SubClassOfDiscriminatedSubClassOfSuperClass);
+                const instance5 = new Instance(SubClassOfSubClassOfSuperClass);
+                const instance6 = new Instance(SubClassOfAbstractSubClassOfSuperClass);
+                const instances = [instance1, instance2, instance3, instance4, instance5, instance6];
+                const instanceSet = new InstanceSet(SuperClass, instances);
+                await instanceSet.save();                
+                await instanceSet.delete();
 
-        //         const instancesFound = await SuperClass.find({ _id: { $in: instanceSet.getInstanceIds() } });
+                const instancesFound = await SuperClass.find({ _id: { $in: instanceSet.getInstanceIds() } });
 
-        //         if (!instancesFound.isEmpty())
-        //             throw new Error('instanceSet.delete() did not throw an error, but the instances were not deleted.');
+                if (!instancesFound.isEmpty())
+                    throw new Error('instanceSet.delete() did not throw an error, but the instances were not deleted.');
 
-        //         instanceSet.forEach(instance => {
-        //             if (instance.deleted == false)
-        //                 throw new Error('Not all of the instances were marked deleted.');
-        //         });
-        //     });
+                instanceSet.forEach(instance => {
+                    if (instance.deleted() !== true)
+                        throw new Error('Not all of the instances were marked deleted.');
+                });
+            });
 
-        // });
+        });
 
     });
 
-    // describe('Miscellanious Methods', () => {
+    describe('Miscellanious Methods', () => {
 
-    //     describe('InstanceSet.getInstanceIds()', () => {
+        describe('InstanceSet.getInstanceIds()', () => {
     
-    //         it('getInstanceIds returns an array of string object ids.', () => {
-    //             const instance1 = new Instance(SubClassOfSuperClass);
-    //             const instance2 = new Instance(SubClassOfDiscriminatedSubClassOfSuperClass);
-    //             const instances = [instance1, instance2];
-    //             const instanceSet = new InstanceSet(SuperClass, instances);
-    //             const expected = instances.map(instance => instance.id);
-    //             const ids = instanceSet.getInstanceIds();
-    //             if (ids.length != expected.length)
-    //                 throw new Error('Wrong number of ids returned.');
+            it('getInstanceIds returns an array of string object ids.', () => {
+                const instance1 = new Instance(SubClassOfSuperClass);
+                const instance2 = new Instance(SubClassOfDiscriminatedSubClassOfSuperClass);
+                const instances = [instance1, instance2];
+                const instanceSet = new InstanceSet(SuperClass, instances);
+                const expected = instances.map(instance => instance.id);
+                const ids = instanceSet.getInstanceIds();
+                if (ids.length != expected.length)
+                    throw new Error('Wrong number of ids returned.');
                 
-    //             for (const id of expected) {
-    //                 if (!ids.includes(id))
-    //                     throw new Error('Array of ids is missing ' + id + '.');
-    //             }
-    //         });
+                for (const id of expected) {
+                    if (!ids.includes(id))
+                        throw new Error('Array of ids is missing ' + id + '.');
+                }
+            });
     
-    //         it('getInstanceIds called on an empty set returns an empty array.', () => {
-    //             const instanceSet = new InstanceSet(SuperClass,);
-    //             const ids = instanceSet.getInstanceIds();
+            it('getInstanceIds called on an empty set returns an empty array.', () => {
+                const instanceSet = new InstanceSet(SuperClass,);
+                const ids = instanceSet.getInstanceIds();
     
-    //             if (!Array.isArray(ids))
-    //                 throw new Error('getInstanceIds() returned a non array.');
+                if (!Array.isArray(ids))
+                    throw new Error('getInstanceIds() returned a non array.');
                 
-    //             if (ids.length)
-    //                 throw new Error('getInstanceIds() returned a non empty array. ' + ids);
-    //         });
+                if (ids.length)
+                    throw new Error('getInstanceIds() returned a non empty array. ' + ids);
+            });
     
-    //     });
+        });
 
-    // });
+    });
 
 });

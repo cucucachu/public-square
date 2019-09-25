@@ -197,52 +197,114 @@ class InstanceSet extends SuperSet {
         await Promise.all(promises);
     }
 
-    walkValidations(relationship, filter) {
-        if (!relationship) 
+    walkValidations(relationshipName, filter) {
+        if (!relationshipName) 
             throw new Error('InstanceSet.walk() called without relationship.');
 
-        if (typeof(relationship) !== 'string')
+        if (typeof(relationshipName) !== 'string')
             throw new Error('InstanceSet.walk() relationship argument must be a String.');
 
-        if (!(relationship in this.classModel.schema) || !this.classModel.propertyIsARelationship(relationship))
+        if (!(relationshipName in this.classModel.schema) || !this.classModel.propertyIsARelationship(relationshipName))
             throw new Error('InstanceSet.walk() called with an invalid relationship for ClassModel ' + this.classModel.className + '.');
         
         if (filter && typeof(filter) !== "object")
             throw new Error('InstanceSet.walk() filter argument must be an object.');
     }
 
-    async walk(relationship, filter=null, ...accessControlMethodParameters) {
-        this.walkValidations(relationship, filter);
-    
-        const relatedClass = this.classModel.getRelatedClassModel(relationship);
-        const singular = this.classModel.schema[relationship].type == mongoose.Schema.Types.ObjectId;
+    async walk(relationshipName, filter=null, ...accessControlMethodParameters) {
+        this.walkValidations(relationshipName, filter);
+
+        const relationshipDefinition = this.classModel.getRelationship(relationshipName);
+        const relatedClass = this.classModel.getRelatedClassModel(relationshipName);
+        const noFilter = filter ? false : true;
         filter = filter ? filter : {};
         let instanceIdsToFind;
+        const instancesAlreadyFound = new InstanceSet(relatedClass);
 
         if(this.isEmpty())
             return new InstanceSet(relatedClass);
 
-        if (singular) {
-            instanceIdsToFind = this.map(instance => instance[relationship]).filter(id => { return id != null });
+        if (relationshipDefinition.singular) {
+            if (noFilter) {
+                const populatedRelationships = this.map(instance => instance[relationshipName]).filter(instance => instance instanceof Instance);
+                instancesAlreadyFound.addInstances(populatedRelationships);
+                instanceIdsToFind = this.map(instance => instance[relationshipName]).filter(instanceOrId => instanceOrId !== null && !(instanceOrId instanceof Instance));
+                const instanceIdsAlreadyFound = instancesAlreadyFound.map(instance => instance.id);
+                instanceIdsToFind = instanceIdsToFind.filter(id => !instanceIdsAlreadyFound.includes(id.toHexString()));
+            }
+            else {
+                instanceIdsToFind = this.map(instance => instance[relationshipName]);
+                instanceIdsToFind = instanceIdsToFind.map(instanceOrId => {
+                    if (instanceOrId instanceof Instance) {
+                        return instanceOrId._id;
+                    }
+                    else {
+                        return instanceOrId;
+                    }
+                });
+                instanceIdsToFind = instanceIdsToFind.filter(id => id !== null);
+            }
         }
         else {
-            instanceIdsToFind = this
-                .map(instance => instance[relationship])
-                .filter(ids => {
-                     return (ids != null && ids.length); 
-                    })
-                .reduce((acc, cur) => acc.concat(cur));
+            if (noFilter) {
+                instanceIdsToFind = this
+                    .map(instance => instance[relationshipName])
+                    .filter(ids => {
+                         return (ids != null && Array.isArray(ids) && ids.length); 
+                        })
+    
+                if (instanceIdsToFind.length)
+                    instanceIdsToFind = instanceIdsToFind.reduce((acc, cur) => acc.concat(cur));
+    
+                let populatedRelationships = this.map(instance => instance[relationshipName]).filter(instanceSet => instanceSet instanceof InstanceSet && instanceSet.size);             
+                
+                if (populatedRelationships.length) {
+                    populatedRelationships = populatedRelationships.forEach(instanceSet => instancesAlreadyFound.addInstances(instanceSet));
+                }
+                const instanceIdsAlreadyFound = instancesAlreadyFound.map(instance => instance.id);
+                instanceIdsToFind = instanceIdsToFind.filter(id => !instanceIdsAlreadyFound.includes(id.toHexString()));
+            }
+            else {
+                instanceIdsToFind = this.map(instance => instance[relationshipName]);
+                instanceIdsToFind = instanceIdsToFind.map(instanceSetOrIds => {
+                    if (instanceSetOrIds instanceof InstanceSet) {
+                        return instanceSetOrIds.getObjectIds();
+                    }
+                    else {
+                        return instanceSetOrIds;
+                    }
+                });
+                instanceIdsToFind = instanceIdsToFind.filter(ids => Array.isArray(ids) && ids.length);
+                if (instanceIdsToFind.length)
+                    instanceIdsToFind = instanceIdsToFind.reduce((acc, cur) => acc.concat(cur));
+            }
         }
-        instanceIdsToFind =  [...(new Set(instanceIdsToFind))];
 
-        Object.assign(filter, {
-            _id: {$in : instanceIdsToFind},
-        });
+        let instancesFound = new InstanceSet(relatedClass);
 
-        return relatedClass.find(filter, ...accessControlMethodParameters);
+        if (instanceIdsToFind.length) {
+            instanceIdsToFind =  [...(new Set(instanceIdsToFind))];
+    
+            Object.assign(filter, {
+                _id: {$in : instanceIdsToFind},
+            });
+
+            instancesFound = await relatedClass.find(filter, ...accessControlMethodParameters);
+        }
+
+        return instancesFound.union(instancesAlreadyFound);
     }
 
     async delete() {
+        const unsavedInstances = this.filter(instance => instance.saved() == false)
+
+        if (unsavedInstances.length) 
+            throw new Error('Attempt to delete an InstanceSet containing unsaved Instances.');
+
+        await this.deleteRecursive();
+    }
+
+    async delete2() {
         const unsavedInstances = this.filter(instance => instance.saved == false)
 
         if (unsavedInstances.length) 
@@ -252,6 +314,26 @@ class InstanceSet extends SuperSet {
     }
 
     async deleteRecursive() {
+        let deletePromises = [];
+        const isntancesOfThisCollection = this.filterForInstancesInThisCollection();
+
+        for (const subClass of this.classModel.subClasses) {
+            const instancesOfSubClass = this.filterForClassModel(subClass);
+            deletePromises.push(instancesOfSubClass.deleteRecursive());
+        }
+
+        if (!isntancesOfThisCollection.isEmpty()) {
+            await this.classModel.Model.deleteMany({
+                _id: { $in: isntancesOfThisCollection.getInstanceIds() }
+            }).exec();
+            isntancesOfThisCollection.forEach(instance => instance.currentState = null);
+        }
+        
+        if (deletePromises.length)
+            return Promise.all(deletePromises);
+    }
+
+    async deleteRecursive2() {
         let deletePromises = [];
         const isntancesOfThisCollection = this.filterForInstancesInThisCollection();
 
