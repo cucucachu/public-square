@@ -145,7 +145,13 @@ class InstanceState {
                     return false;
                 }
                 for (const index in thisArray) {
+                    if ((thisArray[index] === null && thatArray[index]) || (thisArray[index] && thatArray[index] === null))
+                        return false;
+
                     if (attributeDefinition.type === Date) {
+                        if (thisArray[index] === null && thatArray[index] === null)
+                            continue;
+                        
                         if (!moment(thisArray[index]).isSame(thatArray[index])) {
                             return false;
                         }
@@ -159,7 +165,13 @@ class InstanceState {
             }
             else {
                 if (attributeDefinition.type === Date) {
-                    if (!moment(thisAttribute).isSame(thatAttribute)) {
+                    if (thisAttribute === null && thatAttribute === null)
+                        continue;
+
+                    if ((thisAttribute === null && thatAttribute) || (thisAttribute && thatAttribute === null)) {
+                        return false
+                    }
+                    else if (!moment(thisAttribute).isSame(thatAttribute)) {
                         return false;
                     }
                 }
@@ -173,7 +185,6 @@ class InstanceState {
         }
         for (const singularRelationshipName in this.instanceReferences) {
             if (this.instanceReferences[singularRelationshipName].id !== that.instanceReferences[singularRelationshipName].id) {
-                console.log('singular relationships not equal.');
                 return false;
             }
         }

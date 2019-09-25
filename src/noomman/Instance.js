@@ -31,7 +31,7 @@ class Instance {
         else {
             this[doc] = new this.classModel.Model();
             this._id = this[doc]._id;
-            this.__t = classModel.discrinatorSuperClass ? classModel.discriminatorSuperClass.className : undefined;
+            this.__t = classModel.discriminatorSuperClass ? classModel.className : undefined;
             this.previousState = null;
             this.currentState = new InstanceState(classModel);
         }
@@ -570,6 +570,11 @@ class Instance {
         }
         
         Object.assign(this[doc], this.currentState.toDocument());
+    }
+
+    get__t() {
+        this.syncDocument();
+        return this[doc].__t;
     }
 
     // Update and Delete Methods Methods

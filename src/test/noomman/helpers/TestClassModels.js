@@ -666,7 +666,9 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             accessControlled: true, 
             updateControlled: false,
             discriminatorSuperClass: AccessControlledDiscriminatedSuperClass,
-            accessControlMethod: async instance => { return instance.number > 0 },
+            accessControlMethod: async instance => { 
+                return instance.number > 0 
+            },
             schema: {
                 number: {
                     type: Number

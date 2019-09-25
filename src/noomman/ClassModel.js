@@ -607,14 +607,14 @@ class ClassModel {
             let instanceFound;
 
             if (!discriminated)
-                instanceFound = new Instance(this, documentFound, true);
+                instanceFound = new Instance(this, documentFound);
             else {
                 if (documentFound.__t) {
                     const classModelForInstance = AllClassModels[documentFound.__t];
-                    instanceFound = new Instance(classModelForInstance, documentFound, true);
+                    instanceFound = new Instance(classModelForInstance, documentFound);
                 }
                 else {
-                    instanceFound = new Instance(this, documentFound, true);
+                    instanceFound = new Instance(this, documentFound);
                 }
             }
 
@@ -630,7 +630,7 @@ class ClassModel {
             if (concrete){
                 const documentFound = await Model.findOne(queryFilter).exec();
                 if (documentFound) {
-                    let instanceFound = new Instance(this, documentFound, true);
+                    let instanceFound = new Instance(this, documentFound);
 
                     const filteredInstance = await this.accessControlFilterOne(instanceFound, ...accessControlMethodParameters)
                     return filteredInstance ? filteredInstance : null;
@@ -710,7 +710,6 @@ class ClassModel {
         }
 
         filtered.addInstances(filteredInstancesOfThisClass);
-
         // Recursively call accessControlFilter() for sub classes
         let subClasses = [];
 
