@@ -15,154 +15,103 @@ const AllClassModels = [];
 
 class ClassModel {
 
-    constructor() {
-        let parameters = arguments[0];
-        
-        if (!parameters.className)
-            throw new Error('className is required.');
-            
-        if (!parameters.schema)
-            throw new Error('schema is required.');
+    constructor(schema) {
 
-        if (parameters.superClasses && !Array.isArray(parameters.superClasses))
-            throw new Error('If superClasses is set, it must be an Array.');
+        this.constructorValidations(schema);
 
-        if (parameters.superClasses && parameters.superClasses.length == 0)
-            throw new Error('If superClasses is set, it cannot be an empty Array.');
-
-        if (parameters.discriminatorSuperClass && Array.isArray(parameters.discriminatorSuperClass))
-            throw new Error('If discriminatorSuperClass is set, it can only be a single class.');
-
-        if (parameters.superClasses && parameters.discriminatorSuperClass)
-            throw new Error('A ClassModel cannot have both superClasses and discriminatorSuperClass.');
-
-        if (parameters.discriminatorSuperClass && !parameters.discriminatorSuperClass.discriminated)
-            throw new Error('If a class is used as a discriminatedSuperClass, that class must have its "discriminated" field set to true.');
-        
-        if (parameters.superClasses)
-            parameters.superClasses.forEach(function(superClass) {
-                if (superClass.discriminated)
-                    throw new Error('If a class is set as a superClass, that class cannot have its "discriminated" field set to true.');
-            });
-
-        if (parameters.superClasses) {
-            parameters.superClasses.forEach(function(superClass) {
-                Object.keys(superClass.schema).forEach(function(key) {
-                    if (key in parameters.schema)
-                        throw new Error('Sub class schema cannot contain the same field names as a super class schema.');
-                });
-            });
-        }
-
-        if (parameters.discriminatorSuperClass && parameters.abstract) 
-            throw new Error('A discriminator sub class cannot be abstract.');
-
-        if (parameters.discriminatorSuperClass && parameters.discriminated)
-            throw new Error('A sub class of a discriminated super class cannot be discriminated.');
-
-        if (parameters.superClasses) {
-            parameters.superClasses.forEach(function(superClass) {
-                if (superClass.discriminatorSuperClass) {
-                    throw new Error('A class cannot be a sub class of a sub class of a discriminated class.');
-                }
-            });
-        }
-
-
-        this.className = parameters.className;
+        this.className = schema.className;
         this.subClasses = [];
         this.discriminatedSubClasses = [];
-        this.abstract = parameters.abstract;
-        this.discriminated = parameters.discriminated;
-        this.accessControlled = parameters.accessControlled;
-        this.accessControlMethod = parameters.accessControlMethod ? parameters.accessControlMethod : undefined;
-        this.updateControlled = parameters.updateControlled;
-        this.updateControlMethod = parameters.updateControlMethod ? parameters.updateControlMethod : undefined;
-        this.superClasses = parameters.superClasses ? parameters.superClasses : [];
-        this.discriminatorSuperClass = parameters.discriminatorSuperClass;
+        this.abstract = schema.abstract;
+        this.discriminated = schema.discriminated;
+        this.accessControlled = schema.accessControlled;
+        this.accessControlMethod = schema.accessControlMethod ? schema.accessControlMethod : undefined;
+        this.updateControlled = schema.updateControlled;
+        this.updateControlMethod = schema.updateControlMethod ? schema.updateControlMethod : undefined;
+        this.superClasses = schema.superClasses ? schema.superClasses : [];
+        this.discriminatorSuperClass = schema.discriminatorSuperClass;
+
 
         // Access Control Settings
-        if (parameters.accessControlled === undefined) {
+        if (schema.accessControlled === undefined) {
             throw new Error('accessControlled is required.');
         }
 
-        if (parameters.accessControlled && !this.allAccessControlMethodsforClassModel().length) {
+        if (schema.accessControlled && !this.allAccessControlMethodsforClassModel().length) {
             throw new Error('If a class is accessControlled, it must have an accessControlMethod, or it must have at least one super class with an accessControlMethod.');
         }
 
-        if (!parameters.accessControlled) {
-            if (parameters.accessControlMethod) {
+        if (!schema.accessControlled) {
+            if (schema.accessControlMethod) {
                 throw new Error('A class that is not accessControlled cannot have an accessControlMethod.');
             }
 
-            if (parameters.superClasses) {
-                parameters.superClasses.forEach(function(superClass) {
+            if (schema.superClasses) {
+                schema.superClasses.forEach(function(superClass) {
                     if (superClass.accessControlled) {
                         throw new Error('A class which is not accessControlled cannot be a sub class of a class which is accessControlled.');
                     }
                 });
             }
 
-            if (parameters.discriminatorSuperClass) {
-                if (parameters.discriminatorSuperClass.accessControlled) {
+            if (schema.discriminatorSuperClass) {
+                if (schema.discriminatorSuperClass.accessControlled) {
                     throw new Error('A subclass of a accessControlled discriminated super class must also be accessControlled.');
                 }
             }
         } 
 
         // Update Control Settings
-        if (parameters.updateControlled === undefined) {
+        if (schema.updateControlled === undefined) {
             throw new Error('updateControlled is required.');
         }
 
-        if (parameters.updateControlled && !this.allUpdateControlMethodsforClassModel().length) {
+        if (schema.updateControlled && !this.allUpdateControlMethodsforClassModel().length) {
             throw new Error('If a class is updateControlled, it must have an updateControlMethod, or it must have at least one super class with an updateControlMethod.');
         }
 
-        if (!parameters.updateControlled) {
-            if (parameters.updateControlMethod) {
+        if (!schema.updateControlled) {
+            if (schema.updateControlMethod) {
                 throw new Error('A class that is not updateControlled cannot have an updateControlMethod.');
             }
 
-            if (parameters.superClasses) {
-                parameters.superClasses.forEach(function(superClass) {
+            if (schema.superClasses) {
+                schema.superClasses.forEach(function(superClass) {
                     if (superClass.updateControlled) {
                         throw new Error('A class which is not updateControlled cannot be a sub class of a class which is updateControlled.');
                     }
                 });
             }
 
-            if (parameters.discriminatorSuperClass) {
-                if (parameters.discriminatorSuperClass.updateControlled) {
+            if (schema.discriminatorSuperClass) {
+                if (schema.discriminatorSuperClass.updateControlled) {
                     throw new Error('A subclass of a updateControlled discriminated super class must also be updateControlled.');
                 }
             }
         } 
 
-        let schema;
-
-        // If this class has super classes, combine all the super class schemas and combine with the given parameters.schema, and set the
+        // If this class has super classes, combine all the super class schemas and combine with the given schema.schema, and set the
         //    SuperClasses.subClasses field to this class.
-        if (parameters.superClasses) {
+        if (schema.superClasses) {
             let superClassSchemas = {};
             let currentClassModel = this;
 
-            parameters.superClasses.forEach(function(superClass) {
+            schema.superClasses.forEach(function(superClass) {
                 superClass.subClasses.push(currentClassModel);
 
                 Object.assign(superClassSchemas, superClass.schema);
             });
-            schema = Object.assign(superClassSchemas, parameters.schema);
+            this.schema = Object.assign(superClassSchemas, schema.schema);
+        }
+        else if (schema.discriminatorSuperClass) {
+            this.schema = Object.assign(schema.discriminatorSuperClass.schema, schema.schema);
         }
         else {
-            schema = parameters.schema;
+            this.schema = schema.schema;
         }
 
-        this.schema = schema;
-
         let schemaObject = new Schema(this.schema);
-
-        this.setAttributesAndRelationships(schema);
+        this.setAttributesAndRelationships(this.schema);
 
         // If discriminatorSuperClass is set, create the Model as a discriminator of that class. Otherwise create a stand-alone Model.
         if (this.discriminatorSuperClass) {
@@ -175,6 +124,60 @@ class ClassModel {
         }
 
         AllClassModels[this.className] = this;
+    }
+
+    constructorValidations(schema) {
+        
+        if (!schema.className)
+            throw new Error('className is required.');
+            
+        if (!schema.schema)
+            throw new Error('schema is required.');
+
+        if (schema.superClasses && !Array.isArray(schema.superClasses))
+            throw new Error('If superClasses is set, it must be an Array.');
+
+        if (schema.superClasses && schema.superClasses.length == 0)
+            throw new Error('If superClasses is set, it cannot be an empty Array.');
+
+        if (schema.discriminatorSuperClass && Array.isArray(schema.discriminatorSuperClass))
+            throw new Error('If discriminatorSuperClass is set, it can only be a single class.');
+
+        if (schema.superClasses && schema.discriminatorSuperClass)
+            throw new Error('A ClassModel cannot have both superClasses and discriminatorSuperClass.');
+
+        if (schema.discriminatorSuperClass && !schema.discriminatorSuperClass.discriminated)
+            throw new Error('If a class is used as a discriminatedSuperClass, that class must have its "discriminated" field set to true.');
+        
+        if (schema.superClasses)
+            schema.superClasses.forEach(function(superClass) {
+                if (superClass.discriminated)
+                    throw new Error('If a class is set as a superClass, that class cannot have its "discriminated" field set to true.');
+            });
+
+        if (schema.superClasses) {
+            schema.superClasses.forEach(function(superClass) {
+                Object.keys(superClass.schema).forEach(function(key) {
+                    if (key in schema.schema)
+                        throw new Error('Sub class schema cannot contain the same field names as a super class schema.');
+                });
+            });
+        }
+
+        if (schema.discriminatorSuperClass && schema.abstract) 
+            throw new Error('A discriminator sub class cannot be abstract.');
+
+        if (schema.discriminatorSuperClass && schema.discriminated)
+            throw new Error('A sub class of a discriminated super class cannot be discriminated.');
+
+        if (schema.superClasses) {
+            schema.superClasses.forEach(function(superClass) {
+                if (superClass.discriminatorSuperClass) {
+                    throw new Error('A class cannot be a sub class of a sub class of a discriminated class.');
+                }
+            });
+        }
+
     }
 
     setAttributesAndRelationships() {
@@ -295,12 +298,16 @@ class ClassModel {
     }
 
     propertyIsARelationship(propertyName) {
-        const property = this.schema[propertyName]
-        return property.type == Schema.Types.ObjectId || (Array.isArray(property.type) && property.type[0] == Schema.Types.ObjectId);
+        for (const relationship of this.relationships) {
+            if (relationship.name === propertyName)
+                return true;
+        }
+
+        return false;
     }
 
-    getRelatedClassModel(relationship) {
-        return AllClassModels[this.schema[relationship].ref];
+    getRelatedClassModel(relationshipName) {
+        return AllClassModels[this.getRelationship(relationshipName).toClass];
     }
 
     static isAttribute(object) {
@@ -314,7 +321,7 @@ class ClassModel {
     }
 
     isAttribute(name) {
-        return this.getAttributes().map(attribute => attribute.name).includes(name);
+        return this.attributes.map(attribute => attribute.name).includes(name);
     }
 
     static isSingularRelationship(object) {
@@ -326,12 +333,12 @@ class ClassModel {
     }
 
     isSingularRelationship(name) {
-        return this.getSingularRelationships().map(relationship => relationship.name).includes(name);
+        return this.relationships.filter(relationship => relationship.singular === true).map(relationship => relationship.name).includes(name); 
     }
 
 
     isNonSingularRelationship(name) {
-        return this.getNonSingularRelationships().map(relationship => relationship.name).includes(name);
+        return this.relationships.filter(relationship => relationship.singular === false).map(relationship => relationship.name).includes(name);
     }
 
 
@@ -344,166 +351,44 @@ class ClassModel {
     }
 
     attributeIsListAttribute(attributeName) {
-        const attribute = this.getAttributes().filter(attribute => attribute.name === attributeName)[0];
-        return attribute.list;
+        return this.getAttribute(attributeName).list;
     }
 
     getAttribute(attributeName) {
+        return this.attributes.filter(attribute => attribute.name === attributeName)[0];
         return this.getAttributes().filter(attribute => attribute.name === attributeName)[0]
     }
 
     getAttributes() {
-        const attributes = [];
-        for (const key in this.schema) {
-            if (ClassModel.isAttribute(this.schema[key])){
-                let type = this.schema[key].type;
-                let list = false;
-                
-                if (Array.isArray(this.schema[key].type)) {
-                    type = this.schema[key].type[0];
-                    list = true;
-                }
-
-                attributes.push({
-                    name: key,
-                    type: type,
-                    list: list,
-                    mutex: this.schema[key].mutex,
-                    required: this.schema[key].required,
-                    requiredGroup: this.schema[key].requiredGroup,
-                });
-            }
-        }
-        return attributes;
+        return this.attributes;
     }
 
     getSingularRelationships() {
-        const relationships = [];
-        for (const key in this.schema) {
-            if (ClassModel.isSingularRelationship(this.schema[key]))
-                relationships.push({
-                    name: key,
-                    toClass: this.schema[key].ref,
-                    type: this.schema[key].type,
-                    singular: true,
-                    mutex: this.schema[key].mutex,
-                    required: this.schema[key].required,
-                    requiredGroup: this.schema[key].requiredGroup,
-                });
-        }
-        return relationships;
+        return this.relationships.filter(relationship => relationship.singular);
     }
 
     getNonSingularRelationships() {
-        const relationships = [];
-        for (const key in this.schema) {
-            if (ClassModel.isNonSingularRelationship(this.schema[key]))
-                relationships.push({
-                    name: key,
-                    toClass: this.schema[key].ref,
-                    type: this.schema[key].type,
-                    singular: false,
-                    mutex: this.schema[key].mutex,
-                    required: this.schema[key].required,
-                    requiredGroup: this.schema[key].requiredGroup,
-                });
-        }
-        return relationships;
+        return this.relationships.filter(relationship => !relationship.singular);
     }
 
     getRelationship(relationshipName) {
-        const allRelationships = this.getSingularRelationships().concat(this.getNonSingularRelationships());
-        return allRelationships.filter(relationship => relationship.name === relationshipName)[0];
+        return this.relationships.filter(relationship => relationship.name === relationshipName)[0];
     }
 
     getDocumentProperties() {
-        return this.getAttributes().concat(this.getSingularRelationships(), this.getNonSingularRelationships());
+        return this.attributes.concat(this.relationships);
     }
 
     getDocumentPropertyNames() {
         return this.getDocumentProperties().map(property => property.name);
     }
 
-    static valueIsBoolean(value) {
-        return (value === true || value === false);
-    }
-
-    static valueIsString(value) {
-        return (typeof(value) === 'string');
-    }
-
-    static valueIsNumber(value) {
-        return (typeof(value) === 'number');
-    }
-
-    static valueIsDate(value) {
-        return value instanceof Date;
-    }
-
     validateAttribute(attributeName, value) {
-        const attribute = this.getAttributes().filter(attribute => attribute.name === attributeName)[0];
-        const type = attribute.type;
-
-        if (value === null)
-            return true;
-
-        if (attribute.list) {
-            if  (value !== null && !Array.isArray(value)) {
-                throw new Error('Illegal attempt to set a List Attribute to something other than an Array.');
-            }
-            if (type === Boolean) {
-                for (const item of value) {
-                    if (item !== null && !ClassModel.valueIsBoolean(item))
-                        throw new Error('Illegal attempt to set a Boolean List Attribute to an array containing non-Boolean element(s).');
-                }
-            }
-            else if (type === Number) {
-                for (const item of value) {
-                    if (item !== null && !ClassModel.valueIsNumber(item))
-                        throw new Error('Illegal attempt to set a Number List Attribute to an array containing non-Number element(s).');
-                }
-            }
-            else if (type === String) {
-                for (const item of value) {
-                    if (item !== null && !ClassModel.valueIsString(item))
-                        throw new Error('Illegal attempt to set a String List Attribute to an array containing non-String element(s).');
-                }
-            }
-            else if (type === Date) {
-                for (const item of value) {
-                    if (item !== null && !ClassModel.valueIsDate(item))
-                        throw new Error('Illegal attempt to set a Date List Attribute to an array containing non-Date element(s).');
-                }
-            }
-        }
-        else {
-            if (Array.isArray(value)) {
-                throw new Error('Illegal attempt to set an Attribute to an Array.');
-            }
-            if (type === Boolean) {
-                if (!ClassModel.valueIsBoolean(value))
-                    throw new Error('Illegal attempt to set a Boolean Attribute to something other than a Boolean.');
-            }
-            else if (type === Number) {
-                if (!ClassModel.valueIsNumber(value))
-                    throw new Error('Illegal attempt to set a Number Attribute to something other than a Number.');
-            }
-            else if (type === String) {
-                if (!ClassModel.valueIsString(value))
-                    throw new Error('Illegal attempt to set a String Attribute to something other than a String.');
-            }
-            else if (type === Date) {
-                if (!ClassModel.valueIsDate(value))
-                    throw new Error('Illegal attempt to set a Date Attribute to something other than a Date.');
-            }
-
-        }
-
+        this.getAttribute(attributeName).validate(value);
     }
 
     valueValidForSingularRelationship(value, relationshipName) {
-        const relationship = this.getSingularRelationships().filter(relationship => relationship.name === relationshipName)[0];
-        const toClass = AllClassModels[relationship.toClass];
+        const toClass = AllClassModels[this.getRelationship(relationshipName).toClass];
 
         if (value === null)
             return true;
@@ -518,8 +403,7 @@ class ClassModel {
     }
 
     valueValidForNonSingularRelationship(value, relationshipName) {
-        const relationship = this.getNonSingularRelationships().filter(relationship => relationship.name === relationshipName)[0];
-        const toClass = AllClassModels[relationship.toClass];
+        const toClass = AllClassModels[this.getRelationship(relationshipName).toClass];
 
         if (value === null)
             return true;

@@ -1557,6 +1557,7 @@ describe('Class Model Tests', () => {
                         instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses
                     ]);
                     const filteredInstanceSet = await classModel.accessControlFilter(instanceSet);
+
                     
                     if (!expectedInstanceSet.equals(filteredInstanceSet))
                         throw new Error('classModel.accessControlFilter() did not return the expected InstanceSet.');

@@ -58,20 +58,28 @@ class Attribute {
         return true;
     }
 
-    valid(value) {
+    validate(value) {
+        if (value === null)
+            return true;
+            
         if (this.list) {
             if (!Array.isArray(value)) {
-                return false;
+                throw new Error('Illegal attempt to set a List Attribute to something other than an Array.');
             }
             for (const item of value) {
                 if (!this.validType(item)) {
-                    return false;
+                    throw new Error('Illegal attempt to set a ' + this.type.name + ' List Attribute to an array containing non-' + this.type.name + ' element(s).');
                 }
             }
             return true;
         }
         else {
-            return this.validType(value);
+            if (Array.isArray(value)) {
+                throw new Error('Illegal attempt to set an Attribute to an Array.');
+            }
+            if (!this.validType(value)) {
+                throw new Error('Illegal attempt to set a ' + this.type.name + ' Attribute to something other than a ' + this.type.name + '.');
+            }
         }
     }
 

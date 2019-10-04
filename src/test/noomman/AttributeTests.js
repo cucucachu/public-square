@@ -513,7 +513,7 @@ describe('Attribute Tests', () => {
 
     });
 
-    describe('Attribute.valid()', () => {
+    describe('Attribute.validate()', () => {
 
         describe('Non List Attributes', () => {
 
@@ -525,8 +525,7 @@ describe('Attribute Tests', () => {
                         type: Boolean,
                     });
 
-                    if (attribute.valid(false) !== true)
-                        throw new Error('attribute.valid() returned false.');
+                    attribute.validate(false);
                 });
 
                 it('Boolean attribute set to null is valid.', () => {
@@ -534,9 +533,7 @@ describe('Attribute Tests', () => {
                         name: 'attribute',
                         type: Boolean,
                     });
-
-                    if (attribute.valid(null) !== true)
-                        throw new Error('attribute.valid() returned false.');
+                    attribute.validate(null);
                 });
 
                 it('Boolean attribute set to string is not valid.', () => {
@@ -544,9 +541,11 @@ describe('Attribute Tests', () => {
                         name: 'attribute',
                         type: Boolean,
                     });
+                    const expectedErrorMessage = 'Illegal attempt to set a Boolean Attribute to something other than a Boolean.';
 
-                    if (attribute.valid('false') !== false)
-                        throw new Error('attribute.valid() returned true.');
+                    testForError('attribute.validate()', expectedErrorMessage, () => {
+                        attribute.validate('false');
+                    });
                 });
 
             });
@@ -559,8 +558,7 @@ describe('Attribute Tests', () => {
                         type: Number,
                     });
 
-                    if (attribute.valid(0) !== true)
-                        throw new Error('attribute.valid() returned false.');
+                    attribute.validate(0);
                 });
 
                 it('Number attribute set to null is valid.', () => {
@@ -568,9 +566,7 @@ describe('Attribute Tests', () => {
                         name: 'attribute',
                         type: Number,
                     });
-
-                    if (attribute.valid(null) !== true)
-                        throw new Error('attribute.valid() returned false.');
+                    attribute.validate(null);
                 });
 
                 it('Number attribute set to boolean is not valid.', () => {
@@ -578,9 +574,11 @@ describe('Attribute Tests', () => {
                         name: 'attribute',
                         type: Number,
                     });
+                    const expectedErrorMessage = 'Illegal attempt to set a Number Attribute to something other than a Number.';
 
-                    if (attribute.valid(true) !== false)
-                        throw new Error('attribute.valid() returned true.');
+                    testForError('attribute.validate()', expectedErrorMessage, () => {
+                        attribute.validate(true);
+                    });
                 });
 
             });
@@ -593,8 +591,7 @@ describe('Attribute Tests', () => {
                         type: String,
                     });
 
-                    if (attribute.valid('') !== true)
-                        throw new Error('attribute.valid() returned false.');
+                    attribute.validate('');
                 });
 
                 it('String attribute set to null is valid.', () => {
@@ -603,8 +600,7 @@ describe('Attribute Tests', () => {
                         type: String,
                     });
 
-                    if (attribute.valid(null) !== true)
-                        throw new Error('attribute.valid() returned false.');
+                    attribute.validate(null);
                 });
 
                 it('String attribute set to boolean is not valid.', () => {
@@ -612,9 +608,11 @@ describe('Attribute Tests', () => {
                         name: 'attribute',
                         type: String,
                     });
+                    const expectedErrorMessage = 'Illegal attempt to set a String Attribute to something other than a String.';
 
-                    if (attribute.valid(true) !== false)
-                        throw new Error('attribute.valid() returned true.');
+                    testForError('attribute.validate()', expectedErrorMessage, () => {
+                        attribute.validate(true);
+                    });
                 });
 
             });
@@ -627,8 +625,7 @@ describe('Attribute Tests', () => {
                         type: Date,
                     });
 
-                    if (attribute.valid(new Date()) !== true)
-                        throw new Error('attribute.valid() returned false.');
+                    attribute.validate(new Date());
                 });
 
                 it('Date attribute set to null is valid.', () => {
@@ -637,8 +634,7 @@ describe('Attribute Tests', () => {
                         type: Date,
                     });
 
-                    if (attribute.valid(null) !== true)
-                        throw new Error('attribute.valid() returned false.');
+                    attribute.validate(null);
                 });
 
                 it('Date attribute set to boolean is not valid.', () => {
@@ -646,9 +642,11 @@ describe('Attribute Tests', () => {
                         name: 'attribute',
                         type: Date,
                     });
+                    const expectedErrorMessage = 'Illegal attempt to set a Date Attribute to something other than a Date.';
 
-                    if (attribute.valid(true) !== false)
-                        throw new Error('attribute.valid() returned true.');
+                    testForError('attribute.validate()', expectedErrorMessage, () => {
+                        attribute.validate(true);
+                    });
                 });
 
             });
@@ -659,276 +657,260 @@ describe('Attribute Tests', () => {
 
             describe('Boolean List Attributes', () => {
 
-                it('Boolean List Attribute set to null returns false.', () => {
+                it('Boolean List Attribute set to null does not throw an error.', () => {
                     const value = null;
-                    const expected = false;
                     const attribute = new Attribute({
                         name: 'attribute',
                         type: Boolean,
                         list: true,
                     });
 
-                    if (attribute.valid(value) !== expected)
-                        throw new Error('attribute.value() did not return ' + expected);
+                    attribute.validate(value);
                 });
 
-                it('Boolean List Attribute set to undefined returns false.', () => {
+                it('Boolean List Attribute set to undefined throws an error.', () => {
                     const value = undefined;
-                    const expected = false;
                     const attribute = new Attribute({
                         name: 'attribute',
                         type: Boolean,
                         list: true,
                     });
+                    const expectedErrorMessage = 'Illegal attempt to set a List Attribute to something other than an Array.';
 
-                    if (attribute.valid(value) !== expected)
-                        throw new Error('attribute.value() did not return ' + expected);
+                    testForError('attribute.validate()', expectedErrorMessage, () => {
+                        attribute.validate(value);
+                    });
                 });
 
-                it('Boolean List Attribute containing number returns false.', () => {
+                it('Boolean List Attribute containing number throws an error.', () => {
                     const value = [false, true, 0];
-                    const expected = false;
                     const attribute = new Attribute({
                         name: 'attribute',
                         type: Boolean,
                         list: true,
                     });
+                    const expectedErrorMessage = 'Illegal attempt to set a Boolean List Attribute to an array containing non-Boolean element(s).';
 
-                    if (attribute.valid(value) !== expected)
-                        throw new Error('attribute.value() did not return ' + expected);
+                    testForError('attribute.validate()', expectedErrorMessage, () => {
+                        attribute.validate(value);
+                    });
                 });
 
-                it('Boolean List Attribute set to empty array returns true.', () => {
+                it('Boolean List Attribute set to empty array does not throw an error.', () => {
                     const value = [];
-                    const expected = true;
                     const attribute = new Attribute({
                         name: 'attribute',
                         type: Boolean,
                         list: true,
                     });
-
-                    if (attribute.valid(value) !== expected)
-                        throw new Error('attribute.value() did not return ' + expected);
+                    
+                    attribute.validate(value)
                 });
 
-                it('Boolean List Attribute set to array of booleans returns true.', () => {
+                it('Boolean List Attribute set to array of booleans does not throw an error.', () => {
                     const value = [true, false, null];
-                    const expected = true;
                     const attribute = new Attribute({
                         name: 'attribute',
                         type: Boolean,
                         list: true,
                     });
-
-                    if (attribute.valid(value) !== expected)
-                        throw new Error('attribute.value() did not return ' + expected);
+                    
+                    attribute.validate(value)
                 });
 
             });
 
             describe('Number List Attributes', () => {
 
-                it('Number List Attribute set to null returns false.', () => {
+                it('Number List Attribute set to null does not throw an error.', () => {
                     const value = null;
-                    const expected = false;
                     const attribute = new Attribute({
                         name: 'attribute',
                         type: Number,
                         list: true,
                     });
-
-                    if (attribute.valid(value) !== expected)
-                        throw new Error('attribute.value() did not return ' + expected);
+                    
+                    attribute.validate(value)
                 });
 
-                it('Number List Attribute set to undefined returns false.', () => {
+                it('Number List Attribute set to undefined throws an error.', () => {
                     const value = undefined;
-                    const expected = false;
                     const attribute = new Attribute({
                         name: 'attribute',
                         type: Number,
                         list: true,
                     });
+                    const expectedErrorMessage = 'Illegal attempt to set a List Attribute to something other than an Array.';
 
-                    if (attribute.valid(value) !== expected)
-                        throw new Error('attribute.value() did not return ' + expected);
+                    testForError('attribute.validate()', expectedErrorMessage, () => {
+                        attribute.validate(value);
+                    });
                 });
 
-                it('Number List Attribute containing boolean returns false.', () => {
+                it('Number List Attribute containing boolean throws an error.', () => {
                     const value = [1, 2, true];
-                    const expected = false;
                     const attribute = new Attribute({
                         name: 'attribute',
                         type: Number,
                         list: true,
                     });
+                    const expectedErrorMessage = 'Illegal attempt to set a Number List Attribute to an array containing non-Number element(s).';
 
-                    if (attribute.valid(value) !== expected)
-                        throw new Error('attribute.value() did not return ' + expected);
+                    testForError('attribute.validate()', expectedErrorMessage, () => {
+                        attribute.validate(value);
+                    });
                 });
 
-                it('Number List Attribute set to empty array returns true.', () => {
+                it('Number List Attribute set to empty array does not throw an error.', () => {
                     const value = [];
-                    const expected = true;
                     const attribute = new Attribute({
                         name: 'attribute',
                         type: Number,
                         list: true,
                     });
-
-                    if (attribute.valid(value) !== expected)
-                        throw new Error('attribute.value() did not return ' + expected);
+                    
+                    attribute.validate(value)
                 });
 
-                it('Number List Attribute set to array of numbers returns true.', () => {
+                it('Number List Attribute set to array of numbers does not throw an error.', () => {
                     const value = [1, 2, null, 4];
-                    const expected = true;
                     const attribute = new Attribute({
                         name: 'attribute',
                         type: Number,
                         list: true,
                     });
-
-                    if (attribute.valid(value) !== expected)
-                        throw new Error('attribute.value() did not return ' + expected);
+                    
+                    attribute.validate(value)
                 });
 
             });
 
             describe('String List Attributes', () => {
 
-                it('String List Attribute set to null returns false.', () => {
+                it('String List Attribute set to null does not throw an error.', () => {
                     const value = null;
-                    const expected = false;
                     const attribute = new Attribute({
                         name: 'attribute',
                         type: String,
                         list: true,
                     });
-
-                    if (attribute.valid(value) !== expected)
-                        throw new Error('attribute.value() did not return ' + expected);
+                    
+                    attribute.validate(value)
                 });
 
-                it('String List Attribute set to undefined returns false.', () => {
+                it('String List Attribute set to undefined throws an error.', () => {
                     const value = undefined;
-                    const expected = false;
                     const attribute = new Attribute({
                         name: 'attribute',
                         type: String,
                         list: true,
                     });
+                    const expectedErrorMessage = 'Illegal attempt to set a List Attribute to something other than an Array.';
 
-                    if (attribute.valid(value) !== expected)
-                        throw new Error('attribute.value() did not return ' + expected);
+                    testForError('attribute.validate()', expectedErrorMessage, () => {
+                        attribute.validate(value);
+                    });
                 });
 
-                it('String List Attribute containing number returns false.', () => {
+                it('String List Attribute containing number throws an error.', () => {
                     const value = ['1', '2', 3];
-                    const expected = false;
                     const attribute = new Attribute({
                         name: 'attribute',
                         type: String,
                         list: true,
                     });
+                    const expectedErrorMessage = 'Illegal attempt to set a String List Attribute to an array containing non-String element(s).';
 
-                    if (attribute.valid(value) !== expected)
-                        throw new Error('attribute.value() did not return ' + expected);
+                    testForError('attribute.validate()', expectedErrorMessage, () => {
+                        attribute.validate(value);
+                    });
                 });
 
-                it('String List Attribute set to empty array returns true.', () => {
+                it('String List Attribute set to empty array does not throw an error.', () => {
                     const value = [];
-                    const expected = true;
                     const attribute = new Attribute({
                         name: 'attribute',
                         type: String,
                         list: true,
                     });
-
-                    if (attribute.valid(value) !== expected)
-                        throw new Error('attribute.value() did not return ' + expected);
+                    
+                    attribute.validate(value)
                 });
 
-                it('String List Attribute set to array of strings returns true.', () => {
+                it('String List Attribute set to array of strings does not throw an error.', () => {
                     const value = ['1', 'true', '2018-01-01'];
-                    const expected = true;
                     const attribute = new Attribute({
                         name: 'attribute',
                         type: String,
                         list: true,
                     });
-
-                    if (attribute.valid(value) !== expected)
-                        throw new Error('attribute.value() did not return ' + expected);
+                    
+                    attribute.validate(value)
                 });
 
             });
 
             describe('Date List Attributes', () => {
 
-                it('Date List Attribute set to null returns false.', () => {
+                it('Date List Attribute set to null does not throw an error.', () => {
                     const value = null;
-                    const expected = false;
                     const attribute = new Attribute({
                         name: 'attribute',
                         type: Date,
                         list: true,
                     });
-
-                    if (attribute.valid(value) !== expected)
-                        throw new Error('attribute.value() did not return ' + expected);
+                    
+                    attribute.validate(value)
                 });
 
-                it('Date List Attribute set to undefined returns false.', () => {
+                it('Date List Attribute set to undefined throws an error.', () => {
                     const value = undefined;
-                    const expected = false;
                     const attribute = new Attribute({
                         name: 'attribute',
                         type: Date,
                         list: true,
                     });
+                    const expectedErrorMessage = 'Illegal attempt to set a List Attribute to something other than an Array.';
 
-                    if (attribute.valid(value) !== expected)
-                        throw new Error('attribute.value() did not return ' + expected);
+                    testForError('attribute.validate()', expectedErrorMessage, () => {
+                        attribute.validate(value);
+                    });
                 });
 
-                it('Date List Attribute containing number returns false.', () => {
+                it('Date List Attribute containing number throws an error.', () => {
                     const value = [new Date(), 12498309814];
-                    const expected = false;
                     const attribute = new Attribute({
                         name: 'attribute',
                         type: Date,
                         list: true,
                     });
+                    const expectedErrorMessage = 'Illegal attempt to set a Date List Attribute to an array containing non-Date element(s).';
 
-                    if (attribute.valid(value) !== expected)
-                        throw new Error('attribute.value() did not return ' + expected);
+                    testForError('attribute.validate()', expectedErrorMessage, () => {
+                        attribute.validate(value);
+                    });
                 });
 
-                it('Date List Attribute set to empty array returns true.', () => {
+                it('Date List Attribute set to empty array does not throw an error.', () => {
                     const value = [];
-                    const expected = true;
                     const attribute = new Attribute({
                         name: 'attribute',
                         type: Date,
                         list: true,
                     });
-
-                    if (attribute.valid(value) !== expected)
-                        throw new Error('attribute.value() did not return ' + expected);
+                    
+                    attribute.validate(value)
                 });
 
-                it('Date List Attribute set to array of dates returns true.', () => {
+                it('Date List Attribute set to array of dates does not throw an error.', () => {
                     const value = [new Date(), new Date('1010-02-13'), null];
-                    const expected = true;
                     const attribute = new Attribute({
                         name: 'attribute',
                         type: Date,
                         list: true,
                     });
 
-                    if (attribute.valid(value) !== expected)
-                        throw new Error('attribute.value() did not return ' + expected);
+                    attribute.validate(value)
                 });
 
             });

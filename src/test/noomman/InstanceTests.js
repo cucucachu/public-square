@@ -629,7 +629,7 @@ describe('Instance Tests', () => {
 
                             testForError('Instance Set Trap', expectedErrorMessage, () => {
                                 instance[attributeName] = value;
-                            });                            
+                            });        
                         });
     
                         it('Attempting to set a boolean attribute to something other than a boolean.', () => {
