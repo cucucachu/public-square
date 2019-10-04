@@ -44,6 +44,56 @@ class Attribute {
     static validTypes() {
         return [Number, String, Boolean, Date];
     }
+
+    isSet(value) {
+        if (this.list) {
+            if (!Array.isArray(value) || value.length === 0)
+                return false;
+        }
+        else {
+            if (value === null)
+                return false;
+        }
+
+        return true;
+    }
+
+    valid(value) {
+        if (this.list) {
+            if (!Array.isArray(value)) {
+                return false;
+            }
+            for (const item of value) {
+                if (!this.validType(item)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        else {
+            return this.validType(value);
+        }
+    }
+
+    validType(value) {
+        if (value === null)
+            return true;
+
+        if (this.type === Boolean && typeof(value) !== 'boolean') {
+            return false;
+        }
+        else if (this.type === String && typeof(value) !== 'string') {
+            return false;
+        }
+        else if (this.type === Number && typeof(value) !== 'number') {
+            return false;
+        }
+        else if (this.type === Date && !(value instanceof Date)) {
+            return false;
+        }
+
+        return true;
+    }
 }
 
 module.exports = Attribute;
