@@ -8,6 +8,8 @@ var Schema = mongoose.Schema;
 
 const InstanceSet = require('./InstanceSet');
 const Instance = require('./Instance');
+const Attribute = require('./Attribute');
+const Relationship = require('./Relationship');
 
 const AllClassModels = [];
 
@@ -160,6 +162,8 @@ class ClassModel {
 
         let schemaObject = new Schema(this.schema);
 
+        this.setAttributesAndRelationships(schema);
+
         // If discriminatorSuperClass is set, create the Model as a discriminator of that class. Otherwise create a stand-alone Model.
         if (this.discriminatorSuperClass) {
             this.Model = this.discriminatorSuperClass.Model.discriminator(this.className, schemaObject);
@@ -171,6 +175,25 @@ class ClassModel {
         }
 
         AllClassModels[this.className] = this;
+    }
+
+    setAttributesAndRelationships() {
+        this.attributes = [];
+        this.relationships = [];
+
+        const attributeSchemas = this.getAttributes();
+        const singularRelationshipSchemas = this.getSingularRelationships();
+        const nonSingularRelationshipSchemas = this.getNonSingularRelationships();
+
+        for (const attribute of attributeSchemas) {
+            this.attributes.push(new Attribute(attribute));
+        }
+        for (const relationship of singularRelationshipSchemas) {
+            this.relationships.push(new Relationship(relationship));
+        }
+        for (const relationship of nonSingularRelationshipSchemas) {
+            this.relationships.push(new Relationship(relationship));
+        }
     }
 
     // to String

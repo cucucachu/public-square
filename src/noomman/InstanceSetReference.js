@@ -10,6 +10,7 @@ class InstanceSetReference {
 
         return new Proxy(this, {
             get(trapTarget, key, value) {
+                trapTarget.sync();
                 if (key === 'ids') {
                     return trapTarget._ids != null ? trapTarget._ids.map(id => id.toHexString()) : [];
                 }
