@@ -180,9 +180,9 @@ class Instance {
         if (typeof(relationshipName) != 'string')
             throw new Error('instance.walk(): First argument needs to be a String representing the name of the relationship.');
         
-        if (!(relationshipName in this.classModel.schema))
+        if (!this.classModel.attributes.map(attribute => attribute.name).includes(relationshipName) && !this.classModel.relationships.map(relationship => relationship.name).includes(relationshipName))
             throw new Error('instance.walk(): First argument needs to be a relationship property in ' + this.classModel.className + '\'s schema.');
-        
+    
         if (!this.classModel.propertyIsARelationship(relationshipName))
             throw new Error('instance.walk(): property "' + relationshipName + '" is not a relationship.');
         

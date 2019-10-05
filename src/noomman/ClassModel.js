@@ -180,13 +180,13 @@ class ClassModel {
 
     }
 
-    setAttributesAndRelationships() {
+    setAttributesAndRelationships(schema) {
         this.attributes = [];
         this.relationships = [];
 
-        const attributeSchemas = this.getAttributesFromSchema();
-        const singularRelationshipSchemas = this.getSingularRelationshipsFromSchema();
-        const nonSingularRelationshipSchemas = this.getNonSingularRelationshipsFromSchema();
+        const attributeSchemas = ClassModel.getAttributesFromSchema(schema);
+        const singularRelationshipSchemas = ClassModel.getSingularRelationshipsFromSchema(schema);
+        const nonSingularRelationshipSchemas = ClassModel.getNonSingularRelationshipsFromSchema(schema);
 
         for (const attribute of attributeSchemas) {
             this.attributes.push(new Attribute(attribute));
@@ -199,15 +199,15 @@ class ClassModel {
         }
     }   
 
-    getAttributesFromSchema() {
+    static getAttributesFromSchema(schema) {
         const attributes = [];
-        for (const key in this.schema) {
-            if (ClassModel.isAttribute(this.schema[key])){
-                let type = this.schema[key].type;
+        for (const key in schema) {
+            if (ClassModel.isAttribute(schema[key])){
+                let type = schema[key].type;
                 let list = false;
                 
-                if (Array.isArray(this.schema[key].type)) {
-                    type = this.schema[key].type[0];
+                if (Array.isArray(schema[key].type)) {
+                    type = schema[key].type[0];
                     list = true;
                 }
 
@@ -215,44 +215,44 @@ class ClassModel {
                     name: key,
                     type: type,
                     list: list,
-                    mutex: this.schema[key].mutex,
-                    required: this.schema[key].required,
-                    requiredGroup: this.schema[key].requiredGroup,
+                    mutex: schema[key].mutex,
+                    required: schema[key].required,
+                    requiredGroup: schema[key].requiredGroup,
                 });
             }
         }
         return attributes;
     }
 
-    getSingularRelationshipsFromSchema() {
+    static getSingularRelationshipsFromSchema(schema) {
         const relationships = [];
-        for (const key in this.schema) {
-            if (ClassModel.isSingularRelationship(this.schema[key]))
+        for (const key in schema) {
+            if (ClassModel.isSingularRelationship(schema[key]))
                 relationships.push({
                     name: key,
-                    toClass: this.schema[key].ref,
-                    type: this.schema[key].type,
+                    toClass: schema[key].ref,
+                    type: schema[key].type,
                     singular: true,
-                    mutex: this.schema[key].mutex,
-                    required: this.schema[key].required,
-                    requiredGroup: this.schema[key].requiredGroup,
+                    mutex: schema[key].mutex,
+                    required: schema[key].required,
+                    requiredGroup: schema[key].requiredGroup,
                 });
         }
         return relationships;
     }
 
-    getNonSingularRelationshipsFromSchema() {
+    static getNonSingularRelationshipsFromSchema(schema) {
         const relationships = [];
-        for (const key in this.schema) {
-            if (ClassModel.isNonSingularRelationship(this.schema[key]))
+        for (const key in schema) {
+            if (ClassModel.isNonSingularRelationship(schema[key]))
                 relationships.push({
                     name: key,
-                    toClass: this.schema[key].ref,
-                    type: this.schema[key].type,
+                    toClass: schema[key].ref,
+                    type: schema[key].type,
                     singular: false,
-                    mutex: this.schema[key].mutex,
-                    required: this.schema[key].required,
-                    requiredGroup: this.schema[key].requiredGroup,
+                    mutex: schema[key].mutex,
+                    required: schema[key].required,
+                    requiredGroup: schema[key].requiredGroup,
                 });
         }
         return relationships;
@@ -260,7 +260,7 @@ class ClassModel {
 
     // to String
     toString() {
-        return this.className + '\n' + JSON.stringify(this.schema);
+        return this.className + '\n';
     }
 
     isInstanceOfThisClass(instance) {

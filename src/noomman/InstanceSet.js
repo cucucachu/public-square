@@ -204,7 +204,7 @@ class InstanceSet extends SuperSet {
         if (typeof(relationshipName) !== 'string')
             throw new Error('InstanceSet.walk() relationship argument must be a String.');
 
-        if (!(relationshipName in this.classModel.schema) || !this.classModel.propertyIsARelationship(relationshipName))
+        if (!this.classModel.propertyIsARelationship(relationshipName))
             throw new Error('InstanceSet.walk() called with an invalid relationship for ClassModel ' + this.classModel.className + '.');
         
         if (filter && typeof(filter) !== "object")
