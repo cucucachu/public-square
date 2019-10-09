@@ -4,6 +4,7 @@
 */
 require('@babel/polyfill');
 var mongoose = require('mongoose');
+var db = require('./database');
 var Schema = mongoose.Schema;
 
 const InstanceSet = require('./InstanceSet');
@@ -30,7 +31,7 @@ class ClassModel {
         this.updateControlMethod = schema.updateControlMethod ? schema.updateControlMethod : undefined;
         this.superClasses = schema.superClasses ? schema.superClasses : [];
         this.discriminatorSuperClass = schema.discriminatorSuperClass;
-
+        this.collectionName = schema.className.toLowerCase();
 
         // Access Control Settings
         if (schema.accessControlled === undefined) {
@@ -509,7 +510,7 @@ class ClassModel {
 
         // If this is a discriminated class, or it is a concrete class with no subclasses, find the instance in this ClassModel's collection.
         if ((concrete && !isSuperClass) || discriminated) {
-            const foundDocuments = await Model.find(queryFilter).exec();
+            const foundDocuments = await db.collection(this.collectionName).find(queryFilter).toArray();
             const foundInstances = foundDocuments.map(document => { 
                 if (document.__t)
                     return new Instance(AllClassModels[document.__t], document);
@@ -526,7 +527,7 @@ class ClassModel {
             let filteredInstancesOfThisClass;
 
             if (concrete) {
-                let foundDocumentsOfThisClass = await Model.find(queryFilter).exec();
+                let foundDocumentsOfThisClass = await db.collection(this.collectionName).find(queryFilter).toArray();
                 //console.log(this.className + '.find() here');
 
                 if (foundDocumentsOfThisClass.length) {
@@ -617,6 +618,140 @@ class ClassModel {
      * Returns a promise, which will resolve with the instance with the given id if it can be found, otherwise null.
      */
     async findById(id, ...accessControlMethodParameters) {
+        return this.findOne({_id: id}, ...accessControlMethodParameters);
+    }
+
+    // Query Methods
+
+    /* Finds instances of this ClassModel using the given query filter in the database. 
+     * If called on a superclass, will recursively check this ClassModel's collection, and then it's subclasses collections.
+     * Required Parameter queryFilter - An object identifying filtering according to mongoose's definitions.
+     * Rest Parameter accessControlMethodParameters - Optional parameters used by this ClassModels access control method. 
+     * Returns a promise, which will resolve with the instance with the given query filter if it can be found, otherwise null.
+     */
+    async find2(queryFilter, ...accessControlMethodParameters) {
+        const concrete = !this.abstract;
+        const abstract = this.abstract;
+        const discriminated = this.discriminated;
+        const isSuperClass = (this.subClasses.length > 0 || this.discriminated);
+        const subClasses = this.subClasses;
+        const className = this.className;
+        const Model = this.Model;
+
+        // If this class is a non-discriminated abstract class and it doesn't have any sub classes, throw an error.
+        if (abstract && !isSuperClass)
+            throw new Error('Error in ' + className + '.find(). This class is abstract and non-discriminated, but it has no sub-classes.');
+
+        // If this is a discriminated class, or it is a concrete class with no subclasses, find the instance in this ClassModel's collection.
+        if ((concrete && !isSuperClass) || discriminated) {
+            const foundDocuments = await Model.find(queryFilter).exec();
+            const foundInstances = foundDocuments.map(document => { 
+                if (document.__t)
+                    return new Instance(AllClassModels[document.__t], document);
+                return new Instance(this, document);
+            });
+            const foundInstanceSet = new InstanceSet(this, foundInstances);
+            return this.accessControlFilter(foundInstanceSet, ...accessControlMethodParameters);
+        }
+
+        // If this is a non-discriminated super class, we may need to check this classmodel's collection as well,
+        //  as well as the subclasses collections.
+        if (isSuperClass && !discriminated) {
+            let promises = [];
+            let filteredInstancesOfThisClass;
+
+            if (concrete) {
+                let foundDocumentsOfThisClass = await Model.find(queryFilter).exec();
+                //console.log(this.className + '.find() here');
+
+                if (foundDocumentsOfThisClass.length) {
+                    const foundInstances = foundDocumentsOfThisClass.map(instance => { return new Instance(this, instance)});
+                    const foundInstancesOfThisClass = new InstanceSet(this, foundInstances);
+                    filteredInstancesOfThisClass = await this.accessControlFilter(foundInstancesOfThisClass, ...accessControlMethodParameters);
+                }
+            }
+            for (let subClass of subClasses)
+                promises.push(subClass.find(queryFilter, ...accessControlMethodParameters));
+
+            let foundInstances = await this.allPromiseResoltionsInstanceSets(promises);
+            
+            foundInstances.addInstances(filteredInstancesOfThisClass)
+            return foundInstances;
+        }
+    }
+
+    /* Finds an instance of this ClassModel using the given query filter in the database. 
+     * If called on a superclass, will recursively check this ClassModel's collection, and then it's subclasses collections.
+     * Required Parameter queryFilter - An object identifying filtering according to mongoose's definitions.
+     * Rest Parameter accessControlMethodParameters - Optional parameters used by this ClassModels access control method. 
+     * Returns a promise, which will resolve with the instance with the given query filter if it can be found, otherwise null.
+     */
+    async findOne2(queryFilter, ...accessControlMethodParameters) {
+        const concrete = !this.abstract;
+        const abstract = this.abstract;
+        const discriminated = this.discriminated;
+        const isSuperClass = (this.subClasses.length > 0 || this.discriminated);
+        const subClasses = this.subClasses;
+        const className = this.className;
+        const Model = this.Model;
+
+        // If this class is a non-discriminated abstract class and it doesn't have any sub classes, throw an error.
+        if (abstract && !isSuperClass)
+            throw new Error('Error in ' + className + '.findOne(). This class is abstract and non-discriminated, but it has no sub-classes.');
+
+        // If this is a discriminated class, or it is a concrete class with no subclasses, find the instance in this ClassModel's collection.
+        if ((concrete && !isSuperClass) || discriminated) {
+            const documentFound = await Model.findOne(queryFilter).exec();
+            if (!documentFound)
+                return null;
+
+            let instanceFound;
+
+            if (!discriminated)
+                instanceFound = new Instance(this, documentFound);
+            else {
+                if (documentFound.__t) {
+                    const classModelForInstance = AllClassModels[documentFound.__t];
+                    instanceFound = new Instance(classModelForInstance, documentFound);
+                }
+                else {
+                    instanceFound = new Instance(this, documentFound);
+                }
+            }
+
+            const filteredInstance = await this.accessControlFilterOne(instanceFound, ...accessControlMethodParameters);
+            return filteredInstance ? filteredInstance : null;
+        }
+        // If this is a non-discriminated super class, we may need to check this classmodel's collection as well,
+        //  as well as the subclasses collections.
+        if (isSuperClass && !discriminated) {
+            let promises = [];
+
+            // If this is a concrete super class, we need to check this ClassModel's own collection.
+            if (concrete){
+                const documentFound = await Model.findOne(queryFilter).exec();
+                if (documentFound) {
+                    let instanceFound = new Instance(this, documentFound);
+
+                    const filteredInstance = await this.accessControlFilterOne(instanceFound, ...accessControlMethodParameters)
+                    return filteredInstance ? filteredInstance : null;
+                }
+            }
+
+            // Call findOne on our subclasses as well.
+            for (let subClass of subClasses)
+                promises.push(subClass.findOne(queryFilter));
+
+            return ClassModel.firstNonNullPromiseResolution(promises);
+        }
+    }
+
+    /* Finds an instance of this ClassModel with the given id in the database. 
+     * If called on a superclass, will recursively check this ClassModel's collection, and then it's subclasses collections.
+     * Parameter id - the Object ID of the instance to find.
+     * Returns a promise, which will resolve with the instance with the given id if it can be found, otherwise null.
+     */
+    async findById2(id, ...accessControlMethodParameters) {
         return this.findOne({_id: id}, ...accessControlMethodParameters);
     }
 
