@@ -1,5 +1,6 @@
 require('@babel/polyfill');
 const mongoose = require('mongoose');
+const db = require('./database');
 
 const InstanceState = require('./InstanceState');
 const doc = Symbol('document');
@@ -29,8 +30,8 @@ class Instance {
             this[doc] = document;
         }
         else {
-            this[doc] = new this.classModel.Model();
-            this._id = this[doc]._id;
+            this[doc] = {};
+            this._id = db.ObjectId();
             this.__t = classModel.discriminatorSuperClass ? classModel.className : undefined;
             this.previousState = null;
             this.currentState = new InstanceState(classModel);

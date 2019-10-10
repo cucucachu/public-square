@@ -4,9 +4,10 @@
 */
 require('@babel/polyfill');
 var mongoose = require('mongoose');
-var db = require('./database');
 var Schema = mongoose.Schema;
 
+
+var db = require('./database');
 const InstanceSet = require('./InstanceSet');
 const Instance = require('./Instance');
 const Attribute = require('./Attribute');
@@ -31,7 +32,8 @@ class ClassModel {
         this.updateControlMethod = schema.updateControlMethod ? schema.updateControlMethod : undefined;
         this.superClasses = schema.superClasses ? schema.superClasses : [];
         this.discriminatorSuperClass = schema.discriminatorSuperClass;
-        this.collectionName = schema.className.toLowerCase();
+        this.collection = schema.discriminatorSuperClass ? schema.discriminatorSuperClass : schema.className.toLowerCase();
+
 
         // Access Control Settings
         if (schema.accessControlled === undefined) {
@@ -89,43 +91,137 @@ class ClassModel {
                     throw new Error('A subclass of a updateControlled discriminated super class must also be updateControlled.');
                 }
             }
-        } 
+        }         
+        
+        this.setAttributesAndRelationships(schema.schema);
 
-        // If this class has super classes, combine all the super class schemas and combine with the given schema.schema, and set the
-        //    SuperClasses.subClasses field to this class.
         if (schema.superClasses) {
-            let superClassSchemas = {};
-            let currentClassModel = this;
-
-            schema.superClasses.forEach(function(superClass) {
-                superClass.subClasses.push(currentClassModel);
-
-                Object.assign(superClassSchemas, superClass.schema);
-            });
-            this.schema = Object.assign(superClassSchemas, schema.schema);
-        }
-        else if (schema.discriminatorSuperClass) {
-            this.schema = Object.assign(schema.discriminatorSuperClass.schema, schema.schema);
-        }
-        else {
-            this.schema = schema.schema;
+            for (const superClass of schema.superClasses) {
+                this.attributes = this.attributes.concat(superClass.attributes);
+                this.relationships = this.relationships.concat(superClass.relationships);
+                superClass.subClasses.push(this);
+            }
         }
 
-        let schemaObject = new Schema(this.schema);
-        this.setAttributesAndRelationships(this.schema);
-
-        // If discriminatorSuperClass is set, create the Model as a discriminator of that class. Otherwise create a stand-alone Model.
-        if (this.discriminatorSuperClass) {
-            this.Model = this.discriminatorSuperClass.Model.discriminator(this.className, schemaObject);
-            this.discriminatorSuperClass.discriminatedSubClasses.push(this);
-        }
-        else {
-            if (!this.abstract || (this.abstract && this.discriminated))
-                this.Model = mongoose.model(this.className, schemaObject);
+        if (schema.discriminatorSuperClass) {
+            this.attributes = this.attributes.concat(schema.discriminatorSuperClass.attributes);
+            this.relationships = this.relationships.concat(schema.discriminatorSuperClass.relationships);
+            schema.discriminatorSuperClass.discriminatedSubClasses.push(this);
         }
 
         AllClassModels[this.className] = this;
     }
+
+    // constructor2(schema) {
+
+    //     this.constructorValidations(schema);
+
+    //     this.className = schema.className;
+    //     this.subClasses = [];
+    //     this.discriminatedSubClasses = [];
+    //     this.abstract = schema.abstract;
+    //     this.discriminated = schema.discriminated;
+    //     this.accessControlled = schema.accessControlled;
+    //     this.accessControlMethod = schema.accessControlMethod ? schema.accessControlMethod : undefined;
+    //     this.updateControlled = schema.updateControlled;
+    //     this.updateControlMethod = schema.updateControlMethod ? schema.updateControlMethod : undefined;
+    //     this.superClasses = schema.superClasses ? schema.superClasses : [];
+    //     this.discriminatorSuperClass = schema.discriminatorSuperClass;
+    //     this.collection = schema.className.toLowerCase();
+
+    //     // Access Control Settings
+    //     if (schema.accessControlled === undefined) {
+    //         throw new Error('accessControlled is required.');
+    //     }
+
+    //     if (schema.accessControlled && !this.allAccessControlMethodsforClassModel().length) {
+    //         throw new Error('If a class is accessControlled, it must have an accessControlMethod, or it must have at least one super class with an accessControlMethod.');
+    //     }
+
+    //     if (!schema.accessControlled) {
+    //         if (schema.accessControlMethod) {
+    //             throw new Error('A class that is not accessControlled cannot have an accessControlMethod.');
+    //         }
+
+    //         if (schema.superClasses) {
+    //             schema.superClasses.forEach(function(superClass) {
+    //                 if (superClass.accessControlled) {
+    //                     throw new Error('A class which is not accessControlled cannot be a sub class of a class which is accessControlled.');
+    //                 }
+    //             });
+    //         }
+
+    //         if (schema.discriminatorSuperClass) {
+    //             if (schema.discriminatorSuperClass.accessControlled) {
+    //                 throw new Error('A subclass of a accessControlled discriminated super class must also be accessControlled.');
+    //             }
+    //         }
+    //     } 
+
+    //     // Update Control Settings
+    //     if (schema.updateControlled === undefined) {
+    //         throw new Error('updateControlled is required.');
+    //     }
+
+    //     if (schema.updateControlled && !this.allUpdateControlMethodsforClassModel().length) {
+    //         throw new Error('If a class is updateControlled, it must have an updateControlMethod, or it must have at least one super class with an updateControlMethod.');
+    //     }
+
+    //     if (!schema.updateControlled) {
+    //         if (schema.updateControlMethod) {
+    //             throw new Error('A class that is not updateControlled cannot have an updateControlMethod.');
+    //         }
+
+    //         if (schema.superClasses) {
+    //             schema.superClasses.forEach(function(superClass) {
+    //                 if (superClass.updateControlled) {
+    //                     throw new Error('A class which is not updateControlled cannot be a sub class of a class which is updateControlled.');
+    //                 }
+    //             });
+    //         }
+
+    //         if (schema.discriminatorSuperClass) {
+    //             if (schema.discriminatorSuperClass.updateControlled) {
+    //                 throw new Error('A subclass of a updateControlled discriminated super class must also be updateControlled.');
+    //             }
+    //         }
+    //     } 
+
+    //     // If this class has super classes, combine all the super class schemas and combine with the given schema.schema, and set the
+    //     //    SuperClasses.subClasses field to this class.
+    //     if (schema.superClasses) {
+    //         let superClassSchemas = {};
+    //         let currentClassModel = this;
+
+    //         schema.superClasses.forEach(function(superClass) {
+    //             superClass.subClasses.push(currentClassModel);
+
+    //             Object.assign(superClassSchemas, superClass.schema);
+    //         });
+    //         this.schema = Object.assign(superClassSchemas, schema.schema);
+    //     }
+    //     else if (schema.discriminatorSuperClass) {
+    //         this.schema = Object.assign(schema.discriminatorSuperClass.schema, schema.schema);
+    //     }
+    //     else {
+    //         this.schema = schema.schema;
+    //     }
+
+    //     let schemaObject = new Schema(this.schema);
+    //     this.setAttributesAndRelationships(this.schema);
+
+    //     // If discriminatorSuperClass is set, create the Model as a discriminator of that class. Otherwise create a stand-alone Model.
+    //     if (this.discriminatorSuperClass) {
+    //         this.Model = this.discriminatorSuperClass.Model.discriminator(this.className, schemaObject);
+    //         this.discriminatorSuperClass.discriminatedSubClasses.push(this);
+    //     }
+    //     else {
+    //         if (!this.abstract || (this.abstract && this.discriminated))
+    //             this.Model = mongoose.model(this.className, schemaObject);
+    //     }
+
+    //     AllClassModels[this.className] = this;
+    // }
 
     constructorValidations(schema) {
         
@@ -157,12 +253,19 @@ class ClassModel {
             });
 
         if (schema.superClasses) {
-            schema.superClasses.forEach(function(superClass) {
-                Object.keys(superClass.schema).forEach(function(key) {
-                    if (key in schema.schema)
-                        throw new Error('Sub class schema cannot contain the same field names as a super class schema.');
-                });
-            });
+            for (const superClass of schema.superClasses) {
+
+                for (const attribute of superClass.attributes) {
+                    if (Object.keys(schema.schema).includes(attribute.name)) {
+                        throw new Error('Sub class schema cannot contain the same attribute names as a super class schema.');
+                    }
+                }
+                for (const relationship of superClass.relationships) {
+                    if (Object.keys(schema.schema).includes(relationship.name)) {
+                        throw new Error('Sub class schema cannot contain the same relationship names as a super class schema.');
+                    }
+                }
+            }
         }
 
         if (schema.discriminatorSuperClass && schema.abstract) 
@@ -198,7 +301,7 @@ class ClassModel {
         for (const relationship of nonSingularRelationshipSchemas) {
             this.relationships.push(new Relationship(relationship));
         }
-    }   
+    }
 
     static getAttributesFromSchema(schema) {
         const attributes = [];
@@ -510,7 +613,7 @@ class ClassModel {
 
         // If this is a discriminated class, or it is a concrete class with no subclasses, find the instance in this ClassModel's collection.
         if ((concrete && !isSuperClass) || discriminated) {
-            const foundDocuments = await db.collection(this.collectionName).find(queryFilter).toArray();
+            const foundDocuments = await db.collection(this.collection).find(queryFilter).toArray();
             const foundInstances = foundDocuments.map(document => { 
                 if (document.__t)
                     return new Instance(AllClassModels[document.__t], document);
@@ -527,7 +630,7 @@ class ClassModel {
             let filteredInstancesOfThisClass;
 
             if (concrete) {
-                let foundDocumentsOfThisClass = await db.collection(this.collectionName).find(queryFilter).toArray();
+                let foundDocumentsOfThisClass = await db.collection(this.collection).find(queryFilter).toArray();
                 //console.log(this.className + '.find() here');
 
                 if (foundDocumentsOfThisClass.length) {
