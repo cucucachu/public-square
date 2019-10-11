@@ -32,7 +32,19 @@ class ClassModel {
         this.updateControlMethod = schema.updateControlMethod ? schema.updateControlMethod : undefined;
         this.superClasses = schema.superClasses ? schema.superClasses : [];
         this.discriminatorSuperClass = schema.discriminatorSuperClass;
-        this.collection = schema.discriminatorSuperClass ? schema.discriminatorSuperClass : schema.className.toLowerCase();
+        this.collection = schema.discriminatorSuperClass ? schema.discriminatorSuperClass.collection : schema.className.toLowerCase();
+
+        if (schema.discriminatorSuperClass) {
+            this.collection = schema.discriminatorSuperClass.collection;
+        }
+        else {
+            const lastLetter = schema.className.substr(-1).toLowerCase();
+            this.collection = schema.className.toLowerCase();
+            if (lastLetter === 's') {
+                this.collection = this.collection + 'e';
+            }
+            this.collection = this.collection + 's';
+        }
 
 
         // Access Control Settings
@@ -580,6 +592,21 @@ class ClassModel {
         return ((this.subClasses && this.subClasses.length) || this.discriminated)
     }
 
+
+    // Insert, Update, Delete Methods
+
+    async insertOne(document) {
+        return db.insertOne(this.collection, document);
+    }
+    
+    async insertMany(documents) {
+        return db.insertMany(this.collection, documents);
+    }
+
+    async update(document) {
+        return db.update(this.collection, document);
+    }
+
     async delete(instance) {
         let classModel = this;
 
@@ -1045,7 +1072,20 @@ class ClassModel {
     }
 
     // Clear the collection. Never run in production! Only run in a test environment.
-    clear() {
+    async clear() {
+        if (this.abstract && !this.discriminated)
+            throw new Error('Cannot call clear() on an abstract, non-discriminated class. Class: ' + classModel.className);
+
+        if (this.discriminatorSuperClass) {
+            return db.collection(this.collection).deleteMany({ __t: this.className });
+        }
+        else {
+            return db.collection(this.collection).deleteMany({});
+        }        
+    }
+
+    // Clear the collection. Never run in production! Only run in a test environment.
+    clear2() {
         var classModel = this;
 
         return new Promise(function(resolve, reject) {	

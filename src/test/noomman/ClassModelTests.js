@@ -75,7 +75,7 @@ describe('Class Model Tests', () => {
         database.close();
     });
 
-    describe.only('Class Model Constructor', () => {
+    describe('Class Model Constructor', () => {
 
         describe('Required constructor parameters', () => {
 
@@ -456,8 +456,6 @@ describe('Class Model Tests', () => {
             });
     
             it('A subclass schema is the combination of its direct schema with the schema of each of its discrimintated super classes.', () => {
-                console.log(SubClassOfDiscriminatedSubClassOfSuperClass.attributes);
-                
                 for (const attribute of SuperClass.attributes) {
                     if (!SubClassOfDiscriminatedSubClassOfSuperClass.attributes.map(attribute => attribute.name).includes(attribute.name)) {
                         throw new Error('Sub Sub Class is missing the attribute ' + attribute.name);
@@ -697,6 +695,163 @@ describe('Class Model Tests', () => {
 
         });
         
+    });
+
+    describe('Class Model Save and Update Methods', () => {
+
+        // after(async () => {
+        //     await SuperClass.clear();
+        //     await DiscriminatedSuperClass.clear();
+        // });
+
+        describe('ClassModel.insertOne()', () => {
+
+            it('ClassModel.insertOne() saves an instance in the proper collection.', async () => {
+                const id = database.ObjectId();
+                const document = {
+                    _id: id,
+                    name: 'insertSuperClass',
+                    number: 1,
+                    boolean: false,
+                }
+
+                await SuperClass.insertOne(document);
+
+                const found = await database.findById(SuperClass.collection, id);
+
+                if (!found) {
+                    throw new Error('Could not find the document after save.');
+                }
+            });
+
+            it('ClassModel.insertOne() saves an discriminated sub class instance in the parent collection.', async () => {
+                const id = database.ObjectId();
+                const document = {
+                    _id: id,
+                    name: 'insertDiscriminatedSubClass',
+                    number: 1,
+                    boolean: false,
+                }
+
+                await SubClassOfDiscriminatorSuperClass.insertOne(document);
+
+                const found = await database.findById(DiscriminatedSuperClass.collection, id);
+
+                if (!found) {
+                    throw new Error('Could not find the document after save.');
+                }
+            });
+
+        });
+
+        describe('ClassModel.insertMany()', () => {
+
+            it('Multiple documents can be inserted', async () => {
+                const id1 = database.ObjectId();
+                const id2 = database.ObjectId();
+                const document1 = {
+                    _id: id1,
+                    name: '1',
+                    number: 1,
+                    boolean: false,
+                }
+                const document2 = {
+                    _id: id2,
+                    name: '2',
+                    number: 2,
+                    boolean: false,
+                }
+
+                await SuperClass.insertMany([document1, document2]);
+
+                const found = await database.find(SuperClass.collection, {
+                    _id: {
+                        $in: [id1, id2],
+                    },
+                });
+
+                if (!found || found.length !== 2) {
+                    throw new Error('Could not find the documents after save.');
+                }
+
+            });
+
+            it('ClassModel.insertMany() saves an discriminated sub class instance in the parent collection.', async () => {
+                const id1 = database.ObjectId();
+                const id2 = database.ObjectId();
+                const document1 = {
+                    _id: id1,
+                    name: '1',
+                    number: 1,
+                    boolean: false,
+                }
+                const document2 = {
+                    _id: id2,
+                    name: '2',
+                    number: 2,
+                    boolean: false,
+                }
+
+                await SubClassOfDiscriminatorSuperClass.insertMany([document1, document2]);
+
+                const found = await database.find(DiscriminatedSuperClass.collection, {
+                    _id: {
+                        $in: [id1, id2],
+                    },
+                });
+
+                if (!found || found.length !== 2) {
+                    throw new Error('Could not find the documents after save.');
+                }
+            });
+
+
+        });
+
+        describe('ClassModel.update()', () => {
+
+            it('Can update a document.', async () => {
+                const id = database.ObjectId();
+                const document = {
+                    _id: id,
+                    name: 'updateSuperClass',
+                    number: 1,
+                    boolean: false,
+                }
+
+                await SuperClass.insertOne(document);
+                document.boolean = true;
+                await SuperClass.update(document);
+
+                const found = await database.findById(SuperClass.collection, id);
+
+                if (found.boolean !== true) {
+                    throw new Error('Document was not updated.');
+                }
+            });
+
+            it('Can update a document of a discriminated sub class.', async () => {
+                const id = database.ObjectId();
+                const document = {
+                    _id: id,
+                    name: 'updateDiscriminatedSubClass',
+                    number: 1,
+                    boolean: false,
+                }
+
+                await SubClassOfDiscriminatorSuperClass.insertOne(document);
+                document.boolean = true;
+                await SubClassOfDiscriminatorSuperClass.update(document);
+
+                const found = await database.findById(DiscriminatedSuperClass.collection, id);
+
+                if (found.boolean !== true) {
+                    throw new Error('Document was not updated.');
+                }
+            });
+
+        });
+
     });
 
     describe('ClassModel Query Methods', () => {
