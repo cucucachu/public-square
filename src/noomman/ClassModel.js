@@ -608,10 +608,18 @@ class ClassModel {
     }
 
     async delete(instance) {
+
+        if (instance.classModel !== this)
+            throw new Error(this.className + '.delete() called on an instance of a different class.');
+
+        return db.deleteOne(this.collection, instance);
+    }
+
+    async delete2(instance) {
         let classModel = this;
 
         if (!(instance instanceof classModel.Model))
-            reject(new Error(classModel.className + '.delete() called on an instance of a different class.'));
+            throw new Error(this.className + '.delete() called on an instance of a different class.');
 
 
         return classModel.Model.deleteOne({_id: instance._id}).exec()
@@ -689,7 +697,6 @@ class ClassModel {
         const isSuperClass = (this.subClasses.length > 0 || this.discriminated);
         const subClasses = this.subClasses;
         const className = this.className;
-        const Model = this.Model;
 
         // If this class is a non-discriminated abstract class and it doesn't have any sub classes, throw an error.
         if (abstract && !isSuperClass)
@@ -697,7 +704,7 @@ class ClassModel {
 
         // If this is a discriminated class, or it is a concrete class with no subclasses, find the instance in this ClassModel's collection.
         if ((concrete && !isSuperClass) || discriminated) {
-            const documentFound = await Model.findOne(queryFilter).exec();
+            const documentFound = await db.findOne(this.collection, queryFilter);
             if (!documentFound)
                 return null;
 
@@ -725,7 +732,7 @@ class ClassModel {
 
             // If this is a concrete super class, we need to check this ClassModel's own collection.
             if (concrete){
-                const documentFound = await Model.findOne(queryFilter).exec();
+                const documentFound = await db.findOne(this.collection, queryFilter);
                 if (documentFound) {
                     let instanceFound = new Instance(this, documentFound);
 

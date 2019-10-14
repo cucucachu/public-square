@@ -1,5 +1,4 @@
 require('@babel/polyfill');
-const mongoose = require('mongoose');
 const db = require('./database');
 
 const InstanceState = require('./InstanceState');
@@ -153,13 +152,13 @@ class Instance {
         }
     }
 
-    documentEquals(otherDocument) {
-        return this[doc] == otherDocument;
-    }
+    // documentEquals(otherDocument) {
+    //     return this[doc] == otherDocument;
+    // }
 
-    getDocumentProperty(propertyName) {
-        return this[doc][propertyName];
-    }
+    // getDocumentProperty(propertyName) {
+    //     return this[doc][propertyName];
+    // }
     
     /* 
      * Walks a relationship from a given instance of this Class Model, returning the related instance or instances. 
@@ -347,14 +346,6 @@ class Instance {
         }
     }
 
-    syncDocument() {
-        for (const property of this.classModel.getDocumentProperties()){
-            delete this[doc][property.name];
-        }
-        
-        Object.assign(this[doc], this.currentState.toDocument());
-    }
-
     // Update and Delete Methods Methods
 
     async save(...updateControlMethodParameters) {
@@ -370,32 +361,11 @@ class Instance {
         }
 
         if (!this.saved()) {
-            this.classModel.insertOne(this.toDocument());
+            await this.classModel.insertOne(this.toDocument());
         }
         else {
-            this.classModel.update(this.toDocument);
+            await this.classModel.update(this.toDocument);
         }
-
-        this.previousState = new InstanceState(this.classModel, this.currentState.toDocument());
-
-        return this;
-    }
-
-    async save2(...updateControlMethodParameters) {
-        if (this.deleted()) 
-            throw new Error('instance.save(): You cannot save an instance which has been deleted.');
-        
-        try {
-            this.validate();
-            await this.classModel.updateControlCheck(this, ...updateControlMethodParameters);
-        }
-        catch (error) {
-            throw new Error('Caught validation error when attempting to save Instance: ' + error.message);
-        }
-
-        this.syncDocument();
-
-        await this[doc].save({validateBeforeSave: false});
 
         this.previousState = new InstanceState(this.classModel, this.currentState.toDocument());
 
@@ -405,8 +375,13 @@ class Instance {
     async saveWithoutValidation() {
         if (this.deleted()) 
             throw new Error('instance.save(): You cannot save an instance which has been deleted.');
-        this.syncDocument();
-        await this[doc].save({validateBeforeSave: false});
+
+        if (!this.saved()) {
+            await this.classModel.insertOne(this.toDocument());
+        }
+        else {
+            await this.classModel.update(this.toDocument);
+        }
         this.previousState = new InstanceState(this.classModel, this.currentState.toDocument());
         return this;
     }
@@ -415,9 +390,7 @@ class Instance {
         if (!this.saved())
             throw new Error('instance.delete(): You cannot delete an instance which hasn\'t been saved yet');
 
-        this.syncDocument();
-
-        await this.classModel.delete(this[doc]);
+        await this.classModel.delete(this);
 
         this.currentState = null;
 
