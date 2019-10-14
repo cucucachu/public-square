@@ -105,6 +105,190 @@ class ClassModel {
             }
         }         
         
+        this.attributes = [];
+        this.relationships = [];
+
+        if (schema.attributes) {
+            for (const attribute of schema.attributes) {
+                this.attributes.push(new Attribute(attribute));
+            }
+        }
+
+        if (schema.relationships) {
+            for (const relationship of schema.relationships) {
+                this.relationships.push(new Relationship(relationship));
+            }
+        }
+
+        if (schema.superClasses) {
+            for (const superClass of schema.superClasses) {
+                this.attributes = this.attributes.concat(superClass.attributes);
+                this.relationships = this.relationships.concat(superClass.relationships);
+                superClass.subClasses.push(this);
+            }
+        }
+
+        if (schema.discriminatorSuperClass) {
+            this.attributes = this.attributes.concat(schema.discriminatorSuperClass.attributes);
+            this.relationships = this.relationships.concat(schema.discriminatorSuperClass.relationships);
+            schema.discriminatorSuperClass.discriminatedSubClasses.push(this);
+        }
+
+        AllClassModels[this.className] = this;
+    }
+
+    constructorValidations(schema) {
+        
+        if (!schema.className)
+            throw new Error('className is required.');
+
+        if (schema.attributes && !Array.isArray(schema.attributes))
+            throw new Error('If attributes is set, it must be an Array.');
+
+        if (schema.relationships && !Array.isArray(schema.relationships))
+            throw new Error('If relationships is set, it must be an Array.');
+
+        if (schema.superClasses && !Array.isArray(schema.superClasses))
+            throw new Error('If superClasses is set, it must be an Array.');
+
+        if (schema.superClasses && schema.superClasses.length == 0)
+            throw new Error('If superClasses is set, it cannot be an empty Array.');
+
+        if (schema.discriminatorSuperClass && Array.isArray(schema.discriminatorSuperClass))
+            throw new Error('If discriminatorSuperClass is set, it can only be a single class.');
+
+        if (schema.superClasses && schema.discriminatorSuperClass)
+            throw new Error('A ClassModel cannot have both superClasses and discriminatorSuperClass.');
+
+        if (schema.discriminatorSuperClass && !schema.discriminatorSuperClass.discriminated)
+            throw new Error('If a class is used as a discriminatedSuperClass, that class must have its "discriminated" field set to true.');
+        
+        if (schema.superClasses)
+            schema.superClasses.forEach(function(superClass) {
+                if (superClass.discriminated)
+                    throw new Error('If a class is set as a superClass, that class cannot have its "discriminated" field set to true.');
+            });
+
+        if (schema.superClasses) {
+            for (const superClass of schema.superClasses) {
+
+                for (const attribute of superClass.attributes) {
+                    if (schema.attributes && schema.attributes.map(attribute => attribute.name).includes(attribute.name)) {
+                        throw new Error('Sub class schema cannot contain the same attribute names as a super class schema.');
+                    }
+                }
+                for (const relationship of superClass.relationships) {
+                    if (schema.relationships && schema.relationships.map(relationship => relationship.name).includes(relationship.name)) {
+                        throw new Error('Sub class schema cannot contain the same relationship names as a super class schema.');
+                    }
+                }
+            }
+        }
+
+        if (schema.discriminatorSuperClass && schema.abstract) 
+            throw new Error('A discriminator sub class cannot be abstract.');
+
+        if (schema.discriminatorSuperClass && schema.discriminated)
+            throw new Error('A sub class of a discriminated super class cannot be discriminated.');
+
+        if (schema.superClasses) {
+            schema.superClasses.forEach(function(superClass) {
+                if (superClass.discriminatorSuperClass) {
+                    throw new Error('A class cannot be a sub class of a sub class of a discriminated class.');
+                }
+            });
+        }
+
+    }
+
+    constructor2(schema) {
+
+        this.constructorValidations(schema);
+
+        this.className = schema.className;
+        this.subClasses = [];
+        this.discriminatedSubClasses = [];
+        this.abstract = schema.abstract;
+        this.discriminated = schema.discriminated;
+        this.accessControlled = schema.accessControlled;
+        this.accessControlMethod = schema.accessControlMethod ? schema.accessControlMethod : undefined;
+        this.updateControlled = schema.updateControlled;
+        this.updateControlMethod = schema.updateControlMethod ? schema.updateControlMethod : undefined;
+        this.superClasses = schema.superClasses ? schema.superClasses : [];
+        this.discriminatorSuperClass = schema.discriminatorSuperClass;
+        this.collection = schema.discriminatorSuperClass ? schema.discriminatorSuperClass.collection : schema.className.toLowerCase();
+
+        if (schema.discriminatorSuperClass) {
+            this.collection = schema.discriminatorSuperClass.collection;
+        }
+        else {
+            const lastLetter = schema.className.substr(-1).toLowerCase();
+            this.collection = schema.className.toLowerCase();
+            if (lastLetter === 's') {
+                this.collection = this.collection + 'e';
+            }
+            this.collection = this.collection + 's';
+        }
+
+
+        // Access Control Settings
+        if (schema.accessControlled === undefined) {
+            throw new Error('accessControlled is required.');
+        }
+
+        if (schema.accessControlled && !this.allAccessControlMethodsforClassModel().length) {
+            throw new Error('If a class is accessControlled, it must have an accessControlMethod, or it must have at least one super class with an accessControlMethod.');
+        }
+
+        if (!schema.accessControlled) {
+            if (schema.accessControlMethod) {
+                throw new Error('A class that is not accessControlled cannot have an accessControlMethod.');
+            }
+
+            if (schema.superClasses) {
+                schema.superClasses.forEach(function(superClass) {
+                    if (superClass.accessControlled) {
+                        throw new Error('A class which is not accessControlled cannot be a sub class of a class which is accessControlled.');
+                    }
+                });
+            }
+
+            if (schema.discriminatorSuperClass) {
+                if (schema.discriminatorSuperClass.accessControlled) {
+                    throw new Error('A subclass of a accessControlled discriminated super class must also be accessControlled.');
+                }
+            }
+        } 
+
+        // Update Control Settings
+        if (schema.updateControlled === undefined) {
+            throw new Error('updateControlled is required.');
+        }
+
+        if (schema.updateControlled && !this.allUpdateControlMethodsforClassModel().length) {
+            throw new Error('If a class is updateControlled, it must have an updateControlMethod, or it must have at least one super class with an updateControlMethod.');
+        }
+
+        if (!schema.updateControlled) {
+            if (schema.updateControlMethod) {
+                throw new Error('A class that is not updateControlled cannot have an updateControlMethod.');
+            }
+
+            if (schema.superClasses) {
+                schema.superClasses.forEach(function(superClass) {
+                    if (superClass.updateControlled) {
+                        throw new Error('A class which is not updateControlled cannot be a sub class of a class which is updateControlled.');
+                    }
+                });
+            }
+
+            if (schema.discriminatorSuperClass) {
+                if (schema.discriminatorSuperClass.updateControlled) {
+                    throw new Error('A subclass of a updateControlled discriminated super class must also be updateControlled.');
+                }
+            }
+        }         
+        
         this.setAttributesAndRelationships(schema.schema);
 
         if (schema.superClasses) {
@@ -124,118 +308,7 @@ class ClassModel {
         AllClassModels[this.className] = this;
     }
 
-    // constructor2(schema) {
-
-    //     this.constructorValidations(schema);
-
-    //     this.className = schema.className;
-    //     this.subClasses = [];
-    //     this.discriminatedSubClasses = [];
-    //     this.abstract = schema.abstract;
-    //     this.discriminated = schema.discriminated;
-    //     this.accessControlled = schema.accessControlled;
-    //     this.accessControlMethod = schema.accessControlMethod ? schema.accessControlMethod : undefined;
-    //     this.updateControlled = schema.updateControlled;
-    //     this.updateControlMethod = schema.updateControlMethod ? schema.updateControlMethod : undefined;
-    //     this.superClasses = schema.superClasses ? schema.superClasses : [];
-    //     this.discriminatorSuperClass = schema.discriminatorSuperClass;
-    //     this.collection = schema.className.toLowerCase();
-
-    //     // Access Control Settings
-    //     if (schema.accessControlled === undefined) {
-    //         throw new Error('accessControlled is required.');
-    //     }
-
-    //     if (schema.accessControlled && !this.allAccessControlMethodsforClassModel().length) {
-    //         throw new Error('If a class is accessControlled, it must have an accessControlMethod, or it must have at least one super class with an accessControlMethod.');
-    //     }
-
-    //     if (!schema.accessControlled) {
-    //         if (schema.accessControlMethod) {
-    //             throw new Error('A class that is not accessControlled cannot have an accessControlMethod.');
-    //         }
-
-    //         if (schema.superClasses) {
-    //             schema.superClasses.forEach(function(superClass) {
-    //                 if (superClass.accessControlled) {
-    //                     throw new Error('A class which is not accessControlled cannot be a sub class of a class which is accessControlled.');
-    //                 }
-    //             });
-    //         }
-
-    //         if (schema.discriminatorSuperClass) {
-    //             if (schema.discriminatorSuperClass.accessControlled) {
-    //                 throw new Error('A subclass of a accessControlled discriminated super class must also be accessControlled.');
-    //             }
-    //         }
-    //     } 
-
-    //     // Update Control Settings
-    //     if (schema.updateControlled === undefined) {
-    //         throw new Error('updateControlled is required.');
-    //     }
-
-    //     if (schema.updateControlled && !this.allUpdateControlMethodsforClassModel().length) {
-    //         throw new Error('If a class is updateControlled, it must have an updateControlMethod, or it must have at least one super class with an updateControlMethod.');
-    //     }
-
-    //     if (!schema.updateControlled) {
-    //         if (schema.updateControlMethod) {
-    //             throw new Error('A class that is not updateControlled cannot have an updateControlMethod.');
-    //         }
-
-    //         if (schema.superClasses) {
-    //             schema.superClasses.forEach(function(superClass) {
-    //                 if (superClass.updateControlled) {
-    //                     throw new Error('A class which is not updateControlled cannot be a sub class of a class which is updateControlled.');
-    //                 }
-    //             });
-    //         }
-
-    //         if (schema.discriminatorSuperClass) {
-    //             if (schema.discriminatorSuperClass.updateControlled) {
-    //                 throw new Error('A subclass of a updateControlled discriminated super class must also be updateControlled.');
-    //             }
-    //         }
-    //     } 
-
-    //     // If this class has super classes, combine all the super class schemas and combine with the given schema.schema, and set the
-    //     //    SuperClasses.subClasses field to this class.
-    //     if (schema.superClasses) {
-    //         let superClassSchemas = {};
-    //         let currentClassModel = this;
-
-    //         schema.superClasses.forEach(function(superClass) {
-    //             superClass.subClasses.push(currentClassModel);
-
-    //             Object.assign(superClassSchemas, superClass.schema);
-    //         });
-    //         this.schema = Object.assign(superClassSchemas, schema.schema);
-    //     }
-    //     else if (schema.discriminatorSuperClass) {
-    //         this.schema = Object.assign(schema.discriminatorSuperClass.schema, schema.schema);
-    //     }
-    //     else {
-    //         this.schema = schema.schema;
-    //     }
-
-    //     let schemaObject = new Schema(this.schema);
-    //     this.setAttributesAndRelationships(this.schema);
-
-    //     // If discriminatorSuperClass is set, create the Model as a discriminator of that class. Otherwise create a stand-alone Model.
-    //     if (this.discriminatorSuperClass) {
-    //         this.Model = this.discriminatorSuperClass.Model.discriminator(this.className, schemaObject);
-    //         this.discriminatorSuperClass.discriminatedSubClasses.push(this);
-    //     }
-    //     else {
-    //         if (!this.abstract || (this.abstract && this.discriminated))
-    //             this.Model = mongoose.model(this.className, schemaObject);
-    //     }
-
-    //     AllClassModels[this.className] = this;
-    // }
-
-    constructorValidations(schema) {
+    constructorValidations2(schema) {
         
         if (!schema.className)
             throw new Error('className is required.');

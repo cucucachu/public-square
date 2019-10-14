@@ -1,6 +1,4 @@
 require("@babel/polyfill");
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
 
 const ClassModel = require('../../../dist/noomman/ClassModel');
 
@@ -15,37 +13,46 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             accessControlled: false,
             updateControlled: false,
             className: 'CompareClass1',
-            schema: {
-                name: {
+            attributes: [
+                {
+                    name: 'name',
                     type: String,
-                    required: true
-                },
-                numbers: {
-                    type: [Number]
-                },
-                class2: {
-                    type: Schema.Types.ObjectId,
-                    ref: 'CompareClass2',
                     required: true,
-                    singular: true
+                },
+                {
+                    name: 'numbers',
+                    type: Number,
+                    list: true,
                 }
-            }
+            ],
+            relationships: [
+                {
+                    name: 'class2',
+                    toClass: 'CompareClass2',
+                    required: true,
+                    singular: true,
+                },
+            ],
         });
 
         var CompareClass2 = new ClassModel({
             accessControlled: false,
             updateControlled: false,
             className: 'CompareClass2',
-            schema: {
-                name: {
+            attributes: [
+                {
+                    name: 'name',
                     type: String,
-                    required: true
+                    required: true,
                 },
-                class1s: {
-                    type: [Schema.Types.ObjectId],
-                    ref: 'CompareClass1'
-                }
-            }
+            ],
+            relationships: [
+                {
+                    name: 'class1s',
+                    toClass: 'CompareClass1',
+                    singular: false,
+                },
+            ],
         }); 
     }       
 
@@ -55,91 +62,114 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             className: 'TestClassWithNumber',
             accessControlled: false,
             updateControlled: false,
-            schema: {
-                number: {
-                    type: Number
-                }
-            }
+            attributes: [
+                {
+                    name: 'number',
+                    type: Number,
+                },
+            ],
         });
 
         var TestClassWithBoolean = new ClassModel({
             className: 'TestClassWithBoolean',
             accessControlled: false,
             updateControlled: false,
-            schema: {
-                boolean: {
-                    type: Boolean
-                }
-            }
+            attributes: [
+                {
+                    name: 'boolean',
+                    type: Boolean,
+                },
+            ],
         });
 
         var TestClassWithAllSimpleFields = new ClassModel({
             accessControlled: false,
             updateControlled: false,
-            className: 'TestClassWithAllSimpleFields', 
-            schema: {
-                string: {
-                    type:String
+            className: 'TestClassWithAllSimpleFields',
+            attributes: [
+                {
+                    name: 'string',
+                    type: String,
                 },
-                strings: {
-                    type:[String]
+                {
+                    name: 'strings',
+                    type: String,
+                    list: true,
                 },
-                date: {
-                    type: Date
+                {
+                    name: 'date',
+                    type: Date,
                 },
-                boolean: {
-                    type: Boolean
+                {
+                    name: 'boolean',
+                    type: Boolean,
                 },
-                booleans: {
-                    type: [Boolean]
+                {
+                    name: 'booleans',
+                    type: Boolean,
+                    list: true,
                 },
-                number: {
-                    type: Number
+                {
+                    name: 'number',
+                    type: Number,
                 },
-                numbers: {
-                    type: [Number]
-                }
-            }
+                {
+                    name: 'numbers',
+                    type: Number,
+                    list: true,
+                },
+            ],
         });       
 
         var AllAttributesAndRelationshipsClass = new ClassModel({
             accessControlled: false,
             updateControlled: false,
             className: 'AllAttributesAndRelationshipsClass', 
-            schema: {
-                string: {
-                    type:String
+            attributes: [
+                {
+                    name: 'string',
+                    type: String,
                 },
-                strings: {
-                    type:[String]
+                {
+                    name: 'strings',
+                    type: String,
+                    list: true,
                 },
-                date: {
-                    type: Date
+                {
+                    name: 'date',
+                    type: Date,
                 },
-                dates: {
-                    type: [Date]
+                {
+                    name: 'boolean',
+                    type: Boolean,
                 },
-                boolean: {
-                    type: Boolean
+                {
+                    name: 'booleans',
+                    type: Boolean,
+                    list: true,
                 },
-                booleans: {
-                    type: [Boolean]
+                {
+                    name: 'number',
+                    type: Number,
                 },
-                number: {
-                    type: Number
+                {
+                    name: 'numbers',
+                    type: Number,
+                    list: true,
                 },
-                numbers: {
-                    type: [Number]
+            ],
+            relationships: [
+                {
+                    name: 'class1',
+                    toClass: 'CompareClass1',
+                    singular: true,
                 },
-                class1: {
-                    type: Schema.Types.ObjectId,
-                    ref: 'CompareClass1'
-                },
-                class2s: {
-                    type: [Schema.Types.ObjectId],
-                    ref: 'CompareClass2'
+                {
+                    name: 'class2s',
+                    toClass: 'CompareClass2',
+                    singular: false,
                 }
-            }
+            ],
         });
         
         var AbstractClass = new ClassModel({
@@ -147,11 +177,12 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             accessControlled: false,
             updateControlled: false,
             abstract: true,
-            schema: {
-                number: {
-                    type: Number
+            attributes: [
+                {
+                    name: 'number',
+                    type: Number,
                 }
-            }
+            ],
         });
     }
     
@@ -161,190 +192,238 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             accessControlled: false,
             updateControlled: false,
             className: 'AllFieldsRequiredClass', 
-            schema: {
-                string: {
-                    type:String,
-                    required: true
+            attributes: [
+                {
+                    name: 'string',
+                    type: String,
+                    required: true,
                 },
-                strings: {
-                    type:[String],
-                    required: true
+                {
+                    name: 'strings',
+                    type: String,
+                    list: true,
+                    required: true,
                 },
-                date: {
+                {
+                    name: 'date',
                     type: Date,
-                    required: true
+                    required: true,
                 },
-                boolean: {
+                {
+                    name: 'boolean',
                     type: Boolean,
-                    required: true
+                    required: true,
                 },
-                booleans: {
-                    type: [Boolean],
-                    required: true
+                {
+                    name: 'booleans',
+                    type: Boolean,
+                    list: true,
+                    required: true,
                 },
-                number: {
+                {
+                    name: 'number',
                     type: Number,
-                    required: true
+                    required: true,
                 },
-                numbers: {
-                    type: [Number],
-                    required: true
+                {
+                    name: 'numbers',
+                    type: Number,
+                    list: true,
+                    required: true,
                 },
-                class1: {
-                    type: Schema.Types.ObjectId,
-                    ref: 'CompareClass1',
-                    required: true
+            ],
+            relationships: [
+                {
+                    name: 'class1',
+                    toClass: 'CompareClass1',
+                    singular: true,
+                    required: true,
                 },
-                class2s: {
-                    type: [Schema.Types.ObjectId],
-                    ref: 'CompareClass2',
-                    required: true
+                {
+                    name: 'class2s',
+                    toClass: 'CompareClass2',
+                    singular: false,
+                    required: true,
                 }
-            }
+            ],
         });
     
         var AllFieldsMutexClass = new ClassModel({
             accessControlled: false,
             updateControlled: false,
             className: 'AllFieldsMutexClass', 
-            schema: {
-                string: {
-                    type:String,
+            attributes: [
+                {
+                    name: 'string',
+                    type: String,
                     mutex: 'a'
                 },
-                strings: {
-                    type:[String],
+                {
+                    name: 'strings',
+                    type: String,
+                    list: true,
                     mutex: 'a'
                 },
-                date: {
+                {
+                    name: 'date',
                     type: Date,
                     mutex: 'a'
                 },
-                boolean: {
+                {
+                    name: 'boolean',
                     type: Boolean,
                     mutex: 'a'
                 },
-                booleans: {
-                    type: [Boolean],
+                {
+                    name: 'booleans',
+                    type: Boolean,
+                    list: true,
                     mutex: 'a'
                 },
-                number: {
+                {
+                    name: 'number',
                     type: Number,
                     mutex: 'a'
                 },
-                numbers: {
-                    type: [Number],
+                {
+                    name: 'numbers',
+                    type: Number,
+                    list: true,
                     mutex: 'a'
                 },
-                class1: {
-                    type: Schema.Types.ObjectId,
-                    ref: 'CompareClass1',
+            ],
+            relationships: [
+                {
+                    name: 'class1',
+                    toClass: 'CompareClass1',
+                    singular: true,
                     mutex: 'a'
                 },
-                class2s: {
-                    type: [Schema.Types.ObjectId],
-                    ref: 'CompareClass2',
+                {
+                    name: 'class2s',
+                    toClass: 'CompareClass2',
+                    singular: false,
                     mutex: 'a'
                 }
-            }
+            ],
         });
     
         var AllFieldsInRequiredGroupClass = new ClassModel({
             accessControlled: false,
             updateControlled: false,
             className: 'AllFieldsInRequiredGroupClass',
-            schema: {
-                string: {
-                    type:String,
+            attributes: [
+                {
+                    name: 'string',
+                    type: String,
                     requiredGroup: 'a'
                 },
-                strings: {
-                    type:[String],
+                {
+                    name: 'strings',
+                    type: String,
+                    list: true,
                     requiredGroup: 'a'
                 },
-                date: {
+                {
+                    name: 'date',
                     type: Date,
                     requiredGroup: 'a'
                 },
-                boolean: {
+                {
+                    name: 'boolean',
                     type: Boolean,
                     requiredGroup: 'a'
                 },
-                booleans: {
-                    type: [Boolean],
+                {
+                    name: 'booleans',
+                    type: Boolean,
+                    list: true,
                     requiredGroup: 'a'
                 },
-                number: {
+                {
+                    name: 'number',
                     type: Number,
                     requiredGroup: 'a'
                 },
-                numbers: {
-                    type: [Number],
+                {
+                    name: 'numbers',
+                    type: Number,
+                    list: true,
                     requiredGroup: 'a'
                 },
-                class1: {
-                    type: Schema.Types.ObjectId,
-                    ref: 'CompareClass1',
+            ],
+            relationships: [
+                {
+                    name: 'class1',
+                    toClass: 'CompareClass1',
+                    singular: true,
                     requiredGroup: 'a'
                 },
-                class2s: {
-                    type: [Schema.Types.ObjectId],
-                    ref: 'CompareClass2',
+                {
+                    name: 'class2s',
+                    toClass: 'CompareClass2',
+                    singular: false,
                     requiredGroup: 'a'
                 }
-            }
+            ],
         });
 
         var MutexClassA = new ClassModel({
             accessControlled: false,
             updateControlled: false,
             className: 'MutexClassA', 
-            schema: {
-                boolean: {
+            attributes: [
+                {
+                    name: 'boolean',
                     type: Boolean,
-                    mutex: 'a'
+                    mutex: 'a',
                 },
-                date: {
+                {
+                    name: 'date',
                     type: Date,
-                    mutex: 'a'
+                    mutex: 'a',
                 }
-            }
+            ],
         });
 
         var MutexClassB = new ClassModel({
             accessControlled: false,
             updateControlled: false,
             className: 'MutexClassB', 
-            schema: {
-                class1: {
-                    type: Schema.Types.ObjectId,
-                    ref: 'CompareClass1',
-                    mutex: 'a'
+            relationships: [
+                {
+                    name: 'class1',
+                    toClass: 'CompareClass1',
+                    singular: true,
+                    mutex: 'a',
                 },
-                class2: {
-                    type: Schema.Types.ObjectId,
-                    ref: 'CompareClass2',
-                    mutex: 'a'
-                }
-            }
+                {
+                    name: 'class2',
+                    toClass: 'CompareClass2',
+                    singular: true,
+                    mutex: 'a',
+                },
+            ],
         });
 
         var MutexClassC = new ClassModel({
             accessControlled: false,
             updateControlled: false,
-            className: 'MutexClassC', 
-            schema: {
-                class1s: {
-                    type: [Schema.Types.ObjectId],
-                    ref: 'CompareClass1',
-                    mutex: 'a'
+            className: 'MutexClassC',
+            relationships: [
+                {
+                    name: 'class1s',
+                    toClass: 'CompareClass1',
+                    singular: false,
+                    mutex: 'a',
                 },
-                class2s: {
-                    type: [Schema.Types.ObjectId],
-                    ref: 'CompareClass2',
-                    mutex: 'a'
-                }
-            }
+                {
+                    name: 'class2s',
+                    toClass: 'CompareClass2',
+                    singular: false,
+                    mutex: 'a',
+                },
+            ],
         });
 
     }
@@ -355,17 +434,20 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             accessControlled: false,
             updateControlled: false,
             className: "SuperClass",
-            schema: {
-                name: {
-                    type: String
+            attributes: [
+                {
+                    name: 'name',
+                    type: String,
                 },
-                boolean: {
+                {
+                    name: 'boolean',
                     type: Boolean,
                 },
-                number: {
-                    type: Number
-                }
-            }
+                {
+                    name: 'number',
+                    type: Number,
+                },
+            ],
         });
 
         var AbstractSuperClass = new ClassModel({
@@ -373,13 +455,20 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             updateControlled: false,
             className: "AbstractSuperClass",
             abstract: true,
-            schema: {
-                name: {
-                    type: String
+            attributes: [
+                {
+                    name: 'name',
+                    type: String,
                 },
-                abstractBoolean: Boolean,
-                abstractNumber: Number
-            }
+                {
+                    name: 'abstractBoolean',
+                    type: Boolean,
+                },
+                {
+                    name: 'abstractNumber',
+                    type: Number,
+                },
+            ],
         });
 
         var DiscriminatedSuperClass = new ClassModel({
@@ -387,13 +476,20 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             updateControlled: false,
             className: "DiscriminatedSuperClass",
             discriminated: true,
-            schema: {
-                name: {
-                    type: String
+            attributes: [
+                {
+                    name: 'name',
+                    type: String,
                 },
-                boolean: Boolean,
-                number: Number
-            }
+                {
+                    name: 'boolean',
+                    type: Boolean,
+                },
+                {
+                    name: 'number',
+                    type: Number,
+                },
+            ],
         });
 
         var AbstractDiscriminatedSuperClass = new ClassModel({
@@ -402,13 +498,20 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             className: "AbstractDiscriminatedSuperClass",
             discriminated: true,
             abstract: true,
-            schema: {
-                name: {
-                    type: String
+            attributes: [
+                {
+                    name: 'name',
+                    type: String,
                 },
-                boolean: Boolean,
-                number: Number
-            }
+                {
+                    name: 'boolean',
+                    type: Boolean,
+                },
+                {
+                    name: 'number',
+                    type: Number,
+                },
+            ],
         });   
 
         var SubClassOfSuperClass = new ClassModel({
@@ -416,14 +519,16 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             updateControlled: false,
             className: 'SubClassOfSuperClass',
             superClasses: [SuperClass],
-            schema: {
-                subBoolean: {
-                    type: Boolean
+            attributes: [
+                {
+                    name: 'subBoolean',
+                    type: Boolean,
                 },
-                subNumber: {
-                    type: Number
-                }
-            },
+                {
+                    name: 'subNumber',
+                    type: Number,
+                },
+            ],
         });   
 
         var SubClassOfAbstractSuperClass = new ClassModel({
@@ -431,14 +536,16 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             updateControlled: false,
             className: 'SubClassOfAbstractSuperClass',
             superClasses: [AbstractSuperClass],
-            schema: {
-                subBoolean: {
-                    type: Boolean
+            attributes: [
+                {
+                    name: 'subBoolean',
+                    type: Boolean,
                 },
-                subNumber: {
-                    type: Number
-                }
-            }
+                {
+                    name: 'subNumber',
+                    type: Number,
+                },
+            ],
         });
 
         var AbstractSubClassOfSuperClass = new ClassModel({
@@ -447,14 +554,16 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             className: 'AbstractSubClassOfSuperClass',
             superClasses: [SuperClass],
             abstract: true,
-            schema: {
-                abstractSubBoolean: {
-                    type: Boolean
+            attributes: [
+                {
+                    name: 'abstractSubBoolean',
+                    type: Boolean,
                 },
-                abstractSubNumber: {
-                    type: Number
-                }
-            }
+                {
+                    name: 'abstractSubNumber',
+                    type: Number,
+                },
+            ],
         });      
 
         var SubClassOfMultipleSuperClasses = new ClassModel({
@@ -462,16 +571,18 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             updateControlled: false,
             className: 'SubClassOfMultipleSuperClasses',
             superClasses: [SuperClass, AbstractSuperClass],
-            schema: {
-                subBoolean: {
+            attributes: [
+                {
+                    name: 'subBoolean',
                     type: Boolean,
-                    required: true
+                    required: true,
                 },
-                subNumber: {
+                {
+                    name: 'subNumber',
                     type: Number,
-                    required: true
-                }
-            }
+                    required: true,
+                },
+            ],
         });   
 
         var SubClassOfDiscriminatorSuperClass = new ClassModel({
@@ -479,14 +590,16 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             updateControlled: false,
             className: 'SubClassOfDiscriminatorSuperClass',
             discriminatorSuperClass: DiscriminatedSuperClass,
-            schema: {
-                discriminatedBoolean: {
-                    type: Boolean
+            attributes: [
+                {
+                    name: 'discriminatedBoolean',
+                    type: Boolean,
                 },
-                discriminatedNumber: {
-                    type: Number
-                }
-            }
+                {
+                    name: 'discriminatedNumber',
+                    type: Number,
+                },
+            ],
         });
 
         var DiscriminatedSubClassOfSuperClass = new ClassModel({
@@ -495,14 +608,16 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             className: 'DiscriminatedSubClassOfSuperClass',
             discriminated: true,
             superClasses: [SuperClass],
-            schema: {
-                discriminatedBoolean: {
-                    type: Boolean
+            attributes: [
+                {
+                    name: 'discriminatedBoolean',
+                    type: Boolean,
                 },
-                discriminatedNumber: {
-                    type:Number
-                }
-            }
+                {
+                    name: 'discriminatedNumber',
+                    type: Number,
+                },
+            ],
         });
 
         var SubClassOfDiscriminatedSubClassOfSuperClass = new ClassModel({
@@ -510,29 +625,33 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             updateControlled: false,
             className: 'SubClassOfDiscriminatedSubClassOfSuperClass',
             discriminatorSuperClass: DiscriminatedSubClassOfSuperClass,
-            schema: {
-                subDiscriminatedBoolean: {
-                    type: Boolean
+            attributes: [
+                {
+                    name: 'subDiscriminatedBoolean',
+                    type: Boolean,
                 },
-                subDiscriminatedNumber: {
-                    type: Number
-                }
-            }
+                {
+                    name: 'subDiscriminatedNumber',
+                    type: Number,
+                },
+            ],
         });     
 
         var SubClassOfSubClassOfSuperClass = new ClassModel({
             accessControlled: false,
             updateControlled: false,
             className: 'SubClassOfSubClassOfSuperClass',
-            schema: {
-                subSubBoolean: {
-                    type: Boolean
+            superClasses: [SubClassOfSuperClass],
+            attributes: [
+                {
+                    name: 'subSubBoolean',
+                    type: Boolean,
                 },
-                subSubNumber: {
-                    type: Number
-                }
-            },
-            superClasses: [SubClassOfSuperClass]
+                {
+                    name: 'subSubNumber',
+                    type: Number,
+                },
+            ],
         });
 
         var SubClassOfAbstractSubClassOfSuperClass = new ClassModel({
@@ -540,14 +659,16 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             updateControlled: false,
             className: 'SubClassOfAbstractSubClassOfSuperClass',
             superClasses: [AbstractSubClassOfSuperClass],
-            schema: {
-                subAbstractSubBoolean: {
-                    type: Boolean
+            attributes: [
+                {
+                    name: 'subAbstractSubBoolean',
+                    type: Boolean,
                 },
-                subAbstractSubNumber: {
-                    type: Number
-                }
-            }
+                {
+                    name: 'subAbstractSubNumber',
+                    type: Number,
+                },
+            ],
         });
 
     }
@@ -558,40 +679,49 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             accessControlled: false,
             updateControlled: false,
             className: 'SingularRelationshipClass',
-            schema: {
-                singularRelationship: {
-                    type: Schema.Types.ObjectId,
-                    ref: 'NonSingularRelationshipClass'
+            attributes: [
+                {
+                    name: 'boolean',
+                    type: Boolean,
                 },
-                boolean: {
-                    type: Boolean
+                {
+                    name: 'booleans',
+                    type: Boolean,
+                    list: true,
                 },
-                booleans: {
-                    type: [Boolean]
-                }
-            }
+            ],
+            relationships: [
+                {
+                    name: 'singularRelationship',
+                    toClass: 'NonSingularRelationshipClass',
+                    singular: true,
+                },
+            ],
         });
 
         var NonSingularRelationshipClass = new ClassModel({
             accessControlled: false,
             updateControlled: false,
             className: 'NonSingularRelationshipClass',
-            schema: {
-                nonSingularRelationship: {
-                    type: [Schema.Types.ObjectId],
-                    ref: 'SingularRelationshipClass'
+            attributes: [
+                {
+                    name: 'boolean',
+                    type: Boolean,
                 },
-                boolean: {
-                    type: Boolean
-                }
-            } 
+            ],
+            relationships: [
+                {
+                    name: 'nonSingularRelationship',
+                    toClass: 'SingularRelationshipClass',
+                    singular: false,
+                },
+            ],
         });
 
         var SubClassOfSingularRelationshipClass = new ClassModel({
             accessControlled: false,
             updateControlled: false,
             className: 'SubClassOfSingularRelationshipClass',
-            schema: {},
             superClasses: [SingularRelationshipClass] 
         });
 
@@ -599,7 +729,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             accessControlled: false,
             updateControlled: false,
             className: 'SubClassOfNonSingularRelationshipClass',
-            schema: {},
             superClasses: [NonSingularRelationshipClass] 
         });
 
@@ -617,15 +746,19 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 const accessControlledByInstance = await instance.walk('accessControlledBy')
                 return accessControlledByInstance.allowed;
             },
-            schema: {
-                name: {
-                    type: String
+            attributes: [
+                {
+                    name: 'name',
+                    type: String,
                 },
-                accessControlledBy: {
-                    type: Schema.Types.ObjectId,
-                    ref: 'ClassControlsAccessControlledSuperClass'
-                }
-            }
+            ],
+            relationships: [
+                {
+                    name: 'accessControlledBy',
+                    toClass: 'ClassControlsAccessControlledSuperClass',
+                    singular: true,
+                },
+            ],
         });
 
         // A class which is accessControlled by it's own boolean attribute. If the boolean is set to true, and it passes the 
@@ -636,11 +769,12 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             updateControlled: false,
             accessControlMethod: async instance => { return instance.boolean },
             superClasses: [AccessControlledSuperClass],
-            schema: {
-                boolean: {
-                    type: Boolean
-                }
-            }
+            attributes: [
+                {
+                    name: 'boolean',
+                    type: Boolean,
+                },
+            ],
         });
 
         // A class which is accessControlled by it's own string attribute. If the string matches 'accessControlled', and it passes all
@@ -652,11 +786,12 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             discriminated: true,
             superClasses: [AccessControlledSubClassOfAccessControlledSuperClass],
             accessControlMethod: async instance => { return instance.string == 'accessControlled' },
-            schema: {
-                string: {
-                    type: String
-                }
-            }
+            attributes: [
+                {
+                    name: 'string',
+                    type: String,
+                },
+            ],
         });
 
         // A class which is accessControlled by it's own number attribute. If the number is greater than 0, and it passes all
@@ -669,11 +804,12 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             accessControlMethod: async instance => { 
                 return instance.number > 0 
             },
-            schema: {
-                number: {
-                    type: Number
-                }
-            }
+            attributes: [
+                {
+                    name: 'number',
+                    type: Number,
+                },
+            ],
         });
 
         // A class which is used to secure another class. If an instance of this class has its 'allowed' attribute
@@ -682,11 +818,12 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             className: 'ClassControlsAccessControlledSuperClass',
             accessControlled: false,
             updateControlled: false,
-            schema: {
-                allowed: {
-                    type: Boolean
-                }
-            }
+            attributes: [
+                {
+                    name: 'allowed',
+                    type: Boolean,
+                },
+            ],
         });
 
         // A class which is accessControlled by parameters passed into the accessFilter method. If the two numbers add up to a 
@@ -698,37 +835,44 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             accessControlMethod: async (instance, numberA, numberB, boolean) => {
                 return (numberA + numberB > 0) && boolean;
             },
-            schema: {}
         });
 
         var SingularRelationshipToAccessControlledClassAccessControlledByParameters = new ClassModel({
             className: 'SingularRelationshipToAccessControlledClassAccessControlledByParameters',
             accessControlled: false,
             updateControlled: false,
-            schema: {
-                name: {
-                    type: String
+            attributes: [
+                {
+                    name: 'name',
+                    type: String,
                 },
-                singularRelationship: {
-                    type: Schema.Types.ObjectId,
-                    ref: 'AccessControlledClassAccessControlledByParameters'
-                }
-            }
+            ],
+            relationships: [
+                {
+                    name: 'singularRelationship',
+                    toClass: 'AccessControlledClassAccessControlledByParameters',
+                    singular: true,
+                },
+            ],
         });
 
         var NonSingularRelationshipToAccessControlledClassAccessControlledByParameters = new ClassModel({
             className: 'NonSingularRelationshipToAccessControlledClassAccessControlledByParameters',
             accessControlled: false,
             updateControlled: false,
-            schema: {
-                name: {
-                    type: String
+            attributes: [
+                {
+                    name: 'name',
+                    type: String,
                 },
-                nonSingularRelationship: {
-                    type: [Schema.Types.ObjectId],
-                    ref: 'AccessControlledClassAccessControlledByParameters'
-                }
-            }
+            ],
+            relationships: [
+                {
+                    name: 'nonSingularRelationship',
+                    toClass: 'AccessControlledClassAccessControlledByParameters',
+                    singular: false,
+                },
+            ],
         });
     }
 
@@ -744,15 +888,19 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 let updateControlledByInstance =  await instance.walk('updateControlledBy');
                 return updateControlledByInstance.allowed;
             },
-            schema: {
-                name: {
-                    type: String
+            attributes: [
+                {
+                    name: 'name',
+                    type: String,
                 },
-                updateControlledBy: {
-                    type: Schema.Types.ObjectId,
-                    ref: 'ClassControlsUpdateControlledSuperClass'
-                }
-            }
+            ],
+            relationships: [
+                {
+                    name: 'updateControlledBy',
+                    toClass: 'ClassControlsUpdateControlledSuperClass',
+                    singular: true,
+                },
+            ],
         });
 
         // A class which is updateControlled by it's own boolean attribute. If the boolean is set to true, and it passes the 
@@ -763,11 +911,12 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             updateControlled: true,
             updateControlMethod: async instance => { return instance.boolean },
             superClasses: [UpdateControlledSuperClass],
-            schema: {
-                boolean: {
+            attributes: [
+                {
+                    name: 'boolean',
                     type: Boolean
-                }
-            }
+                },
+            ],
         });
 
         // A class which is updateControlled by it's own string attribute. If the string matches 'updateControlled', and it passes all
@@ -779,11 +928,12 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             discriminated: true,
             superClasses: [UpdateControlledSubClassOfUpdateControlledSuperClass],
             updateControlMethod: async instance => { return instance.string == 'updateControlled' },
-            schema: {
-                string: {
-                    type: String
-                }
-            }
+            attributes: [
+                {
+                    name: 'string',
+                    type: String,
+                },
+            ],
         });
 
         // A class which is updateControlled by it's own number attribute. If the number is greater than 0, and it passes all
@@ -794,11 +944,12 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             updateControlled: true,
             discriminatorSuperClass: UpdateControlledDiscriminatedSuperClass,
             updateControlMethod: async instance => { return instance.number > 0 },
-            schema: {
-                number: {
-                    type: Number
-                }
-            }
+            attributes: [
+                {
+                    name: 'number',
+                    type: Number,
+                },
+            ],
         });
 
         // A class which is used to secure another class. If an instance of this class has its 'allowed' attribute
@@ -807,11 +958,12 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             className: 'ClassControlsUpdateControlledSuperClass',
             accessControlled: false,
             updateControlled: false,
-            schema: {
-                allowed: {
-                    type: Boolean
-                }
-            }
+            attributes: [
+                {
+                    name: 'allowed',
+                    type: Boolean,
+                },
+            ],
         });
 
         // A class which is updateControlled by parameters passed into the updateFilter method. If the two numbers add up to a 
@@ -823,7 +975,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             updateControlMethod: async (instance, numberA, numberB, boolean) => {
                 return (numberA + numberB > 0) && boolean;
             },
-            schema: {}
         });
     }
 

@@ -79,90 +79,31 @@ describe('Class Model Tests', () => {
 
         describe('Required constructor parameters', () => {
 
-            it('ClassName is required.', () => {
-                var schema = {
-                    text: {
-                        type: String,
-                        required: true
-                    },
-                    singularRelationship: {
-                        type: Schema.Types.ObjectId,
-                        ref: 'OtherClass',
-                        required: true
-                    },
-                    nonSingularRelationship: {
-                        type: [Schema.Types.ObjectId],
-                        ref: 'OtherClass'
-                    }
-                }
-    
-                try {
+            it('ClassName is required.', () => { 
+                testForError('ClassModel.constructor()', 'className is required.', () => {
                     new ClassModel({
                         accessControlled: false,
                         updateControlled: false,
-                        schema: schema
                     });
-                }
-                catch(error) {
-                    if (error.message == 'className is required.')
-                        return true;
-                    else 
-                        throw new Error(error.message);
-                }
-    
-                throw new Error('Constructor should have thrown an error: className is required.');
-            });
-    
-            it('Schema is required.', () => {
-                try {
-                    new ClassModel({
-                        accessControlled: false,
-                        updateControlled: false,
-                        className: 'Class'
-                    });
-                }
-                catch(error) {
-                    if (error.message == 'schema is required.')
-                        return true;
-                    else 
-                        throw new Error(error.message);
-                }
-    
-                throw new Error('Constructor should have thrown an error: schema is required.');
+                });
             });
     
             it('AccessControlled is required', () => {
-                try {
+                testForError('ClassModel.constructor()', 'accessControlled is required.', () => {
                     new ClassModel({
                         className: 'Class',
                         updateControlled: false,
-                        schema: {}
                     });
-                }
-                catch (error) {
-                        if (error.message == 'accessControlled is required.')
-                            return true;
-                        else 
-                            throw new Error(error.message);
-                    }
-                throw new Error('Constructor should have thrown an error: accessControlled is required.');
+                });
             });
     
             it('UpdateControlled is required', () => {
-                try {
+                testForError('ClassModel.constructor()', 'updateControlled is required.', () => {
                     new ClassModel({
                         className: 'Class',
                         accessControlled: false,
-                        schema: {}
                     });
-                }
-                catch (error) {
-                        if (error.message == 'updateControlled is required.')
-                            return true;
-                        else 
-                            throw new Error(error.message);
-                    }
-                throw new Error('Constructor should have thrown an error: updateControlled is required.');
+                });
             });
 
         });
@@ -170,197 +111,106 @@ describe('Class Model Tests', () => {
         describe('Inheritence Requirements', () => {
 
             it('If superClasses is set, it must be an Array.', () => {
-                try {
+                testForError('ClassModel.constructor()', 'If superClasses is set, it must be an Array.', () => {
                     new ClassModel({
                         accessControlled: false,
                         updateControlled: false,
                         className: 'SubClassModel',
-                        schema: {
-                            boolean: Boolean
-                        },
                         superClasses: SuperClass
                     });
-                }
-                catch(error) {
-                    if (error.message == 'If superClasses is set, it must be an Array.')
-                        return true;
-                    else 
-                        throw new Error(error.message);
-                }
-    
-                throw new Error('Constructor should have thrown an error: If superClasses is set, it must be an Array.');
+                });
             });
     
             it('If superClasses is set, it cannot be an empty Array.', () => {
-                try {
+                testForError('ClassModel.constructor()', 'If superClasses is set, it cannot be an empty Array.', () => {
                     new ClassModel({
                         accessControlled: false,
                         updateControlled: false,
                         className: 'SubClassModel',
-                        schema: {
-                            boolean: Boolean
-                        },
                         superClasses: []
                     });
-                }
-                catch(error) {
-                    if (error.message == 'If superClasses is set, it cannot be an empty Array.')
-                        return true;
-                    else 
-                        throw new Error(error.message);
-                }
-    
-                throw new Error('Constructor should have thrown an error: If superClasses is set, it cannot be an empty Array.');
+                });
             });
     
             it('If discriminatorSuperClass is set, it can only be a single class.', () => {
-                try {
+                testForError('ClassModel.constructor()', 'If discriminatorSuperClass is set, it can only be a single class.', () => {
                     new ClassModel({
                         accessControlled: false,
                         updateControlled: false,
                         className: 'SubClassModel',
-                        schema: {
-                            boolean: Boolean
-                        },
                         discriminatorSuperClass: [SuperClass, DiscriminatedSuperClass]
-                    });
-                }
-                catch(error) {
-                    if (error.message == 'If discriminatorSuperClass is set, it can only be a single class.')
-                        return true;
-                    else 
-                        throw new Error(error.message);
-                }
-    
-                throw new Error('Constructor should have thrown an error: If discriminatorSuperClass is set, it can only be a single class.');
+                    })
+                });
             });
     
             it('A ClassModel cannot have both superClasses and discriminatorSuperClass.', () => {
-                try {
+                testForError('ClassModel.constructor()', 'A ClassModel cannot have both superClasses and discriminatorSuperClass.', () => {
                     new ClassModel({
                         accessControlled: false,
                         updateControlled: false,
                         className: 'SubClassModel',
-                        schema: {
-                            boolean: Boolean
-                        },
                         superClasses: [SuperClass],
                         discriminatorSuperClass: DiscriminatedSuperClass
                     });
-                }
-                catch(error) {
-                    if (error.message == 'A ClassModel cannot have both superClasses and discriminatorSuperClass.')
-                        return true;
-                    else 
-                        throw new Error(error.message);
-                }
-    
-                throw new Error('Constructor should have thrown an error: A ClassModel cannot have both superClasses and discriminatorSuperClass.');
+                });
             });
     
             it('A ClassModel cannot have both superClasses and discriminatorSuperClass.', () => {
-                try {
+                testForError('ClassModel.constructor()', 'A ClassModel cannot have both superClasses and discriminatorSuperClass.', () => {
                     new ClassModel({
                         accessControlled: false,
                         updateControlled: false,
                         className: 'SubClassModel',
-                        schema: {
-                            boolean: Boolean
-                        },
                         superClasses: [SuperClass],
                         discriminatorSuperClass: DiscriminatedSuperClass
                     });
-                }
-                catch(error) {
-                    if (error.message == 'A ClassModel cannot have both superClasses and discriminatorSuperClass.')
-                        return true;
-                    else 
-                        throw new Error(error.message);
-                }
-    
-                throw new Error('Constructor should have thrown an error: A ClassModel cannot have both superClasses and discriminatorSuperClass.');
+                });
             });
     
             it('If a class is used as a discriminatedSuperClass, that class must have its "discriminated" field set to true.', () => {
-                try {
+                testForError('ClassModel.constructor()', 'If a class is used as a discriminatedSuperClass, that class must have its "discriminated" field set to true.', () => {
                     new ClassModel({
                         accessControlled: false,
                         updateControlled: false,
                         className: 'SubClassModel',
-                        schema: {},
                         discriminatorSuperClass: SuperClass
                     });
-                }
-                catch(error) {
-                    if (error.message == 'If a class is used as a discriminatedSuperClass, that class must have its "discriminated" field set to true.')
-                        return true;
-                    else 
-                        throw new Error(error.message);
-                }
-    
-                throw new Error('Constructor should have thrown an error: If a class is used as a discriminatedSuperClass, that class must have its "discriminated" field set to true.');
+                });
             });
     
             it('If a class is set as a superClass, that class cannot have its "discriminated" field set to true.', () => {
-                try {
+                testForError('ClassModel.constructor()', 'If a class is set as a superClass, that class cannot have its "discriminated" field set to true.', () => {
                     new ClassModel({
                         accessControlled: false,
                         updateControlled: false,
                         className: 'SubClassModel',
-                        schema: {},
                         superClasses: [DiscriminatedSuperClass]
                     });
-                }
-                catch(error) {
-                    if (error.message == 'If a class is set as a superClass, that class cannot have its "discriminated" field set to true.')
-                        return true;
-                    else 
-                        throw new Error(error.message);
-                }
-    
-                throw new Error('Constructor should have thrown an error: If a class is set as a superClass, that class cannot have its "discriminated" field set to true.');
+                });
             });  
     
             it('A discriminator sub class cannot be abstract.', () => {
-                try {
+                testForError('ClassModel.constructor()', 'A discriminator sub class cannot be abstract.', () => {
                     new ClassModel({
                         accessControlled: false,
                         updateControlled: false,
                         className: 'SubClassModel',
-                        schema: {},
                         discriminatorSuperClass: DiscriminatedSuperClass,
                         abstract: true
                     });
-                }
-                catch(error) {
-                    if (error.message == 'A discriminator sub class cannot be abstract.')
-                        return true;
-                    else 
-                        throw new Error(error.message);
-                }
-    
-                throw new Error('Constructor should have thrown an error: A discriminator sub class cannot be abstract.');
+                });
             });  
     
             it('A sub class of a discriminated super class cannot be discriminated.', () => {
-                try {
+                testForError('ClassModel.constructor()', 'A sub class of a discriminated super class cannot be discriminated.', () => {
                     new ClassModel({
                         accessControlled: false,
                         updateControlled: false,
                         className: 'SubClassModel',
-                        schema: {},
                         discriminatorSuperClass: DiscriminatedSuperClass,
                         discriminated: true
                     });
-                }
-                catch(error) {
-                    if (error.message == 'A sub class of a discriminated super class cannot be discriminated.')
-                        return true;
-                    else 
-                        throw new Error(error.message);
-                }
-    
-                throw new Error('A sub class of a discriminated super class cannot be discriminated.');
+                });
             });  
     
             it('Sub class schema cannot contain the same field names as a super class schema.', () => {
@@ -369,12 +219,13 @@ describe('Class Model Tests', () => {
                         accessControlled: false,
                         updateControlled: false,
                         className: 'SubClassModel',
-                        schema: {
-                            boolean: {
-                                type: Boolean
+                        superClasses: [SuperClass],
+                        attributes: [
+                            {
+                                name: 'boolean',
+                                type: Boolean,
                             }
-                        },
-                        superClasses: [SuperClass]
+                        ],
                     });
                 }
                 catch(error) {
@@ -481,7 +332,6 @@ describe('Class Model Tests', () => {
                     new ClassModel({
                         accessControlled: false,
                         className: 'SubClassModel',
-                        schema: {},
                         superClasses: [SubClassOfDiscriminatorSuperClass]
                     });
                 }
@@ -510,7 +360,6 @@ describe('Class Model Tests', () => {
                         className: 'Class',
                         accessControlled: true,
                         updateControlled: false,
-                        schema: {}
                     });
                 }
                 catch (error) {
@@ -529,7 +378,6 @@ describe('Class Model Tests', () => {
                         accessControlled: false,
                         updateControlled: false,
                         accessControlMethod: () => { return true },
-                        schema: {}
                     });
                 }
                 catch (error) {
@@ -548,7 +396,6 @@ describe('Class Model Tests', () => {
                         accessControlled: false,
                         updateControlled: false,
                         superClasses: [AccessControlledSuperClass],
-                        schema: {}
                     });
                 }
                 catch (error) {
@@ -567,7 +414,6 @@ describe('Class Model Tests', () => {
                         accessControlled: false,
                         updateControlled: false,
                         discriminatorSuperClass: AccessControlledDiscriminatedSuperClass,
-                        schema: {}
                     });
                 }
                 catch (error) {
@@ -589,7 +435,6 @@ describe('Class Model Tests', () => {
                         className: 'Class',
                         accessControlled: false,
                         updateControlled: true,
-                        schema: {}
                     });
                 }
                 catch (error) {
@@ -608,7 +453,6 @@ describe('Class Model Tests', () => {
                         accessControlled: false,
                         updateControlled: false,
                         updateControlMethod: () => { return true },
-                        schema: {}
                     });
                 }
                 catch (error) {
@@ -627,7 +471,6 @@ describe('Class Model Tests', () => {
                         accessControlled: false,
                         updateControlled: false,
                         superClasses: [UpdateControlledSuperClass],
-                        schema: {}
                     });
                 }
                 catch (error) {
@@ -646,7 +489,6 @@ describe('Class Model Tests', () => {
                         accessControlled: false,
                         updateControlled: false,
                         discriminatorSuperClass: UpdateControlledDiscriminatedSuperClass,
-                        schema: {}
                     });
                 }
                 catch (error) {
@@ -662,35 +504,44 @@ describe('Class Model Tests', () => {
 
         describe('Happy Path', () => {
 
-            it('Constructor excepts and sets parameters.', () => {
-                var schema = {
-                    text: {
-                        type: String,
-                        required: true
-                    },
-                    singularRelationship: {
-                        type: Schema.Types.ObjectId,
-                        ref: 'OtherClass',
-                        required: true
-                    },
-                    nonSingularRelationship: {
-                        type: [Schema.Types.ObjectId],
-                        ref: 'OtherClass'
-                    }
-                }
-    
+            it('Constructor excepts and sets parameters.', () => {    
                 var SimpleClassModel = new ClassModel({
                     accessControlled: false,
                     updateControlled: false,
                     className: 'SimpleClassModel',
-                    schema: schema
+                    attributes: [
+                        {
+                            name: 'text',
+                            type: String,
+                            required: true,
+                        },
+                    ],
+                    relationships: [
+                        {
+                            name: 'singularRelationship',
+                            toClass: 'OtherClass',
+                            singular: true,
+                            required: true,
+                        },
+                        {
+                            name: 'nonSingularRelationship',
+                            toClass: 'OtherClass',
+                            singular: false,
+                        },
+                    ],
                 });
     
                 if (SimpleClassModel.className != 'SimpleClassModel')
                     return false;
-                if (SimpleClassModel.schema != schema)
-                    return false;
-                return true;
+
+                if (!SimpleClassModel.attributes.map(attribute => attribute.name).includes('text'))
+                    throw new Error('Attribute not set.');
+
+                if (!SimpleClassModel.relationships.map(relationship => relationship.name).includes('singularRelationship'))
+                    throw new Error('Attribute not set.');
+
+                if (!SimpleClassModel.relationships.map(relationship => relationship.name).includes('nonSingularRelationship'))
+                    throw new Error('Attribute not set.');
             });
 
         });
@@ -699,10 +550,10 @@ describe('Class Model Tests', () => {
 
     describe('Class Model Save and Update Methods', () => {
 
-        // after(async () => {
-        //     await SuperClass.clear();
-        //     await DiscriminatedSuperClass.clear();
-        // });
+        after(async () => {
+            await SuperClass.clear();
+            await DiscriminatedSuperClass.clear();
+        });
 
         describe('ClassModel.insertOne()', () => {
 
