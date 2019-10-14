@@ -615,16 +615,6 @@ class ClassModel {
         return db.deleteOne(this.collection, instance);
     }
 
-    async delete2(instance) {
-        let classModel = this;
-
-        if (!(instance instanceof classModel.Model))
-            throw new Error(this.className + '.delete() called on an instance of a different class.');
-
-
-        return classModel.Model.deleteOne({_id: instance._id}).exec()
-    }
-
     // Query Methods
 
     /* Finds instances of this ClassModel using the given query filter in the database. 
@@ -640,7 +630,6 @@ class ClassModel {
         const isSuperClass = (this.subClasses.length > 0 || this.discriminated);
         const subClasses = this.subClasses;
         const className = this.className;
-        const Model = this.Model;
 
         // If this class is a non-discriminated abstract class and it doesn't have any sub classes, throw an error.
         if (abstract && !isSuperClass)
@@ -648,7 +637,7 @@ class ClassModel {
 
         // If this is a discriminated class, or it is a concrete class with no subclasses, find the instance in this ClassModel's collection.
         if ((concrete && !isSuperClass) || discriminated) {
-            const foundDocuments = await db.collection(this.collection).find(queryFilter).toArray();
+            const foundDocuments = await db.find(this.collection, queryFilter);
             const foundInstances = foundDocuments.map(document => { 
                 if (document.__t)
                     return new Instance(AllClassModels[document.__t], document);
@@ -665,7 +654,7 @@ class ClassModel {
             let filteredInstancesOfThisClass;
 
             if (concrete) {
-                let foundDocumentsOfThisClass = await db.collection(this.collection).find(queryFilter).toArray();
+                let foundDocumentsOfThisClass = await db.find(this.collection, queryFilter);
                 //console.log(this.className + '.find() here');
 
                 if (foundDocumentsOfThisClass.length) {
