@@ -1078,6 +1078,10 @@ class ClassModel {
         return rejectedInstances;
     }
 
+    async deleteMany(instances) {
+        return db.deleteMany(this.collection, instances);
+    }
+
     // Clear the collection. Never run in production! Only run in a test environment.
     async clear() {
         if (this.abstract && !this.discriminated)
@@ -1089,22 +1093,6 @@ class ClassModel {
         else {
             return db.collection(this.collection).deleteMany({});
         }        
-    }
-
-    // Clear the collection. Never run in production! Only run in a test environment.
-    clear2() {
-        var classModel = this;
-
-        return new Promise(function(resolve, reject) {	
-
-            if (classModel.abstract && !classModel.discriminated)
-                reject(new Error('Cannot call clear() on an abstract, non-discriminated class. Class: ' + classModel.className));
-
-		    classModel.Model.deleteMany({}, function(err) {
-                if (err) reject(err);
-                else resolve();
-            });
-	    });
     }
 }
 

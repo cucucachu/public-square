@@ -1,4 +1,3 @@
-
 require("@babel/polyfill");
 
 const database = require('../../dist/noomman/database');
@@ -1664,8 +1663,8 @@ describe('InstanceSet Tests', () => {
                     return instanceSet.save();
                 });
 
-                const foundInstanceA = await AllFieldsRequiredClass.findById(instanceA.id);
-                const foundInstanceB = await AllFieldsRequiredClass.findById(instanceB.id);
+                const foundInstanceA = await AllFieldsRequiredClass.findById(instanceA._id);
+                const foundInstanceB = await AllFieldsRequiredClass.findById(instanceB._id);
 
                 if (foundInstanceA || foundInstanceB)
                     throw new Error('Save threw an error, but one or more instances were saved anyway.');
@@ -1699,8 +1698,8 @@ describe('InstanceSet Tests', () => {
                 let instanceSet = new InstanceSet(AllFieldsRequiredClass, [instanceA, instanceB]);
 
                 await instanceSet.save();
-                const foundInstanceA = await AllFieldsRequiredClass.findById(instanceA.id);
-                const foundInstanceB = await AllFieldsRequiredClass.findById(instanceB.id);
+                const foundInstanceA = await AllFieldsRequiredClass.findById(instanceA._id);
+                const foundInstanceB = await AllFieldsRequiredClass.findById(instanceB._id);
 
                 if (!(foundInstanceA.equals(instanceA) && foundInstanceB.equals(instanceB))) 
                     throw new Error('Could not find the instances after save().');
@@ -1753,7 +1752,7 @@ describe('InstanceSet Tests', () => {
                 const instanceSet = new InstanceSet(UpdateControlledClassUpdateControlledByParameters, [instance]);
                 
                 await instanceSet.save(...updateControlMethodParameters);
-                const instanceSaved = UpdateControlledClassUpdateControlledByParameters.findById(instance.id);
+                const instanceSaved = UpdateControlledClassUpdateControlledByParameters.findById(instance._id);
                 
                 if (!instanceSaved)
                     throw new Error('Instance was not saved.');
@@ -1802,28 +1801,34 @@ describe('InstanceSet Tests', () => {
                 instanceOfSubClassOfSingularRelationshipClassB.boolean = false;
                 instanceOfSubClassOfNonSingularRelationshipClass.nonSingularRelationship = new InstanceSet(SubClassOfSingularRelationshipClass, [instanceOfSubClassOfSingularRelationshipClassA, instanceOfSubClassOfSingularRelationshipClassB]);
     
-                var documentOfSingularRelationshipClassA = new SingularRelationshipClass.Model({
+                var documentOfSingularRelationshipClassA = {
+                    _id: database.ObjectId(),
                     singularRelationship: instanceOfNonSingularRelationshipClass._id,
                     boolean: true
-                });
-                var documentOfSingularRelationshipClassB = new SingularRelationshipClass.Model({
+                };
+                var documentOfSingularRelationshipClassB = {
+                    _id: database.ObjectId(),
                     singularRelationship: instanceOfNonSingularRelationshipClass._id,
                     boolean: false
-                });
-                var documentOfNonSingularRelationshipClass = new NonSingularRelationshipClass.Model({
+                };
+                var documentOfNonSingularRelationshipClass = {
+                    _id: database.ObjectId(),
                     nonSingularRelationship: [instanceOfSingularRelationshipClassA._id, instanceOfSingularRelationshipClassB._id],
-                });
-                var documentOfSubClassOfSingularRelationshipClassA = new SubClassOfSingularRelationshipClass.Model({
+                };
+                var documentOfSubClassOfSingularRelationshipClassA = {
+                    _id: database.ObjectId(),
                     singularRelationship: instanceOfSubClassOfNonSingularRelationshipClass._id,
                     boolean: true
-                });
-                var documentOfSubClassOfSingularRelationshipClassB = new SubClassOfSingularRelationshipClass.Model({
+                };
+                var documentOfSubClassOfSingularRelationshipClassB = {
+                    _id: database.ObjectId(),
                     singularRelationship: instanceOfSubClassOfNonSingularRelationshipClass._id,
                     boolean: false
-                });
-                var documentOfSubClassOfNonSingularRelationshipClass = new SubClassOfNonSingularRelationshipClass.Model({
+                };
+                var documentOfSubClassOfNonSingularRelationshipClass = {
+                    _id: database.ObjectId(),
                     nonSingularRelationship: [instanceOfSubClassOfSingularRelationshipClassA._id, instanceOfSubClassOfSingularRelationshipClassB._id],
-                });
+                };
             }
     
             before(async () => {
@@ -2160,7 +2165,7 @@ describe('InstanceSet Tests', () => {
                     return instanceSet.delete();
                 });
 
-                const instanceFound = await SuperClass.findById(instance1.id);
+                const instanceFound = await SuperClass.findById(instance1._id);
 
                 if (!instanceFound) 
                     throw new Error('instanceSet.delete() threw an error, but the instance was deleted anyway.');

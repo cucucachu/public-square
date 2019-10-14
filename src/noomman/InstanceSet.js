@@ -1,5 +1,4 @@
 require('@babel/polyfill');
-const mongoose = require('mongoose');
 
 const Instance = require('./Instance');
 const SuperSet = require('./SuperSet');
@@ -175,7 +174,6 @@ class InstanceSet extends SuperSet {
         return this.filterToInstanceSet(instance => 
                 instance.classModel === this.classModel || instance.classModel.discriminatorSuperClass == this.classModel
             );
-
     }
 
     // Validate, Save, Walk, Delete
@@ -304,49 +302,18 @@ class InstanceSet extends SuperSet {
         await this.deleteRecursive();
     }
 
-    async delete2() {
-        const unsavedInstances = this.filter(instance => instance.saved == false)
-
-        if (unsavedInstances.length) 
-            throw new Error('Attempt to delete an InstanceSet containing unsaved Instances.');
-
-        await this.deleteRecursive();
-    }
-
     async deleteRecursive() {
         let deletePromises = [];
-        const isntancesOfThisCollection = this.filterForInstancesInThisCollection();
+        const instancesOfThisCollection = this.filterForInstancesInThisCollection();
 
         for (const subClass of this.classModel.subClasses) {
             const instancesOfSubClass = this.filterForClassModel(subClass);
             deletePromises.push(instancesOfSubClass.deleteRecursive());
         }
 
-        if (!isntancesOfThisCollection.isEmpty()) {
-            await this.classModel.Model.deleteMany({
-                _id: { $in: isntancesOfThisCollection.getInstanceIds() }
-            }).exec();
-            isntancesOfThisCollection.forEach(instance => instance.currentState = null);
-        }
-        
-        if (deletePromises.length)
-            return Promise.all(deletePromises);
-    }
-
-    async deleteRecursive2() {
-        let deletePromises = [];
-        const isntancesOfThisCollection = this.filterForInstancesInThisCollection();
-
-        for (const subClass of this.classModel.subClasses) {
-            const instancesOfSubClass = this.filterForClassModel(subClass);
-            deletePromises.push(instancesOfSubClass.deleteRecursive());
-        }
-
-        if (!isntancesOfThisCollection.isEmpty()) {
-            await this.classModel.Model.deleteMany({
-                _id: { $in: isntancesOfThisCollection.getInstanceIds() }
-            }).exec();
-            isntancesOfThisCollection.forEach(instance => instance.deleted = true);
+        if (!instancesOfThisCollection.isEmpty()) {
+            await this.classModel.deleteMany(instancesOfThisCollection);
+            instancesOfThisCollection.forEach(instance => instance.currentState = null);
         }
         
         if (deletePromises.length)
