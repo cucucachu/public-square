@@ -1,6 +1,5 @@
 require('@babel/polyfill');
 const moment = require('moment');
-const mongoose = require('mongoose');
 
 const SuperSet = require('./SuperSet');
 const InstanceReference = require('./InstanceReference');

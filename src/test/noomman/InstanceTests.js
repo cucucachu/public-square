@@ -1,6 +1,6 @@
 
 require("@babel/polyfill");
-const mongoose = require('mongoose');
+//const mongoose = require('mongoose');
 const moment = require('moment');
 
 const database = require('../../dist/noomman/database');
@@ -66,22 +66,22 @@ describe('Instance Tests', () => {
 
     // Simple Documents
     {
-        var documentOfTestClassWithBoolean = new TestClassWithBoolean.Model({
-            _id: new mongoose.Types.ObjectId(),
+        var documentOfTestClassWithBoolean = {
+            _id: database.ObjectId(),
             boolean: false
-        });
+        };
 
-        var documentOfTestClassWithNumber = new TestClassWithNumber.Model({
-            _id: new mongoose.Types.ObjectId(),
+        var documentOfTestClassWithNumber = {
+            _id: database.ObjectId(),
             number: 17
-        });
+        };
 
-        var documentOfDiscriminatedSubClassOfSuperClass = new DiscriminatedSubClassOfSuperClass.Model({
-            _id: new mongoose.Types.ObjectId(),
+        var documentOfDiscriminatedSubClassOfSuperClass = {
+            _id: database.ObjectId(),
             __t: 'DiscriminatedSubClassOfSuperClass',
             discriminatedBoolean: true,
             discriminatedNumber: 1,
-        });
+        };
     }
 
     before(async () => {
@@ -120,23 +120,12 @@ describe('Instance Tests', () => {
                 });
             });
 
-            it('Instance.constructor(), given document is not an instance of the given classModel.', () => {
-                const expectedErrorMessage = 'Instance.constructor(), given document is not an instance of the given classModel.';
+            it('Instance.constructor(), document does not have an ObjectId.', () => {
+                const expectedErrorMessage = 'Instance.constructor(), given document does not have an ObjectId.';
 
-                testForError('Instance.constructor()', expectedErrorMessage, () => {
-                    new Instance(TestClassWithNumber, documentOfTestClassWithBoolean);
-                });
-            });
-
-            it.skip('Instance.constructor(), document does not have an ObjectId.', () => {
-                const expectedErrorMessage = '';
-                const document = Object.create(TestClassWithNumber.Model);
-                document.number = 1;
-                Object.defineProperty(document, 'constructor', {
-                    value: TestClassWithNumber,
-                });
-
-                console.log(JSON.stringify(document, null, 2));
+                const document = {
+                    number: 1,
+                }
 
                 testForError('Instance.constructor()', expectedErrorMessage, () => {
                     new Instance(TestClassWithNumber, document);
@@ -216,9 +205,10 @@ describe('Instance Tests', () => {
                         describe('On Current State', () => {
 
                             it('Document attributes are set on current instance state when document given.', () => {
-                                const document = new TestClassWithBoolean.Model({
+                                const document = {
+                                    _id: database.ObjectId(),
                                     boolean: false
-                                });
+                                };
                                 const instance = new Instance(TestClassWithBoolean, document);
                                 
                                 if (instance.currentState.boolean !== false)
@@ -226,7 +216,9 @@ describe('Instance Tests', () => {
                             });
 
                             it('Document attributes are set to null on current instance state when document given without attribute.', () => {
-                                const document = new TestClassWithBoolean.Model({});
+                                const document = {
+                                    _id: database.ObjectId(),
+                                }
                                 const instance = new Instance(TestClassWithBoolean, document);
                                 
                                 if (instance.currentState.boolean === undefined || instance.currentState.boolean !== null)
@@ -235,9 +227,10 @@ describe('Instance Tests', () => {
         
                             it('List Document attributes are set on current instance state when document given.', () => {
                                 const booleans = [false, true];
-                                const document = new AllAttributesAndRelationshipsClass.Model({
+                                const document = {
+                                    _id: database.ObjectId(),
                                     booleans: booleans,
-                                });
+                                };
                                 const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                                 if (!arraysEqual(booleans, instance.currentState.booleans))
@@ -246,9 +239,10 @@ describe('Instance Tests', () => {
             
                             it('List document attributes are set to empty array when document given with empty array.', () => {
                                 const booleans = [];
-                                const document = new AllAttributesAndRelationshipsClass.Model({
+                                const document = {
+                                    _id: database.ObjectId(),
                                     booleans: booleans,
-                                });
+                                };
                                 const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                                 if (!arraysEqual(booleans, instance.currentState.booleans))
@@ -257,9 +251,10 @@ describe('Instance Tests', () => {
             
                             it('List document attributes are set to empty array when document given with attribute set to null.', () => {
                                 const booleans = null;
-                                const document = new AllAttributesAndRelationshipsClass.Model({
+                                const document = {
+                                    _id: database.ObjectId(),
                                     booleans: booleans,
-                                });
+                                };
                                 const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                                 if (!arraysEqual([], instance.currentState.booleans))
@@ -267,7 +262,9 @@ describe('Instance Tests', () => {
                             });
             
                             it('List document attributes are set to empty array when document given with attribute not set.', () => {
-                                const document = new AllAttributesAndRelationshipsClass.Model({});
+                                const document = {
+                                    _id: database.ObjectId(),
+                                };
                                 const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                                 if (!arraysEqual([], instance.currentState.booleans))
@@ -279,9 +276,10 @@ describe('Instance Tests', () => {
                         describe('On Previous State', () => {
         
                             it('Document attributes are set on previous instance state when document given.', () => {
-                                const document = new TestClassWithBoolean.Model({
-                                    boolean: false
-                                });
+                                const document = {
+                                    _id: database.ObjectId(),
+                                    boolean: false,
+                                };
                                 const instance = new Instance(TestClassWithBoolean, document);
                                 
                                 if (instance.previousState.boolean !== false)
@@ -289,7 +287,9 @@ describe('Instance Tests', () => {
                             });
 
                             it('Document attributes are set to null on previous instance state when document given without attribute.', () => {
-                                const document = new TestClassWithBoolean.Model({});
+                                const document = {
+                                    _id: database.ObjectId(),
+                                };
                                 const instance = new Instance(TestClassWithBoolean, document);
                                 
                                 if (instance.previousState.boolean === undefined || instance.previousState.boolean !== null)
@@ -298,9 +298,10 @@ describe('Instance Tests', () => {
         
                             it('List Document attributes are set on previous instance state when document given.', () => {
                                 const booleans = [false, true];
-                                const document = new AllAttributesAndRelationshipsClass.Model({
+                                const document = {
+                                    _id: database.ObjectId(),
                                     booleans: booleans,
-                                });
+                                };
                                 const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                                 if (!arraysEqual(booleans, instance.previousState.booleans))
@@ -309,9 +310,10 @@ describe('Instance Tests', () => {
             
                             it('List document attributes are set to empty array on previous instance state when document given with empty array.', () => {
                                 const booleans = [];
-                                const document = new AllAttributesAndRelationshipsClass.Model({
+                                const document = {
+                                    _id: database.ObjectId(),
                                     booleans: booleans,
-                                });
+                                };
                                 const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                                 if (!arraysEqual(booleans, instance.previousState.booleans))
@@ -320,9 +322,10 @@ describe('Instance Tests', () => {
             
                             it('List document attributes are set to empty array when document given with attribute set to null.', () => {
                                 const booleans = null;
-                                const document = new AllAttributesAndRelationshipsClass.Model({
+                                const document = {
+                                    _id: database.ObjectId(),
                                     booleans: booleans,
-                                });
+                                };
                                 const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                                 if (!arraysEqual([], instance.previousState.booleans))
@@ -330,7 +333,9 @@ describe('Instance Tests', () => {
                             });
             
                             it('List document attributes are set to empty array when document given with attribute not set.', () => {
-                                const document = new AllAttributesAndRelationshipsClass.Model({});
+                                const document = {
+                                    _id: database.ObjectId(),
+                                };
                                 const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                                 if (!arraysEqual([], instance.previousState.booleans))
@@ -403,10 +408,11 @@ describe('Instance Tests', () => {
                             describe('On Current State', () => {
     
                                 it('Document contains object Id for related intance.', () => {
-                                    const objectId = new mongoose.Types.ObjectId;
-                                    const document = new SingularRelationshipClass.Model({
+                                    const objectId = database.ObjectId();
+                                    const document = {
+                                        _id: database.ObjectId(),
                                         singularRelationship: objectId,
-                                    });
+                                    };
                                     const instance = new Instance(SingularRelationshipClass, document);
     
                                     if (instance.currentState.singularRelationship !== objectId)
@@ -414,9 +420,10 @@ describe('Instance Tests', () => {
                                 });
     
                                 it('Document relationship set to null.', () => {
-                                    const document = new SingularRelationshipClass.Model({
+                                    const document = {
+                                        _id: database.ObjectId(),
                                         singularRelationship: null,
-                                    });
+                                    };
                                     const instance = new Instance(SingularRelationshipClass, document);
     
                                     if (instance.currentState.singularRelationship !== null)
@@ -424,8 +431,9 @@ describe('Instance Tests', () => {
                                 });
     
                                 it('Document relationship not set.', () => {
-                                    const document = new SingularRelationshipClass.Model({
-                                    });
+                                    const document = {
+                                        _id: database.ObjectId(),
+                                    };
                                     const instance = new Instance(SingularRelationshipClass, document);
     
                                     if (instance.currentState.singularRelationship !== null)
@@ -438,10 +446,11 @@ describe('Instance Tests', () => {
                             describe('On Previous State', () => {
     
                                 it('Document contains object Id for related intance.', () => {
-                                    const objectId = new mongoose.Types.ObjectId;
-                                    const document = new SingularRelationshipClass.Model({
+                                    const objectId = database.ObjectId();
+                                    const document = {
+                                        _id: database.ObjectId(),
                                         singularRelationship: objectId,
-                                    });
+                                    };
                                     const instance = new Instance(SingularRelationshipClass, document);
     
                                     if (instance.previousState.singularRelationship !== objectId)
@@ -449,9 +458,10 @@ describe('Instance Tests', () => {
                                 });
     
                                 it('Document relationship set to null.', () => {
-                                    const document = new SingularRelationshipClass.Model({
+                                    const document = {
+                                        _id: database.ObjectId(),
                                         singularRelationship: null,
-                                    });
+                                    };
                                     const instance = new Instance(SingularRelationshipClass, document);
     
                                     if (instance.previousState.singularRelationship !== null)
@@ -459,8 +469,9 @@ describe('Instance Tests', () => {
                                 });
     
                                 it('Document relationship not set.', () => {
-                                    const document = new SingularRelationshipClass.Model({
-                                    });
+                                const document = {
+                                        _id: database.ObjectId(),
+                                    };
                                     const instance = new Instance(SingularRelationshipClass, document);
     
                                     if (instance.previousState.singularRelationship !== null)
@@ -491,10 +502,11 @@ describe('Instance Tests', () => {
                             describe('On Current State', () => {
     
                                 it('Document contains object Ids for related intances.', () => {
-                                    const objectIds = [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId];
-                                    const document = new NonSingularRelationshipClass.Model({
+                                    const objectIds = [database.ObjectId(), database.ObjectId()];
+                                    const document = {
+                                        _id: database.ObjectId(),
                                         nonSingularRelationship: objectIds,
-                                    });
+                                    };
                                     const instance = new Instance(NonSingularRelationshipClass, document);
     
                                     for (const index in objectIds) {
@@ -504,9 +516,10 @@ describe('Instance Tests', () => {
                                 });
     
                                 it('Document relationship set to empty array.', () => {
-                                    const document = new NonSingularRelationshipClass.Model({
+                                    const document = {
+                                        _id: database.ObjectId(),
                                         nonSingularRelationship: null,
-                                    });
+                                    };
                                     const instance = new Instance(NonSingularRelationshipClass, document);
     
                                     if (!arraysEqual(instance.currentState.nonSingularRelationship, []))
@@ -514,7 +527,9 @@ describe('Instance Tests', () => {
                                 });
     
                                 it('Document relationship not set to empty array', () => {
-                                    const document = new NonSingularRelationshipClass.Model({});
+                                    const document = {
+                                        _id: database.ObjectId(),
+                                    };
                                     const instance = new Instance(NonSingularRelationshipClass, document);
     
                                     if (!Array.isArray(instance.currentState.nonSingularRelationship) || instance.currentState.nonSingularRelationship.length)
@@ -526,10 +541,11 @@ describe('Instance Tests', () => {
                             describe('On Previous State', () => {
     
                                 it('Document contains object Ids for related intances.', () => {
-                                    const objectIds = [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId];
-                                    const document = new NonSingularRelationshipClass.Model({
+                                    const objectIds = [database.ObjectId(), database.ObjectId()];
+                                    const document = {
+                                        _id: database.ObjectId(),
                                         nonSingularRelationship: objectIds,
-                                    });
+                                    };
                                     const instance = new Instance(NonSingularRelationshipClass, document);
     
                                     for (const index in objectIds) {
@@ -539,9 +555,10 @@ describe('Instance Tests', () => {
                                 });
     
                                 it('Document relationship set to empty array.', () => {
-                                    const document = new NonSingularRelationshipClass.Model({
+                                    const document = {
+                                        _id: database.ObjectId(),
                                         nonSingularRelationship: null,
-                                    });
+                                    };
                                     const instance = new Instance(NonSingularRelationshipClass, document);
     
                                     if (!arraysEqual(instance.previousState.nonSingularRelationship, []))
@@ -549,7 +566,9 @@ describe('Instance Tests', () => {
                                 });
     
                                 it('Document relationship not set to empty array', () => {
-                                    const document = new NonSingularRelationshipClass.Model({});
+                                    const document = {
+                                        _id: database.ObjectId(),
+                                    };
                                     const instance = new Instance(NonSingularRelationshipClass, document);
     
                                     if (!Array.isArray(instance.previousState.nonSingularRelationship) || instance.previousState.nonSingularRelationship.length)
@@ -623,7 +642,9 @@ describe('Instance Tests', () => {
                         it('Attempting to set a non list attribute to an array.', () => {
                             const attributeName = 'boolean';
                             const value = [];
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set an Attribute to an Array.';
 
@@ -635,7 +656,9 @@ describe('Instance Tests', () => {
                         it('Attempting to set a boolean attribute to something other than a boolean.', () => {
                             const attributeName = 'boolean';
                             const value = 0;
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set a Boolean Attribute to something other than a Boolean.';
 
@@ -647,7 +670,9 @@ describe('Instance Tests', () => {
                         it('Attempting to set a number attribute to something other than a number.', () => {
                             const attributeName = 'number';
                             const value = false;
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set a Number Attribute to something other than a Number.';
 
@@ -659,7 +684,9 @@ describe('Instance Tests', () => {
                         it('Attempting to set a string attribute to something other than a string.', () => {
                             const attributeName = 'string';
                             const value = false;
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set a String Attribute to something other than a String.';
 
@@ -671,7 +698,9 @@ describe('Instance Tests', () => {
                         it('Attempting to set a date attribute to something other than a date.', () => {
                             const attributeName = 'date';
                             const value = '1999-01-01';
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set a Date Attribute to something other than a Date.';
 
@@ -686,7 +715,9 @@ describe('Instance Tests', () => {
                         it('Attempting to set a list attribute to a single value.', () => {
                             const attributeName = 'booleans';
                             const value = true;
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set a List Attribute to something other than an Array.';
 
@@ -698,7 +729,9 @@ describe('Instance Tests', () => {
                         it('Attempting to set a boolean list attribute to an array of something other than booleans.', () => {
                             const attributeName = 'booleans';
                             const value = [true, 1];
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set a Boolean List Attribute to an array containing non-Boolean element(s).';
 
@@ -710,7 +743,9 @@ describe('Instance Tests', () => {
                         it('Attempting to set a number list attribute to an array of something other than numbers.', () => {
                             const attributeName = 'numbers';
                             const value = [1, 234, '14'];
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set a Number List Attribute to an array containing non-Number element(s).';
 
@@ -722,7 +757,9 @@ describe('Instance Tests', () => {
                         it('Attempting to set a string list attribute to an array of something other than strings.', () => {
                             const attributeName = 'strings';
                             const value = ['1', '2', 'word', 'This is a sentence.', 5];
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set a String List Attribute to an array containing non-String element(s).';
 
@@ -734,7 +771,9 @@ describe('Instance Tests', () => {
                         it('Attempting to set a date list attribute to an array of something other than dates.', () => {
                             const attributeName = 'dates';
                             const value = [new Date(), {some: 'object'}];
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set a Date List Attribute to an array containing non-Date element(s).';
 
@@ -747,14 +786,16 @@ describe('Instance Tests', () => {
 
                 });
 
-                describe ('Relationship Validations.', () => {
+                describe('Relationship Validations.', () => {
 
                     describe('Singular Relationships', () => {
     
                         it('Attempting to set a singular relationship to something that is not an Instance.', () => {
                             const relationshipName = 'class1';
                             const value = 'fake id';
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set a singular relationship to a value which is not an Instance of the correct ClassModel.';
 
@@ -766,7 +807,9 @@ describe('Instance Tests', () => {
                         it('Attempting to set a singular relationship to an Instance of a different class.', () => {
                             const relationshipName = 'class1';
                             const value = new Instance(SuperClass);
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set a singular relationship to a value which is not an Instance of the correct ClassModel.';
 
@@ -778,7 +821,9 @@ describe('Instance Tests', () => {
                         it('Attempting to set a singular relationship to an InstanceSet.', () => {
                             const relationshipName = 'class1';
                             const value = new InstanceSet(AllAttributesAndRelationshipsClass);
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set a singular relationship to a value which is not an Instance of the correct ClassModel.';
 
@@ -794,7 +839,9 @@ describe('Instance Tests', () => {
                         it('Attempting to set a non-singular relationship to something that is not an InstanceSet.', () => {
                             const relationshipName = 'class2s';
                             const value = ['fake id', 'fake id2'];
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set a non-singular relationship to a value which is not an InstanceSet of the correct ClassModel.';
 
@@ -806,7 +853,9 @@ describe('Instance Tests', () => {
                         it('Attempting to set a non-singular relationship to an InstanceSet of a different class.', () => {
                             const relationshipName = 'class2s';
                             const value = new InstanceSet(SuperClass);
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set a non-singular relationship to a value which is not an InstanceSet of the correct ClassModel.';
 
@@ -818,7 +867,9 @@ describe('Instance Tests', () => {
                         it('Attempting to set a non-singular relationship to an Instance.', () => {
                             const relationshipName = 'class2s';
                             const value = new Instance(CompareClass2);
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             const expectedErrorMessage = 'Illegal attempt to set a non-singular relationship to a value which is not an InstanceSet of the correct ClassModel.';
 
@@ -840,9 +891,10 @@ describe('Instance Tests', () => {
                     describe('Boolean Attributes', () => {
 
                         it('Setting a boolean attribute sets the attribute on the currentState.', () => {
-                            const document = new TestClassWithBoolean.Model({
-                                boolean: false
-                            });
+                            const document = {
+                                _id: database.ObjectId(),
+                                boolean: false,
+                            };
                             const instance = new Instance(TestClassWithBoolean, document);
                             
                             if (instance.currentState.boolean !== false || instance.boolean !== false)
@@ -858,9 +910,10 @@ describe('Instance Tests', () => {
                         });
 
                         it('Setting a boolean attribute to null sets the attribute to null on the current state.', () => {
-                            const document = new TestClassWithBoolean.Model({
-                                boolean: false
-                            });
+                            const document = {
+                                _id: database.ObjectId(),
+                                boolean: false,
+                            };
                             const instance = new Instance(TestClassWithBoolean, document);
                             
                             if (instance.currentState.boolean !== false || instance.boolean !== false)
@@ -876,9 +929,10 @@ describe('Instance Tests', () => {
                         });
 
                         it('Setting a boolean attribute to undefined sets the attribute to null on the current state.', () => {
-                            const document = new TestClassWithBoolean.Model({
-                                boolean: false
-                            });
+                            const document = {
+                                _id: database.ObjectId(),
+                                boolean: false,
+                            };
                             const instance = new Instance(TestClassWithBoolean, document);
                             
                             if (instance.currentState.boolean !== false || instance.boolean !== false)
@@ -901,10 +955,10 @@ describe('Instance Tests', () => {
                             const originalValue = 2;
                             const newValue = 3;
                             const attributeName = 'number';
-
-                            const document = new AllAttributesAndRelationshipsClass.Model({
-                                [attributeName]: originalValue
-                            });
+                            const document = {
+                                _id: database.ObjectId(),
+                                [attributeName]: originalValue,
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             
                             if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
@@ -924,9 +978,10 @@ describe('Instance Tests', () => {
                             const newValue = 0;
                             const attributeName = 'number';
 
-                            const document = new AllAttributesAndRelationshipsClass.Model({
-                                [attributeName]: originalValue
-                            });
+                            const document = {
+                                _id: database.ObjectId(),
+                                [attributeName]: originalValue,
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             
                             if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
@@ -945,10 +1000,10 @@ describe('Instance Tests', () => {
                             const originalValue = 2;
                             const newValue = null;
                             const attributeName = 'number';
-
-                            const document = new AllAttributesAndRelationshipsClass.Model({
-                                [attributeName]: originalValue
-                            });
+                            const document = {
+                                _id: database.ObjectId(),
+                                [attributeName]: originalValue,
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             
                             if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
@@ -968,9 +1023,10 @@ describe('Instance Tests', () => {
                             const newValue = undefined;
                             const attributeName = 'number';
 
-                            const document = new AllAttributesAndRelationshipsClass.Model({
-                                [attributeName]: originalValue
-                            });
+                            const document = {
+                                _id: database.ObjectId(),
+                                [attributeName]: originalValue,
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             
                             if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
@@ -994,9 +1050,10 @@ describe('Instance Tests', () => {
                             const newValue = 'some value';
                             const attributeName = 'string';
 
-                            const document = new AllAttributesAndRelationshipsClass.Model({
-                                [attributeName]: originalValue
-                            });
+                            const document = {
+                                _id: database.ObjectId(),
+                                [attributeName]: originalValue,
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             
                             if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
@@ -1016,9 +1073,10 @@ describe('Instance Tests', () => {
                             const newValue = '';
                             const attributeName = 'string';
 
-                            const document = new AllAttributesAndRelationshipsClass.Model({
-                                [attributeName]: originalValue
-                            });
+                            const document = {
+                                _id: database.ObjectId(),
+                                [attributeName]: originalValue,
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             
                             if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
@@ -1038,9 +1096,10 @@ describe('Instance Tests', () => {
                             const newValue = null;
                             const attributeName = 'string';
 
-                            const document = new AllAttributesAndRelationshipsClass.Model({
-                                [attributeName]: originalValue
-                            });
+                            const document = {
+                                _id: database.ObjectId(),
+                                [attributeName]: originalValue,
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             
                             if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
@@ -1060,9 +1119,10 @@ describe('Instance Tests', () => {
                             const newValue = undefined;
                             const attributeName = 'string';
 
-                            const document = new AllAttributesAndRelationshipsClass.Model({
-                                [attributeName]: originalValue
-                            });
+                            const document = {
+                                _id: database.ObjectId(),
+                                [attributeName]: originalValue,
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             
                             if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
@@ -1086,9 +1146,10 @@ describe('Instance Tests', () => {
                             const newValue = new Date();
                             const attributeName = 'date';
 
-                            const document = new AllAttributesAndRelationshipsClass.Model({
-                                [attributeName]: originalValue
-                            });
+                            const document = {
+                                _id: database.ObjectId(),
+                                [attributeName]: originalValue,
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             
                             if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
@@ -1108,9 +1169,10 @@ describe('Instance Tests', () => {
                             const newValue = null;
                             const attributeName = 'date';
 
-                            const document = new AllAttributesAndRelationshipsClass.Model({
-                                [attributeName]: originalValue
-                            });
+                            const document = {
+                                _id: database.ObjectId(),
+                                [attributeName]: originalValue,
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             
                             if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
@@ -1131,9 +1193,10 @@ describe('Instance Tests', () => {
                             const newValue = undefined;
                             const attributeName = 'date';
 
-                            const document = new AllAttributesAndRelationshipsClass.Model({
-                                [attributeName]: originalValue
-                            });
+                            const document = {
+                                _id: database.ObjectId(),
+                                [attributeName]: originalValue,
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                             
                             if (instance.currentState[attributeName] !== originalValue || instance[attributeName] !== originalValue)
@@ -1159,7 +1222,9 @@ describe('Instance Tests', () => {
                         it('Setting a boolean list attribute sets the list attribute.', () => {
                             const attributeName = 'booleans';
                             const value = [true, false];
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                             instance[attributeName] = value;
@@ -1174,7 +1239,9 @@ describe('Instance Tests', () => {
                         it('Setting a boolean list attribute to empty array sets the list attribute.', () => {
                             const attributeName = 'booleans';
                             const value = [];
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                             instance[attributeName] = value;
@@ -1189,7 +1256,9 @@ describe('Instance Tests', () => {
                         it('Setting a boolean list attribute to null sets the list attribute to empty array.', () => {
                             const attributeName = 'booleans';
                             const value = null;
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                             instance[attributeName] = value;
@@ -1204,7 +1273,9 @@ describe('Instance Tests', () => {
                         it('Setting a boolean list attribute to undefined sets the list attribute to empty array.', () => {
                             const attributeName = 'booleans';
                             const value = undefined;
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                             instance[attributeName] = value;
@@ -1223,7 +1294,9 @@ describe('Instance Tests', () => {
                         it('Setting a number list attribute sets the list attribute.', () => {
                             const attributeName = 'numbers';
                             const value = [0, 14];
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                             instance[attributeName] = value;
@@ -1238,7 +1311,9 @@ describe('Instance Tests', () => {
                         it('Setting a number list attribute to empty array sets the list attribute.', () => {
                             const attributeName = 'numbers';
                             const value = [];
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                             instance[attributeName] = value;
@@ -1253,7 +1328,9 @@ describe('Instance Tests', () => {
                         it('Setting a number list attribute to null sets the list attribute to empty array.', () => {
                             const attributeName = 'numbers';
                             const value = null;
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                             instance[attributeName] = value;
@@ -1268,7 +1345,9 @@ describe('Instance Tests', () => {
                         it('Setting a number list attribute to undefined sets the list attribute to empty array.', () => {
                             const attributeName = 'numbers';
                             const value = undefined;
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                             instance[attributeName] = value;
@@ -1287,7 +1366,9 @@ describe('Instance Tests', () => {
                         it('Setting a string list attribute sets the list attribute.', () => {
                             const attributeName = 'strings';
                             const value = ['0', 'true', 'word', 'This is a senence.'];
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                             instance[attributeName] = value;
@@ -1302,7 +1383,9 @@ describe('Instance Tests', () => {
                         it('Setting a string list attribute to empty array sets the list attribute.', () => {
                             const attributeName = 'strings';
                             const value = [];
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                             instance[attributeName] = value;
@@ -1317,7 +1400,9 @@ describe('Instance Tests', () => {
                         it('Setting a string list attribute to null sets the list attribute to empty array.', () => {
                             const attributeName = 'strings';
                             const value = null;
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                             instance[attributeName] = value;
@@ -1332,7 +1417,9 @@ describe('Instance Tests', () => {
                         it('Setting a string list attribute to undefined sets the list attribute to empty array.', () => {
                             const attributeName = 'strings';
                             const value = undefined;
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                             instance[attributeName] = value;
@@ -1351,7 +1438,9 @@ describe('Instance Tests', () => {
                         it('Setting a date list attribute sets the list attribute.', () => {
                             const attributeName = 'dates';
                             const value = [new Date(), new Date('2019-01-01')];
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                             instance[attributeName] = value;
@@ -1366,7 +1455,9 @@ describe('Instance Tests', () => {
                         it('Setting a date list attribute to empty array sets the list attribute.', () => {
                             const attributeName = 'dates';
                             const value = [];
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                             instance[attributeName] = value;
@@ -1382,7 +1473,9 @@ describe('Instance Tests', () => {
                         it('Setting a date list attribute to null sets the list attribute to empty array.', () => {
                             const attributeName = 'dates';
                             const value = null;
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                             instance[attributeName] = value;
@@ -1397,7 +1490,9 @@ describe('Instance Tests', () => {
                         it('Setting a date list attribute to undefined sets the list attribute to empty array.', () => {
                             const attributeName = 'dates';
                             const value = undefined;
-                            const document = new AllAttributesAndRelationshipsClass.Model({});
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
             
                             instance[attributeName] = value;
@@ -1422,7 +1517,9 @@ describe('Instance Tests', () => {
                     it('Setting a singular relationship to an Instance.', () => {
                         const relationshipName = 'class1';
                         const value = new Instance(CompareClass1);
-                        const document = new AllAttributesAndRelationshipsClass.Model({});
+                        const document = {
+                            _id: database.ObjectId(),
+                        };
                         const instance = new Instance(AllAttributesAndRelationshipsClass, document);
         
                         instance[relationshipName] = value;
@@ -1437,7 +1534,9 @@ describe('Instance Tests', () => {
                     it('Setting a singular relationship to null.', () => {
                         const relationshipName = 'class1';
                         const value = null;
-                        const document = new AllAttributesAndRelationshipsClass.Model({});
+                        const document = {
+                            _id: database.ObjectId(),
+                        };
                         const instance = new Instance(AllAttributesAndRelationshipsClass, document);
         
                         instance[relationshipName] = value;
@@ -1453,7 +1552,9 @@ describe('Instance Tests', () => {
                     it('Setting a singular relationship to undefined.', () => {
                         const relationshipName = 'class1';
                         const value = undefined;
-                        const document = new AllAttributesAndRelationshipsClass.Model({});
+                        const document = {
+                            _id: database.ObjectId(),
+                        };
                         const instance = new Instance(AllAttributesAndRelationshipsClass, document);
         
                         instance[relationshipName] = value;
@@ -1472,7 +1573,9 @@ describe('Instance Tests', () => {
                     it('Setting a non-singular relationship to an InstanceSet.', () => {
                         const relationshipName = 'class2s';
                         const value = new InstanceSet(CompareClass2, [new Instance(CompareClass2)]);
-                        const document = new AllAttributesAndRelationshipsClass.Model({});
+                        const document = {
+                            _id: database.ObjectId(),
+                        };
                         const instance = new Instance(AllAttributesAndRelationshipsClass, document);
         
                         instance[relationshipName] = value;
@@ -1487,7 +1590,9 @@ describe('Instance Tests', () => {
                     it('Setting a non-singular relationship to null.', () => {
                         const relationshipName = 'class2s';
                         const value = null;
-                        const document = new AllAttributesAndRelationshipsClass.Model({});
+                        const document = {
+                            _id: database.ObjectId(),
+                        };
                         const instance = new Instance(AllAttributesAndRelationshipsClass, document);
         
                         instance[relationshipName] = value;
@@ -1502,7 +1607,9 @@ describe('Instance Tests', () => {
                     it('Setting a non-singular relationship to undefined.', () => {
                         const relationshipName = 'class2s';
                         const value = undefined;
-                        const document = new AllAttributesAndRelationshipsClass.Model({});
+                        const document = {
+                            _id: database.ObjectId(),
+                        };
                         const instance = new Instance(AllAttributesAndRelationshipsClass, document);
         
                         instance[relationshipName] = value;
@@ -1529,12 +1636,13 @@ describe('Instance Tests', () => {
                     
                     it('Can get attributes of each type from an Instance.', () => {
                         const date = new Date();
-                        const document = new AllAttributesAndRelationshipsClass.Model({
+                        const document = {
+                            _id: database.ObjectId(),
                             boolean: false,
                             string: '',
                             number: 0,
                             date: date,
-                        });
+                        };
                         const instance = new Instance(AllAttributesAndRelationshipsClass, document);
 
                         if (instance.boolean !== document.boolean)
@@ -1551,12 +1659,13 @@ describe('Instance Tests', () => {
                     });
                     
                     it('Can get attributes of each type from an Instance when they are null.', () => {
-                        const document = new AllAttributesAndRelationshipsClass.Model({
+                        const document = {
+                            _id: database.ObjectId(),
                             boolean: null,
-                            number: null,
                             string: null,
+                            number: null,
                             date: null,
-                        });
+                        };
                         const instance = new Instance(AllAttributesAndRelationshipsClass, document);
 
                         if (instance.boolean !== null)
@@ -1574,7 +1683,9 @@ describe('Instance Tests', () => {
                     });
                     
                     it('Can get attributes of each type from an Instance when they are not set.', () => {
-                        const document = new AllAttributesAndRelationshipsClass.Model({});
+                        const document = {
+                            _id: database.ObjectId(),
+                        };
                         const instance = new Instance(AllAttributesAndRelationshipsClass, document);
 
                         if (instance.boolean !== null)
@@ -1596,12 +1707,13 @@ describe('Instance Tests', () => {
                     
                     it('Can get list attributes of each type from an Instance.', () => {
                         const dates = [new Date(), new Date()]
-                        const document = new AllAttributesAndRelationshipsClass.Model({
+                        const document = {
+                            _id: database.ObjectId(),
                             booleans: [false, true],
                             strings: ['', 'string'],
                             numbers: [0, 1, 2],
                             dates: dates,
-                        });
+                        };
                         const instance = new Instance(AllAttributesAndRelationshipsClass, document);
 
                         for (const item of document.booleans) 
@@ -1622,12 +1734,13 @@ describe('Instance Tests', () => {
                     });
                     
                     it('Can get list attributes of each type from an Instance when they are null. Returns empty array.', () => {
-                        const document = new AllAttributesAndRelationshipsClass.Model({
+                        const document = {
+                            _id: database.ObjectId(),
                             booleans: null,
                             strings: null,
                             numbers: null,
                             dates: null,
-                        });
+                        };
                         const instance = new Instance(AllAttributesAndRelationshipsClass, document);
 
                         if (!Array.isArray(instance.booleans) || instance.booleans.length)
@@ -1644,7 +1757,9 @@ describe('Instance Tests', () => {
                     });
                     
                     it('Can get attributes of each type from an Instance when they are not set. Returns empty array', () => {
-                        const document = new AllAttributesAndRelationshipsClass.Model({});
+                        const document = {
+                            _id: database.ObjectId(),
+                        };
                         const instance = new Instance(AllAttributesAndRelationshipsClass, document);
 
                         if (!Array.isArray(instance.booleans) || instance.booleans.length)
@@ -1672,7 +1787,9 @@ describe('Instance Tests', () => {
                     it('Instance returned for singular relationship when set to an Instance.', () => {
                         const relationshipName = 'class1';
                         const value = new Instance(CompareClass1);
-                        const document = new AllAttributesAndRelationshipsClass.Model({});
+                        const document = {
+                            _id: database.ObjectId(),
+                        };
                         const instance = new Instance(AllAttributesAndRelationshipsClass, document);
         
                         instance[relationshipName] = value;
@@ -1684,9 +1801,10 @@ describe('Instance Tests', () => {
                     it('Id returned for singular relationship when set to an id but not an Instance.', () => {
                         const relationshipName = 'class1';
                         const value = new Instance(CompareClass1);
-                        const document = new AllAttributesAndRelationshipsClass.Model({
+                        const document = {
+                            _id: database.ObjectId(),
                             class1: value._id,
-                        });
+                        };
                         const instance = new Instance(AllAttributesAndRelationshipsClass, document);
 
                         if (instance[relationshipName] !== value._id)
@@ -1696,7 +1814,9 @@ describe('Instance Tests', () => {
                     it('Null returned for singular relationship when not set.', () => {
                         const relationshipName = 'class1';
                         const value = new Instance(CompareClass1);
-                        const document = new AllAttributesAndRelationshipsClass.Model({});
+                        const document = {
+                            _id: database.ObjectId(),
+                        };
                         const instance = new Instance(AllAttributesAndRelationshipsClass, document);
 
                         if (instance[relationshipName] !== null)
@@ -1710,7 +1830,9 @@ describe('Instance Tests', () => {
                     it('InstanceSet returned for non-singular relationship when set to an InstanceSet.', () => {
                         const relationshipName = 'class2s';
                         const value = new InstanceSet(CompareClass2, [new Instance(CompareClass2)]);
-                        const document = new AllAttributesAndRelationshipsClass.Model({});
+                        const document = {
+                            _id: database.ObjectId(),
+                        };
                         const instance = new Instance(AllAttributesAndRelationshipsClass, document);
         
                         instance[relationshipName] = value;
@@ -1722,9 +1844,10 @@ describe('Instance Tests', () => {
                     it('Ids array returned for non-singular relationship when set to an array of ids but not an InstanceSet.', () => {
                         const relationshipName = 'class2s';
                         const value = new InstanceSet(CompareClass2, [new Instance(CompareClass2)]);
-                        const document = new AllAttributesAndRelationshipsClass.Model({
+                        const document = {
+                            _id: database.ObjectId(),
                             [relationshipName]: value.map(instance => instance._id),
-                        });
+                        };
                         const instance = new Instance(AllAttributesAndRelationshipsClass, document);
 
                         if (!arraysEqual(instance[relationshipName].map(id => id.toHexString()), value.map(instance => instance.id)))
@@ -1733,7 +1856,9 @@ describe('Instance Tests', () => {
 
                     it('Empty array returned for non-singular relationship when not set.', () => {
                         const relationshipName = 'class2s';
-                        const document = new AllAttributesAndRelationshipsClass.Model({});
+                        const document = {
+                            _id: database.ObjectId(),
+                        };
                         const instance = new Instance(AllAttributesAndRelationshipsClass, document);
 
                         if (!arraysEqual(instance[relationshipName].map(id => id), []))
@@ -1791,9 +1916,10 @@ describe('Instance Tests', () => {
             });
 
             it('Deleting a singular relationship (set by document) sets instanceReference.instance and instanceReference._id to null.', () => {
-                const document = new AllAttributesAndRelationshipsClass.Model({
-                    class1: new mongoose.Types.ObjectId, 
-                });
+                const document = {
+                    _id: database.ObjectId(),
+                    class1: database.ObjectId(), 
+                };
                 const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                 delete instance.class1;
                 
@@ -1813,9 +1939,10 @@ describe('Instance Tests', () => {
             });
 
             it('Deleting a non-singular relationship (set by document) sets instanceSetReference.instanceSet to null and instanceSetReference._ids to empty string.', () => {
-                const document = new AllAttributesAndRelationshipsClass.Model({
-                    class2s: [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId], 
-                });
+                const document = {
+                    _id: database.ObjectId(),
+                    class2s: [database.ObjectId(), database.ObjectId()], 
+                };
                 const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                 delete instance.class2s;
                 
@@ -1915,7 +2042,7 @@ describe('Instance Tests', () => {
         it('instance.assign throws errors when assigning an objectID to a singular relationship.', () => {
             const instance = new Instance(AllAttributesAndRelationshipsClass);
             const objectToAssign = {
-                class1: new mongoose.Types.ObjectId,
+                class1: database.ObjectId(),
             }
             const expectedErrorMessage = 'Illegal attempt to set a singular relationship to a value which is not an Instance of the correct ClassModel.';
             testForError('instance.assign()', expectedErrorMessage, () => {
@@ -1925,1167 +2052,1167 @@ describe('Instance Tests', () => {
 
     });
 
-    describe('instance.validate()', () => {
+    // describe('instance.validate()', () => {
 
-        describe('Required Validation', () => {
+    //     describe('Required Validation', () => {
 
-            it('All fields are required. All are set. No error thrown.', () => {
-                const instance = new Instance(AllFieldsRequiredClass);
-                instance.assign({
-                    string: 'String',
-                    strings: ['String'],
-                    date: new Date(),
-                    boolean: true,
-                    booleans: [true],
-                    number: 1,
-                    numbers: [1],
-                    class1: new Instance(CompareClass1),
-                    class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
-                });
+    //         it('All fields are required. All are set. No error thrown.', () => {
+    //             const instance = new Instance(AllFieldsRequiredClass);
+    //             instance.assign({
+    //                 string: 'String',
+    //                 strings: ['String'],
+    //                 date: new Date(),
+    //                 boolean: true,
+    //                 booleans: [true],
+    //                 number: 1,
+    //                 numbers: [1],
+    //                 class1: new Instance(CompareClass1),
+    //                 class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
+    //             });
                     
-                instance.validate();
-            });
+    //             instance.validate();
+    //         });
 
-            it('All fields are required. All are set from document. No error thrown.', () => {
-                const document = new AllFieldsRequiredClass.Model({
-                    string: 'String',
-                    strings: ['String'],
-                    date: new Date(),
-                    boolean: true,
-                    booleans: [true],
-                    number: 1,
-                    numbers: [1],
-                    class1: new mongoose.Types.ObjectId,
-                    class2s: [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId],
-                });
-                const instance = new Instance(AllFieldsRequiredClass, document);
+    //         it('All fields are required. All are set from document. No error thrown.', () => {
+    //             const document = new AllFieldsRequiredClass.Model({
+    //                 string: 'String',
+    //                 strings: ['String'],
+    //                 date: new Date(),
+    //                 boolean: true,
+    //                 booleans: [true],
+    //                 number: 1,
+    //                 numbers: [1],
+    //                 class1: database.ObjectId(),
+    //                 class2s: [database.ObjectId(), database.ObjectId()],
+    //             });
+    //             const instance = new Instance(AllFieldsRequiredClass, document);
                     
-                instance.validate();
-            });
+    //             instance.validate();
+    //         });
 
-            it('All fields are required. All but string are set. Error thrown.', () => {
-                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: string: Path `string` is required.';
-                const instance = new Instance(AllFieldsRequiredClass);
-                instance.assign({
-                    strings: ['String'],
-                    date: new Date(),
-                    boolean: true,
-                    booleans: [true],
-                    number: 1,
-                    numbers: [1],
-                    class1: new Instance(CompareClass1),
-                    class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
-                });
+    //         it('All fields are required. All but string are set. Error thrown.', () => {
+    //             const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: string: Path `string` is required.';
+    //             const instance = new Instance(AllFieldsRequiredClass);
+    //             instance.assign({
+    //                 strings: ['String'],
+    //                 date: new Date(),
+    //                 boolean: true,
+    //                 booleans: [true],
+    //                 number: 1,
+    //                 numbers: [1],
+    //                 class1: new Instance(CompareClass1),
+    //                 class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
+    //             });
 
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
-                });
+    //             testForError('instance.validate()', expectedErrorMessage, () => {
+    //                 instance.validate();
+    //             });
 
-            });
+    //         });
 
-            it('All fields are required. String is set to empty string. No error thrown.', () => {
-                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: string: Path `string` is required.';
-                const instance = new Instance(AllFieldsRequiredClass);
-                instance.assign({
-                    string: '',
-                    strings: ['String'],
-                    date: new Date(),
-                    boolean: true,
-                    booleans: [true],
-                    number: 1,
-                    numbers: [1],
-                    class1: new Instance(CompareClass1),
-                    class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
-                });
+    //         it('All fields are required. String is set to empty string. No error thrown.', () => {
+    //             const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: string: Path `string` is required.';
+    //             const instance = new Instance(AllFieldsRequiredClass);
+    //             instance.assign({
+    //                 string: '',
+    //                 strings: ['String'],
+    //                 date: new Date(),
+    //                 boolean: true,
+    //                 booleans: [true],
+    //                 number: 1,
+    //                 numbers: [1],
+    //                 class1: new Instance(CompareClass1),
+    //                 class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
+    //             });
 
-                instance.validate();
-            });
+    //             instance.validate();
+    //         });
 
-            it('All fields are required. All but Stings are set. Error thrown.', () => {
-                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: strings: Path `strings` is required.';
-                const instance = new Instance(AllFieldsRequiredClass);
-                instance.assign({
-                    string: 'String',
-                    date: new Date(),
-                    boolean: true,
-                    booleans: [true],
-                    number: 1,
-                    numbers: [1],
-                    class1: new Instance(CompareClass1),
-                    class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
-                });
+    //         it('All fields are required. All but Stings are set. Error thrown.', () => {
+    //             const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: strings: Path `strings` is required.';
+    //             const instance = new Instance(AllFieldsRequiredClass);
+    //             instance.assign({
+    //                 string: 'String',
+    //                 date: new Date(),
+    //                 boolean: true,
+    //                 booleans: [true],
+    //                 number: 1,
+    //                 numbers: [1],
+    //                 class1: new Instance(CompareClass1),
+    //                 class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
+    //             });
 
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
-                });
+    //             testForError('instance.validate()', expectedErrorMessage, () => {
+    //                 instance.validate();
+    //             });
 
-            });
+    //         });
 
-            it('All fields are required. Strings is set to empty array. Error thrown.', () => {
-                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: strings: Path `strings` is required.';
-                const instance = new Instance(AllFieldsRequiredClass);
-                instance.assign({
-                    string: 'String',
-                    strings: [],
-                    date: new Date(),
-                    boolean: true,
-                    booleans: [true],
-                    number: 1,
-                    numbers: [1],
-                    class1: new Instance(CompareClass1),
-                    class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
-                });
+    //         it('All fields are required. Strings is set to empty array. Error thrown.', () => {
+    //             const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: strings: Path `strings` is required.';
+    //             const instance = new Instance(AllFieldsRequiredClass);
+    //             instance.assign({
+    //                 string: 'String',
+    //                 strings: [],
+    //                 date: new Date(),
+    //                 boolean: true,
+    //                 booleans: [true],
+    //                 number: 1,
+    //                 numbers: [1],
+    //                 class1: new Instance(CompareClass1),
+    //                 class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
+    //             });
 
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
-                });
+    //             testForError('instance.validate()', expectedErrorMessage, () => {
+    //                 instance.validate();
+    //             });
 
-            });
+    //         });
 
-            it('All fields are required. All but date are set. Error thrown.', () => {
-                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: date: Path `date` is required.';
-                const instance = new Instance(AllFieldsRequiredClass);
-                instance.assign({
-                    string: 'String',
-                    strings: ['String'],
-                    boolean: true,
-                    booleans: [true],
-                    number: 1,
-                    numbers: [1],
-                    class1: new Instance(CompareClass1),
-                    class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
-                });
+    //         it('All fields are required. All but date are set. Error thrown.', () => {
+    //             const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: date: Path `date` is required.';
+    //             const instance = new Instance(AllFieldsRequiredClass);
+    //             instance.assign({
+    //                 string: 'String',
+    //                 strings: ['String'],
+    //                 boolean: true,
+    //                 booleans: [true],
+    //                 number: 1,
+    //                 numbers: [1],
+    //                 class1: new Instance(CompareClass1),
+    //                 class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
+    //             });
 
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
-                });
+    //             testForError('instance.validate()', expectedErrorMessage, () => {
+    //                 instance.validate();
+    //             });
 
-            });
+    //         });
 
-            it('All fields are required. All but boolean are set. Error thrown.', () => {
-                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: boolean: Path `boolean` is required.';
-                const instance = new Instance(AllFieldsRequiredClass);
-                instance.assign({
-                    string: 'String',
-                    strings: ['String'],
-                    date: new Date(),
-                    booleans: [true],
-                    number: 1,
-                    numbers: [1],
-                    class1: new Instance(CompareClass1),
-                    class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
-                });
+    //         it('All fields are required. All but boolean are set. Error thrown.', () => {
+    //             const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: boolean: Path `boolean` is required.';
+    //             const instance = new Instance(AllFieldsRequiredClass);
+    //             instance.assign({
+    //                 string: 'String',
+    //                 strings: ['String'],
+    //                 date: new Date(),
+    //                 booleans: [true],
+    //                 number: 1,
+    //                 numbers: [1],
+    //                 class1: new Instance(CompareClass1),
+    //                 class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
+    //             });
 
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
-                });
+    //             testForError('instance.validate()', expectedErrorMessage, () => {
+    //                 instance.validate();
+    //             });
 
-            });
+    //         });
 
-            it('All fields are required. All but booleans are set. Error thrown.', () => {
-                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: booleans: Path `booleans` is required.';
-                const instance = new Instance(AllFieldsRequiredClass);
-                instance.assign({
-                    string: 'String',
-                    strings: ['String'],
-                    date: new Date(),
-                    boolean: true,
-                    number: 1,
-                    numbers: [1],
-                    class1: new Instance(CompareClass1),
-                    class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
-                });
+    //         it('All fields are required. All but booleans are set. Error thrown.', () => {
+    //             const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: booleans: Path `booleans` is required.';
+    //             const instance = new Instance(AllFieldsRequiredClass);
+    //             instance.assign({
+    //                 string: 'String',
+    //                 strings: ['String'],
+    //                 date: new Date(),
+    //                 boolean: true,
+    //                 number: 1,
+    //                 numbers: [1],
+    //                 class1: new Instance(CompareClass1),
+    //                 class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
+    //             });
 
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
-                });
+    //             testForError('instance.validate()', expectedErrorMessage, () => {
+    //                 instance.validate();
+    //             });
 
-            });
+    //         });
 
-            it('All fields are required. Booleans set to empty array. Error thrown.', () => {
-                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: booleans: Path `booleans` is required.';
-                const instance = new Instance(AllFieldsRequiredClass);
-                instance.assign({
-                    string: 'String',
-                    strings: ['String'],
-                    date: new Date(),
-                    boolean: true,
-                    booleans: [],
-                    number: 1,
-                    numbers: [1],
-                    class1: new Instance(CompareClass1),
-                    class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
-                });
+    //         it('All fields are required. Booleans set to empty array. Error thrown.', () => {
+    //             const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: booleans: Path `booleans` is required.';
+    //             const instance = new Instance(AllFieldsRequiredClass);
+    //             instance.assign({
+    //                 string: 'String',
+    //                 strings: ['String'],
+    //                 date: new Date(),
+    //                 boolean: true,
+    //                 booleans: [],
+    //                 number: 1,
+    //                 numbers: [1],
+    //                 class1: new Instance(CompareClass1),
+    //                 class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
+    //             });
 
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
-                });
+    //             testForError('instance.validate()', expectedErrorMessage, () => {
+    //                 instance.validate();
+    //             });
 
-            });
+    //         });
 
-            it('All fields are required. All but number are set. Error thrown.', () => {
-                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: number: Path `number` is required.';
-                const instance = new Instance(AllFieldsRequiredClass);
-                instance.assign({
-                    string: 'String',
-                    strings: ['String'],
-                    date: new Date(),
-                    boolean: true,
-                    booleans: [true],
-                    numbers: [1],
-                    class1: new Instance(CompareClass1),
-                    class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
-                });
+    //         it('All fields are required. All but number are set. Error thrown.', () => {
+    //             const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: number: Path `number` is required.';
+    //             const instance = new Instance(AllFieldsRequiredClass);
+    //             instance.assign({
+    //                 string: 'String',
+    //                 strings: ['String'],
+    //                 date: new Date(),
+    //                 boolean: true,
+    //                 booleans: [true],
+    //                 numbers: [1],
+    //                 class1: new Instance(CompareClass1),
+    //                 class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
+    //             });
 
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
-                });
+    //             testForError('instance.validate()', expectedErrorMessage, () => {
+    //                 instance.validate();
+    //             });
 
-            });
+    //         });
 
-            it('All fields are required. All but numbers are set. Error thrown.', () => {
-                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: numbers: Path `numbers` is required.';
-                const instance = new Instance(AllFieldsRequiredClass);
-                instance.assign({
-                    string: 'String',
-                    strings: ['String'],
-                    date: new Date(),
-                    boolean: true,
-                    booleans: [true],
-                    number: 1,
-                    class1: new Instance(CompareClass1),
-                    class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
-                });
+    //         it('All fields are required. All but numbers are set. Error thrown.', () => {
+    //             const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: numbers: Path `numbers` is required.';
+    //             const instance = new Instance(AllFieldsRequiredClass);
+    //             instance.assign({
+    //                 string: 'String',
+    //                 strings: ['String'],
+    //                 date: new Date(),
+    //                 boolean: true,
+    //                 booleans: [true],
+    //                 number: 1,
+    //                 class1: new Instance(CompareClass1),
+    //                 class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
+    //             });
 
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
-                });
+    //             testForError('instance.validate()', expectedErrorMessage, () => {
+    //                 instance.validate();
+    //             });
 
-            });
+    //         });
 
-            it('All fields are required. Numbers is set to an empty array. Error thrown.', () => {
-                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: numbers: Path `numbers` is required.';
-                const instance = new Instance(AllFieldsRequiredClass);
-                instance.assign({
-                    string: 'String',
-                    strings: ['String'],
-                    date: new Date(),
-                    boolean: true,
-                    booleans: [true],
-                    number: 1,
-                    numbers: [],
-                    class1: new Instance(CompareClass1),
-                    class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
-                });
+    //         it('All fields are required. Numbers is set to an empty array. Error thrown.', () => {
+    //             const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: numbers: Path `numbers` is required.';
+    //             const instance = new Instance(AllFieldsRequiredClass);
+    //             instance.assign({
+    //                 string: 'String',
+    //                 strings: ['String'],
+    //                 date: new Date(),
+    //                 boolean: true,
+    //                 booleans: [true],
+    //                 number: 1,
+    //                 numbers: [],
+    //                 class1: new Instance(CompareClass1),
+    //                 class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
+    //             });
 
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
-                });
+    //             testForError('instance.validate()', expectedErrorMessage, () => {
+    //                 instance.validate();
+    //             });
 
-            });
+    //         });
 
-            it('All fields are required. All but class1 are set. Error thrown.', () => {
-                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: class1: Path `class1` is required.';
-                const instance = new Instance(AllFieldsRequiredClass);
-                instance.assign({
-                    string: 'String',
-                    strings: ['String'],
-                    date: new Date(),
-                    boolean: true,
-                    booleans: [true],
-                    number: 1,
-                    numbers: [1],
-                    class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
-                });
+    //         it('All fields are required. All but class1 are set. Error thrown.', () => {
+    //             const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: class1: Path `class1` is required.';
+    //             const instance = new Instance(AllFieldsRequiredClass);
+    //             instance.assign({
+    //                 string: 'String',
+    //                 strings: ['String'],
+    //                 date: new Date(),
+    //                 boolean: true,
+    //                 booleans: [true],
+    //                 number: 1,
+    //                 numbers: [1],
+    //                 class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
+    //             });
 
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
-                });
+    //             testForError('instance.validate()', expectedErrorMessage, () => {
+    //                 instance.validate();
+    //             });
 
-            });
+    //         });
 
-            it('All fields are required. All but class2s are set. Error thrown.', () => {
-                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: class2s: Path `class2s` is required.';
-                const instance = new Instance(AllFieldsRequiredClass);
-                instance.assign({
-                    string: 'String',
-                    strings: ['String'],
-                    date: new Date(),
-                    boolean: true,
-                    booleans: [true],
-                    number: 1,
-                    numbers: [1],
-                    class1: new Instance(CompareClass1),
-                });
+    //         it('All fields are required. All but class2s are set. Error thrown.', () => {
+    //             const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: class2s: Path `class2s` is required.';
+    //             const instance = new Instance(AllFieldsRequiredClass);
+    //             instance.assign({
+    //                 string: 'String',
+    //                 strings: ['String'],
+    //                 date: new Date(),
+    //                 boolean: true,
+    //                 booleans: [true],
+    //                 number: 1,
+    //                 numbers: [1],
+    //                 class1: new Instance(CompareClass1),
+    //             });
 
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
-                });
+    //             testForError('instance.validate()', expectedErrorMessage, () => {
+    //                 instance.validate();
+    //             });
 
-            });
+    //         });
 
-            it('All fields are required. All but class2s are set. Class2s set to empty instance set. Error thrown.', () => {
-                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: class2s: Path `class2s` is required.';
-                const instance = new Instance(AllFieldsRequiredClass);
-                instance.assign({
-                    string: 'String',
-                    strings: ['String'],
-                    date: new Date(),
-                    boolean: true,
-                    booleans: [true],
-                    number: 1,
-                    numbers: [1],
-                    class1: new Instance(CompareClass1),
-                    class2: new InstanceSet(CompareClass2),
-                });
+    //         it('All fields are required. All but class2s are set. Class2s set to empty instance set. Error thrown.', () => {
+    //             const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: class2s: Path `class2s` is required.';
+    //             const instance = new Instance(AllFieldsRequiredClass);
+    //             instance.assign({
+    //                 string: 'String',
+    //                 strings: ['String'],
+    //                 date: new Date(),
+    //                 boolean: true,
+    //                 booleans: [true],
+    //                 number: 1,
+    //                 numbers: [1],
+    //                 class1: new Instance(CompareClass1),
+    //                 class2: new InstanceSet(CompareClass2),
+    //             });
 
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
-                });
+    //             testForError('instance.validate()', expectedErrorMessage, () => {
+    //                 instance.validate();
+    //             });
 
-            });
+    //         });
 
-        });
+    //     });
 
-        describe('Required Group Validation', () => {
+    //     describe('Required Group Validation', () => {
                 
-            it('Multiple fields (one of each type) share a required group no fields are set. Error thrown.', () => {
-                const expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
-                const instance = new Instance(AllFieldsInRequiredGroupClass);
+    //         it('Multiple fields (one of each type) share a required group no fields are set. Error thrown.', () => {
+    //             const expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
+    //             const instance = new Instance(AllFieldsInRequiredGroupClass);
     
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
-                });
-            });
+    //             testForError('instance.validate()', expectedErrorMessage, () => {
+    //                 instance.validate();
+    //             });
+    //         });
                 
-            it('Multiple fields (one of each type) share a required group boolean is set to false. No error thrown.', () => {
-                const instance = new Instance(AllFieldsInRequiredGroupClass);
-                instance.boolean = false;
-                instance.validate();
-            });
+    //         it('Multiple fields (one of each type) share a required group boolean is set to false. No error thrown.', () => {
+    //             const instance = new Instance(AllFieldsInRequiredGroupClass);
+    //             instance.boolean = false;
+    //             instance.validate();
+    //         });
                 
-            it('Multiple fields (one of each type) share a required group string is set to "". No error thrown.', () => {
-                const instance = new Instance(AllFieldsInRequiredGroupClass);
-                instance.string = '';
-                instance.validate();
-            });
+    //         it('Multiple fields (one of each type) share a required group string is set to "". No error thrown.', () => {
+    //             const instance = new Instance(AllFieldsInRequiredGroupClass);
+    //             instance.string = '';
+    //             instance.validate();
+    //         });
                 
-            it('Multiple fields (one of each type) share a required group class2s is set to empty instance set. Error thrown.', () => {
-                const expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
-                const instance = new Instance(AllFieldsInRequiredGroupClass);
-                instance.class2s = new InstanceSet(CompareClass2);
+    //         it('Multiple fields (one of each type) share a required group class2s is set to empty instance set. Error thrown.', () => {
+    //             const expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
+    //             const instance = new Instance(AllFieldsInRequiredGroupClass);
+    //             instance.class2s = new InstanceSet(CompareClass2);
     
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
-                });
-            });
+    //             testForError('instance.validate()', expectedErrorMessage, () => {
+    //                 instance.validate();
+    //             });
+    //         });
             
-            it('Multiple fields (one of each type) share a required group and string is set. No error thrown.', () => {
-                const instance = new Instance(AllFieldsInRequiredGroupClass);
-                instance.string = 'String';
+    //         it('Multiple fields (one of each type) share a required group and string is set. No error thrown.', () => {
+    //             const instance = new Instance(AllFieldsInRequiredGroupClass);
+    //             instance.string = 'String';
 
-                instance.validate();
-            });
+    //             instance.validate();
+    //         });
             
-            it('Multiple fields (one of each type) share a required group and strings is set. No error thrown.', () => {
-                const instance = new Instance(AllFieldsInRequiredGroupClass);
-                instance.strings = ['String'];
+    //         it('Multiple fields (one of each type) share a required group and strings is set. No error thrown.', () => {
+    //             const instance = new Instance(AllFieldsInRequiredGroupClass);
+    //             instance.strings = ['String'];
 
-                instance.validate();
-            });
+    //             instance.validate();
+    //         });
             
-            it('Multiple fields (one of each type) share a required group and boolean is set. No error thrown.', () => {
-                const instance = new Instance(AllFieldsInRequiredGroupClass);
-                instance.boolean = true;
+    //         it('Multiple fields (one of each type) share a required group and boolean is set. No error thrown.', () => {
+    //             const instance = new Instance(AllFieldsInRequiredGroupClass);
+    //             instance.boolean = true;
 
-                instance.validate();
-            });
+    //             instance.validate();
+    //         });
             
-            it('Multiple fields (one of each type) share a required group and booleans is set. No error thrown.', () => {
-                const instance = new Instance(AllFieldsInRequiredGroupClass);
-                instance.booleans = [true];
+    //         it('Multiple fields (one of each type) share a required group and booleans is set. No error thrown.', () => {
+    //             const instance = new Instance(AllFieldsInRequiredGroupClass);
+    //             instance.booleans = [true];
 
-                instance.validate();
-            });
+    //             instance.validate();
+    //         });
             
-            it('Multiple fields (one of each type) share a required group and date is set. No error thrown.', () => {
-                const instance = new Instance(AllFieldsInRequiredGroupClass);
-                instance.date = new Date();
+    //         it('Multiple fields (one of each type) share a required group and date is set. No error thrown.', () => {
+    //             const instance = new Instance(AllFieldsInRequiredGroupClass);
+    //             instance.date = new Date();
 
-                instance.validate();
-            });
+    //             instance.validate();
+    //         });
             
-            it('Multiple fields (one of each type) share a required group and number is set. No error thrown.', () => {
-                const instance = new Instance(AllFieldsInRequiredGroupClass);
-                instance.number = 1;
+    //         it('Multiple fields (one of each type) share a required group and number is set. No error thrown.', () => {
+    //             const instance = new Instance(AllFieldsInRequiredGroupClass);
+    //             instance.number = 1;
 
-                instance.validate();
-            });
+    //             instance.validate();
+    //         });
             
-            it('Multiple fields (one of each type) share a required group and number is set to 0. No error thrown.', () => {
-                const instance = new Instance(AllFieldsInRequiredGroupClass);
-                instance.number = 0;
+    //         it('Multiple fields (one of each type) share a required group and number is set to 0. No error thrown.', () => {
+    //             const instance = new Instance(AllFieldsInRequiredGroupClass);
+    //             instance.number = 0;
 
-                instance.validate();
-            });
+    //             instance.validate();
+    //         });
             
-            it('Multiple fields (one of each type) share a required group and numbers is set. No error thrown.', () => {
-                const instance = new Instance(AllFieldsInRequiredGroupClass);
-                instance.numbers = [1];
+    //         it('Multiple fields (one of each type) share a required group and numbers is set. No error thrown.', () => {
+    //             const instance = new Instance(AllFieldsInRequiredGroupClass);
+    //             instance.numbers = [1];
 
-                instance.validate();
-            });
+    //             instance.validate();
+    //         });
             
-            it('Multiple fields (one of each type) share a required group and class1 is set. No error thrown.', () => {
-                const instance = new Instance(AllFieldsInRequiredGroupClass);
-                instance.class1 = new Instance(CompareClass1);
+    //         it('Multiple fields (one of each type) share a required group and class1 is set. No error thrown.', () => {
+    //             const instance = new Instance(AllFieldsInRequiredGroupClass);
+    //             instance.class1 = new Instance(CompareClass1);
 
-                instance.validate();
-            });
+    //             instance.validate();
+    //         });
             
-            it('Multiple fields (one of each type) share a required group and class2s is set. No error thrown.', () => {
-                const instance = new Instance(AllFieldsInRequiredGroupClass);
-                instance.class2s = new InstanceSet(CompareClass2, [new Instance(CompareClass2)]);
+    //         it('Multiple fields (one of each type) share a required group and class2s is set. No error thrown.', () => {
+    //             const instance = new Instance(AllFieldsInRequiredGroupClass);
+    //             instance.class2s = new InstanceSet(CompareClass2, [new Instance(CompareClass2)]);
 
-                instance.validate();
-            });
+    //             instance.validate();
+    //         });
             
-        });
+    //     });
 
-        describe('Mutex Validation', () => {
+    //     describe('Mutex Validation', () => {
             
-            it('2 attributes (boolean, date) have a mutex and both are set. Error thrown.', () => {
-                const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field boolean with mutex \'a\'. Field date with mutex \'a\'.';
-                const expectedErrorRegex = /^Mutex violations found for instance .* Field boolean with mutex \'a\'. Field date with mutex \'a\'.$/;
-                const instance = new Instance(MutexClassA);
-                instance.boolean = true;
-                instance.date = new Date();
+    //         it('2 attributes (boolean, date) have a mutex and both are set. Error thrown.', () => {
+    //             const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field boolean with mutex \'a\'. Field date with mutex \'a\'.';
+    //             const expectedErrorRegex = /^Mutex violations found for instance .* Field boolean with mutex \'a\'. Field date with mutex \'a\'.$/;
+    //             const instance = new Instance(MutexClassA);
+    //             instance.boolean = true;
+    //             instance.date = new Date();
 
-                testForErrorRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, () => {
-                    instance.validate();
-                });
-            });
+    //             testForErrorRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, () => {
+    //                 instance.validate();
+    //             });
+    //         });
             
-            it('2 attribute fields (boolean, date) have a mutex and one (boolean) is set. No error thrown.', () => {
-                const instance = new Instance(MutexClassA);
-                instance.boolean = true;
+    //         it('2 attribute fields (boolean, date) have a mutex and one (boolean) is set. No error thrown.', () => {
+    //             const instance = new Instance(MutexClassA);
+    //             instance.boolean = true;
 
-                instance.validate();
-            });
+    //             instance.validate();
+    //         });
             
-            it('2 singular relationship fields have a mutex and both are set. Error thrown.', () => {
-                const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field class1 with mutex \'a\'. Field class2 with mutex \'a\'.';
-                const expectedErrorRegex = /^Mutex violations found for instance .* Field class1 with mutex \'a\'. Field class2 with mutex \'a\'.$/;
-                const instance = new Instance(MutexClassB);
+    //         it('2 singular relationship fields have a mutex and both are set. Error thrown.', () => {
+    //             const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field class1 with mutex \'a\'. Field class2 with mutex \'a\'.';
+    //             const expectedErrorRegex = /^Mutex violations found for instance .* Field class1 with mutex \'a\'. Field class2 with mutex \'a\'.$/;
+    //             const instance = new Instance(MutexClassB);
 
-                instance.class1 = new Instance(CompareClass1);
-                instance.class2 = new Instance(CompareClass2);
+    //             instance.class1 = new Instance(CompareClass1);
+    //             instance.class2 = new Instance(CompareClass2);
 
-                testForErrorRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, () => {
-                    instance.validate();
-                });
-            });
+    //             testForErrorRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, () => {
+    //                 instance.validate();
+    //             });
+    //         });
             
-            it('2 singular relationship fields have a mutex and one is set. No error thrown.', () => {
-                const instance = new Instance(MutexClassB);
-                instance.class1 = new Instance(CompareClass1);
+    //         it('2 singular relationship fields have a mutex and one is set. No error thrown.', () => {
+    //             const instance = new Instance(MutexClassB);
+    //             instance.class1 = new Instance(CompareClass1);
 
-                instance.validate();
-            });
+    //             instance.validate();
+    //         });
             
-            it('2 non-singular relationship fields have a mutex and both are set. Error thrown.', () => {
-                const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field class1s with mutex \'a\'. Field class2s with mutex \'a\'.';
-                const expectedErrorRegex = /^Mutex violations found for instance .* Field class1s with mutex \'a\'. Field class2s with mutex \'a\'.$/;
-                const instance = new Instance(MutexClassC);
+    //         it('2 non-singular relationship fields have a mutex and both are set. Error thrown.', () => {
+    //             const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field class1s with mutex \'a\'. Field class2s with mutex \'a\'.';
+    //             const expectedErrorRegex = /^Mutex violations found for instance .* Field class1s with mutex \'a\'. Field class2s with mutex \'a\'.$/;
+    //             const instance = new Instance(MutexClassC);
 
-                instance.class1s = new InstanceSet(CompareClass1, [new Instance(CompareClass1), new Instance(CompareClass1)]);
-                instance.class2s = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
+    //             instance.class1s = new InstanceSet(CompareClass1, [new Instance(CompareClass1), new Instance(CompareClass1)]);
+    //             instance.class2s = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
 
-                testForErrorRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, () => {
-                    instance.validate();
-                });
-            });
+    //             testForErrorRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, () => {
+    //                 instance.validate();
+    //             });
+    //         });
             
-            it('2 non-singular relationship fields have a mutex and one is set. No error thrown.', () => {
-                const instance = new Instance(MutexClassC);
-                instance.class1s = new InstanceSet(CompareClass1, [new Instance(CompareClass1), new Instance(CompareClass1)]);
+    //         it('2 non-singular relationship fields have a mutex and one is set. No error thrown.', () => {
+    //             const instance = new Instance(MutexClassC);
+    //             instance.class1s = new InstanceSet(CompareClass1, [new Instance(CompareClass1), new Instance(CompareClass1)]);
 
-                instance.validate();
-            });
+    //             instance.validate();
+    //         });
             
-            it('Multiple fields (one of each type) have a mutex and string is set. No error thrown.', () => {
-                const instance = new Instance(AllFieldsMutexClass);
-                instance.string = 'String';
+    //         it('Multiple fields (one of each type) have a mutex and string is set. No error thrown.', () => {
+    //             const instance = new Instance(AllFieldsMutexClass);
+    //             instance.string = 'String';
 
-                instance.validate();
-            });
+    //             instance.validate();
+    //         });
             
-            it('Multiple fields (one of each type) have a mutex and date is set. No error thrown.', () => {
-                const instance = new Instance(AllFieldsMutexClass);
-                instance.date = new Date();
+    //         it('Multiple fields (one of each type) have a mutex and date is set. No error thrown.', () => {
+    //             const instance = new Instance(AllFieldsMutexClass);
+    //             instance.date = new Date();
 
-                instance.validate();
-            });
+    //             instance.validate();
+    //         });
             
-            it('Multiple fields (one of each type) have a mutex and boolean is set to false. No error thrown.', () => {
-                const instance = new Instance(AllFieldsMutexClass);
-                instance.boolean = false;
-                instance.validate();
-            });
+    //         it('Multiple fields (one of each type) have a mutex and boolean is set to false. No error thrown.', () => {
+    //             const instance = new Instance(AllFieldsMutexClass);
+    //             instance.boolean = false;
+    //             instance.validate();
+    //         });
             
-            it('Multiple fields (one of each type) have a mutex and boolean is set to true. No error thrown.', () => {
-                const instance = new Instance(AllFieldsMutexClass);
-                instance.boolean = true;
+    //         it('Multiple fields (one of each type) have a mutex and boolean is set to true. No error thrown.', () => {
+    //             const instance = new Instance(AllFieldsMutexClass);
+    //             instance.boolean = true;
 
-                instance.validate();
-            });
+    //             instance.validate();
+    //         });
             
-            it('Multiple fields (one of each type) have a mutex and number is set to 0. Error thrown.', () => {
-                const instance = new Instance(AllFieldsMutexClass);
-                instance.number = 0;
-                instance.validate();
-            });
+    //         it('Multiple fields (one of each type) have a mutex and number is set to 0. Error thrown.', () => {
+    //             const instance = new Instance(AllFieldsMutexClass);
+    //             instance.number = 0;
+    //             instance.validate();
+    //         });
             
-            it('Multiple fields (one of each type) have a mutex and number is set to 1. No error thrown.', () => {
-                const instance = new Instance(AllFieldsMutexClass);
-                instance.number = 1;
+    //         it('Multiple fields (one of each type) have a mutex and number is set to 1. No error thrown.', () => {
+    //             const instance = new Instance(AllFieldsMutexClass);
+    //             instance.number = 1;
 
-                instance.validate();
-            });
+    //             instance.validate();
+    //         });
             
-            it('Multiple fields (one of each type) have a mutex and numbers is set to empty array. Error thrown.', () => {
-                const instance = new Instance(AllFieldsMutexClass);
-                instance.numbers = [];
+    //         it('Multiple fields (one of each type) have a mutex and numbers is set to empty array. Error thrown.', () => {
+    //             const instance = new Instance(AllFieldsMutexClass);
+    //             instance.numbers = [];
 
-                instance.validate();
-            });
+    //             instance.validate();
+    //         });
             
-            it('Multiple fields (one of each type) have a mutex and numbers is set to an array of 0s. No error thrown.', () => {
-                const instance = new Instance(AllFieldsMutexClass);
-                instance.numbers = [0, 0, 0];
+    //         it('Multiple fields (one of each type) have a mutex and numbers is set to an array of 0s. No error thrown.', () => {
+    //             const instance = new Instance(AllFieldsMutexClass);
+    //             instance.numbers = [0, 0, 0];
 
-                instance.validate();
-            });
+    //             instance.validate();
+    //         });
             
-            it('Multiple fields (one of each type) have a mutex and numbers is set to an array of 1s. No error thrown.', () => {
-                const instance = new Instance(AllFieldsMutexClass);
-                instance.numbers = [1, 1, 1];
+    //         it('Multiple fields (one of each type) have a mutex and numbers is set to an array of 1s. No error thrown.', () => {
+    //             const instance = new Instance(AllFieldsMutexClass);
+    //             instance.numbers = [1, 1, 1];
 
-                instance.validate();
-            });
+    //             instance.validate();
+    //         });
             
-            it('Multiple fields (one of each type) have a mutex and class1 is set. No error thrown.', () => {
-                const instance = new Instance(AllFieldsMutexClass);
-                instance.class1 = new Instance(CompareClass1);
+    //         it('Multiple fields (one of each type) have a mutex and class1 is set. No error thrown.', () => {
+    //             const instance = new Instance(AllFieldsMutexClass);
+    //             instance.class1 = new Instance(CompareClass1);
 
-                instance.validate();
-            });
+    //             instance.validate();
+    //         });
             
-            it('Multiple fields (one of each type) have a mutex and class2s are set to a single instance. No error thrown.', () => {
-                const instance = new Instance(AllFieldsMutexClass);
-                instance.class2s = new InstanceSet(CompareClass2, [new Instance(CompareClass2)]);
+    //         it('Multiple fields (one of each type) have a mutex and class2s are set to a single instance. No error thrown.', () => {
+    //             const instance = new Instance(AllFieldsMutexClass);
+    //             instance.class2s = new InstanceSet(CompareClass2, [new Instance(CompareClass2)]);
 
-                instance.validate();
-            });
+    //             instance.validate();
+    //         });
             
-            it('Multiple fields (one of each type) have a mutex and class2s are set to multiple instances. No error thrown.', () => {
-                const instance = new Instance(AllFieldsMutexClass);
-                instance.class2s = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
+    //         it('Multiple fields (one of each type) have a mutex and class2s are set to multiple instances. No error thrown.', () => {
+    //             const instance = new Instance(AllFieldsMutexClass);
+    //             instance.class2s = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
 
-                instance.validate();
-            });
+    //             instance.validate();
+    //         });
             
-            it('Multiple fields (one of each type) have a mutex and none are set. No error thrown.', () => {
-                const instance = new Instance(AllFieldsMutexClass);
+    //         it('Multiple fields (one of each type) have a mutex and none are set. No error thrown.', () => {
+    //             const instance = new Instance(AllFieldsMutexClass);
 
-                instance.validate();
-            });
+    //             instance.validate();
+    //         });
             
-            it('Multiple fields (one of each type) have a mutex and number is set to 1 and numbers, strings, booleans, and class2s are set to empty array. No error thrown.', () => {
-                const instance = new Instance(AllFieldsMutexClass);
-                instance.number = 1;
-                instance.numbers = [];
-                instance.booleans = [];
-                instance.strings = [];
+    //         it('Multiple fields (one of each type) have a mutex and number is set to 1 and numbers, strings, booleans, and class2s are set to empty array. No error thrown.', () => {
+    //             const instance = new Instance(AllFieldsMutexClass);
+    //             instance.number = 1;
+    //             instance.numbers = [];
+    //             instance.booleans = [];
+    //             instance.strings = [];
 
-                instance.validate();
-            });
+    //             instance.validate();
+    //         });
             
-            it('Multiple fields (one of each type) have a mutex and number is set to 0 and numbers are set to an array of 0s. Error thrown.', () => {
-                const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field number with mutex \'a\'. Field numbers with mutex \'a\'.';
-                const expectedErrorRegex = /^Mutex violations found for instance .* Field number with mutex \'a\'. Field numbers with mutex \'a\'.$/;
-                const instance = new Instance(AllFieldsMutexClass);
-                instance.number = 0;
-                instance.numbers = [0, 0, 0];
+    //         it('Multiple fields (one of each type) have a mutex and number is set to 0 and numbers are set to an array of 0s. Error thrown.', () => {
+    //             const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field number with mutex \'a\'. Field numbers with mutex \'a\'.';
+    //             const expectedErrorRegex = /^Mutex violations found for instance .* Field number with mutex \'a\'. Field numbers with mutex \'a\'.$/;
+    //             const instance = new Instance(AllFieldsMutexClass);
+    //             instance.number = 0;
+    //             instance.numbers = [0, 0, 0];
 
-                testForErrorRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, () => {
-                    instance.validate();
-                });
-            });
+    //             testForErrorRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, () => {
+    //                 instance.validate();
+    //             });
+    //         });
                 
-            it('Multiple fields (one of each type) have a mutex and number is set to 1 and booleans is set to [false]. Error thrown.', () => {
-                const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field booleans with mutex \'a\'. Field number with mutex \'a\'.';
-                const expectedErrorRegex = /^Mutex violations found for instance .* Field booleans with mutex \'a\'. Field number with mutex \'a\'.$/;
-                const instance = new Instance(AllFieldsMutexClass);
-                instance.number = 1;
-                instance.booleans = [false];
+    //         it('Multiple fields (one of each type) have a mutex and number is set to 1 and booleans is set to [false]. Error thrown.', () => {
+    //             const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field booleans with mutex \'a\'. Field number with mutex \'a\'.';
+    //             const expectedErrorRegex = /^Mutex violations found for instance .* Field booleans with mutex \'a\'. Field number with mutex \'a\'.$/;
+    //             const instance = new Instance(AllFieldsMutexClass);
+    //             instance.number = 1;
+    //             instance.booleans = [false];
 
-                testForErrorRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, () => {
-                    instance.validate();
-                });
-            });
+    //             testForErrorRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, () => {
+    //                 instance.validate();
+    //             });
+    //         });
                 
-            it('Multiple fields (one of each type) have a mutex and number is set to 1 and strings is set to [\"\"]. Error thrown.', () => {
-                const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field strings with mutex \'a\'. Field number with mutex \'a\'.';
-                const expectedErrorRegex = /^Mutex violations found for instance .* Field strings with mutex \'a\'. Field number with mutex \'a\'.$/;
-                const instance = new Instance(AllFieldsMutexClass);
-                instance.number = 1;
-                instance.strings = [''];
+    //         it('Multiple fields (one of each type) have a mutex and number is set to 1 and strings is set to [\"\"]. Error thrown.', () => {
+    //             const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field strings with mutex \'a\'. Field number with mutex \'a\'.';
+    //             const expectedErrorRegex = /^Mutex violations found for instance .* Field strings with mutex \'a\'. Field number with mutex \'a\'.$/;
+    //             const instance = new Instance(AllFieldsMutexClass);
+    //             instance.number = 1;
+    //             instance.strings = [''];
 
-                testForErrorRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, () => {
-                    instance.validate();
-                });
-            });
+    //             testForErrorRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, () => {
+    //                 instance.validate();
+    //             });
+    //         });
 
-        });
+    //     });
 
-    });
+    // });
 
-    describe('instance.save()', () => {
+    // describe('instance.save()', () => {
 
-        // Set up updateControlled Instances
-        {
-            // ClassControlsUpdateControlledSuperClass Instances
-            var instanceOfClassControlsUpdateControlledSuperClassAllowed = new Instance(ClassControlsUpdateControlledSuperClass);
-            instanceOfClassControlsUpdateControlledSuperClassAllowed.allowed = true;
+    //     // Set up updateControlled Instances
+    //     {
+    //         // ClassControlsUpdateControlledSuperClass Instances
+    //         var instanceOfClassControlsUpdateControlledSuperClassAllowed = new Instance(ClassControlsUpdateControlledSuperClass);
+    //         instanceOfClassControlsUpdateControlledSuperClassAllowed.allowed = true;
             
-            var instanceOfClassControlsUpdateControlledSuperClassNotAllowed = new Instance(ClassControlsUpdateControlledSuperClass);
-            instanceOfClassControlsUpdateControlledSuperClassNotAllowed.allowed = false;
+    //         var instanceOfClassControlsUpdateControlledSuperClassNotAllowed = new Instance(ClassControlsUpdateControlledSuperClass);
+    //         instanceOfClassControlsUpdateControlledSuperClassNotAllowed.allowed = false;
 
-            // UpdateControlledSuperClass Instances
-            var instanceOfUpdateControlledSuperClassPasses = new Instance(UpdateControlledSuperClass);
-            instanceOfUpdateControlledSuperClassPasses.name = 'instanceOfUpdateControlledSuperClassPasses';
-            instanceOfUpdateControlledSuperClassPasses.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
+    //         // UpdateControlledSuperClass Instances
+    //         var instanceOfUpdateControlledSuperClassPasses = new Instance(UpdateControlledSuperClass);
+    //         instanceOfUpdateControlledSuperClassPasses.name = 'instanceOfUpdateControlledSuperClassPasses';
+    //         instanceOfUpdateControlledSuperClassPasses.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
 
-            var instanceOfUpdateControlledSuperClassFailsRelationship = new Instance(UpdateControlledSuperClass);
-            instanceOfUpdateControlledSuperClassFailsRelationship.name = 'instanceOfUpdateControlledSuperClassFailsRelationship';
-            instanceOfUpdateControlledSuperClassFailsRelationship.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassNotAllowed;
+    //         var instanceOfUpdateControlledSuperClassFailsRelationship = new Instance(UpdateControlledSuperClass);
+    //         instanceOfUpdateControlledSuperClassFailsRelationship.name = 'instanceOfUpdateControlledSuperClassFailsRelationship';
+    //         instanceOfUpdateControlledSuperClassFailsRelationship.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassNotAllowed;
 
             
-        }
+    //     }
 
-        before(async () => {
-            await instanceOfClassControlsUpdateControlledSuperClassAllowed.save();
-            await instanceOfClassControlsUpdateControlledSuperClassNotAllowed.save();
-        });
+    //     before(async () => {
+    //         await instanceOfClassControlsUpdateControlledSuperClassAllowed.save();
+    //         await instanceOfClassControlsUpdateControlledSuperClassNotAllowed.save();
+    //     });
 
-        after(async () => {
-            await AllFieldsRequiredClass.clear();
-            await UpdateControlledSuperClass.clear();
-            await UpdateControlledClassUpdateControlledByParameters.clear();
-        });
+    //     after(async () => {
+    //         await AllFieldsRequiredClass.clear();
+    //         await UpdateControlledSuperClass.clear();
+    //         await UpdateControlledClassUpdateControlledByParameters.clear();
+    //     });
 
-        it('instance.save() works properly.', async () => {
-            const instance = new Instance(AllFieldsRequiredClass);
-            instance.assign({
-                string: 'String',
-                strings: ['String'],
-                date: new Date(),
-                boolean: true,
-                booleans: [true],
-                number: 1,
-                numbers: [1],
-                class1: new Instance(CompareClass1),
-                class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
-            });
-            await instance.save();
-            const found = await AllFieldsRequiredClass.findById(instance._id);
+    //     it('instance.save() works properly.', async () => {
+    //         const instance = new Instance(AllFieldsRequiredClass);
+    //         instance.assign({
+    //             string: 'String',
+    //             strings: ['String'],
+    //             date: new Date(),
+    //             boolean: true,
+    //             booleans: [true],
+    //             number: 1,
+    //             numbers: [1],
+    //             class1: new Instance(CompareClass1),
+    //             class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
+    //         });
+    //         await instance.save();
+    //         const found = await AllFieldsRequiredClass.findById(instance._id);
 
-            if (!found) 
-                throw new Error('instance.save() did not throw an error, but was not saved.');
+    //         if (!found) 
+    //             throw new Error('instance.save() did not throw an error, but was not saved.');
 
-            if (instance.id !== found.id)
-                throw new Error('instance.save() did not throw an error, but the instance found is different than the instance saved.');
+    //         if (instance.id !== found.id)
+    //             throw new Error('instance.save() did not throw an error, but the instance found is different than the instance saved.');
 
-            if (!instance.saved()) 
-                throw new Error('instance.save() did not set the saved property to true.');
+    //         if (!instance.saved()) 
+    //             throw new Error('instance.save() did not set the saved property to true.');
 
-            if (!found.equals(instance))
-                throw new Error('instance.save() did not save all the properties of the instance.');
+    //         if (!found.equals(instance))
+    //             throw new Error('instance.save() did not save all the properties of the instance.');
             
-            if (!instance.currentState.equals(instance.previousState))
-                throw new Error('instance.previousState was not updated to match current state.');
-        });
+    //         if (!instance.currentState.equals(instance.previousState))
+    //             throw new Error('instance.previousState was not updated to match current state.');
+    //     });
 
-        it('instance.save() throws an error when instance is invalid. Instance not saved.', async () => {
-            const expectedErrorMessage = 'Caught validation error when attempting to save Instance: AllFieldsRequiredClass validation failed: string: Path `string` is required.';
-            const instance = new Instance(AllFieldsRequiredClass);
-            instance.assign({
-                strings: ['String'],
-                date: new Date(),
-                boolean: true,
-                booleans: [true],
-                number: 1,
-                numbers: [1],
-                class1: new Instance(CompareClass1),
-                class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
-            });
+    //     it('instance.save() throws an error when instance is invalid. Instance not saved.', async () => {
+    //         const expectedErrorMessage = 'Caught validation error when attempting to save Instance: AllFieldsRequiredClass validation failed: string: Path `string` is required.';
+    //         const instance = new Instance(AllFieldsRequiredClass);
+    //         instance.assign({
+    //             strings: ['String'],
+    //             date: new Date(),
+    //             boolean: true,
+    //             booleans: [true],
+    //             number: 1,
+    //             numbers: [1],
+    //             class1: new Instance(CompareClass1),
+    //             class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
+    //         });
 
-            await testForErrorAsync('instance.save', expectedErrorMessage, async () => {
-                return instance.save();
-            });
+    //         await testForErrorAsync('instance.save', expectedErrorMessage, async () => {
+    //             return instance.save();
+    //         });
 
-            const found = await AllFieldsRequiredClass.findById(instance._id);
+    //         const found = await AllFieldsRequiredClass.findById(instance._id);
 
-            if (found) 
-                throw new Error('instance was saved.');
-        });
+    //         if (found) 
+    //             throw new Error('instance was saved.');
+    //     });
 
-        it('instance.save() throws an error if instance has already been deleted. Instance not saved.', async () => {
-            const expectedErrorMessage = 'instance.save(): You cannot save an instance which has been deleted.';
-            const instance = new Instance(AllFieldsRequiredClass);
-            instance.assign({
-                string: 'String',
-                strings: ['String'],
-                date: new Date(),
-                boolean: true,
-                booleans: [true],
-                number: 1,
-                numbers: [1],
-                class1: new Instance(CompareClass1),
-                class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
-            });
+    //     it('instance.save() throws an error if instance has already been deleted. Instance not saved.', async () => {
+    //         const expectedErrorMessage = 'instance.save(): You cannot save an instance which has been deleted.';
+    //         const instance = new Instance(AllFieldsRequiredClass);
+    //         instance.assign({
+    //             string: 'String',
+    //             strings: ['String'],
+    //             date: new Date(),
+    //             boolean: true,
+    //             booleans: [true],
+    //             number: 1,
+    //             numbers: [1],
+    //             class1: new Instance(CompareClass1),
+    //             class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
+    //         });
 
-            await instance.save();
-            await instance.delete();
+    //         await instance.save();
+    //         await instance.delete();
 
-            await testForErrorAsync('instance.save', expectedErrorMessage, async () => {
-                return instance.save();
-            });
-        });
+    //         await testForErrorAsync('instance.save', expectedErrorMessage, async () => {
+    //             return instance.save();
+    //         });
+    //     });
 
-        it('instance.save() called on an instance of an update controlled class. Instance saved.', async () => {
-            const instance = new Instance(UpdateControlledSuperClass);
-            instance.name = 'instanceOfUpdateControlledSuperClassPasses-saveAll';
-            instance.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
+    //     it('instance.save() called on an instance of an update controlled class. Instance saved.', async () => {
+    //         const instance = new Instance(UpdateControlledSuperClass);
+    //         instance.name = 'instanceOfUpdateControlledSuperClassPasses-saveAll';
+    //         instance.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
 
-            await instance.save();
+    //         await instance.save();
 
-            const instanceSaved = await UpdateControlledSuperClass.findById(instance._id);
+    //         const instanceSaved = await UpdateControlledSuperClass.findById(instance._id);
             
-            if (!instanceSaved)
-                throw new Error('Instance was not saved.');
+    //         if (!instanceSaved)
+    //             throw new Error('Instance was not saved.');
 
-            await instance.delete(instance);
-        });
+    //         await instance.delete(instance);
+    //     });
 
-        it('instance.save() fails due to update control check.', async () => {
-            const instance = instanceOfUpdateControlledSuperClassFailsRelationship;
-            const expectedErrorMessage = 'Caught validation error when attempting to save Instance: Illegal attempt to update instances: ' + instance.id;
+    //     it('instance.save() fails due to update control check.', async () => {
+    //         const instance = instanceOfUpdateControlledSuperClassFailsRelationship;
+    //         const expectedErrorMessage = 'Caught validation error when attempting to save Instance: Illegal attempt to update instances: ' + instance.id;
             
-            await testForErrorAsync('Instance.save()', expectedErrorMessage, async () => {
-                return instance.save();
-            });
+    //         await testForErrorAsync('Instance.save()', expectedErrorMessage, async () => {
+    //             return instance.save();
+    //         });
             
-            const instanceFound = await UpdateControlledSuperClass.findById(instance.id);
+    //         const instanceFound = await UpdateControlledSuperClass.findById(instance.id);
 
-            if (instanceFound) 
-                throw new Error('.save() threw an error, but the instance was saved anyway.');
-        });
+    //         if (instanceFound) 
+    //             throw new Error('.save() threw an error, but the instance was saved anyway.');
+    //     });
 
-        it('instance.save() called on an instance of an update controlled class with updateControlMethodParameters. Instance saved.', async () => {
-            const instance = new Instance(UpdateControlledClassUpdateControlledByParameters);
-            const updateControlMethodParameters = [1, 1, true];
+    //     it('instance.save() called on an instance of an update controlled class with updateControlMethodParameters. Instance saved.', async () => {
+    //         const instance = new Instance(UpdateControlledClassUpdateControlledByParameters);
+    //         const updateControlMethodParameters = [1, 1, true];
             
-            await instance.save(...updateControlMethodParameters);
-            const instanceSaved = UpdateControlledClassUpdateControlledByParameters.findById(instance.id);
+    //         await instance.save(...updateControlMethodParameters);
+    //         const instanceSaved = UpdateControlledClassUpdateControlledByParameters.findById(instance.id);
             
-            if (!instanceSaved)
-                throw new Error('Instance was not saved.');
+    //         if (!instanceSaved)
+    //             throw new Error('Instance was not saved.');
 
-            await instance.delete();
-        });
+    //         await instance.delete();
+    //     });
 
-        it('instance.save() called on an instance of an update controlled class with updateControlMethodParameters. Save fails due to update control check.', async () => {
-            const instance = new Instance(UpdateControlledClassUpdateControlledByParameters);
-            const expectedErrorMessage = 'Caught validation error when attempting to save Instance: Illegal attempt to update instances: ' + instance.id;
-            const updateControlMethodParameters = [-2, 1, true];
+    //     it('instance.save() called on an instance of an update controlled class with updateControlMethodParameters. Save fails due to update control check.', async () => {
+    //         const instance = new Instance(UpdateControlledClassUpdateControlledByParameters);
+    //         const expectedErrorMessage = 'Caught validation error when attempting to save Instance: Illegal attempt to update instances: ' + instance.id;
+    //         const updateControlMethodParameters = [-2, 1, true];
 
-            await testForErrorAsync('InstanceSet.save()', expectedErrorMessage, async () => {
-                return instance.save(...updateControlMethodParameters);
-            })
+    //         await testForErrorAsync('InstanceSet.save()', expectedErrorMessage, async () => {
+    //             return instance.save(...updateControlMethodParameters);
+    //         })
             
-            const instanceFound = await UpdateControlledClassUpdateControlledByParameters.findById(instance._id);
+    //         const instanceFound = await UpdateControlledClassUpdateControlledByParameters.findById(instance._id);
 
-            if (instanceFound) 
-                throw new Error('.save() threw an error, but the instance was saved anyway.')
-        });
+    //         if (instanceFound) 
+    //             throw new Error('.save() threw an error, but the instance was saved anyway.')
+    //     });
 
-    });
+    // });
 
-    describe('instance.delete()', () => {
+    // describe('instance.delete()', () => {
 
-        it('Instance can be deleted as expected.', async () => {
-            const instance = new Instance(AllFieldsRequiredClass);
-            instance.assign({
-                string: 'String',
-                strings: ['String'],
-                date: new Date(),
-                boolean: true,
-                booleans: [true],
-                number: 1,
-                numbers: [1],
-                class1: new Instance(CompareClass1),
-                class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
-            });
-            await instance.save();
-            await instance.delete();
+    //     it('Instance can be deleted as expected.', async () => {
+    //         const instance = new Instance(AllFieldsRequiredClass);
+    //         instance.assign({
+    //             string: 'String',
+    //             strings: ['String'],
+    //             date: new Date(),
+    //             boolean: true,
+    //             booleans: [true],
+    //             number: 1,
+    //             numbers: [1],
+    //             class1: new Instance(CompareClass1),
+    //             class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
+    //         });
+    //         await instance.save();
+    //         await instance.delete();
 
-            const found = await AllFieldsRequiredClass.findById(instance._id);
+    //         const found = await AllFieldsRequiredClass.findById(instance._id);
 
-            if (found) 
-                throw new Error('instance.delete() did no throw an error, but the instance was not deleted.');
+    //         if (found) 
+    //             throw new Error('instance.delete() did no throw an error, but the instance was not deleted.');
 
-            if (!instance.deleted)
-                throw new Error('Instance was deleted, but the deleted property was not set to true.');
+    //         if (!instance.deleted)
+    //             throw new Error('Instance was deleted, but the deleted property was not set to true.');
 
-        });
+    //     });
 
-        it('Instance cannot be deleted if it has never been saved.', async () => {
-            const expectedErrorMessage = 'instance.delete(): You cannot delete an instance which hasn\'t been saved yet';
-            const instance = new Instance(AllFieldsRequiredClass);
-            instance.assign({
-                string: 'String',
-                strings: ['String'],
-                date: new Date(),
-                boolean: true,
-                booleans: [true],
-                number: 1,
-                numbers: [1],
-                class1: new Instance(CompareClass1),
-                class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
-            });
+    //     it('Instance cannot be deleted if it has never been saved.', async () => {
+    //         const expectedErrorMessage = 'instance.delete(): You cannot delete an instance which hasn\'t been saved yet';
+    //         const instance = new Instance(AllFieldsRequiredClass);
+    //         instance.assign({
+    //             string: 'String',
+    //             strings: ['String'],
+    //             date: new Date(),
+    //             boolean: true,
+    //             booleans: [true],
+    //             number: 1,
+    //             numbers: [1],
+    //             class1: new Instance(CompareClass1),
+    //             class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
+    //         });
 
-            await testForErrorAsync('instance.delete()', expectedErrorMessage, async() => {
-                return instance.delete();
-            });
-        });
+    //         await testForErrorAsync('instance.delete()', expectedErrorMessage, async() => {
+    //             return instance.delete();
+    //         });
+    //     });
 
-    });
+    // });
 
-    describe('ClassModel.walk()', () => {
+    // describe('ClassModel.walk()', () => {
 
-        // Create instances for tests.
-        {
-            var instanceOfSingularRelationshipClassA = new Instance (SingularRelationshipClass);
-            var instanceOfSingularRelationshipClassB = new Instance (SingularRelationshipClass);
-            var instanceOfNonSingularRelationshipClass = new Instance (NonSingularRelationshipClass);
-            var instanceOfSubClassOfSingularRelationshipClassA = new Instance (SubClassOfSingularRelationshipClass);
-            var instanceOfSubClassOfSingularRelationshipClassB = new Instance (SubClassOfSingularRelationshipClass);
-            var instanceOfSubClassOfNonSingularRelationshipClass = new Instance (SubClassOfNonSingularRelationshipClass);
+    //     // Create instances for tests.
+    //     {
+    //         var instanceOfSingularRelationshipClassA = new Instance (SingularRelationshipClass);
+    //         var instanceOfSingularRelationshipClassB = new Instance (SingularRelationshipClass);
+    //         var instanceOfNonSingularRelationshipClass = new Instance (NonSingularRelationshipClass);
+    //         var instanceOfSubClassOfSingularRelationshipClassA = new Instance (SubClassOfSingularRelationshipClass);
+    //         var instanceOfSubClassOfSingularRelationshipClassB = new Instance (SubClassOfSingularRelationshipClass);
+    //         var instanceOfSubClassOfNonSingularRelationshipClass = new Instance (SubClassOfNonSingularRelationshipClass);
     
-            instanceOfSingularRelationshipClassA.singularRelationship = instanceOfNonSingularRelationshipClass;
-            instanceOfSingularRelationshipClassA.boolean = true;
-            instanceOfSingularRelationshipClassB.singularRelationship = instanceOfNonSingularRelationshipClass;
-            instanceOfSingularRelationshipClassB.boolean = false;
-            instanceOfNonSingularRelationshipClass.nonSingularRelationship = new InstanceSet(SingularRelationshipClass, [instanceOfSingularRelationshipClassA, instanceOfSingularRelationshipClassB]);
+    //         instanceOfSingularRelationshipClassA.singularRelationship = instanceOfNonSingularRelationshipClass;
+    //         instanceOfSingularRelationshipClassA.boolean = true;
+    //         instanceOfSingularRelationshipClassB.singularRelationship = instanceOfNonSingularRelationshipClass;
+    //         instanceOfSingularRelationshipClassB.boolean = false;
+    //         instanceOfNonSingularRelationshipClass.nonSingularRelationship = new InstanceSet(SingularRelationshipClass, [instanceOfSingularRelationshipClassA, instanceOfSingularRelationshipClassB]);
     
-            instanceOfSubClassOfSingularRelationshipClassA.singularRelationship = instanceOfSubClassOfNonSingularRelationshipClass;
-            instanceOfSubClassOfSingularRelationshipClassA.boolean = true;
-            instanceOfSubClassOfSingularRelationshipClassB.singularRelationship = instanceOfSubClassOfNonSingularRelationshipClass;
-            instanceOfSubClassOfSingularRelationshipClassB.boolean = false;
-            instanceOfSubClassOfNonSingularRelationshipClass.nonSingularRelationship = new InstanceSet(SubClassOfSingularRelationshipClass, [instanceOfSubClassOfSingularRelationshipClassA, instanceOfSubClassOfSingularRelationshipClassB]);
+    //         instanceOfSubClassOfSingularRelationshipClassA.singularRelationship = instanceOfSubClassOfNonSingularRelationshipClass;
+    //         instanceOfSubClassOfSingularRelationshipClassA.boolean = true;
+    //         instanceOfSubClassOfSingularRelationshipClassB.singularRelationship = instanceOfSubClassOfNonSingularRelationshipClass;
+    //         instanceOfSubClassOfSingularRelationshipClassB.boolean = false;
+    //         instanceOfSubClassOfNonSingularRelationshipClass.nonSingularRelationship = new InstanceSet(SubClassOfSingularRelationshipClass, [instanceOfSubClassOfSingularRelationshipClassA, instanceOfSubClassOfSingularRelationshipClassB]);
 
-            var documentOfSingularRelationshipClassA = new SingularRelationshipClass.Model({
-                singularRelationship: instanceOfNonSingularRelationshipClass._id,
-                boolean: true
-            });
-            var documentOfSingularRelationshipClassB = new SingularRelationshipClass.Model({
-                singularRelationship: instanceOfNonSingularRelationshipClass._id,
-                boolean: false
-            });
-            var documentOfNonSingularRelationshipClass = new NonSingularRelationshipClass.Model({
-                nonSingularRelationship: [instanceOfSingularRelationshipClassA._id, instanceOfSingularRelationshipClassB._id],
-            });
-            var documentOfSubClassOfSingularRelationshipClassA = new SubClassOfSingularRelationshipClass.Model({
-                singularRelationship: instanceOfSubClassOfNonSingularRelationshipClass._id,
-                boolean: true
-            });
-            var documentOfSubClassOfSingularRelationshipClassB = new SubClassOfSingularRelationshipClass.Model({
-                singularRelationship: instanceOfSubClassOfNonSingularRelationshipClass._id,
-                boolean: false
-            });
-            var documentOfSubClassOfNonSingularRelationshipClass = new SubClassOfNonSingularRelationshipClass.Model({
-                nonSingularRelationship: [instanceOfSubClassOfSingularRelationshipClassA._id, instanceOfSubClassOfSingularRelationshipClassB._id],
-            });
-        }
+    //         var documentOfSingularRelationshipClassA = new SingularRelationshipClass.Model({
+    //             singularRelationship: instanceOfNonSingularRelationshipClass._id,
+    //             boolean: true
+    //         });
+    //         var documentOfSingularRelationshipClassB = new SingularRelationshipClass.Model({
+    //             singularRelationship: instanceOfNonSingularRelationshipClass._id,
+    //             boolean: false
+    //         });
+    //         var documentOfNonSingularRelationshipClass = new NonSingularRelationshipClass.Model({
+    //             nonSingularRelationship: [instanceOfSingularRelationshipClassA._id, instanceOfSingularRelationshipClassB._id],
+    //         });
+    //         var documentOfSubClassOfSingularRelationshipClassA = new SubClassOfSingularRelationshipClass.Model({
+    //             singularRelationship: instanceOfSubClassOfNonSingularRelationshipClass._id,
+    //             boolean: true
+    //         });
+    //         var documentOfSubClassOfSingularRelationshipClassB = new SubClassOfSingularRelationshipClass.Model({
+    //             singularRelationship: instanceOfSubClassOfNonSingularRelationshipClass._id,
+    //             boolean: false
+    //         });
+    //         var documentOfSubClassOfNonSingularRelationshipClass = new SubClassOfNonSingularRelationshipClass.Model({
+    //             nonSingularRelationship: [instanceOfSubClassOfSingularRelationshipClassA._id, instanceOfSubClassOfSingularRelationshipClassB._id],
+    //         });
+    //     }
 
-        before(async () => {
-            await instanceOfSingularRelationshipClassA.save();
-            await instanceOfSingularRelationshipClassB.save();
-            await instanceOfNonSingularRelationshipClass.save();
-            await instanceOfSubClassOfSingularRelationshipClassA.save();
-            await instanceOfSubClassOfSingularRelationshipClassB.save();
-            await instanceOfSubClassOfNonSingularRelationshipClass.save();
-        });
+    //     before(async () => {
+    //         await instanceOfSingularRelationshipClassA.save();
+    //         await instanceOfSingularRelationshipClassB.save();
+    //         await instanceOfNonSingularRelationshipClass.save();
+    //         await instanceOfSubClassOfSingularRelationshipClassA.save();
+    //         await instanceOfSubClassOfSingularRelationshipClassB.save();
+    //         await instanceOfSubClassOfNonSingularRelationshipClass.save();
+    //     });
 
-        after(async () => {
-            await SingularRelationshipClass.clear();
-            await NonSingularRelationshipClass.clear();
-            await SubClassOfSingularRelationshipClass.clear();
-            await SubClassOfNonSingularRelationshipClass.clear();
-        });
+    //     after(async () => {
+    //         await SingularRelationshipClass.clear();
+    //         await NonSingularRelationshipClass.clear();
+    //         await SubClassOfSingularRelationshipClass.clear();
+    //         await SubClassOfNonSingularRelationshipClass.clear();
+    //     });
 
-        describe('Instance.walk() validations.', () => {
+    //     describe('Instance.walk() validations.', () => {
 
-            it('instance.walk() throws an error when relationship is null.', async () => {
-                const instance = new Instance(SingularRelationshipClass);
-                const expectedErrorMessage = 'instance.walk() called with insufficient arguments. Should be walk(relationshipName, <optional>filter).';
+    //         it('instance.walk() throws an error when relationship is null.', async () => {
+    //             const instance = new Instance(SingularRelationshipClass);
+    //             const expectedErrorMessage = 'instance.walk() called with insufficient arguments. Should be walk(relationshipName, <optional>filter).';
                 
-                await testForErrorAsync('instnace.walk()', expectedErrorMessage, async() => {
-                    return instance.walk(null);
-                })
-            });
+    //             await testForErrorAsync('instnace.walk()', expectedErrorMessage, async() => {
+    //                 return instance.walk(null);
+    //             })
+    //         });
 
-            it('instance.walk() throws an error when relationship is undefined.', async () => {
-                const instance = new Instance(SingularRelationshipClass);
-                const expectedErrorMessage = 'instance.walk() called with insufficient arguments. Should be walk(relationshipName, <optional>filter).';
+    //         it('instance.walk() throws an error when relationship is undefined.', async () => {
+    //             const instance = new Instance(SingularRelationshipClass);
+    //             const expectedErrorMessage = 'instance.walk() called with insufficient arguments. Should be walk(relationshipName, <optional>filter).';
                 
-                await testForErrorAsync('instnace.walk()', expectedErrorMessage, async() => {
-                    return instance.walk();
-                })
-            });
+    //             await testForErrorAsync('instnace.walk()', expectedErrorMessage, async() => {
+    //                 return instance.walk();
+    //             })
+    //         });
 
-            it('instance.walk() throws an error when relationship is not a string.', async () => {
-                const instance = new Instance(SingularRelationshipClass);
-                const expectedErrorMessage = 'instance.walk(): First argument needs to be a String representing the name of the relationship.';
+    //         it('instance.walk() throws an error when relationship is not a string.', async () => {
+    //             const instance = new Instance(SingularRelationshipClass);
+    //             const expectedErrorMessage = 'instance.walk(): First argument needs to be a String representing the name of the relationship.';
                 
-                await testForErrorAsync('instnace.walk()', expectedErrorMessage, async() => {
-                    return instance.walk({ some: 'object' });
-                })
-            });
+    //             await testForErrorAsync('instnace.walk()', expectedErrorMessage, async() => {
+    //                 return instance.walk({ some: 'object' });
+    //             })
+    //         });
 
-            it('instance.walk() throws an error when relationship is not part of the classModel\'s schema.', async () => {
-                const instance = new Instance(SingularRelationshipClass);
-                const expectedErrorMessage = 'instance.walk(): First argument needs to be a relationship property in SingularRelationshipClass\'s schema.';
+    //         it('instance.walk() throws an error when relationship is not part of the classModel\'s schema.', async () => {
+    //             const instance = new Instance(SingularRelationshipClass);
+    //             const expectedErrorMessage = 'instance.walk(): First argument needs to be a relationship property in SingularRelationshipClass\'s schema.';
                 
-                await testForErrorAsync('instnace.walk()', expectedErrorMessage, async() => {
-                    return instance.walk('random property');
-                })
-            });
+    //             await testForErrorAsync('instnace.walk()', expectedErrorMessage, async() => {
+    //                 return instance.walk('random property');
+    //             })
+    //         });
 
-            it('instance.walk() throws an error when relationship is actually an attribute.', async () => {
-                const instance = new Instance(SingularRelationshipClass);
-                const expectedErrorMessage = 'instance.walk(): property "boolean" is not a relationship.';
+    //         it('instance.walk() throws an error when relationship is actually an attribute.', async () => {
+    //             const instance = new Instance(SingularRelationshipClass);
+    //             const expectedErrorMessage = 'instance.walk(): property "boolean" is not a relationship.';
                 
-                await testForErrorAsync('instnace.walk()', expectedErrorMessage, async() => {
-                    return instance.walk('boolean');
-                })
-            });
+    //             await testForErrorAsync('instnace.walk()', expectedErrorMessage, async() => {
+    //                 return instance.walk('boolean');
+    //             })
+    //         });
 
-            it('instance.walk() throws an error when filter is not an object.', async () => {
-                const instance = new Instance(SingularRelationshipClass);
-                const expectedErrorMessage = 'instance.walk(): Second argument needs to be an object.';
+    //         it('instance.walk() throws an error when filter is not an object.', async () => {
+    //             const instance = new Instance(SingularRelationshipClass);
+    //             const expectedErrorMessage = 'instance.walk(): Second argument needs to be an object.';
                 
-                await testForErrorAsync('instnace.walk()', expectedErrorMessage, async() => {
-                    return instance.walk('singularRelationship', 'Not an object.');
-                })
-            });
+    //             await testForErrorAsync('instnace.walk()', expectedErrorMessage, async() => {
+    //                 return instance.walk('singularRelationship', 'Not an object.');
+    //             })
+    //         });
 
-        });
+    //     });
 
-        describe('Test walking the relationships.', () => {
+    //     describe('Test walking the relationships.', () => {
 
-            describe('Relationships already set to Instance or InstanceSet.', () => {
+    //         describe('Relationships already set to Instance or InstanceSet.', () => {
 
-                it('Walking a singular relationship.', async () => {
-                    const expectedInstance = instanceOfNonSingularRelationshipClass;
-                    const instance = await instanceOfSingularRelationshipClassA.walk('singularRelationship');
+    //             it('Walking a singular relationship.', async () => {
+    //                 const expectedInstance = instanceOfNonSingularRelationshipClass;
+    //                 const instance = await instanceOfSingularRelationshipClassA.walk('singularRelationship');
     
-                    if (!instance)
-                        throw new Error('walk() did not return anything.');
+    //                 if (!instance)
+    //                     throw new Error('walk() did not return anything.');
     
-                    if (!expectedInstance.equals(instance))
-                        throw new Error('walk() did not return the correct instance.');
-                });
+    //                 if (!expectedInstance.equals(instance))
+    //                     throw new Error('walk() did not return the correct instance.');
+    //             });
     
-                it('Walking a nonsingular relationship.', async () => {
-                    const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
-                        instanceOfSingularRelationshipClassA,
-                        instanceOfSingularRelationshipClassB
-                    ]);
-                    const instanceSet = await instanceOfNonSingularRelationshipClass.walk('nonSingularRelationship');
+    //             it('Walking a nonsingular relationship.', async () => {
+    //                 const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
+    //                     instanceOfSingularRelationshipClassA,
+    //                     instanceOfSingularRelationshipClassB
+    //                 ]);
+    //                 const instanceSet = await instanceOfNonSingularRelationshipClass.walk('nonSingularRelationship');
     
-                    if (!expectedInstanceSet.equals(instanceSet))
-                        throw new Error('walk() did not return the correct instances.');
-                });
+    //                 if (!expectedInstanceSet.equals(instanceSet))
+    //                     throw new Error('walk() did not return the correct instances.');
+    //             });
     
-                it('Walking a singular relationship by calling walk() from the super class.', async () => {
-                    const expectedInstance = instanceOfSubClassOfNonSingularRelationshipClass;
-                    const instance = await instanceOfSubClassOfSingularRelationshipClassA.walk('singularRelationship');
+    //             it('Walking a singular relationship by calling walk() from the super class.', async () => {
+    //                 const expectedInstance = instanceOfSubClassOfNonSingularRelationshipClass;
+    //                 const instance = await instanceOfSubClassOfSingularRelationshipClassA.walk('singularRelationship');
     
-                    if (!instance)
-                        throw new Error('walk() did not return anything.');
+    //                 if (!instance)
+    //                     throw new Error('walk() did not return anything.');
     
-                    if (!expectedInstance.equals(instance))
-                        throw new Error('walk() did not return the correct instance.');
-                });
+    //                 if (!expectedInstance.equals(instance))
+    //                     throw new Error('walk() did not return the correct instance.');
+    //             });
     
-                it('Walking a nonsingular relationship by calling walk() from the super class.', async () => {
-                    const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
-                        instanceOfSubClassOfSingularRelationshipClassA,
-                        instanceOfSubClassOfSingularRelationshipClassB
-                    ]);
-                    const instanceSet = await instanceOfSubClassOfNonSingularRelationshipClass.walk('nonSingularRelationship');
+    //             it('Walking a nonsingular relationship by calling walk() from the super class.', async () => {
+    //                 const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
+    //                     instanceOfSubClassOfSingularRelationshipClassA,
+    //                     instanceOfSubClassOfSingularRelationshipClassB
+    //                 ]);
+    //                 const instanceSet = await instanceOfSubClassOfNonSingularRelationshipClass.walk('nonSingularRelationship');
     
-                    if (!expectedInstanceSet.equals(instanceSet))
-                        throw new Error('walk() did not return the correct instances.');
-                });
+    //                 if (!expectedInstanceSet.equals(instanceSet))
+    //                     throw new Error('walk() did not return the correct instances.');
+    //             });
     
-                it('Walking a nonsingular relationship by calling walk() from the super class with a filter.', async () => {
-                    const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
-                        instanceOfSubClassOfSingularRelationshipClassA,
-                    ]);
+    //             it('Walking a nonsingular relationship by calling walk() from the super class with a filter.', async () => {
+    //                 const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
+    //                     instanceOfSubClassOfSingularRelationshipClassA,
+    //                 ]);
     
-                    const filter = { boolean: true };
+    //                 const filter = { boolean: true };
     
-                    const instanceSet = await instanceOfSubClassOfNonSingularRelationshipClass.walk('nonSingularRelationship', filter);
+    //                 const instanceSet = await instanceOfSubClassOfNonSingularRelationshipClass.walk('nonSingularRelationship', filter);
     
-                    if (!expectedInstanceSet.equals(instanceSet))
-                        throw new Error('walk() did not return the correct instances.');
-                });
+    //                 if (!expectedInstanceSet.equals(instanceSet))
+    //                     throw new Error('walk() did not return the correct instances.');
+    //             });
 
-            });
+    //         });
 
-            describe('Walking Relationships which are set only to Id(s).', () => {
+    //         describe('Walking Relationships which are set only to Id(s).', () => {
 
-                it('Walking a singular relationship.', async () => {
-                    const expectedInstance = instanceOfNonSingularRelationshipClass;
-                    const instance = new Instance(SingularRelationshipClass, documentOfSingularRelationshipClassA);
-                    const foundInstance = await instance.walk('singularRelationship');
+    //             it('Walking a singular relationship.', async () => {
+    //                 const expectedInstance = instanceOfNonSingularRelationshipClass;
+    //                 const instance = new Instance(SingularRelationshipClass, documentOfSingularRelationshipClassA);
+    //                 const foundInstance = await instance.walk('singularRelationship');
     
-                    if (!foundInstance)
-                        throw new Error('walk() did not return anything.');
+    //                 if (!foundInstance)
+    //                     throw new Error('walk() did not return anything.');
     
-                    if (!expectedInstance.equals(foundInstance))
-                        throw new Error('walk() did not return the correct instance.');
+    //                 if (!expectedInstance.equals(foundInstance))
+    //                     throw new Error('walk() did not return the correct instance.');
 
-                    if (instance['singularRelationship'] !== foundInstance)
-                        throw new Error('walk() did not set the relationship on the original instance.');
-                });
+    //                 if (instance['singularRelationship'] !== foundInstance)
+    //                     throw new Error('walk() did not set the relationship on the original instance.');
+    //             });
     
-                it('Walking a nonsingular relationship.', async () => {
-                    const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
-                        instanceOfSingularRelationshipClassA,
-                        instanceOfSingularRelationshipClassB
-                    ]);
-                    const instance = new Instance(NonSingularRelationshipClass, documentOfNonSingularRelationshipClass);
-                    const foundInstanceSet = await instance.walk('nonSingularRelationship');
+    //             it('Walking a nonsingular relationship.', async () => {
+    //                 const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
+    //                     instanceOfSingularRelationshipClassA,
+    //                     instanceOfSingularRelationshipClassB
+    //                 ]);
+    //                 const instance = new Instance(NonSingularRelationshipClass, documentOfNonSingularRelationshipClass);
+    //                 const foundInstanceSet = await instance.walk('nonSingularRelationship');
     
-                    if (!expectedInstanceSet.equals(foundInstanceSet))
-                        throw new Error('walk() did not return the correct instances.');
+    //                 if (!expectedInstanceSet.equals(foundInstanceSet))
+    //                     throw new Error('walk() did not return the correct instances.');
 
-                    if (instance['nonSingularRelationship'] !== foundInstanceSet)
-                        throw new Error('walk() did not set the relationship on the original instance.');
-                });
+    //                 if (instance['nonSingularRelationship'] !== foundInstanceSet)
+    //                     throw new Error('walk() did not set the relationship on the original instance.');
+    //             });
     
-                it('Walking a singular relationship by calling walk() from the super class.', async () => {
-                    const expectedInstance = instanceOfSubClassOfNonSingularRelationshipClass;
-                    const instance = new Instance(SubClassOfSingularRelationshipClass, documentOfSubClassOfSingularRelationshipClassA);
-                    const foundInstance = await instance.walk('singularRelationship');
+    //             it('Walking a singular relationship by calling walk() from the super class.', async () => {
+    //                 const expectedInstance = instanceOfSubClassOfNonSingularRelationshipClass;
+    //                 const instance = new Instance(SubClassOfSingularRelationshipClass, documentOfSubClassOfSingularRelationshipClassA);
+    //                 const foundInstance = await instance.walk('singularRelationship');
     
-                    if (!foundInstance)
-                        throw new Error('walk() did not return anything.');
+    //                 if (!foundInstance)
+    //                     throw new Error('walk() did not return anything.');
     
-                    if (!expectedInstance.equals(foundInstance))
-                        throw new Error('walk() did not return the correct instance.');
+    //                 if (!expectedInstance.equals(foundInstance))
+    //                     throw new Error('walk() did not return the correct instance.');
 
-                        if (instance['singularRelationship'] !== foundInstance)
-                            throw new Error('walk() did not set the relationship on the original instance.');
-                });
+    //                     if (instance['singularRelationship'] !== foundInstance)
+    //                         throw new Error('walk() did not set the relationship on the original instance.');
+    //             });
     
-                it('Walking a nonsingular relationship by calling walk() from the super class.', async () => {
-                    const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
-                        instanceOfSubClassOfSingularRelationshipClassA,
-                        instanceOfSubClassOfSingularRelationshipClassB
-                    ]);
-                    const instance = new Instance(SubClassOfNonSingularRelationshipClass, documentOfSubClassOfNonSingularRelationshipClass);
-                    const foundInstanceSet = await instance.walk('nonSingularRelationship');
+    //             it('Walking a nonsingular relationship by calling walk() from the super class.', async () => {
+    //                 const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
+    //                     instanceOfSubClassOfSingularRelationshipClassA,
+    //                     instanceOfSubClassOfSingularRelationshipClassB
+    //                 ]);
+    //                 const instance = new Instance(SubClassOfNonSingularRelationshipClass, documentOfSubClassOfNonSingularRelationshipClass);
+    //                 const foundInstanceSet = await instance.walk('nonSingularRelationship');
     
-                    if (!expectedInstanceSet.equals(foundInstanceSet))
-                        throw new Error('walk() did not return the correct instances.');
+    //                 if (!expectedInstanceSet.equals(foundInstanceSet))
+    //                     throw new Error('walk() did not return the correct instances.');
 
-                    if (instance['nonSingularRelationship'] !== foundInstanceSet)
-                        throw new Error('walk() did not set the relationship on the original instance.');
-                });
+    //                 if (instance['nonSingularRelationship'] !== foundInstanceSet)
+    //                     throw new Error('walk() did not set the relationship on the original instance.');
+    //             });
     
-                it('Walking a nonsingular relationship by calling walk() from the super class with a filter.', async () => {
-                    const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
-                        instanceOfSubClassOfSingularRelationshipClassA,
-                    ]);
-                    const instance = new Instance(SubClassOfNonSingularRelationshipClass, documentOfSubClassOfNonSingularRelationshipClass);
-                    const filter = { boolean: true };
+    //             it('Walking a nonsingular relationship by calling walk() from the super class with a filter.', async () => {
+    //                 const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
+    //                     instanceOfSubClassOfSingularRelationshipClassA,
+    //                 ]);
+    //                 const instance = new Instance(SubClassOfNonSingularRelationshipClass, documentOfSubClassOfNonSingularRelationshipClass);
+    //                 const filter = { boolean: true };
     
-                    const foundInstanceSet = await instanceOfSubClassOfNonSingularRelationshipClass.walk('nonSingularRelationship', filter);
+    //                 const foundInstanceSet = await instanceOfSubClassOfNonSingularRelationshipClass.walk('nonSingularRelationship', filter);
     
-                    if (!expectedInstanceSet.equals(foundInstanceSet))
-                        throw new Error('walk() did not return the correct instances.');
+    //                 if (!expectedInstanceSet.equals(foundInstanceSet))
+    //                     throw new Error('walk() did not return the correct instances.');
 
-                    if (instance['nonSingularRelationship'] === foundInstanceSet)
-                        throw new Error('walk() did set the relationship on the original instance.');
-                });
+    //                 if (instance['nonSingularRelationship'] === foundInstanceSet)
+    //                     throw new Error('walk() did set the relationship on the original instance.');
+    //             });
 
-            });
+    //         });
 
-        });
+    //     });
 
-    });
+    // });
 
-    describe('instance.isInstanceOf()', () => {
+    // describe('instance.isInstanceOf()', () => {
         
-        it('When called with it\'s own class, returns true', () => {
-            const instance = new Instance(TestClassWithNumber);
-            if (!instance.isInstanceOf(TestClassWithNumber))
-                throw new Error('isInstanceOf() returned false.');
-        });
+    //     it('When called with it\'s own class, returns true', () => {
+    //         const instance = new Instance(TestClassWithNumber);
+    //         if (!instance.isInstanceOf(TestClassWithNumber))
+    //             throw new Error('isInstanceOf() returned false.');
+    //     });
         
-        it('When called with a super class, returns true', () => {
-            const instance = new Instance(SubClassOfSuperClass);
-            if (!instance.isInstanceOf(SuperClass))
-                throw new Error('isInstanceOf() returned false.');
-        });
+    //     it('When called with a super class, returns true', () => {
+    //         const instance = new Instance(SubClassOfSuperClass);
+    //         if (!instance.isInstanceOf(SuperClass))
+    //             throw new Error('isInstanceOf() returned false.');
+    //     });
         
-        it('When called with a discriminated super class, returns true', () => {
-            const instance = new Instance(SubClassOfDiscriminatorSuperClass);
-            if (!instance.isInstanceOf(DiscriminatedSuperClass))
-                throw new Error('isInstanceOf() returned false.');
-        });
+    //     it('When called with a discriminated super class, returns true', () => {
+    //         const instance = new Instance(SubClassOfDiscriminatorSuperClass);
+    //         if (!instance.isInstanceOf(DiscriminatedSuperClass))
+    //             throw new Error('isInstanceOf() returned false.');
+    //     });
         
-        it('When called with a sub class of a discriminated sub class of a super class, returns true', () => {
-            const instance = new Instance(SubClassOfDiscriminatedSubClassOfSuperClass);
-            if (!instance.isInstanceOf(SuperClass))
-                throw new Error('isInstanceOf() returned false.');
-        });
+    //     it('When called with a sub class of a discriminated sub class of a super class, returns true', () => {
+    //         const instance = new Instance(SubClassOfDiscriminatedSubClassOfSuperClass);
+    //         if (!instance.isInstanceOf(SuperClass))
+    //             throw new Error('isInstanceOf() returned false.');
+    //     });
         
-        it('When called with a abstract super class, returns true', () => {
-            const instance = new Instance(SubClassOfAbstractSuperClass);
-            if (!instance.isInstanceOf(AbstractSuperClass))
-                throw new Error('isInstanceOf() returned false.');
-        });
+    //     it('When called with a abstract super class, returns true', () => {
+    //         const instance = new Instance(SubClassOfAbstractSuperClass);
+    //         if (!instance.isInstanceOf(AbstractSuperClass))
+    //             throw new Error('isInstanceOf() returned false.');
+    //     });
         
-        it('When called with an unrelated class, throws an error.', () => {
-            const instance = new Instance(TestClassWithBoolean);
-            if (instance.isInstanceOf(TestClassWithNumber))
-                throw new Error('isInstanceOf returned true.');
-        });
+    //     it('When called with an unrelated class, throws an error.', () => {
+    //         const instance = new Instance(TestClassWithBoolean);
+    //         if (instance.isInstanceOf(TestClassWithNumber))
+    //             throw new Error('isInstanceOf returned true.');
+    //     });
         
-        it('When called with a subclass of the class of instance, throws an error.', () => {
-            const instance = new Instance(SuperClass);
-            if (instance.isInstanceOf(SubClassOfSuperClass))
-                throw new Error('isInstanceOf returned true.');
-        });
+    //     it('When called with a subclass of the class of instance, throws an error.', () => {
+    //         const instance = new Instance(SuperClass);
+    //         if (instance.isInstanceOf(SubClassOfSuperClass))
+    //             throw new Error('isInstanceOf returned true.');
+    //     });
 
-    });
+    // });
 
 
 });

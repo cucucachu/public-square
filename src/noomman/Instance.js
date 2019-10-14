@@ -27,10 +27,8 @@ class Instance {
             this.__t = document.__t;
             this.previousState = new InstanceState(classModel, document);
             this.currentState = new InstanceState(classModel, document);
-            this[doc] = document;
         }
         else {
-            this[doc] = {};
             this._id = db.ObjectId();
             this.__t = classModel.discriminatorSuperClass ? classModel.className : undefined;
             this.previousState = null;
@@ -126,9 +124,6 @@ class Instance {
         
         if (classModel.abstract) 
             throw new Error('Instance.constructor(), classModel cannot be abstract.');
-
-        if (document && !(document instanceof classModel.Model))
-            throw new Error('Instance.constructor(), given document is not an instance of the given classModel.');
 
         if (document && !('_id' in document))
             throw new Error('Instance.constructor(), given document does not have an ObjectId.');
@@ -374,6 +369,30 @@ class Instance {
             throw new Error('Caught validation error when attempting to save Instance: ' + error.message);
         }
 
+        if (!this.saved()) {
+            this.classModel.insertOne(this.toDocument());
+        }
+        else {
+            this.classModel.update(this.toDocument);
+        }
+
+        this.previousState = new InstanceState(this.classModel, this.currentState.toDocument());
+
+        return this;
+    }
+
+    async save2(...updateControlMethodParameters) {
+        if (this.deleted()) 
+            throw new Error('instance.save(): You cannot save an instance which has been deleted.');
+        
+        try {
+            this.validate();
+            await this.classModel.updateControlCheck(this, ...updateControlMethodParameters);
+        }
+        catch (error) {
+            throw new Error('Caught validation error when attempting to save Instance: ' + error.message);
+        }
+
         this.syncDocument();
 
         await this[doc].save({validateBeforeSave: false});
@@ -407,6 +426,17 @@ class Instance {
 
     isInstanceOf(classModel) {
         return classModel.isInstanceOfThisClass(this);
+    }
+
+    toDocument() {
+        const document = this.currentState.toDocument();
+        document._id = this._id;
+
+        if (this.__t) {
+            document.__t = this.__t;
+        }
+
+        return document;
     }
 
     equals(that) {
