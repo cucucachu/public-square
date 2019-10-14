@@ -1,6 +1,5 @@
 
 require("@babel/polyfill");
-//const mongoose = require('mongoose');
 const moment = require('moment');
 
 const database = require('../../dist/noomman/database');

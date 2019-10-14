@@ -1,6 +1,6 @@
 require("@babel/polyfill");
-const mongoose = require('mongoose');
 
+const database = require('../../dist/noomman/database');
 const InstanceState = require('../../dist/noomman/InstanceState');
 const Instance = require('../../dist/noomman/Instance');
 const InstanceSet = require('../../dist/noomman/InstanceSet');
@@ -98,8 +98,8 @@ describe('Instance State Tests', () => {
                 booleans: [false, true],
                 number: 17,
                 numbers: [1, 2],
-                class1: new mongoose.Types.ObjectId,
-                class2s: [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId]
+                class1: database.ObjectId(),
+                class2s: [database.ObjectId(), database.ObjectId()]
             };
             
             it('Constructor does not throw an error when called with a ClassModel a Document.', () => {
@@ -145,8 +145,8 @@ describe('Instance State Tests', () => {
                     booleans: [false, true],
                     number: 17,
                     numbers: [1, 2],
-                    class1: new mongoose.Types.ObjectId,
-                    class2s: [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId]
+                    class1: database.ObjectId(),
+                    class2s: [database.ObjectId(), database.ObjectId()]
                 };
                 const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, exampleDocument);
 
@@ -163,8 +163,8 @@ describe('Instance State Tests', () => {
                     booleans: [false, true],
                     number: 17,
                     numbers: [1, 2],
-                    class1: new mongoose.Types.ObjectId,
-                    class2s: [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId]
+                    class1: database.ObjectId(),
+                    class2s: [database.ObjectId(), database.ObjectId()]
                 };
                 const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, exampleDocument);
 
@@ -182,8 +182,8 @@ describe('Instance State Tests', () => {
                     booleans: [false, true],
                     number: 17,
                     numbers: [1, 2],
-                    class1: new mongoose.Types.ObjectId,
-                    class2s: [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId]
+                    class1: database.ObjectId(),
+                    class2s: [database.ObjectId(), database.ObjectId()]
                 };
                 const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, exampleDocument);
 
@@ -201,8 +201,8 @@ describe('Instance State Tests', () => {
                     booleans: [false, true],
                     number: 0,
                     numbers: [1, 2],
-                    class1: new mongoose.Types.ObjectId,
-                    class2s: [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId]
+                    class1: database.ObjectId(),
+                    class2s: [database.ObjectId(), database.ObjectId()]
                 };
                 const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, exampleDocument);
 
@@ -220,8 +220,8 @@ describe('Instance State Tests', () => {
                     booleans: [false, true],
                     number: 0,
                     numbers: [1, 2],
-                    class1: new mongoose.Types.ObjectId,
-                    class2s: [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId]
+                    class1: database.ObjectId(),
+                    class2s: [database.ObjectId(), database.ObjectId()]
                 };
                 const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, exampleDocument);
 
@@ -239,7 +239,7 @@ describe('Instance State Tests', () => {
                     booleans: [false, true],
                     number: 0,
                     numbers: [1, 2],
-                    class2s: [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId]
+                    class2s: [database.ObjectId(), database.ObjectId()]
                 };
                 const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, exampleDocument);
 
@@ -257,7 +257,7 @@ describe('Instance State Tests', () => {
                     booleans: [false, true],
                     number: 0,
                     numbers: [1, 2],
-                    class1: new mongoose.Types.ObjectId,
+                    class1: database.ObjectId(),
                 };
                 const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, exampleDocument);
 
@@ -368,10 +368,11 @@ describe('Instance State Tests', () => {
                     });
                     
                     it('Getting a singular relationship without an Instance set returns Id.', () => {
-                        const id = new mongoose.Types.ObjectId;
-                        const document = new AllAttributesAndRelationshipsClass.Model({
+                        const id = database.ObjectId();
+                        const document = {
+                            _id: database.ObjectId(),
                             class1: id,
-                        });
+                        };
                         const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, document);
 
                         if (id !== instanceState.class1)
@@ -379,10 +380,10 @@ describe('Instance State Tests', () => {
                     });
                     
                     it('Getting a singular relationship with no Id returns null.', () => {
-                        const id = new mongoose.Types.ObjectId;
-                        const document = new AllAttributesAndRelationshipsClass.Model({
+                        const document = {
+                            _id: database.ObjectId(),
                             class1: null,
-                        });
+                        };
                         const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, document);
 
                         if (instanceState.class1 !== null)
@@ -405,7 +406,7 @@ describe('Instance State Tests', () => {
                     });
                     
                     it('Getting a non-singular relationship without an InstanceSet set returns Ids.', () => {
-                        const ids = [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId]
+                        const ids = [database.ObjectId(), database.ObjectId()]
                         const document = {
                             class2s: ids,
                         }
@@ -416,7 +417,7 @@ describe('Instance State Tests', () => {
                     });
                     
                     it('Getting a non-singular relationship with no Ids returns empty array.', () => {
-                        const ids = [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId]
+                        const ids = [database.ObjectId(), database.ObjectId()]
                         const document = {
                             class2s: ids,
                         }
@@ -706,9 +707,10 @@ describe('Instance State Tests', () => {
             });
 
             it('Deleting a singular relationship (set by document) sets instanceReference.instance and instanceReference._id to null.', () => {
-                const document = new AllAttributesAndRelationshipsClass.Model({
-                    class1: new mongoose.Types.ObjectId, 
-                });
+                const document = {
+                    _id: database.ObjectId(),
+                    class1: database.ObjectId(), 
+                };
                 const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, document);
                 delete instanceState.class1;
                 
@@ -728,9 +730,10 @@ describe('Instance State Tests', () => {
             });
 
             it('Deleting a non-singular relationship (set by document) sets instanceSetReference.instanceSet to null and instanceSetReference._ids to empty string.', () => {
-                const document = new AllAttributesAndRelationshipsClass.Model({
-                    class2s: [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId], 
-                });
+                const document = {
+                    _id: database.ObjectId(),
+                    class2s: [database.ObjectId(), database.ObjectId()], 
+                };
                 const instanceState = new InstanceState(AllAttributesAndRelationshipsClass, document);
                 delete instanceState.class2s;
                 
@@ -880,7 +883,7 @@ describe('Instance State Tests', () => {
             describe('Relationships', () => {
 
                 it('Singular relationships is set.', () => {
-                    const id = new mongoose.Types.ObjectId;
+                    const id = database.ObjectId();
                     const originalDocument = {
                         class1: id,
                     }
@@ -896,8 +899,8 @@ describe('Instance State Tests', () => {
                 });
 
                 it('Nonsingular relationship is set.', () => {
-                    const id1 = new mongoose.Types.ObjectId;
-                    const id2 = new mongoose.Types.ObjectId;
+                    const id1 = database.ObjectId();
+                    const id2 = database.ObjectId();
                     const originalDocument = {
                         class2s: [id1, id2],
                     }
@@ -1938,7 +1941,7 @@ describe('Instance State Tests', () => {
 
                     it('Setting a relationship that was empty.', () => {
                         const relationshipName = 'class1';
-                        const relatedId = new mongoose.Types.ObjectId;
+                        const relatedId = database.ObjectId();
                         const previousDocument = {};
                         const currentDocument = {
                             [relationshipName] : relatedId
@@ -1960,7 +1963,7 @@ describe('Instance State Tests', () => {
 
                     it('Removing a relationship that was empty.', () => {
                         const relationshipName = 'class1';
-                        const relatedId = new mongoose.Types.ObjectId;
+                        const relatedId = database.ObjectId();
                         const previousDocument = {
                             [relationshipName] : relatedId
                         }
@@ -1982,8 +1985,8 @@ describe('Instance State Tests', () => {
 
                     it('Changing a relationship to a new id.', () => {
                         const relationshipName = 'class1';
-                        const previousId = new mongoose.Types.ObjectId;
-                        const currentId = new mongoose.Types.ObjectId;
+                        const previousId = database.ObjectId();
+                        const currentId = database.ObjectId();
                         const previousDocument = {
                             [relationshipName] : previousId
                         }
@@ -2021,7 +2024,7 @@ describe('Instance State Tests', () => {
                     it('Adding ids to a nonsingular relationship that was empty.', () => {
                         const relationshipName = 'class2s';
                         const previousIds = [];
-                        const currentIds = [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId];
+                        const currentIds = [database.ObjectId(), database.ObjectId()];
                         const previousDocument = {
                             [relationshipName] : previousIds
                         }
@@ -2046,7 +2049,7 @@ describe('Instance State Tests', () => {
 
                     it('Adding ids to a nonsingular relationship that was empty.', () => {
                         const relationshipName = 'class2s';
-                        const previousIds = [new mongoose.Types.ObjectId, new mongoose.Types.ObjectId];
+                        const previousIds = [database.ObjectId(), database.ObjectId()];
                         const currentIds = [];
                         const previousDocument = {
                             [relationshipName] : previousIds
@@ -2074,10 +2077,10 @@ describe('Instance State Tests', () => {
                         it('Relationship has two ids and we add two more.', () => {
                             const relationshipName = 'class2s';
                             const ids = [
-                                new mongoose.Types.ObjectId,
-                                new mongoose.Types.ObjectId,
-                                new mongoose.Types.ObjectId,
-                                new mongoose.Types.ObjectId,
+                                database.ObjectId(),
+                                database.ObjectId(),
+                                database.ObjectId(),
+                                database.ObjectId(),
                             ]
                             const previousIds = [ids[0], ids[1]];
                             const currentIds = [ids[0], ids[1], ids[2], ids[3]];
@@ -2117,10 +2120,10 @@ describe('Instance State Tests', () => {
                         it('Relationship has 4 ids and we remove two.', () => {
                             const relationshipName = 'class2s';
                             const ids = [
-                                new mongoose.Types.ObjectId,
-                                new mongoose.Types.ObjectId,
-                                new mongoose.Types.ObjectId,
-                                new mongoose.Types.ObjectId,
+                                database.ObjectId(),
+                                database.ObjectId(),
+                                database.ObjectId(),
+                                database.ObjectId(),
                             ]
                             const previousIds = [ids[0], ids[1], ids[2], ids[3]];
                             const currentIds = [ids[0], ids[1]];
@@ -2159,12 +2162,12 @@ describe('Instance State Tests', () => {
                         it('Relationship has 4 ids, we remove two and add two more.', () => {
                             const relationshipName = 'class2s';
                             const ids = [
-                                new mongoose.Types.ObjectId,
-                                new mongoose.Types.ObjectId,
-                                new mongoose.Types.ObjectId,
-                                new mongoose.Types.ObjectId,
-                                new mongoose.Types.ObjectId,
-                                new mongoose.Types.ObjectId,
+                                database.ObjectId(),
+                                database.ObjectId(),
+                                database.ObjectId(),
+                                database.ObjectId(),
+                                database.ObjectId(),
+                                database.ObjectId(),
                             ]
                             const previousIds = [ids[0], ids[1], ids[2], ids[3]];
                             const currentIds = [ids[0], ids[1], ids[4], ids[5]];
