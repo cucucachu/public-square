@@ -1,11 +1,7 @@
 /*
-  Description: Defines an application class model using Mongoose to handle database interactions, and adding extra functionallity that mongoose
-    does not provide.
+  Description: Defines an application class model.
 */
 require('@babel/polyfill');
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-
 
 var db = require('./database');
 const InstanceSet = require('./InstanceSet');
@@ -201,252 +197,6 @@ class ClassModel {
 
     }
 
-    constructor2(schema) {
-
-        this.constructorValidations(schema);
-
-        this.className = schema.className;
-        this.subClasses = [];
-        this.discriminatedSubClasses = [];
-        this.abstract = schema.abstract;
-        this.discriminated = schema.discriminated;
-        this.accessControlled = schema.accessControlled;
-        this.accessControlMethod = schema.accessControlMethod ? schema.accessControlMethod : undefined;
-        this.updateControlled = schema.updateControlled;
-        this.updateControlMethod = schema.updateControlMethod ? schema.updateControlMethod : undefined;
-        this.superClasses = schema.superClasses ? schema.superClasses : [];
-        this.discriminatorSuperClass = schema.discriminatorSuperClass;
-        this.collection = schema.discriminatorSuperClass ? schema.discriminatorSuperClass.collection : schema.className.toLowerCase();
-
-        if (schema.discriminatorSuperClass) {
-            this.collection = schema.discriminatorSuperClass.collection;
-        }
-        else {
-            const lastLetter = schema.className.substr(-1).toLowerCase();
-            this.collection = schema.className.toLowerCase();
-            if (lastLetter === 's') {
-                this.collection = this.collection + 'e';
-            }
-            this.collection = this.collection + 's';
-        }
-
-
-        // Access Control Settings
-        if (schema.accessControlled === undefined) {
-            throw new Error('accessControlled is required.');
-        }
-
-        if (schema.accessControlled && !this.allAccessControlMethodsforClassModel().length) {
-            throw new Error('If a class is accessControlled, it must have an accessControlMethod, or it must have at least one super class with an accessControlMethod.');
-        }
-
-        if (!schema.accessControlled) {
-            if (schema.accessControlMethod) {
-                throw new Error('A class that is not accessControlled cannot have an accessControlMethod.');
-            }
-
-            if (schema.superClasses) {
-                schema.superClasses.forEach(function(superClass) {
-                    if (superClass.accessControlled) {
-                        throw new Error('A class which is not accessControlled cannot be a sub class of a class which is accessControlled.');
-                    }
-                });
-            }
-
-            if (schema.discriminatorSuperClass) {
-                if (schema.discriminatorSuperClass.accessControlled) {
-                    throw new Error('A subclass of a accessControlled discriminated super class must also be accessControlled.');
-                }
-            }
-        } 
-
-        // Update Control Settings
-        if (schema.updateControlled === undefined) {
-            throw new Error('updateControlled is required.');
-        }
-
-        if (schema.updateControlled && !this.allUpdateControlMethodsforClassModel().length) {
-            throw new Error('If a class is updateControlled, it must have an updateControlMethod, or it must have at least one super class with an updateControlMethod.');
-        }
-
-        if (!schema.updateControlled) {
-            if (schema.updateControlMethod) {
-                throw new Error('A class that is not updateControlled cannot have an updateControlMethod.');
-            }
-
-            if (schema.superClasses) {
-                schema.superClasses.forEach(function(superClass) {
-                    if (superClass.updateControlled) {
-                        throw new Error('A class which is not updateControlled cannot be a sub class of a class which is updateControlled.');
-                    }
-                });
-            }
-
-            if (schema.discriminatorSuperClass) {
-                if (schema.discriminatorSuperClass.updateControlled) {
-                    throw new Error('A subclass of a updateControlled discriminated super class must also be updateControlled.');
-                }
-            }
-        }         
-        
-        this.setAttributesAndRelationships(schema.schema);
-
-        if (schema.superClasses) {
-            for (const superClass of schema.superClasses) {
-                this.attributes = this.attributes.concat(superClass.attributes);
-                this.relationships = this.relationships.concat(superClass.relationships);
-                superClass.subClasses.push(this);
-            }
-        }
-
-        if (schema.discriminatorSuperClass) {
-            this.attributes = this.attributes.concat(schema.discriminatorSuperClass.attributes);
-            this.relationships = this.relationships.concat(schema.discriminatorSuperClass.relationships);
-            schema.discriminatorSuperClass.discriminatedSubClasses.push(this);
-        }
-
-        AllClassModels[this.className] = this;
-    }
-
-    constructorValidations2(schema) {
-        
-        if (!schema.className)
-            throw new Error('className is required.');
-            
-        if (!schema.schema)
-            throw new Error('schema is required.');
-
-        if (schema.superClasses && !Array.isArray(schema.superClasses))
-            throw new Error('If superClasses is set, it must be an Array.');
-
-        if (schema.superClasses && schema.superClasses.length == 0)
-            throw new Error('If superClasses is set, it cannot be an empty Array.');
-
-        if (schema.discriminatorSuperClass && Array.isArray(schema.discriminatorSuperClass))
-            throw new Error('If discriminatorSuperClass is set, it can only be a single class.');
-
-        if (schema.superClasses && schema.discriminatorSuperClass)
-            throw new Error('A ClassModel cannot have both superClasses and discriminatorSuperClass.');
-
-        if (schema.discriminatorSuperClass && !schema.discriminatorSuperClass.discriminated)
-            throw new Error('If a class is used as a discriminatedSuperClass, that class must have its "discriminated" field set to true.');
-        
-        if (schema.superClasses)
-            schema.superClasses.forEach(function(superClass) {
-                if (superClass.discriminated)
-                    throw new Error('If a class is set as a superClass, that class cannot have its "discriminated" field set to true.');
-            });
-
-        if (schema.superClasses) {
-            for (const superClass of schema.superClasses) {
-
-                for (const attribute of superClass.attributes) {
-                    if (Object.keys(schema.schema).includes(attribute.name)) {
-                        throw new Error('Sub class schema cannot contain the same attribute names as a super class schema.');
-                    }
-                }
-                for (const relationship of superClass.relationships) {
-                    if (Object.keys(schema.schema).includes(relationship.name)) {
-                        throw new Error('Sub class schema cannot contain the same relationship names as a super class schema.');
-                    }
-                }
-            }
-        }
-
-        if (schema.discriminatorSuperClass && schema.abstract) 
-            throw new Error('A discriminator sub class cannot be abstract.');
-
-        if (schema.discriminatorSuperClass && schema.discriminated)
-            throw new Error('A sub class of a discriminated super class cannot be discriminated.');
-
-        if (schema.superClasses) {
-            schema.superClasses.forEach(function(superClass) {
-                if (superClass.discriminatorSuperClass) {
-                    throw new Error('A class cannot be a sub class of a sub class of a discriminated class.');
-                }
-            });
-        }
-
-    }
-
-    setAttributesAndRelationships(schema) {
-        this.attributes = [];
-        this.relationships = [];
-
-        const attributeSchemas = ClassModel.getAttributesFromSchema(schema);
-        const singularRelationshipSchemas = ClassModel.getSingularRelationshipsFromSchema(schema);
-        const nonSingularRelationshipSchemas = ClassModel.getNonSingularRelationshipsFromSchema(schema);
-
-        for (const attribute of attributeSchemas) {
-            this.attributes.push(new Attribute(attribute));
-        }
-        for (const relationship of singularRelationshipSchemas) {
-            this.relationships.push(new Relationship(relationship));
-        }
-        for (const relationship of nonSingularRelationshipSchemas) {
-            this.relationships.push(new Relationship(relationship));
-        }
-    }
-
-    static getAttributesFromSchema(schema) {
-        const attributes = [];
-        for (const key in schema) {
-            if (ClassModel.isAttribute(schema[key])){
-                let type = schema[key].type;
-                let list = false;
-                
-                if (Array.isArray(schema[key].type)) {
-                    type = schema[key].type[0];
-                    list = true;
-                }
-
-                attributes.push({
-                    name: key,
-                    type: type,
-                    list: list,
-                    mutex: schema[key].mutex,
-                    required: schema[key].required,
-                    requiredGroup: schema[key].requiredGroup,
-                });
-            }
-        }
-        return attributes;
-    }
-
-    static getSingularRelationshipsFromSchema(schema) {
-        const relationships = [];
-        for (const key in schema) {
-            if (ClassModel.isSingularRelationship(schema[key]))
-                relationships.push({
-                    name: key,
-                    toClass: schema[key].ref,
-                    type: schema[key].type,
-                    singular: true,
-                    mutex: schema[key].mutex,
-                    required: schema[key].required,
-                    requiredGroup: schema[key].requiredGroup,
-                });
-        }
-        return relationships;
-    }
-
-    static getNonSingularRelationshipsFromSchema(schema) {
-        const relationships = [];
-        for (const key in schema) {
-            if (ClassModel.isNonSingularRelationship(schema[key]))
-                relationships.push({
-                    name: key,
-                    toClass: schema[key].ref,
-                    type: schema[key].type,
-                    singular: false,
-                    mutex: schema[key].mutex,
-                    required: schema[key].required,
-                    requiredGroup: schema[key].requiredGroup,
-                });
-        }
-        return relationships;
-    }
-
     // to String
     toString() {
         return this.className + '\n';
@@ -486,98 +236,25 @@ class ClassModel {
         return false;
     }
 
-    propertyIsARelationship(propertyName) {
-        for (const relationship of this.relationships) {
-            if (relationship.name === propertyName)
-                return true;
-        }
-
-        return false;
-    }
-
     getRelatedClassModel(relationshipName) {
-        return AllClassModels[this.getRelationship(relationshipName).toClass];
-    }
-
-    static isAttribute(object) {
-        const attributeTypes = [String, Boolean, Number, Date];
-
-        if (Array.isArray(object.type) && attributeTypes.includes(object.type[0]))
-            return true;
-        if (attributeTypes.includes(object.type))
-            return true;
-        return false; 
-    }
-
-    isAttribute(name) {
-        return this.attributes.map(attribute => attribute.name).includes(name);
-    }
-
-    static isSingularRelationship(object) {
-        if (Array.isArray(object.type))
-            return false;
-        if (object.type === Schema.Types.ObjectId)
-            return true;
-        return false;
-    }
-
-    isSingularRelationship(name) {
-        return this.relationships.filter(relationship => relationship.singular === true).map(relationship => relationship.name).includes(name); 
-    }
-
-
-    isNonSingularRelationship(name) {
-        return this.relationships.filter(relationship => relationship.singular === false).map(relationship => relationship.name).includes(name);
-    }
-
-
-    static isNonSingularRelationship(object) {
-        if (!Array.isArray(object.type))
-            return false;
-        if (object.type[0] === Schema.Types.ObjectId)
-            return true;
-        return false;
-    }
-
-    attributeIsListAttribute(attributeName) {
-        return this.getAttribute(attributeName).list;
-    }
-
-    getAttribute(attributeName) {
-        return this.attributes.filter(attribute => attribute.name === attributeName)[0];
-        return this.getAttributes().filter(attribute => attribute.name === attributeName)[0]
-    }
-
-    getAttributes() {
-        return this.attributes;
-    }
-
-    getSingularRelationships() {
-        return this.relationships.filter(relationship => relationship.singular);
-    }
-
-    getNonSingularRelationships() {
-        return this.relationships.filter(relationship => !relationship.singular);
-    }
-
-    getRelationship(relationshipName) {
-        return this.relationships.filter(relationship => relationship.name === relationshipName)[0];
-    }
-
-    getDocumentProperties() {
-        return this.attributes.concat(this.relationships);
-    }
-
-    getDocumentPropertyNames() {
-        return this.getDocumentProperties().map(property => property.name);
+        return AllClassModels[this.relationships.filter(relationship => relationship.name === relationshipName)[0].toClass];
     }
 
     validateAttribute(attributeName, value) {
-        this.getAttribute(attributeName).validate(value);
+        const attribute = this.attributes.filter(attribute => attribute.name === attributeName);
+
+        if (attribute.length === 0)
+            throw new Error('classModel.validateAttribute() called with an invalid attribute name.');
+
+        attribute[0].validate(value);
     }
 
     valueValidForSingularRelationship(value, relationshipName) {
-        const toClass = AllClassModels[this.getRelationship(relationshipName).toClass];
+        const relationship = this.relationships.filter(relationship => relationship.name === relationshipName && relationship.singular);
+        if (relationship.length === 0)
+            throw new Error('classModel.valueValidForSingularRelationship() called with an invalid relationship name.');
+
+        const toClass = AllClassModels[relationship[0].toClass];
 
         if (value === null)
             return true;
@@ -592,7 +269,11 @@ class ClassModel {
     }
 
     valueValidForNonSingularRelationship(value, relationshipName) {
-        const toClass = AllClassModels[this.getRelationship(relationshipName).toClass];
+        const relationship = this.relationships.filter(relationship => relationship.name === relationshipName && !relationship.singular);
+        if (relationship.length === 0)
+            throw new Error('classModel.valueValidForNonSingularRelationship() called with an invalid relationship name.');
+
+        const toClass = AllClassModels[relationship[0].toClass];
 
         if (value === null)
             return true;
@@ -692,7 +373,7 @@ class ClassModel {
 
     /* Finds instances of this ClassModel using the given query filter in the database. 
      * If called on a superclass, will recursively check this ClassModel's collection, and then it's subclasses collections.
-     * Required Parameter queryFilter - An object identifying filtering according to mongoose's definitions.
+     * Required Parameter queryFilter - A mongo query object
      * Rest Parameter accessControlMethodParameters - Optional parameters used by this ClassModels access control method. 
      * Returns a promise, which will resolve with the instance with the given query filter if it can be found, otherwise null.
      */
@@ -728,7 +409,6 @@ class ClassModel {
 
             if (concrete) {
                 let foundDocumentsOfThisClass = await db.find(this.collection, queryFilter);
-                //console.log(this.className + '.find() here');
 
                 if (foundDocumentsOfThisClass.length) {
                     const foundInstances = foundDocumentsOfThisClass.map(instance => { return new Instance(this, instance)});
@@ -748,7 +428,7 @@ class ClassModel {
 
     /* Finds an instance of this ClassModel using the given query filter in the database. 
      * If called on a superclass, will recursively check this ClassModel's collection, and then it's subclasses collections.
-     * Required Parameter queryFilter - An object identifying filtering according to mongoose's definitions.
+     * Required Parameter queryFilter - A mongo query object.
      * Rest Parameter accessControlMethodParameters - Optional parameters used by this ClassModels access control method. 
      * Returns a promise, which will resolve with the instance with the given query filter if it can be found, otherwise null.
      */
@@ -824,7 +504,7 @@ class ClassModel {
 
     /* Finds instances of this ClassModel using the given query filter in the database. 
      * If called on a superclass, will recursively check this ClassModel's collection, and then it's subclasses collections.
-     * Required Parameter queryFilter - An object identifying filtering according to mongoose's definitions.
+     * Required Parameter queryFilter - A mongo query object.
      * Rest Parameter accessControlMethodParameters - Optional parameters used by this ClassModels access control method. 
      * Returns a promise, which will resolve with the instance with the given query filter if it can be found, otherwise null.
      */
@@ -861,7 +541,6 @@ class ClassModel {
 
             if (concrete) {
                 let foundDocumentsOfThisClass = await Model.find(queryFilter).exec();
-                //console.log(this.className + '.find() here');
 
                 if (foundDocumentsOfThisClass.length) {
                     const foundInstances = foundDocumentsOfThisClass.map(instance => { return new Instance(this, instance)});
@@ -877,81 +556,6 @@ class ClassModel {
             foundInstances.addInstances(filteredInstancesOfThisClass)
             return foundInstances;
         }
-    }
-
-    /* Finds an instance of this ClassModel using the given query filter in the database. 
-     * If called on a superclass, will recursively check this ClassModel's collection, and then it's subclasses collections.
-     * Required Parameter queryFilter - An object identifying filtering according to mongoose's definitions.
-     * Rest Parameter accessControlMethodParameters - Optional parameters used by this ClassModels access control method. 
-     * Returns a promise, which will resolve with the instance with the given query filter if it can be found, otherwise null.
-     */
-    async findOne2(queryFilter, ...accessControlMethodParameters) {
-        const concrete = !this.abstract;
-        const abstract = this.abstract;
-        const discriminated = this.discriminated;
-        const isSuperClass = (this.subClasses.length > 0 || this.discriminated);
-        const subClasses = this.subClasses;
-        const className = this.className;
-        const Model = this.Model;
-
-        // If this class is a non-discriminated abstract class and it doesn't have any sub classes, throw an error.
-        if (abstract && !isSuperClass)
-            throw new Error('Error in ' + className + '.findOne(). This class is abstract and non-discriminated, but it has no sub-classes.');
-
-        // If this is a discriminated class, or it is a concrete class with no subclasses, find the instance in this ClassModel's collection.
-        if ((concrete && !isSuperClass) || discriminated) {
-            const documentFound = await Model.findOne(queryFilter).exec();
-            if (!documentFound)
-                return null;
-
-            let instanceFound;
-
-            if (!discriminated)
-                instanceFound = new Instance(this, documentFound);
-            else {
-                if (documentFound.__t) {
-                    const classModelForInstance = AllClassModels[documentFound.__t];
-                    instanceFound = new Instance(classModelForInstance, documentFound);
-                }
-                else {
-                    instanceFound = new Instance(this, documentFound);
-                }
-            }
-
-            const filteredInstance = await this.accessControlFilterOne(instanceFound, ...accessControlMethodParameters);
-            return filteredInstance ? filteredInstance : null;
-        }
-        // If this is a non-discriminated super class, we may need to check this classmodel's collection as well,
-        //  as well as the subclasses collections.
-        if (isSuperClass && !discriminated) {
-            let promises = [];
-
-            // If this is a concrete super class, we need to check this ClassModel's own collection.
-            if (concrete){
-                const documentFound = await Model.findOne(queryFilter).exec();
-                if (documentFound) {
-                    let instanceFound = new Instance(this, documentFound);
-
-                    const filteredInstance = await this.accessControlFilterOne(instanceFound, ...accessControlMethodParameters)
-                    return filteredInstance ? filteredInstance : null;
-                }
-            }
-
-            // Call findOne on our subclasses as well.
-            for (let subClass of subClasses)
-                promises.push(subClass.findOne(queryFilter));
-
-            return ClassModel.firstNonNullPromiseResolution(promises);
-        }
-    }
-
-    /* Finds an instance of this ClassModel with the given id in the database. 
-     * If called on a superclass, will recursively check this ClassModel's collection, and then it's subclasses collections.
-     * Parameter id - the Object ID of the instance to find.
-     * Returns a promise, which will resolve with the instance with the given id if it can be found, otherwise null.
-     */
-    async findById2(id, ...accessControlMethodParameters) {
-        return this.findOne({_id: id}, ...accessControlMethodParameters);
     }
 
     // Security Methods

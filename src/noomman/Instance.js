@@ -2,7 +2,6 @@ require('@babel/polyfill');
 const db = require('./database');
 
 const InstanceState = require('./InstanceState');
-const doc = Symbol('document');
 
 /*
  * Class Instance
@@ -34,11 +33,11 @@ class Instance {
             this.currentState = new InstanceState(classModel);
         }
 
-        const attributes = classModel.getAttributes();
+        const attributes = classModel.attributes;
         const attributeNames = attributes.map(attribute => attribute.name);
-        const singularRelationships = classModel.getSingularRelationships();
+        const singularRelationships = classModel.relationships.filter(relationship => relationship.singular);
         const singularRelationshipNames = singularRelationships.map(relationship => relationship.name);
-        const nonSingularRelationships = classModel.getNonSingularRelationships();
+        const nonSingularRelationships = classModel.relationships.filter(relationship => !relationship.singular);
         const nonSingularRelationshipNames = nonSingularRelationships.map(relationship => relationship.name);
         const documentProperties = attributeNames.concat(singularRelationshipNames, nonSingularRelationshipNames);
         const unSettableInstanceProperties = ['classModel', 'id', '_id', '__t']; 
@@ -145,7 +144,7 @@ class Instance {
     }
 
     assign(object) {
-        const documentProperties = this.classModel.getDocumentPropertyNames();
+        const documentProperties = this.classModel.attributes.concat(this.classModel.relationships).map(property => property.name);
         for (const key in object) {
             if (documentProperties.includes(key))
                 this[key] = object[key];
@@ -178,13 +177,17 @@ class Instance {
         if (!this.classModel.attributes.map(attribute => attribute.name).includes(relationshipName) && !this.classModel.relationships.map(relationship => relationship.name).includes(relationshipName))
             throw new Error('instance.walk(): First argument needs to be a relationship property in ' + this.classModel.className + '\'s schema.');
     
-        if (!this.classModel.propertyIsARelationship(relationshipName))
+        // if (!this.classModel.propertyIsARelationship(relationshipName))
+        //     throw new Error('instance.walk(): property "' + relationshipName + '" is not a relationship.');
+
+        if (!this.classModel.relationships.map(relationship => relationship.name).includes(relationshipName))
             throw new Error('instance.walk(): property "' + relationshipName + '" is not a relationship.');
         
         if (filter && typeof(filter) !== "object")
             throw new Error('instance.walk(): Second argument needs to be an object.');
     
-        const relationshipDefinition = this.classModel.getRelationship(relationshipName);
+        
+        const relationshipDefinition = this.classModel.relationships.filter(relationship => relationship.name ===relationshipName)[0];
         const relatedClass = this.classModel.getRelatedClassModel(relationshipName);
         const noFilter = filter ? false : true;
         filter = filter ? filter : {}
@@ -247,14 +250,15 @@ class Instance {
      * Object/Relationship: Any Value
      */
     propertyIsSet(propertyName) {
-        const property = this.classModel.getDocumentProperties().filter(property => property.name === propertyName)[0];
+        const attribute = this.classModel.attributes.filter(attribute => attribute.name === propertyName);
+        const nonSingularRelationship = this.classModel.relationships.filter(relationship => relationship.name === propertyName && !relationship.singular);
 
-        if (this.classModel.isAttribute(propertyName) && property.list) {
+        if (attribute.length && attribute[0].list) {
             if (!Array.isArray(this[propertyName]) || this[propertyName].length === 0) {
                 return false;
             }
         }
-        else if (this.classModel.isNonSingularRelationship(propertyName)) {
+        else if (nonSingularRelationship.length) {
             if (Array.isArray(this[propertyName]) && this[propertyName].length === 0)
                 return false;
             if (this[propertyName] !== null && this[propertyName].size === 0)
@@ -279,7 +283,7 @@ class Instance {
         const muti = [];
         const violations = [];
         let message = '';
-        const properties = this.classModel.getDocumentProperties();
+        const properties = this.classModel.attributes.concat(this.classModel.relationships);
 
         for (const property of properties) {
             if (property.mutex && this.propertyIsSet(property.name)) {
@@ -302,7 +306,7 @@ class Instance {
     }
 
     requiredValidation() {
-        let documentProperties = this.classModel.getDocumentProperties();
+        const documentProperties = this.classModel.attributes.concat(this.classModel.relationships);
         let message = '';
         let valid = true;
 
@@ -322,7 +326,7 @@ class Instance {
     requiredGroupValidation() {
         let requiredGroups = [];
         let message = '';
-        let properties = this.classModel.getDocumentProperties();
+        const properties = this.classModel.attributes.concat(this.classModel.relationships);
 
         for (const property of properties) {
             if (property.requiredGroup && !requiredGroups.includes(property.requiredGroup)) {

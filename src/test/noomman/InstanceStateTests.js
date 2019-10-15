@@ -36,7 +36,7 @@ describe('Instance State Tests', () => {
                 const attributes = instanceState.attributes;
                 const expectedAttributes = ['string', 'strings', 'date', 'dates', 'boolean', 'booleans', 'number', 'numbers'];
                 const expectedListAttributes = ['strings', 'dates', 'booleans', 'numbers'];
-    
+
                 if (Object.keys(attributes).length != expectedAttributes.length)
                     throw new Error('instanceState.attributes returned the wrong number of attributes.');
     

@@ -202,7 +202,7 @@ class InstanceSet extends SuperSet {
         if (typeof(relationshipName) !== 'string')
             throw new Error('InstanceSet.walk() relationship argument must be a String.');
 
-        if (!this.classModel.propertyIsARelationship(relationshipName))
+        if (!this.classModel.relationships.map(relationship => relationship.name).includes(relationshipName))
             throw new Error('InstanceSet.walk() called with an invalid relationship for ClassModel ' + this.classModel.className + '.');
         
         if (filter && typeof(filter) !== "object")
@@ -212,7 +212,7 @@ class InstanceSet extends SuperSet {
     async walk(relationshipName, filter=null, ...accessControlMethodParameters) {
         this.walkValidations(relationshipName, filter);
 
-        const relationshipDefinition = this.classModel.getRelationship(relationshipName);
+        const relationshipDefinition = this.classModel.relationships.filter(relationship => relationship.name === relationshipName)[0];
         const relatedClass = this.classModel.getRelatedClassModel(relationshipName);
         const noFilter = filter ? false : true;
         filter = filter ? filter : {};

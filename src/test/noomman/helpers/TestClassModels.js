@@ -140,6 +140,11 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                     type: Date,
                 },
                 {
+                    name: 'dates',
+                    type: Date,
+                    list: true,
+                },
+                {
                     name: 'boolean',
                     type: Boolean,
                 },

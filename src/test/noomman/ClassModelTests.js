@@ -2396,54 +2396,5 @@ describe('Class Model Tests', () => {
 
     });
 
-    describe('Attributes and Relationships', () => {
-
-        describe('ClassModel.getAttributes()', () => {
-
-            it('ClassModel.getAttributes() returns all the attributes for ClassModel AllFieldsRequiredClass.', () => {
-                const attributes = AllFieldsRequiredClass.getAttributes();
-                const attributeNames = attributes.map(attribute => attribute.name);
-                const expectedAttributeNames = ['string', 'strings', 'date', 'boolean', 'booleans', 'number', 'numbers'];
-                const expectedLists = ['strings', 'booleans', 'numbers'];
-
-                for (const attributeName of expectedAttributeNames) 
-                    if (!attributeNames.includes(attributeName))
-                        throw new Error('getAttributes() did not return the expected attribute ' + attributeName);   
-
-                for (const attribute of attributes) 
-                    if (expectedLists.includes(attribute.name) && attribute.list !== true)
-                        throw new Error('getAttributes() did not set the \'list\' property correctly.');  
-
-                for (const attribute of attributes) 
-                    if (!expectedLists.includes(attribute.name) && attribute.list === true)
-                        throw new Error('getAttributes() did not set the \'list\' property correctly.');                
-            });
-
-        });
-
-        describe('ClassModel.getSingularRelationships()', () => {
-
-            it('ClassModel.getSingularRelationships() returns all the Singular Relationships for ClassModel AllFieldsRequiredClass.', () => {
-                const singularRelationships = AllFieldsRequiredClass.getSingularRelationships();
-
-                if (singularRelationships.length != 1 || singularRelationships[0].name !== 'class1')
-                    throw new Error ('getSingularRelationships() did not return the expected relationship.');
-            });
-
-        });
-
-        describe('ClassModel.getNonSingularRelationships()', () => {
-
-            it('ClassModel.getNonSingularRelationships() returns all the Non-Singular Relationships for ClassModel AllFieldsRequiredClass.', () => {
-                const nonSingularRelationships = AllFieldsRequiredClass.getNonSingularRelationships();
-
-                if (nonSingularRelationships.length != 1 || nonSingularRelationships[0].name !== 'class2s')
-                    throw new Error ('getNonSingularRelationships() did not return the expected relationship.');
-            });
-
-        });
-
-    });
-
 });
 

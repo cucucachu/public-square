@@ -14,9 +14,9 @@ class InstanceState {
         if (!classModel)
             throw new Error('new InstanceState(): First argument \'classModel\' is required.');
         
-        const attributes = classModel.getAttributes();
-        const singularRelationships = classModel.getSingularRelationships();
-        const nonSingularRelationships = classModel.getNonSingularRelationships();
+        const attributes = classModel.attributes;
+        const singularRelationships = classModel.relationships.filter(relationship => relationship.singular);
+        const nonSingularRelationships = classModel.relationships.filter(relationship => !relationship.singular);
 
         this.classModel = classModel;
 
@@ -132,7 +132,7 @@ class InstanceState {
         that.sync();
 
         for (const attributeName in this.attributes) {
-            const attributeDefinition = this.classModel.getAttribute(attributeName);
+            const attributeDefinition = this.classModel.attributes.filter(attribute => attribute.name === attributeName)[0];
             const thisAttribute = this.attributes[attributeName];
             const thatAttribute = that.attributes[attributeName];
 
