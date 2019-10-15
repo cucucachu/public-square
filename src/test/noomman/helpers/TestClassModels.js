@@ -10,8 +10,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
     // Compare Classes
     {        
         var CompareClass1 = new ClassModel({
-            accessControlled: false,
-            updateControlled: false,
             className: 'CompareClass1',
             attributes: [
                 {
@@ -36,8 +34,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         });
 
         var CompareClass2 = new ClassModel({
-            accessControlled: false,
-            updateControlled: false,
             className: 'CompareClass2',
             attributes: [
                 {
@@ -60,8 +56,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
     {   
         var TestClassWithNumber = new ClassModel({
             className: 'TestClassWithNumber',
-            accessControlled: false,
-            updateControlled: false,
             attributes: [
                 {
                     name: 'number',
@@ -72,8 +66,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
 
         var TestClassWithBoolean = new ClassModel({
             className: 'TestClassWithBoolean',
-            accessControlled: false,
-            updateControlled: false,
             attributes: [
                 {
                     name: 'boolean',
@@ -83,8 +75,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         });
 
         var TestClassWithAllSimpleFields = new ClassModel({
-            accessControlled: false,
-            updateControlled: false,
             className: 'TestClassWithAllSimpleFields',
             attributes: [
                 {
@@ -122,8 +112,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         });       
 
         var AllAttributesAndRelationshipsClass = new ClassModel({
-            accessControlled: false,
-            updateControlled: false,
             className: 'AllAttributesAndRelationshipsClass', 
             attributes: [
                 {
@@ -179,8 +167,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         
         var AbstractClass = new ClassModel({
             className: 'AbstractClass',
-            accessControlled: false,
-            updateControlled: false,
             abstract: true,
             attributes: [
                 {
@@ -194,8 +180,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
     // Validation Classes
     {        
         var AllFieldsRequiredClass = new ClassModel({
-            accessControlled: false,
-            updateControlled: false,
             className: 'AllFieldsRequiredClass', 
             attributes: [
                 {
@@ -254,8 +238,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         });
     
         var AllFieldsMutexClass = new ClassModel({
-            accessControlled: false,
-            updateControlled: false,
             className: 'AllFieldsMutexClass', 
             attributes: [
                 {
@@ -314,8 +296,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         });
     
         var AllFieldsInRequiredGroupClass = new ClassModel({
-            accessControlled: false,
-            updateControlled: false,
             className: 'AllFieldsInRequiredGroupClass',
             attributes: [
                 {
@@ -374,8 +354,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         });
 
         var MutexClassA = new ClassModel({
-            accessControlled: false,
-            updateControlled: false,
             className: 'MutexClassA', 
             attributes: [
                 {
@@ -392,8 +370,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         });
 
         var MutexClassB = new ClassModel({
-            accessControlled: false,
-            updateControlled: false,
             className: 'MutexClassB', 
             relationships: [
                 {
@@ -412,8 +388,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         });
 
         var MutexClassC = new ClassModel({
-            accessControlled: false,
-            updateControlled: false,
             className: 'MutexClassC',
             relationships: [
                 {
@@ -436,8 +410,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
     // Inheritance Classes
     {
         var SuperClass = new ClassModel({
-            accessControlled: false,
-            updateControlled: false,
             className: "SuperClass",
             attributes: [
                 {
@@ -456,8 +428,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         });
 
         var AbstractSuperClass = new ClassModel({
-            accessControlled: false,
-            updateControlled: false,
             className: "AbstractSuperClass",
             abstract: true,
             attributes: [
@@ -477,8 +447,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         });
 
         var DiscriminatedSuperClass = new ClassModel({
-            accessControlled: false,
-            updateControlled: false,
             className: "DiscriminatedSuperClass",
             discriminated: true,
             attributes: [
@@ -498,8 +466,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         });
 
         var AbstractDiscriminatedSuperClass = new ClassModel({
-            accessControlled: false,
-            updateControlled: false,
             className: "AbstractDiscriminatedSuperClass",
             discriminated: true,
             abstract: true,
@@ -520,8 +486,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         });   
 
         var SubClassOfSuperClass = new ClassModel({
-            accessControlled: false,
-            updateControlled: false,
             className: 'SubClassOfSuperClass',
             superClasses: [SuperClass],
             attributes: [
@@ -537,8 +501,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         });   
 
         var SubClassOfAbstractSuperClass = new ClassModel({
-            accessControlled: false,
-            updateControlled: false,
             className: 'SubClassOfAbstractSuperClass',
             superClasses: [AbstractSuperClass],
             attributes: [
@@ -554,8 +516,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         });
 
         var AbstractSubClassOfSuperClass = new ClassModel({
-            accessControlled: false,
-            updateControlled: false,
             className: 'AbstractSubClassOfSuperClass',
             superClasses: [SuperClass],
             abstract: true,
@@ -572,8 +532,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         });      
 
         var SubClassOfMultipleSuperClasses = new ClassModel({
-            accessControlled: false,
-            updateControlled: false,
             className: 'SubClassOfMultipleSuperClasses',
             superClasses: [SuperClass, AbstractSuperClass],
             attributes: [
@@ -591,8 +549,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         });   
 
         var SubClassOfDiscriminatorSuperClass = new ClassModel({
-            accessControlled: false,
-            updateControlled: false,
             className: 'SubClassOfDiscriminatorSuperClass',
             discriminatorSuperClass: DiscriminatedSuperClass,
             attributes: [
@@ -608,8 +564,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         });
 
         var DiscriminatedSubClassOfSuperClass = new ClassModel({
-            accessControlled: false,
-            updateControlled: false,
             className: 'DiscriminatedSubClassOfSuperClass',
             discriminated: true,
             superClasses: [SuperClass],
@@ -626,8 +580,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         });
 
         var SubClassOfDiscriminatedSubClassOfSuperClass = new ClassModel({
-            accessControlled: false,
-            updateControlled: false,
             className: 'SubClassOfDiscriminatedSubClassOfSuperClass',
             discriminatorSuperClass: DiscriminatedSubClassOfSuperClass,
             attributes: [
@@ -643,8 +595,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         });     
 
         var SubClassOfSubClassOfSuperClass = new ClassModel({
-            accessControlled: false,
-            updateControlled: false,
             className: 'SubClassOfSubClassOfSuperClass',
             superClasses: [SubClassOfSuperClass],
             attributes: [
@@ -660,8 +610,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         });
 
         var SubClassOfAbstractSubClassOfSuperClass = new ClassModel({
-            accessControlled: false,
-            updateControlled: false,
             className: 'SubClassOfAbstractSubClassOfSuperClass',
             superClasses: [AbstractSubClassOfSuperClass],
             attributes: [
@@ -681,8 +629,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
     // Relationship Classes
     {
         var SingularRelationshipClass = new ClassModel({
-            accessControlled: false,
-            updateControlled: false,
             className: 'SingularRelationshipClass',
             attributes: [
                 {
@@ -705,8 +651,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         });
 
         var NonSingularRelationshipClass = new ClassModel({
-            accessControlled: false,
-            updateControlled: false,
             className: 'NonSingularRelationshipClass',
             attributes: [
                 {
@@ -724,33 +668,23 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         });
 
         var SubClassOfSingularRelationshipClass = new ClassModel({
-            accessControlled: false,
-            updateControlled: false,
             className: 'SubClassOfSingularRelationshipClass',
             superClasses: [SingularRelationshipClass] 
         });
 
         var SubClassOfNonSingularRelationshipClass = new ClassModel({
-            accessControlled: false,
-            updateControlled: false,
             className: 'SubClassOfNonSingularRelationshipClass',
             superClasses: [NonSingularRelationshipClass] 
         });
 
     }
 
-    // AccessControlled Classes
+    // ReadControlled Classes
     {
-        // A class which is accessControlled by another instance. If that instance has a boolean attribute 'allowed' set to 
+        // A class which is readControlled by another instance. If that instance has a boolean attribute 'allowed' set to 
         // true, then the instance of this class can be viewed. 
-        var AccessControlledSuperClass = new ClassModel({
-            className: 'AccessControlledSuperClass',
-            accessControlled: true,
-            updateControlled: false,
-            accessControlMethod: async instance => {
-                const accessControlledByInstance = await instance.walk('accessControlledBy')
-                return accessControlledByInstance.allowed;
-            },
+        var ReadControlledSuperClass = new ClassModel({
+            className: 'ReadControlledSuperClass',
             attributes: [
                 {
                     name: 'name',
@@ -759,70 +693,74 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             ],
             relationships: [
                 {
-                    name: 'accessControlledBy',
-                    toClass: 'ClassControlsAccessControlledSuperClass',
+                    name: 'readControlledBy',
+                    toClass: 'ClassControlsReadControlledSuperClass',
                     singular: true,
                 },
             ],
+            crudControls: {
+                readControl: async instance => {
+                    const readControlledByInstance = await instance.walk('readControlledBy')
+                    return readControlledByInstance.allowed;
+                },
+            }
         });
 
-        // A class which is accessControlled by it's own boolean attribute. If the boolean is set to true, and it passes the 
-        // its super class'es access filter, then the instance will be returned by access filter.
-        var AccessControlledSubClassOfAccessControlledSuperClass = new ClassModel({
-            className: 'AccessControlledSubClassOfAccessControlledSuperClass',
-            accessControlled: true,
-            updateControlled: false,
-            accessControlMethod: async instance => { return instance.boolean },
-            superClasses: [AccessControlledSuperClass],
+        // A class which is readControlled by it's own boolean attribute. If the boolean is set to true, and it passes the 
+        // its super class'es read filter, then the instance will be returned by read filter.
+        var ReadControlledSubClassOfReadControlledSuperClass = new ClassModel({
+            className: 'ReadControlledSubClassOfReadControlledSuperClass',
+            superClasses: [ReadControlledSuperClass],
             attributes: [
                 {
                     name: 'boolean',
                     type: Boolean,
                 },
             ],
+            crudControls: {
+                readControl: async instance => { return instance.boolean },
+            },
         });
 
-        // A class which is accessControlled by it's own string attribute. If the string matches 'accessControlled', and it passes all
-        // it's super classes accessfilters, than an instance of this class will be returned by accessFilter().
-        var AccessControlledDiscriminatedSuperClass = new ClassModel({
-            className: 'AccessControlledDiscriminatedSuperClass',
-            accessControlled: true,
-            updateControlled: false,
+        // A class which is readControlled by it's own string attribute. If the string matches 'readControlled', and it passes all
+        // it's super classes readfilters, than an instance of this class will be returned by readFilter().
+        var ReadControlledDiscriminatedSuperClass = new ClassModel({
+            className: 'ReadControlledDiscriminatedSuperClass',
             discriminated: true,
-            superClasses: [AccessControlledSubClassOfAccessControlledSuperClass],
-            accessControlMethod: async instance => { return instance.string == 'accessControlled' },
+            superClasses: [ReadControlledSubClassOfReadControlledSuperClass],
             attributes: [
                 {
                     name: 'string',
                     type: String,
                 },
             ],
+            crudControls: {
+                readControl: async instance => { return instance.string == 'readControlled' },
+            },
         });
 
-        // A class which is accessControlled by it's own number attribute. If the number is greater than 0, and it passes all
-        // it's super classes accessfilters, than an instance of this class will be returned by accessFilter().
-        var AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass = new ClassModel({
-            className: 'AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass',
-            accessControlled: true, 
-            updateControlled: false,
-            discriminatorSuperClass: AccessControlledDiscriminatedSuperClass,
-            accessControlMethod: async instance => { 
-                return instance.number > 0 
-            },
+        // A class which is readControlled by it's own number attribute. If the number is greater than 0, and it passes all
+        // it's super classes readfilters, than an instance of this class will be returned by readFilter().
+        var ReadControlledSubClassOfReadControlledDiscriminatedSuperClass = new ClassModel({
+            className: 'ReadControlledSubClassOfReadControlledDiscriminatedSuperClass',
+            discriminatorSuperClass: ReadControlledDiscriminatedSuperClass,
             attributes: [
                 {
                     name: 'number',
                     type: Number,
                 },
             ],
+            crudControls: {
+                readControl: async instance => { 
+                    return instance.number > 0 
+                },
+            }
         });
 
         // A class which is used to secure another class. If an instance of this class has its 'allowed' attribute
-        // set to true, than instances of AccessControlledSuperClass related to this instance will pass the accessFilter.
-        var ClassControlsAccessControlledSuperClass = new ClassModel({
-            className: 'ClassControlsAccessControlledSuperClass',
-            accessControlled: false,
-            updateControlled: false,
+        // set to true, than instances of ReadControlledSuperClass related to this instance will pass the readFilter.
+        var ClassControlsReadControlledSuperClass = new ClassModel({
+            className: 'ClassControlsReadControlledSuperClass',
             attributes: [
                 {
                     name: 'allowed',
@@ -831,21 +769,19 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             ],
         });
 
-        // A class which is accessControlled by parameters passed into the accessFilter method. If the two numbers add up to a 
-        // positive number, and the boolean is true, than the instance will pass the access filter. 
-        var AccessControlledClassAccessControlledByParameters = new ClassModel({
-            className: 'AccessControlledClassAccessControlledByParameters',
-            accessControlled: true,
-            updateControlled: false,
-            accessControlMethod: async (instance, numberA, numberB, boolean) => {
-                return (numberA + numberB > 0) && boolean;
+        // A class which is readControlled by parameters passed into the readFilter method. If the two numbers add up to a 
+        // positive number, and the boolean is true, than the instance will pass the read filter. 
+        var ReadControlledClassReadControlledByParameters = new ClassModel({
+            className: 'ReadControlledClassReadControlledByParameters',
+            crudControls: {
+                readControl: async (instance, numberA, numberB, boolean) => {
+                    return (numberA + numberB > 0) && boolean;
+                },
             },
         });
 
-        var SingularRelationshipToAccessControlledClassAccessControlledByParameters = new ClassModel({
-            className: 'SingularRelationshipToAccessControlledClassAccessControlledByParameters',
-            accessControlled: false,
-            updateControlled: false,
+        var SingularRelationshipToReadControlledClassReadControlledByParameters = new ClassModel({
+            className: 'SingularRelationshipToReadControlledClassReadControlledByParameters',
             attributes: [
                 {
                     name: 'name',
@@ -855,16 +791,14 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             relationships: [
                 {
                     name: 'singularRelationship',
-                    toClass: 'AccessControlledClassAccessControlledByParameters',
+                    toClass: 'ReadControlledClassReadControlledByParameters',
                     singular: true,
                 },
             ],
         });
 
-        var NonSingularRelationshipToAccessControlledClassAccessControlledByParameters = new ClassModel({
-            className: 'NonSingularRelationshipToAccessControlledClassAccessControlledByParameters',
-            accessControlled: false,
-            updateControlled: false,
+        var NonSingularRelationshipToReadControlledClassReadControlledByParameters = new ClassModel({
+            className: 'NonSingularRelationshipToReadControlledClassReadControlledByParameters',
             attributes: [
                 {
                     name: 'name',
@@ -874,7 +808,7 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             relationships: [
                 {
                     name: 'nonSingularRelationship',
-                    toClass: 'AccessControlledClassAccessControlledByParameters',
+                    toClass: 'ReadControlledClassReadControlledByParameters',
                     singular: false,
                 },
             ],
@@ -887,12 +821,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         // true, then the instance of this class can be viewed. 
         var UpdateControlledSuperClass = new ClassModel({
             className: 'UpdateControlledSuperClass',
-            accessControlled: false,
-            updateControlled: true,
-            updateControlMethod: async instance => {
-                let updateControlledByInstance =  await instance.walk('updateControlledBy');
-                return updateControlledByInstance.allowed;
-            },
             attributes: [
                 {
                     name: 'name',
@@ -906,15 +834,18 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                     singular: true,
                 },
             ],
+            crudControls: {
+                updateControl: async instance => {
+                    let updateControlledByInstance =  await instance.walk('updateControlledBy');
+                    return updateControlledByInstance.allowed;
+                },
+            }
         });
 
         // A class which is updateControlled by it's own boolean attribute. If the boolean is set to true, and it passes the 
         // its super class'es update filter, then the instance will be returned by update filter.
         var UpdateControlledSubClassOfUpdateControlledSuperClass = new ClassModel({
             className: 'UpdateControlledSubClassOfUpdateControlledSuperClass',
-            accessControlled: false,
-            updateControlled: true,
-            updateControlMethod: async instance => { return instance.boolean },
             superClasses: [UpdateControlledSuperClass],
             attributes: [
                 {
@@ -922,47 +853,48 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                     type: Boolean
                 },
             ],
+            crudControls: {
+                updateControl: async instance => { return instance.boolean },
+            },
         });
 
         // A class which is updateControlled by it's own string attribute. If the string matches 'updateControlled', and it passes all
         // it's super classes updatefilters, than an instance of this class will be returned by updateFilter().
         var UpdateControlledDiscriminatedSuperClass = new ClassModel({
             className: 'UpdateControlledDiscriminatedSuperClass',
-            accessControlled: false,
-            updateControlled: true,
             discriminated: true,
             superClasses: [UpdateControlledSubClassOfUpdateControlledSuperClass],
-            updateControlMethod: async instance => { return instance.string == 'updateControlled' },
             attributes: [
                 {
                     name: 'string',
                     type: String,
                 },
             ],
+            crudControls: {
+                updateControl: async instance => { return instance.string == 'updateControlled' },
+            }
         });
 
         // A class which is updateControlled by it's own number attribute. If the number is greater than 0, and it passes all
         // it's super classes updatefilters, than an instance of this class will be returned by updateFilter().
         var UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass = new ClassModel({
             className: 'UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass',
-            accessControlled: false, 
-            updateControlled: true,
             discriminatorSuperClass: UpdateControlledDiscriminatedSuperClass,
-            updateControlMethod: async instance => { return instance.number > 0 },
             attributes: [
                 {
                     name: 'number',
                     type: Number,
                 },
             ],
+            crudControls: {
+                updateControl: async instance => { return instance.number > 0 },
+            },
         });
 
         // A class which is used to secure another class. If an instance of this class has its 'allowed' attribute
         // set to true, than instances of UpdateControlledSuperClass related to this instance will pass the updateFilter.
         var ClassControlsUpdateControlledSuperClass = new ClassModel({
             className: 'ClassControlsUpdateControlledSuperClass',
-            accessControlled: false,
-            updateControlled: false,
             attributes: [
                 {
                     name: 'allowed',
@@ -975,10 +907,10 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         // positive number, and the boolean is true, than the instance will pass the update filter. 
         var UpdateControlledClassUpdateControlledByParameters = new ClassModel({
             className: 'UpdateControlledClassUpdateControlledByParameters',
-            accessControlled: false,
-            updateControlled: true,
-            updateControlMethod: async (instance, numberA, numberB, boolean) => {
-                return (numberA + numberB > 0) && boolean;
+            crudControls: {
+                updateControl: async (instance, numberA, numberB, boolean) => {
+                    return (numberA + numberB > 0) && boolean;
+                },
             },
         });
     }
@@ -1016,14 +948,14 @@ module.exports = {
     NonSingularRelationshipClass,
     SubClassOfSingularRelationshipClass,
     SubClassOfNonSingularRelationshipClass,
-    AccessControlledSuperClass,
-    AccessControlledSubClassOfAccessControlledSuperClass,
-    AccessControlledDiscriminatedSuperClass,
-    AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass,
-    ClassControlsAccessControlledSuperClass,
-    AccessControlledClassAccessControlledByParameters,
-    SingularRelationshipToAccessControlledClassAccessControlledByParameters,
-    NonSingularRelationshipToAccessControlledClassAccessControlledByParameters,
+    ReadControlledSuperClass,
+    ReadControlledSubClassOfReadControlledSuperClass,
+    ReadControlledDiscriminatedSuperClass,
+    ReadControlledSubClassOfReadControlledDiscriminatedSuperClass,
+    ClassControlsReadControlledSuperClass,
+    ReadControlledClassReadControlledByParameters,
+    SingularRelationshipToReadControlledClassReadControlledByParameters,
+    NonSingularRelationshipToReadControlledClassReadControlledByParameters,
     UpdateControlledSuperClass, 
     UpdateControlledSubClassOfUpdateControlledSuperClass,
     UpdateControlledDiscriminatedSuperClass,

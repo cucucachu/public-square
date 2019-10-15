@@ -1,8 +1,7 @@
 // MongoDB and Mongoose Setup
 // If you are a developer running this on a local machine, make sure you whitelist your IP address on mongodb atlas.
 const mongo = require('mongodb');
-const MongoClient = mongo.MongoClient
-// const mongoose = require('mongoose');
+const MongoClient = mongo.MongoClient;
 const mongo_uri = "mongodb+srv://cody_jones:cody_jones@publicsquaredev-d3ue6.gcp.mongodb.net/test?retryWrites=true";
 
 let client = null;
@@ -99,21 +98,6 @@ function collection(name) {
 	if (db)
 		return db.collection(name);
 }
-
-// async function connectMongoose() {
-// 	if (db) {
-// 		throw new Error('Attempt to connect to database twice.');
-// 	}
-// 	await mongoose.connect(mongo_uri);
-// 	db = mongoose.connection;
-// 	db.on('error', console.error.bind(console, 'connection error:'));
-// 	return true;
-// }
-
-// function closeMongoose() {
-// 	db.close();
-// 	db = null;
-// }
 
 module.exports = {
 	connect,

@@ -22,14 +22,11 @@ class ClassModel {
         this.discriminatedSubClasses = [];
         this.abstract = schema.abstract;
         this.discriminated = schema.discriminated;
-        this.accessControlled = schema.accessControlled;
-        this.accessControlMethod = schema.accessControlMethod ? schema.accessControlMethod : undefined;
-        this.updateControlled = schema.updateControlled;
-        this.updateControlMethod = schema.updateControlMethod ? schema.updateControlMethod : undefined;
         this.superClasses = schema.superClasses ? schema.superClasses : [];
         this.discriminatorSuperClass = schema.discriminatorSuperClass;
+        
+        // collection        
         this.collection = schema.discriminatorSuperClass ? schema.discriminatorSuperClass.collection : schema.className.toLowerCase();
-
         if (schema.discriminatorSuperClass) {
             this.collection = schema.discriminatorSuperClass.collection;
         }
@@ -41,65 +38,6 @@ class ClassModel {
             }
             this.collection = this.collection + 's';
         }
-
-
-        // Access Control Settings
-        if (schema.accessControlled === undefined) {
-            throw new Error('accessControlled is required.');
-        }
-
-        if (schema.accessControlled && !this.allAccessControlMethodsforClassModel().length) {
-            throw new Error('If a class is accessControlled, it must have an accessControlMethod, or it must have at least one super class with an accessControlMethod.');
-        }
-
-        if (!schema.accessControlled) {
-            if (schema.accessControlMethod) {
-                throw new Error('A class that is not accessControlled cannot have an accessControlMethod.');
-            }
-
-            if (schema.superClasses) {
-                schema.superClasses.forEach(function(superClass) {
-                    if (superClass.accessControlled) {
-                        throw new Error('A class which is not accessControlled cannot be a sub class of a class which is accessControlled.');
-                    }
-                });
-            }
-
-            if (schema.discriminatorSuperClass) {
-                if (schema.discriminatorSuperClass.accessControlled) {
-                    throw new Error('A subclass of a accessControlled discriminated super class must also be accessControlled.');
-                }
-            }
-        } 
-
-        // Update Control Settings
-        if (schema.updateControlled === undefined) {
-            throw new Error('updateControlled is required.');
-        }
-
-        if (schema.updateControlled && !this.allUpdateControlMethodsforClassModel().length) {
-            throw new Error('If a class is updateControlled, it must have an updateControlMethod, or it must have at least one super class with an updateControlMethod.');
-        }
-
-        if (!schema.updateControlled) {
-            if (schema.updateControlMethod) {
-                throw new Error('A class that is not updateControlled cannot have an updateControlMethod.');
-            }
-
-            if (schema.superClasses) {
-                schema.superClasses.forEach(function(superClass) {
-                    if (superClass.updateControlled) {
-                        throw new Error('A class which is not updateControlled cannot be a sub class of a class which is updateControlled.');
-                    }
-                });
-            }
-
-            if (schema.discriminatorSuperClass) {
-                if (schema.discriminatorSuperClass.updateControlled) {
-                    throw new Error('A subclass of a updateControlled discriminated super class must also be updateControlled.');
-                }
-            }
-        }         
         
         this.attributes = [];
         this.relationships = [];
@@ -116,10 +54,24 @@ class ClassModel {
             }
         }
 
+        this.readControlMethods = [];
+        this.updateControlMethods = [];
+
+        if (schema.crudControls) {
+            if (schema.crudControls.readControl) {
+                this.readControlMethods.push(schema.crudControls.readControl);
+            }
+            if (schema.crudControls.updateControl) {
+                this.updateControlMethods.push(schema.crudControls.updateControl);
+            }
+        }
+
         if (schema.superClasses) {
             for (const superClass of schema.superClasses) {
                 this.attributes = this.attributes.concat(superClass.attributes);
                 this.relationships = this.relationships.concat(superClass.relationships);
+                this.readControlMethods = this.readControlMethods.concat(superClass.readControlMethods);
+                this.updateControlMethods = this.updateControlMethods.concat(superClass.updateControlMethods);
                 superClass.subClasses.push(this);
             }
         }
@@ -127,6 +79,8 @@ class ClassModel {
         if (schema.discriminatorSuperClass) {
             this.attributes = this.attributes.concat(schema.discriminatorSuperClass.attributes);
             this.relationships = this.relationships.concat(schema.discriminatorSuperClass.relationships);
+            this.readControlMethods = this.readControlMethods.concat(schema.discriminatorSuperClass.readControlMethods);
+            this.updateControlMethods = this.updateControlMethods.concat(schema.discriminatorSuperClass.updateControlMethods);
             schema.discriminatorSuperClass.discriminatedSubClasses.push(this);
         }
 
@@ -374,10 +328,10 @@ class ClassModel {
     /* Finds instances of this ClassModel using the given query filter in the database. 
      * If called on a superclass, will recursively check this ClassModel's collection, and then it's subclasses collections.
      * Required Parameter queryFilter - A mongo query object
-     * Rest Parameter accessControlMethodParameters - Optional parameters used by this ClassModels access control method. 
+     * Rest Parameter readControlMethodParameters - Optional parameters used by this ClassModels read control method. 
      * Returns a promise, which will resolve with the instance with the given query filter if it can be found, otherwise null.
      */
-    async find(queryFilter, ...accessControlMethodParameters) {
+    async find(queryFilter, ...readControlMethodParameters) {
         const concrete = !this.abstract;
         const abstract = this.abstract;
         const discriminated = this.discriminated;
@@ -398,7 +352,7 @@ class ClassModel {
                 return new Instance(this, document);
             });
             const foundInstanceSet = new InstanceSet(this, foundInstances);
-            return this.accessControlFilter(foundInstanceSet, ...accessControlMethodParameters);
+            return this.readControlFilter(foundInstanceSet, ...readControlMethodParameters);
         }
 
         // If this is a non-discriminated super class, we may need to check this classmodel's collection as well,
@@ -413,11 +367,11 @@ class ClassModel {
                 if (foundDocumentsOfThisClass.length) {
                     const foundInstances = foundDocumentsOfThisClass.map(instance => { return new Instance(this, instance)});
                     const foundInstancesOfThisClass = new InstanceSet(this, foundInstances);
-                    filteredInstancesOfThisClass = await this.accessControlFilter(foundInstancesOfThisClass, ...accessControlMethodParameters);
+                    filteredInstancesOfThisClass = await this.readControlFilter(foundInstancesOfThisClass, ...readControlMethodParameters);
                 }
             }
             for (let subClass of subClasses)
-                promises.push(subClass.find(queryFilter, ...accessControlMethodParameters));
+                promises.push(subClass.find(queryFilter, ...readControlMethodParameters));
 
             let foundInstances = await this.allPromiseResoltionsInstanceSets(promises);
             
@@ -429,10 +383,10 @@ class ClassModel {
     /* Finds an instance of this ClassModel using the given query filter in the database. 
      * If called on a superclass, will recursively check this ClassModel's collection, and then it's subclasses collections.
      * Required Parameter queryFilter - A mongo query object.
-     * Rest Parameter accessControlMethodParameters - Optional parameters used by this ClassModels access control method. 
+     * Rest Parameter readControlMethodParameters - Optional parameters used by this ClassModels read control method. 
      * Returns a promise, which will resolve with the instance with the given query filter if it can be found, otherwise null.
      */
-    async findOne(queryFilter, ...accessControlMethodParameters) {
+    async findOne(queryFilter, ...readControlMethodParameters) {
         const concrete = !this.abstract;
         const abstract = this.abstract;
         const discriminated = this.discriminated;
@@ -464,7 +418,7 @@ class ClassModel {
                 }
             }
 
-            const filteredInstance = await this.accessControlFilterOne(instanceFound, ...accessControlMethodParameters);
+            const filteredInstance = await this.readControlFilterOne(instanceFound, ...readControlMethodParameters);
             return filteredInstance ? filteredInstance : null;
         }
         // If this is a non-discriminated super class, we may need to check this classmodel's collection as well,
@@ -478,7 +432,7 @@ class ClassModel {
                 if (documentFound) {
                     let instanceFound = new Instance(this, documentFound);
 
-                    const filteredInstance = await this.accessControlFilterOne(instanceFound, ...accessControlMethodParameters)
+                    const filteredInstance = await this.readControlFilterOne(instanceFound, ...readControlMethodParameters)
                     return filteredInstance ? filteredInstance : null;
                 }
             }
@@ -496,108 +450,26 @@ class ClassModel {
      * Parameter id - the Object ID of the instance to find.
      * Returns a promise, which will resolve with the instance with the given id if it can be found, otherwise null.
      */
-    async findById(id, ...accessControlMethodParameters) {
-        return this.findOne({_id: id}, ...accessControlMethodParameters);
+    async findById(id, ...readControlMethodParameters) {
+        return this.findOne({_id: id}, ...readControlMethodParameters);
     }
 
-    // Query Methods
+    // Crud Control Methods
 
-    /* Finds instances of this ClassModel using the given query filter in the database. 
-     * If called on a superclass, will recursively check this ClassModel's collection, and then it's subclasses collections.
-     * Required Parameter queryFilter - A mongo query object.
-     * Rest Parameter accessControlMethodParameters - Optional parameters used by this ClassModels access control method. 
-     * Returns a promise, which will resolve with the instance with the given query filter if it can be found, otherwise null.
-     */
-    async find2(queryFilter, ...accessControlMethodParameters) {
-        const concrete = !this.abstract;
-        const abstract = this.abstract;
-        const discriminated = this.discriminated;
-        const isSuperClass = (this.subClasses.length > 0 || this.discriminated);
-        const subClasses = this.subClasses;
-        const className = this.className;
-        const Model = this.Model;
-
-        // If this class is a non-discriminated abstract class and it doesn't have any sub classes, throw an error.
-        if (abstract && !isSuperClass)
-            throw new Error('Error in ' + className + '.find(). This class is abstract and non-discriminated, but it has no sub-classes.');
-
-        // If this is a discriminated class, or it is a concrete class with no subclasses, find the instance in this ClassModel's collection.
-        if ((concrete && !isSuperClass) || discriminated) {
-            const foundDocuments = await Model.find(queryFilter).exec();
-            const foundInstances = foundDocuments.map(document => { 
-                if (document.__t)
-                    return new Instance(AllClassModels[document.__t], document);
-                return new Instance(this, document);
-            });
-            const foundInstanceSet = new InstanceSet(this, foundInstances);
-            return this.accessControlFilter(foundInstanceSet, ...accessControlMethodParameters);
-        }
-
-        // If this is a non-discriminated super class, we may need to check this classmodel's collection as well,
-        //  as well as the subclasses collections.
-        if (isSuperClass && !discriminated) {
-            let promises = [];
-            let filteredInstancesOfThisClass;
-
-            if (concrete) {
-                let foundDocumentsOfThisClass = await Model.find(queryFilter).exec();
-
-                if (foundDocumentsOfThisClass.length) {
-                    const foundInstances = foundDocumentsOfThisClass.map(instance => { return new Instance(this, instance)});
-                    const foundInstancesOfThisClass = new InstanceSet(this, foundInstances);
-                    filteredInstancesOfThisClass = await this.accessControlFilter(foundInstancesOfThisClass, ...accessControlMethodParameters);
-                }
-            }
-            for (let subClass of subClasses)
-                promises.push(subClass.find(queryFilter, ...accessControlMethodParameters));
-
-            let foundInstances = await this.allPromiseResoltionsInstanceSets(promises);
-            
-            foundInstances.addInstances(filteredInstancesOfThisClass)
-            return foundInstances;
-        }
-    }
-
-    // Security Methods
-
-    /* A recursive method which retrieves all the access control methods that should be run on instances of a classmodel, including the classes own
-     *    access control method and all the access control methods of its accessControlled parents.
-     * @return An Array containing all the access control methods that should be run for a particular class model.
-     */
-    allAccessControlMethodsforClassModel() {
-        if (!this.accessControlled)
-            return [];
-        
-        let accessControlMethods = [];
-
-        for (let superClass of this.superClasses) {
-            accessControlMethods.push(...superClass.allAccessControlMethodsforClassModel());
-        }
-
-        if (this.discriminatorSuperClass)
-            accessControlMethods.push(...this.discriminatorSuperClass.allAccessControlMethodsforClassModel());
-
-        if (this.accessControlMethod)
-            accessControlMethods.push(this.accessControlMethod);
-
-        return accessControlMethods;
-    }
-
-    /* Takes an array of instances of the Class Model and filters out any that do not pass this Class Model's access control method.
+    /* Takes an array of instances of the Class Model and filters out any that do not pass this Class Model's read control method.
      * @param required Array<instance> : An array of instances of this Class Model to filter.
-     * @return Promise(Array<Instance>): The given instances filtered for access control.
+     * @return Promise(Array<Instance>): The given instances filtered for read control.
      */
-    async accessControlFilter(instanceSet, ...accessControlMethodParameters) {
+    async readControlFilter(instanceSet, ...readControlMethodParameters) {
         if (!(instanceSet instanceof InstanceSet))
-            throw new Error('Incorrect parameters. ' + this.className + '.accessControlFilter(InstanceSet instanceSet, ...accessControlMethodParameters)');
+            throw new Error('Incorrect parameters. ' + this.className + '.readControlFilter(InstanceSet instanceSet, ...readControlMethodParameters)');
 
-        // If InstanceSet is empty or not access controlled, just return a copy of it.
-        if (!instanceSet.size || !this.accessControlled)
+        // If InstanceSet is empty or not read controlled, just return a copy of it.
+        if (!instanceSet.size || this.readControlMethods.length === 0)
             return new InstanceSet(this, instanceSet);
 
-        // Filter instances of this class using the relevant access control methods.
+        // Filter instances of this class using the relevant read control methods.
         const filtered = new InstanceSet(this);
-        let accessControlMethods = this.allAccessControlMethodsforClassModel();
         let filteredInstanceSetOfThisClass;
 
         if (this.discriminated)
@@ -607,14 +479,14 @@ class ClassModel {
         
         let filteredInstancesOfThisClass = [...filteredInstanceSetOfThisClass];
 
-        for (const accessControlMethod of accessControlMethods) {
+        for (const readControlMethod of this.readControlMethods) {
             filteredInstancesOfThisClass = await ClassModel.asyncFilter(filteredInstancesOfThisClass, async (instance) => {
-                return await accessControlMethod(instance, ...accessControlMethodParameters);
+                return await readControlMethod(instance, ...readControlMethodParameters);
             });
         }
 
         filtered.addInstances(filteredInstancesOfThisClass);
-        // Recursively call accessControlFilter() for sub classes
+        // Recursively call readControlFilter() for sub classes
         let subClasses = [];
 
         if (this.subClasses.length)
@@ -626,7 +498,7 @@ class ClassModel {
             let instanceSetOfSubClass = instanceSet.filterForClassModel(subClass);
 
             if (instanceSetOfSubClass.size) {
-                let filteredSubClassInstances = await subClass.accessControlFilter(instanceSetOfSubClass, ...accessControlMethodParameters);
+                let filteredSubClassInstances = await subClass.readControlFilter(instanceSetOfSubClass, ...readControlMethodParameters);
                 filtered.addInstances(filteredSubClassInstances);
             }
         }
@@ -634,33 +506,10 @@ class ClassModel {
         return filtered;
     }
 
-    async accessControlFilterOne(instance, ...accessControlMethodParameters) {
+    async readControlFilterOne(instance, ...readControlMethodParameters) {
         const instanceSet = new InstanceSet(this, [instance]);
-        const filteredInstanceSet = await this.accessControlFilter(instanceSet, ...accessControlMethodParameters);
+        const filteredInstanceSet = await this.readControlFilter(instanceSet, ...readControlMethodParameters);
         return filteredInstanceSet.isEmpty() ? null : [...instanceSet][0];
-    }
-
-    /* A recursive method which retrieves all the update control methods that should be run on instances of a classmodel, including the classes own
-     *    update control method and all the update control methods of its updateControlled parents.
-     * @return An Array containing all the update control methods that should be run for a particular class model.
-     */
-    allUpdateControlMethodsforClassModel() {
-        if (!this.updateControlled)
-            return [];
-        
-        let updateControlMethods = [];
-
-        for (let superClass of this.superClasses) {
-            updateControlMethods.push(...superClass.allUpdateControlMethodsforClassModel());
-        }
-
-        if (this.discriminatorSuperClass)
-            updateControlMethods.push(...this.discriminatorSuperClass.allUpdateControlMethodsforClassModel());
-
-        if (this.updateControlMethod)
-            updateControlMethods.push(this.updateControlMethod);
-
-        return updateControlMethods;
     }
 
     async updateControlCheck(instance, ...updateControlMethodParameters) {
@@ -672,7 +521,7 @@ class ClassModel {
         if (!(instanceSet instanceof InstanceSet))
             throw new Error('Incorrect parameters. ' + this.className + '.updateControlCheckSet(InstanceSet instanceSet, ...updateControlMethodParameters)');
 
-        if (instanceSet.isEmpty() || !this.updateControlled)
+        if (instanceSet.isEmpty() || !this.updateControlMethods.length)
             return true;
 
         const rejectedInstances = await this.updateControlCheckSetRecursive(instanceSet, ...updateControlParameters);
@@ -689,7 +538,6 @@ class ClassModel {
      * }
      */
     async updateControlCheckSetRecursive(instanceSet, ...updateControlMethodParameters) {
-        const updateControlMethods = this.allUpdateControlMethodsforClassModel();
         let rejectedInstances = new InstanceSet(this);
 
         const instancesOfThisClass = instanceSet.filterToInstanceSet(instance => {
@@ -698,7 +546,7 @@ class ClassModel {
 
         let updatableInstancesOfThisClass = [...instancesOfThisClass];
 
-        for (const updateControlMethod of updateControlMethods) {
+        for (const updateControlMethod of this.updateControlMethods) {
             updatableInstancesOfThisClass = await ClassModel.asyncFilter(updatableInstancesOfThisClass, async (instance) => {
                 return updateControlMethod(instance, ...updateControlMethodParameters);
             });

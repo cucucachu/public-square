@@ -46,15 +46,15 @@ const testForErrorAsync = TestingFunctions.testForErrorAsync;
     var SubClassOfSingularRelationshipClass = TestClassModels.SubClassOfSingularRelationshipClass;
     var SubClassOfNonSingularRelationshipClass = TestClassModels.SubClassOfNonSingularRelationshipClass;
 
-    // AccessControlled Classes
-    var AccessControlledSuperClass = TestClassModels.AccessControlledSuperClass;
-    var AccessControlledSubClassOfAccessControlledSuperClass = TestClassModels.AccessControlledSubClassOfAccessControlledSuperClass;
-    var AccessControlledDiscriminatedSuperClass = TestClassModels.AccessControlledDiscriminatedSuperClass;
-    var AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass = TestClassModels.AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass;
-    var ClassControlsAccessControlledSuperClass = TestClassModels.ClassControlsAccessControlledSuperClass;
-    var AccessControlledClassAccessControlledByParameters = TestClassModels.AccessControlledClassAccessControlledByParameters;
-    var SingularRelationshipToAccessControlledClassAccessControlledByParameters = TestClassModels.SingularRelationshipToAccessControlledClassAccessControlledByParameters;
-    var NonSingularRelationshipToAccessControlledClassAccessControlledByParameters = TestClassModels.NonSingularRelationshipToAccessControlledClassAccessControlledByParameters;
+    // ReadControlled Classes
+    var ReadControlledSuperClass = TestClassModels.ReadControlledSuperClass;
+    var ReadControlledSubClassOfReadControlledSuperClass = TestClassModels.ReadControlledSubClassOfReadControlledSuperClass;
+    var ReadControlledDiscriminatedSuperClass = TestClassModels.ReadControlledDiscriminatedSuperClass;
+    var ReadControlledSubClassOfReadControlledDiscriminatedSuperClass = TestClassModels.ReadControlledSubClassOfReadControlledDiscriminatedSuperClass;
+    var ClassControlsReadControlledSuperClass = TestClassModels.ClassControlsReadControlledSuperClass;
+    var ReadControlledClassReadControlledByParameters = TestClassModels.ReadControlledClassReadControlledByParameters;
+    var SingularRelationshipToReadControlledClassReadControlledByParameters = TestClassModels.SingularRelationshipToReadControlledClassReadControlledByParameters;
+    var NonSingularRelationshipToReadControlledClassReadControlledByParameters = TestClassModels.NonSingularRelationshipToReadControlledClassReadControlledByParameters;
 
     // UpdateControlled Classes
     var UpdateControlledSuperClass = TestClassModels.UpdateControlledSuperClass;
@@ -81,30 +81,10 @@ describe('Class Model Tests', () => {
 
             it('ClassName is required.', () => { 
                 testForError('ClassModel.constructor()', 'className is required.', () => {
-                    new ClassModel({
-                        accessControlled: false,
-                        updateControlled: false,
-                    });
+                    new ClassModel({});
                 });
             });
-    
-            it('AccessControlled is required', () => {
-                testForError('ClassModel.constructor()', 'accessControlled is required.', () => {
-                    new ClassModel({
-                        className: 'Class',
-                        updateControlled: false,
-                    });
-                });
-            });
-    
-            it('UpdateControlled is required', () => {
-                testForError('ClassModel.constructor()', 'updateControlled is required.', () => {
-                    new ClassModel({
-                        className: 'Class',
-                        accessControlled: false,
-                    });
-                });
-            });
+
 
         });
 
@@ -113,8 +93,6 @@ describe('Class Model Tests', () => {
             it('If superClasses is set, it must be an Array.', () => {
                 testForError('ClassModel.constructor()', 'If superClasses is set, it must be an Array.', () => {
                     new ClassModel({
-                        accessControlled: false,
-                        updateControlled: false,
                         className: 'SubClassModel',
                         superClasses: SuperClass
                     });
@@ -124,8 +102,6 @@ describe('Class Model Tests', () => {
             it('If superClasses is set, it cannot be an empty Array.', () => {
                 testForError('ClassModel.constructor()', 'If superClasses is set, it cannot be an empty Array.', () => {
                     new ClassModel({
-                        accessControlled: false,
-                        updateControlled: false,
                         className: 'SubClassModel',
                         superClasses: []
                     });
@@ -135,8 +111,6 @@ describe('Class Model Tests', () => {
             it('If discriminatorSuperClass is set, it can only be a single class.', () => {
                 testForError('ClassModel.constructor()', 'If discriminatorSuperClass is set, it can only be a single class.', () => {
                     new ClassModel({
-                        accessControlled: false,
-                        updateControlled: false,
                         className: 'SubClassModel',
                         discriminatorSuperClass: [SuperClass, DiscriminatedSuperClass]
                     })
@@ -146,8 +120,6 @@ describe('Class Model Tests', () => {
             it('A ClassModel cannot have both superClasses and discriminatorSuperClass.', () => {
                 testForError('ClassModel.constructor()', 'A ClassModel cannot have both superClasses and discriminatorSuperClass.', () => {
                     new ClassModel({
-                        accessControlled: false,
-                        updateControlled: false,
                         className: 'SubClassModel',
                         superClasses: [SuperClass],
                         discriminatorSuperClass: DiscriminatedSuperClass
@@ -158,8 +130,6 @@ describe('Class Model Tests', () => {
             it('A ClassModel cannot have both superClasses and discriminatorSuperClass.', () => {
                 testForError('ClassModel.constructor()', 'A ClassModel cannot have both superClasses and discriminatorSuperClass.', () => {
                     new ClassModel({
-                        accessControlled: false,
-                        updateControlled: false,
                         className: 'SubClassModel',
                         superClasses: [SuperClass],
                         discriminatorSuperClass: DiscriminatedSuperClass
@@ -170,8 +140,6 @@ describe('Class Model Tests', () => {
             it('If a class is used as a discriminatedSuperClass, that class must have its "discriminated" field set to true.', () => {
                 testForError('ClassModel.constructor()', 'If a class is used as a discriminatedSuperClass, that class must have its "discriminated" field set to true.', () => {
                     new ClassModel({
-                        accessControlled: false,
-                        updateControlled: false,
                         className: 'SubClassModel',
                         discriminatorSuperClass: SuperClass
                     });
@@ -181,8 +149,6 @@ describe('Class Model Tests', () => {
             it('If a class is set as a superClass, that class cannot have its "discriminated" field set to true.', () => {
                 testForError('ClassModel.constructor()', 'If a class is set as a superClass, that class cannot have its "discriminated" field set to true.', () => {
                     new ClassModel({
-                        accessControlled: false,
-                        updateControlled: false,
                         className: 'SubClassModel',
                         superClasses: [DiscriminatedSuperClass]
                     });
@@ -192,8 +158,6 @@ describe('Class Model Tests', () => {
             it('A discriminator sub class cannot be abstract.', () => {
                 testForError('ClassModel.constructor()', 'A discriminator sub class cannot be abstract.', () => {
                     new ClassModel({
-                        accessControlled: false,
-                        updateControlled: false,
                         className: 'SubClassModel',
                         discriminatorSuperClass: DiscriminatedSuperClass,
                         abstract: true
@@ -204,8 +168,6 @@ describe('Class Model Tests', () => {
             it('A sub class of a discriminated super class cannot be discriminated.', () => {
                 testForError('ClassModel.constructor()', 'A sub class of a discriminated super class cannot be discriminated.', () => {
                     new ClassModel({
-                        accessControlled: false,
-                        updateControlled: false,
                         className: 'SubClassModel',
                         discriminatorSuperClass: DiscriminatedSuperClass,
                         discriminated: true
@@ -216,8 +178,6 @@ describe('Class Model Tests', () => {
             it('Sub class schema cannot contain the same field names as a super class schema.', () => {
                 try {
                     new ClassModel({
-                        accessControlled: false,
-                        updateControlled: false,
                         className: 'SubClassModel',
                         superClasses: [SuperClass],
                         attributes: [
@@ -330,7 +290,6 @@ describe('Class Model Tests', () => {
             it('A class cannot be a sub class of a sub class of a discriminated class.', () => {
                 try {
                     new ClassModel({
-                        accessControlled: false,
                         className: 'SubClassModel',
                         superClasses: [SubClassOfDiscriminatorSuperClass]
                     });
@@ -352,162 +311,10 @@ describe('Class Model Tests', () => {
 
         });
 
-        describe('Access Control Requirements', () => {
-
-            it('If a class is accessControlled, it must have a accessControlMethod, or it must have at least one super class with an accessControlMethod.', () => {
-                try {
-                    new ClassModel({
-                        className: 'Class',
-                        accessControlled: true,
-                        updateControlled: false,
-                    });
-                }
-                catch (error) {
-                        if (error.message == 'If a class is accessControlled, it must have an accessControlMethod, or it must have at least one super class with an accessControlMethod.')
-                            return true;
-                        else 
-                            throw new Error(error.message);
-                    }
-                throw new Error('Constructor should have thrown an error: If a class is accessControlled, it must have an accessControlMethod, or it must have at least one super class with an accessControlMethod.');
-            });
-    
-            it('A class that is not accessControlled cannot have an accessControlMethod.', () => {
-                try {
-                    new ClassModel({
-                        className: 'Class',
-                        accessControlled: false,
-                        updateControlled: false,
-                        accessControlMethod: () => { return true },
-                    });
-                }
-                catch (error) {
-                        if (error.message == 'A class that is not accessControlled cannot have an accessControlMethod.')
-                            return true;
-                        else 
-                            throw new Error(error.message);
-                    }
-                throw new Error('Constructor should have thrown an error: A class that is not accessControlled cannot have an accessControlMethod.');
-            });
-    
-            it('A class which is not accessControlled cannot be a sub class of a class which is accessControlled.', () => {
-                try {
-                    new ClassModel({
-                        className: 'Class',
-                        accessControlled: false,
-                        updateControlled: false,
-                        superClasses: [AccessControlledSuperClass],
-                    });
-                }
-                catch (error) {
-                        if (error.message == 'A class which is not accessControlled cannot be a sub class of a class which is accessControlled.')
-                            return true;
-                        else 
-                            throw new Error(error.message);
-                    }
-                throw new Error('Constructor should have thrown an error: A class which is not accessControlled cannot be a sub class of a class which is accessControlled.');
-            });
-    
-            it('A subclass of an accessControlled discriminated super class must also be accessControlled.', () => {
-                try {
-                    new ClassModel({
-                        className: 'Class',
-                        accessControlled: false,
-                        updateControlled: false,
-                        discriminatorSuperClass: AccessControlledDiscriminatedSuperClass,
-                    });
-                }
-                catch (error) {
-                        if (error.message == 'A subclass of a accessControlled discriminated super class must also be accessControlled.')
-                            return true;
-                        else 
-                            throw new Error(error.message);
-                    }
-                throw new Error('Constructor should have thrown an error: A subclass of a accessControlled discriminated super class must also be accessControlled.');
-            });
-
-        });
-
-        describe('Update Control Requirements', () => {
-
-            it('If a class is updateControlled, it must have a updateControlMethod, or it must have at least one super class with an updateControlMethod.', () => {
-                try {
-                    new ClassModel({
-                        className: 'Class',
-                        accessControlled: false,
-                        updateControlled: true,
-                    });
-                }
-                catch (error) {
-                        if (error.message == 'If a class is updateControlled, it must have an updateControlMethod, or it must have at least one super class with an updateControlMethod.')
-                            return true;
-                        else 
-                            throw new Error(error.message);
-                    }
-                throw new Error('Constructor should have thrown an error: If a class is updateControlled, it must have an updateControlMethod, or it must have at least one super class with an updateControlMethod.');
-            });
-    
-            it('A class that is not updateControlled cannot have an updateControlMethod.', () => {
-                try {
-                    new ClassModel({
-                        className: 'Class',
-                        accessControlled: false,
-                        updateControlled: false,
-                        updateControlMethod: () => { return true },
-                    });
-                }
-                catch (error) {
-                        if (error.message == 'A class that is not updateControlled cannot have an updateControlMethod.')
-                            return true;
-                        else 
-                            throw new Error(error.message);
-                    }
-                throw new Error('Constructor should have thrown an error: A class that is not updateControlled cannot have an updateControlMethod.');
-            });
-    
-            it('A class which is not updateControlled cannot be a sub class of a class which is updateControlled.', () => {
-                try {
-                    new ClassModel({
-                        className: 'Class',
-                        accessControlled: false,
-                        updateControlled: false,
-                        superClasses: [UpdateControlledSuperClass],
-                    });
-                }
-                catch (error) {
-                        if (error.message == 'A class which is not updateControlled cannot be a sub class of a class which is updateControlled.')
-                            return true;
-                        else 
-                            throw new Error(error.message);
-                    }
-                throw new Error('Constructor should have thrown an error: A class which is not updateControlled cannot be a sub class of a class which is updateControlled.');
-            });
-    
-            it('A subclass of an updateControlled discriminated super class must also be updateControlled.', () => {
-                try {
-                    new ClassModel({
-                        className: 'Class',
-                        accessControlled: false,
-                        updateControlled: false,
-                        discriminatorSuperClass: UpdateControlledDiscriminatedSuperClass,
-                    });
-                }
-                catch (error) {
-                        if (error.message == 'A subclass of a updateControlled discriminated super class must also be updateControlled.')
-                            return true;
-                        else 
-                            throw new Error(error.message);
-                    }
-                throw new Error('Constructor should have thrown an error: A subclass of a updateControlled discriminated super class must also be updateControlled.');
-            });
-
-        });
-
         describe('Happy Path', () => {
 
             it('Constructor excepts and sets parameters.', () => {    
                 var SimpleClassModel = new ClassModel({
-                    accessControlled: false,
-                    updateControlled: false,
                     className: 'SimpleClassModel',
                     attributes: [
                         {
@@ -1314,440 +1121,465 @@ describe('Class Model Tests', () => {
 
     });
 
-    describe('ClassModel.accessControlFilter()', () => {
+    describe('ClassModel.readControlFilter()', () => {
 
-        // Set up accessControlled Instances
+        // Set up readControlled Instances
         // For each class, create on instance which will pass all access control filters, and one each that will fail due to one of the access control methods
         {
-            // ClassControlsAccessControlledSuperClass Instances
-            var instanceOfClassControlsAccessControlledSuperClassAllowed = new Instance(ClassControlsAccessControlledSuperClass);
-            instanceOfClassControlsAccessControlledSuperClassAllowed.allowed = true;
+            // ClassControlsReadControlledSuperClass Instances
+            var instanceOfClassControlsReadControlledSuperClassAllowed = new Instance(ClassControlsReadControlledSuperClass);
+            instanceOfClassControlsReadControlledSuperClassAllowed.allowed = true;
             
-            var instanceOfClassControlsAccessControlledSuperClassNotAllowed = new Instance(ClassControlsAccessControlledSuperClass);
-            instanceOfClassControlsAccessControlledSuperClassNotAllowed.allowed = false;
+            var instanceOfClassControlsReadControlledSuperClassNotAllowed = new Instance(ClassControlsReadControlledSuperClass);
+            instanceOfClassControlsReadControlledSuperClassNotAllowed.allowed = false;
 
-            // AccessControlledSuperClass Instances
-            var instanceOfAccessControlledSuperClassPasses = new Instance(AccessControlledSuperClass);
-            instanceOfAccessControlledSuperClassPasses.name = 'instanceOfAccessControlledSuperClassPasses';
-            instanceOfAccessControlledSuperClassPasses.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;
+            // ReadControlledSuperClass Instances
+            var instanceOfReadControlledSuperClassPasses = new Instance(ReadControlledSuperClass);
+            instanceOfReadControlledSuperClassPasses.name = 'instanceOfReadControlledSuperClassPasses';
+            instanceOfReadControlledSuperClassPasses.readControlledBy = instanceOfClassControlsReadControlledSuperClassAllowed;
 
-            var instanceOfAccessControlledSuperClassFailsRelationship = new Instance(AccessControlledSuperClass);
-            instanceOfAccessControlledSuperClassFailsRelationship.name = 'instanceOfAccessControlledSuperClassFailsRelationship';
-            instanceOfAccessControlledSuperClassFailsRelationship.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassNotAllowed;
+            var instanceOfReadControlledSuperClassFailsRelationship = new Instance(ReadControlledSuperClass);
+            instanceOfReadControlledSuperClassFailsRelationship.name = 'instanceOfReadControlledSuperClassFailsRelationship';
+            instanceOfReadControlledSuperClassFailsRelationship.readControlledBy = instanceOfClassControlsReadControlledSuperClassNotAllowed;
 
-            // AccessControlledSubClassOfAccessControlledSuperClass Instances
-            var instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses = new Instance(AccessControlledSubClassOfAccessControlledSuperClass);
-            instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses.name = 'instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses';
-            instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;
-            instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses.boolean = true;
+            // ReadControlledSubClassOfReadControlledSuperClass Instances
+            var instanceOfReadControlledSubClassOfReadControlledSuperClassPasses = new Instance(ReadControlledSubClassOfReadControlledSuperClass);
+            instanceOfReadControlledSubClassOfReadControlledSuperClassPasses.name = 'instanceOfReadControlledSubClassOfReadControlledSuperClassPasses';
+            instanceOfReadControlledSubClassOfReadControlledSuperClassPasses.readControlledBy = instanceOfClassControlsReadControlledSuperClassAllowed;
+            instanceOfReadControlledSubClassOfReadControlledSuperClassPasses.boolean = true;
 
-            var instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship = new Instance(AccessControlledSubClassOfAccessControlledSuperClass);
-            instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship.name = 'instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship';
-            instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassNotAllowed;
-            instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship.boolean = true;
+            var instanceOfReadControlledSubClassOfReadControlledSuperClassFailsRelationship = new Instance(ReadControlledSubClassOfReadControlledSuperClass);
+            instanceOfReadControlledSubClassOfReadControlledSuperClassFailsRelationship.name = 'instanceOfReadControlledSubClassOfReadControlledSuperClassFailsRelationship';
+            instanceOfReadControlledSubClassOfReadControlledSuperClassFailsRelationship.readControlledBy = instanceOfClassControlsReadControlledSuperClassNotAllowed;
+            instanceOfReadControlledSubClassOfReadControlledSuperClassFailsRelationship.boolean = true;
 
-            var instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean = new Instance(AccessControlledSubClassOfAccessControlledSuperClass);
-            instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean.name = 'instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean'
-            instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;
-            instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean.boolean = false;
+            var instanceOfReadControlledSubClassOfReadControlledSuperClassFailsBoolean = new Instance(ReadControlledSubClassOfReadControlledSuperClass);
+            instanceOfReadControlledSubClassOfReadControlledSuperClassFailsBoolean.name = 'instanceOfReadControlledSubClassOfReadControlledSuperClassFailsBoolean'
+            instanceOfReadControlledSubClassOfReadControlledSuperClassFailsBoolean.readControlledBy = instanceOfClassControlsReadControlledSuperClassAllowed;
+            instanceOfReadControlledSubClassOfReadControlledSuperClassFailsBoolean.boolean = false;
 
-            // AccessControlledDiscriminatedSuperClass Instances
-            var instanceOfAccessControlledDiscriminatedSuperClassPasses = new Instance(AccessControlledDiscriminatedSuperClass);
-            instanceOfAccessControlledDiscriminatedSuperClassPasses.name = 'instanceOfAccessControlledDiscriminatedSuperClassPasses';
-            instanceOfAccessControlledDiscriminatedSuperClassPasses.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;
-            instanceOfAccessControlledDiscriminatedSuperClassPasses.boolean = true;
-            instanceOfAccessControlledDiscriminatedSuperClassPasses.string = 'accessControlled';
+            // ReadControlledDiscriminatedSuperClass Instances
+            var instanceOfReadControlledDiscriminatedSuperClassPasses = new Instance(ReadControlledDiscriminatedSuperClass);
+            instanceOfReadControlledDiscriminatedSuperClassPasses.name = 'instanceOfReadControlledDiscriminatedSuperClassPasses';
+            instanceOfReadControlledDiscriminatedSuperClassPasses.readControlledBy = instanceOfClassControlsReadControlledSuperClassAllowed;
+            instanceOfReadControlledDiscriminatedSuperClassPasses.boolean = true;
+            instanceOfReadControlledDiscriminatedSuperClassPasses.string = 'readControlled';
 
-            var instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship = new Instance(AccessControlledDiscriminatedSuperClass);
-            instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship.name = 'instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship';
-            instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassNotAllowed;
-            instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship.boolean = true;
-            instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship.string = 'accessControlled';
+            var instanceOfReadControlledDiscriminatedSuperClassFailsRelationship = new Instance(ReadControlledDiscriminatedSuperClass);
+            instanceOfReadControlledDiscriminatedSuperClassFailsRelationship.name = 'instanceOfReadControlledDiscriminatedSuperClassFailsRelationship';
+            instanceOfReadControlledDiscriminatedSuperClassFailsRelationship.readControlledBy = instanceOfClassControlsReadControlledSuperClassNotAllowed;
+            instanceOfReadControlledDiscriminatedSuperClassFailsRelationship.boolean = true;
+            instanceOfReadControlledDiscriminatedSuperClassFailsRelationship.string = 'readControlled';
 
-            var instanceOfAccessControlledDiscriminatedSuperClassFailsString = new Instance(AccessControlledDiscriminatedSuperClass);
-            instanceOfAccessControlledDiscriminatedSuperClassFailsString.name = 'instanceOfAccessControlledDiscriminatedSuperClassFailsString';
-            instanceOfAccessControlledDiscriminatedSuperClassFailsString.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;
-            instanceOfAccessControlledDiscriminatedSuperClassFailsString.boolean = true;
-            instanceOfAccessControlledDiscriminatedSuperClassFailsString.string = 'not accessControlled';
+            var instanceOfReadControlledDiscriminatedSuperClassFailsString = new Instance(ReadControlledDiscriminatedSuperClass);
+            instanceOfReadControlledDiscriminatedSuperClassFailsString.name = 'instanceOfReadControlledDiscriminatedSuperClassFailsString';
+            instanceOfReadControlledDiscriminatedSuperClassFailsString.readControlledBy = instanceOfClassControlsReadControlledSuperClassAllowed;
+            instanceOfReadControlledDiscriminatedSuperClassFailsString.boolean = true;
+            instanceOfReadControlledDiscriminatedSuperClassFailsString.string = 'not readControlled';
 
-            var instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean = new Instance(AccessControlledDiscriminatedSuperClass);
-            instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean.name = 'instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean';
-            instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;
-            instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean.boolean = false;
-            instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean.string = 'accessControlled';
+            var instanceOfReadControlledDiscriminatedSuperClassFailsBoolean = new Instance(ReadControlledDiscriminatedSuperClass);
+            instanceOfReadControlledDiscriminatedSuperClassFailsBoolean.name = 'instanceOfReadControlledDiscriminatedSuperClassFailsBoolean';
+            instanceOfReadControlledDiscriminatedSuperClassFailsBoolean.readControlledBy = instanceOfClassControlsReadControlledSuperClassAllowed;
+            instanceOfReadControlledDiscriminatedSuperClassFailsBoolean.boolean = false;
+            instanceOfReadControlledDiscriminatedSuperClassFailsBoolean.string = 'readControlled';
 
-            // AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass Instances
-            var instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses = new Instance(AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass);
-            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses.name = 'instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses';
-            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;  
-            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses.boolean = true;
-            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses.string = 'accessControlled';         
-            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses.number = 1;
+            // ReadControlledSubClassOfReadControlledDiscriminatedSuperClass Instances
+            var instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassPasses = new Instance(ReadControlledSubClassOfReadControlledDiscriminatedSuperClass);
+            instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassPasses.name = 'instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassPasses';
+            instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassPasses.readControlledBy = instanceOfClassControlsReadControlledSuperClassAllowed;  
+            instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassPasses.boolean = true;
+            instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassPasses.string = 'readControlled';         
+            instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassPasses.number = 1;
 
-            var instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship = new Instance(AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass);
-            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship.name = 'instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship';
-            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassNotAllowed;             
-            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship.number = 1;
-            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship.boolean = true;
-            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship.string = 'accessControlled';
+            var instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsRelationship = new Instance(ReadControlledSubClassOfReadControlledDiscriminatedSuperClass);
+            instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsRelationship.name = 'instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsRelationship';
+            instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsRelationship.readControlledBy = instanceOfClassControlsReadControlledSuperClassNotAllowed;             
+            instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsRelationship.number = 1;
+            instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsRelationship.boolean = true;
+            instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsRelationship.string = 'readControlled';
 
-            var instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean = new Instance(AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass);
-            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean.name = 'instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean';
-            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;     
-            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean.boolean = false;
-            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean.string = 'accessControlled';
-            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean.number = 1;
+            var instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsBoolean = new Instance(ReadControlledSubClassOfReadControlledDiscriminatedSuperClass);
+            instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsBoolean.name = 'instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsBoolean';
+            instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsBoolean.readControlledBy = instanceOfClassControlsReadControlledSuperClassAllowed;     
+            instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsBoolean.boolean = false;
+            instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsBoolean.string = 'readControlled';
+            instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsBoolean.number = 1;
 
-            var instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString = new Instance(AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass);
-            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString.name = 'instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString';
-            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;     
-            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString.boolean = true;
-            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString.string = 'not accessControlled';            
-            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString.number = 1;
+            var instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsString = new Instance(ReadControlledSubClassOfReadControlledDiscriminatedSuperClass);
+            instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsString.name = 'instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsString';
+            instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsString.readControlledBy = instanceOfClassControlsReadControlledSuperClassAllowed;     
+            instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsString.boolean = true;
+            instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsString.string = 'not readControlled';            
+            instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsString.number = 1;
 
-            var instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber = new Instance(AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass);
-            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber.name = 'instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber';
-            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber.accessControlledBy = instanceOfClassControlsAccessControlledSuperClassAllowed;
-            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber.boolean = true;
-            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber.string = 'accessControlled';      
-            instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber.number = -1;
+            var instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsNumber = new Instance(ReadControlledSubClassOfReadControlledDiscriminatedSuperClass);
+            instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsNumber.name = 'instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsNumber';
+            instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsNumber.readControlledBy = instanceOfClassControlsReadControlledSuperClassAllowed;
+            instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsNumber.boolean = true;
+            instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsNumber.string = 'readControlled';      
+            instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsNumber.number = -1;
 
-            // AccessControlledClassAccessControlledByParameters Instances
-            var instanceOfAccessControlledClassAccessControlledByParameters = new Instance(AccessControlledClassAccessControlledByParameters);
+            // ReadControlledClassReadControlledByParameters Instances
+            var instanceOfReadControlledClassReadControlledByParameters = new Instance(ReadControlledClassReadControlledByParameters);
 
         }
 
         // Save all SecurityFilter Test Instances
         before(async () => {
             await Promise.all([
-                instanceOfClassControlsAccessControlledSuperClassAllowed.save(),
-                instanceOfClassControlsAccessControlledSuperClassNotAllowed.save(),
-                instanceOfAccessControlledSuperClassPasses.save(),
-                instanceOfAccessControlledSuperClassFailsRelationship.save(),
-                instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses.save(),
-                instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship.save(),
-                instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean.save(),
-                instanceOfAccessControlledDiscriminatedSuperClassPasses.save(),
-                instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship.save(),
-                instanceOfAccessControlledDiscriminatedSuperClassFailsString.save(),
-                instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean.save(),
-                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses.save(),
-                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship.save(),
-                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean.save(),
-                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString.save(),
-                instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber.save(),
+                instanceOfClassControlsReadControlledSuperClassAllowed.save(),
+                instanceOfClassControlsReadControlledSuperClassNotAllowed.save(),
+                instanceOfReadControlledSuperClassPasses.save(),
+                instanceOfReadControlledSuperClassFailsRelationship.save(),
+                instanceOfReadControlledSubClassOfReadControlledSuperClassPasses.save(),
+                instanceOfReadControlledSubClassOfReadControlledSuperClassFailsRelationship.save(),
+                instanceOfReadControlledSubClassOfReadControlledSuperClassFailsBoolean.save(),
+                instanceOfReadControlledDiscriminatedSuperClassPasses.save(),
+                instanceOfReadControlledDiscriminatedSuperClassFailsRelationship.save(),
+                instanceOfReadControlledDiscriminatedSuperClassFailsString.save(),
+                instanceOfReadControlledDiscriminatedSuperClassFailsBoolean.save(),
+                instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassPasses.save(),
+                instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsRelationship.save(),
+                instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsBoolean.save(),
+                instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsString.save(),
+                instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsNumber.save(),
             ]);
         });
 
         after(async () => {
-            await ClassControlsAccessControlledSuperClass.clear();
-            await AccessControlledSuperClass.clear();
-            await AccessControlledSubClassOfAccessControlledSuperClass.clear();
-            await AccessControlledDiscriminatedSuperClass.clear();
-            await AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.clear();
-            await AccessControlledClassAccessControlledByParameters.clear();
+            await ClassControlsReadControlledSuperClass.clear();
+            await ReadControlledSuperClass.clear();
+            await ReadControlledSubClassOfReadControlledSuperClass.clear();
+            await ReadControlledDiscriminatedSuperClass.clear();
+            await ReadControlledSubClassOfReadControlledDiscriminatedSuperClass.clear();
+            await ReadControlledClassReadControlledByParameters.clear();
         });
 
         describe('Tests for invalid arguments.', () => {
 
             it('First argument must be an InstanceSet.', async () => {
-                let expectedErrorMessage = 'Incorrect parameters. ' + AccessControlledSuperClass.className + '.accessControlFilter(InstanceSet instanceSet, ...accessControlMethodParameters)';
-                await testForErrorAsync('ClassModel.accessControlFilter()', expectedErrorMessage, async () => {
-                    return AccessControlledSuperClass.accessControlFilter();
+                let expectedErrorMessage = 'Incorrect parameters. ' + ReadControlledSuperClass.className + '.readControlFilter(InstanceSet instanceSet, ...readControlMethodParameters)';
+                await testForErrorAsync('ClassModel.readControlFilter()', expectedErrorMessage, async () => {
+                    return ReadControlledSuperClass.readControlFilter();
                 })
             });
 
             it('First argument must be an InstanceSet.', async () => {
-                let expectedErrorMessage = 'Incorrect parameters. ' + AccessControlledSuperClass.className + '.accessControlFilter(InstanceSet instanceSet, ...accessControlMethodParameters)';
-                await testForErrorAsync('ClassModel.accessControlFilter()', expectedErrorMessage, async () => {
-                    return AccessControlledSuperClass.accessControlFilter({ some: 'object' });
+                let expectedErrorMessage = 'Incorrect parameters. ' + ReadControlledSuperClass.className + '.readControlFilter(InstanceSet instanceSet, ...readControlMethodParameters)';
+                await testForErrorAsync('ClassModel.readControlFilter()', expectedErrorMessage, async () => {
+                    return ReadControlledSuperClass.readControlFilter({ some: 'object' });
                 })
             });
 
         });
 
+        describe('Read Control Methods Are Inherited', () => {
+            
+            it('A class with no supers has only it\'s own read control method.', () => {
+                if (ReadControlledSuperClass.readControlMethods.length === 0)
+                    throw new Error('Class is missing it\'s own read control method.');
+
+                if (ReadControlledSuperClass.readControlMethods.length > 1)
+                    throw new Error('Class has more than one read control method.');
+            });
+
+            it('A sub class has both it\'s own read control method, and the super class\' read control method.', () => {
+                if (ReadControlledSubClassOfReadControlledSuperClass.readControlMethods.length < 2)
+                    throw new Error('Class is missing a read control method.');
+                
+                if (ReadControlledSubClassOfReadControlledSuperClass.readControlMethods.length != 2)
+                    throw new Error('Class is has the wrong number of read control methods.');
+            });
+
+            it('A discriminated sub class has all the read control methods it should.', () => {
+                if (ReadControlledSubClassOfReadControlledDiscriminatedSuperClass.readControlMethods.length != 4)
+                    throw new Error('Class is has the wrong number of read control methods.');
+            });
+        
+        });
+
         describe('Test filtering out instances that don\'t pass access control check.', () => {
 
-            describe('AccessControlledSuperClass.accessControlFilter()', () => {
+            describe('ReadControlledSuperClass.readControlFilter()', () => {
 
                 it('Access Control Filter called on Class with only direct instances of Class.', async () => {
-                    const classModel = AccessControlledSuperClass;
+                    const classModel = ReadControlledSuperClass;
                     const instanceSet = new InstanceSet(classModel, [
-                        instanceOfAccessControlledSuperClassPasses,
-                        instanceOfAccessControlledSuperClassFailsRelationship
+                        instanceOfReadControlledSuperClassPasses,
+                        instanceOfReadControlledSuperClassFailsRelationship
                     ]);
                     const expectedInstanceSet = new InstanceSet(classModel, [
-                        instanceOfAccessControlledSuperClassPasses
+                        instanceOfReadControlledSuperClassPasses
                     ]);
 
-                    const filteredInstanceSet = await classModel.accessControlFilter(instanceSet);
+                    const filteredInstanceSet = await classModel.readControlFilter(instanceSet);
                     
                     if (!expectedInstanceSet.equals(filteredInstanceSet))
-                        throw new Error('classModel.accessControlFilter() did not return the expected InstanceSet.');
+                        throw new Error('classModel.readControlFilter() did not return the expected InstanceSet.');
                 });
 
                 it('Access Control Filter called on Class with instances of class and sub class.', async () => {
-                    const classModel = AccessControlledSuperClass;
+                    const classModel = ReadControlledSuperClass;
                     const instanceSet = new InstanceSet(classModel, [
-                        instanceOfAccessControlledSuperClassPasses,
-                        instanceOfAccessControlledSuperClassFailsRelationship,
-                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
-                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean,
-                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship
+                        instanceOfReadControlledSuperClassPasses,
+                        instanceOfReadControlledSuperClassFailsRelationship,
+                        instanceOfReadControlledSubClassOfReadControlledSuperClassPasses,
+                        instanceOfReadControlledSubClassOfReadControlledSuperClassFailsBoolean,
+                        instanceOfReadControlledSubClassOfReadControlledSuperClassFailsRelationship
                     ]);
                     const expectedInstanceSet = new InstanceSet(classModel, [
-                        instanceOfAccessControlledSuperClassPasses,
-                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses
+                        instanceOfReadControlledSuperClassPasses,
+                        instanceOfReadControlledSubClassOfReadControlledSuperClassPasses
                     ]);
 
-                    const filteredInstanceSet = await classModel.accessControlFilter(instanceSet);
+                    const filteredInstanceSet = await classModel.readControlFilter(instanceSet);
                     
                     if (!expectedInstanceSet.equals(filteredInstanceSet))
-                        throw new Error('classModel.accessControlFilter() did not return the expected InstanceSet.');
+                        throw new Error('classModel.readControlFilter() did not return the expected InstanceSet.');
                 });
 
                 it('Access Control Filter called on Class with instances of class and 2 layers of sub classes.', async () => {
-                    const classModel = AccessControlledSuperClass;
+                    const classModel = ReadControlledSuperClass;
                     const instanceSet = new InstanceSet(classModel, [
-                        instanceOfAccessControlledSuperClassPasses,
-                        instanceOfAccessControlledSuperClassFailsRelationship,
-                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
-                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean,
-                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship,
-                        instanceOfAccessControlledDiscriminatedSuperClassPasses,
-                        instanceOfAccessControlledDiscriminatedSuperClassFailsString,
-                        instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean,
-                        instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship
+                        instanceOfReadControlledSuperClassPasses,
+                        instanceOfReadControlledSuperClassFailsRelationship,
+                        instanceOfReadControlledSubClassOfReadControlledSuperClassPasses,
+                        instanceOfReadControlledSubClassOfReadControlledSuperClassFailsBoolean,
+                        instanceOfReadControlledSubClassOfReadControlledSuperClassFailsRelationship,
+                        instanceOfReadControlledDiscriminatedSuperClassPasses,
+                        instanceOfReadControlledDiscriminatedSuperClassFailsString,
+                        instanceOfReadControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfReadControlledDiscriminatedSuperClassFailsRelationship
                     ]);
                     const expectedInstanceSet = new InstanceSet(classModel, [
-                        instanceOfAccessControlledSuperClassPasses,
-                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
-                        instanceOfAccessControlledDiscriminatedSuperClassPasses
+                        instanceOfReadControlledSuperClassPasses,
+                        instanceOfReadControlledSubClassOfReadControlledSuperClassPasses,
+                        instanceOfReadControlledDiscriminatedSuperClassPasses
                     ]);
 
-                    const filteredInstanceSet = await classModel.accessControlFilter(instanceSet);
+                    const filteredInstanceSet = await classModel.readControlFilter(instanceSet);
                     
                     if (!expectedInstanceSet.equals(filteredInstanceSet))
-                        throw new Error('classModel.accessControlFilter() did not return the expected InstanceSet.');
+                        throw new Error('classModel.readControlFilter() did not return the expected InstanceSet.');
                 });
 
                 it('Access Control Filter called on Class with instances of 3 layers of sub classes.', async () => {
-                    const classModel = AccessControlledSuperClass;
+                    const classModel = ReadControlledSuperClass;
                     const instanceSet = new InstanceSet(classModel, [
-                        instanceOfAccessControlledSuperClassPasses,
-                        instanceOfAccessControlledSuperClassFailsRelationship,
-                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
-                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean,
-                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship,
-                        instanceOfAccessControlledDiscriminatedSuperClassPasses,
-                        instanceOfAccessControlledDiscriminatedSuperClassFailsString,
-                        instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean,
-                        instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship,
-                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses,
-                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship,
-                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString,
-                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean,
-                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber
+                        instanceOfReadControlledSuperClassPasses,
+                        instanceOfReadControlledSuperClassFailsRelationship,
+                        instanceOfReadControlledSubClassOfReadControlledSuperClassPasses,
+                        instanceOfReadControlledSubClassOfReadControlledSuperClassFailsBoolean,
+                        instanceOfReadControlledSubClassOfReadControlledSuperClassFailsRelationship,
+                        instanceOfReadControlledDiscriminatedSuperClassPasses,
+                        instanceOfReadControlledDiscriminatedSuperClassFailsString,
+                        instanceOfReadControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfReadControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassPasses,
+                        instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsString,
+                        instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsNumber
                     ]);
                     const expectedInstanceSet = new InstanceSet(classModel, [
-                        instanceOfAccessControlledSuperClassPasses,
-                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
-                        instanceOfAccessControlledDiscriminatedSuperClassPasses,
-                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses
+                        instanceOfReadControlledSuperClassPasses,
+                        instanceOfReadControlledSubClassOfReadControlledSuperClassPasses,
+                        instanceOfReadControlledDiscriminatedSuperClassPasses,
+                        instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassPasses
                     ]);
-                    const filteredInstanceSet = await classModel.accessControlFilter(instanceSet);
+                    const filteredInstanceSet = await classModel.readControlFilter(instanceSet);
 
                     
                     if (!expectedInstanceSet.equals(filteredInstanceSet))
-                        throw new Error('classModel.accessControlFilter() did not return the expected InstanceSet.');
+                        throw new Error('classModel.readControlFilter() did not return the expected InstanceSet.');
                 });
 
             });
 
-            describe('AccessControlledSubClassOfAccessControlledSuperClass.accessControlFilter()', () => {
+            describe('ReadControlledSubClassOfReadControlledSuperClass.readControlFilter()', () => {
 
                 it('Access Control Filter called on Class with only direct instances of Class.', async () => {
-                    const classModel = AccessControlledSubClassOfAccessControlledSuperClass;
+                    const classModel = ReadControlledSubClassOfReadControlledSuperClass;
                     const instanceSet = new InstanceSet(classModel, [
-                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
-                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean,
-                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship
+                        instanceOfReadControlledSubClassOfReadControlledSuperClassPasses,
+                        instanceOfReadControlledSubClassOfReadControlledSuperClassFailsBoolean,
+                        instanceOfReadControlledSubClassOfReadControlledSuperClassFailsRelationship
                     ]);
                     const expectedInstanceSet = new InstanceSet(classModel, [
-                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses
+                        instanceOfReadControlledSubClassOfReadControlledSuperClassPasses
                     ]);
 
-                    const filteredInstanceSet = await classModel.accessControlFilter(instanceSet);
+                    const filteredInstanceSet = await classModel.readControlFilter(instanceSet);
                     
                     if (!expectedInstanceSet.equals(filteredInstanceSet))
-                        throw new Error('classModel.accessControlFilter() did not return the expected InstanceSet.');
+                        throw new Error('classModel.readControlFilter() did not return the expected InstanceSet.');
                 });
 
                 it('Access Control Filter called on Class with instances of class and 1 layers of sub classes.', async () => {
-                    const classModel = AccessControlledSubClassOfAccessControlledSuperClass;
+                    const classModel = ReadControlledSubClassOfReadControlledSuperClass;
                     const instanceSet = new InstanceSet(classModel, [
-                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
-                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean,
-                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship,
-                        instanceOfAccessControlledDiscriminatedSuperClassPasses,
-                        instanceOfAccessControlledDiscriminatedSuperClassFailsString,
-                        instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean,
-                        instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship
+                        instanceOfReadControlledSubClassOfReadControlledSuperClassPasses,
+                        instanceOfReadControlledSubClassOfReadControlledSuperClassFailsBoolean,
+                        instanceOfReadControlledSubClassOfReadControlledSuperClassFailsRelationship,
+                        instanceOfReadControlledDiscriminatedSuperClassPasses,
+                        instanceOfReadControlledDiscriminatedSuperClassFailsString,
+                        instanceOfReadControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfReadControlledDiscriminatedSuperClassFailsRelationship
                     ]);
                     const expectedInstanceSet = new InstanceSet(classModel, [
-                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
-                        instanceOfAccessControlledDiscriminatedSuperClassPasses
+                        instanceOfReadControlledSubClassOfReadControlledSuperClassPasses,
+                        instanceOfReadControlledDiscriminatedSuperClassPasses
                     ]);
 
-                    const filteredInstanceSet = await classModel.accessControlFilter(instanceSet);
+                    const filteredInstanceSet = await classModel.readControlFilter(instanceSet);
                     
                     if (!expectedInstanceSet.equals(filteredInstanceSet))
-                        throw new Error('classModel.accessControlFilter() did not return the expected InstanceSet.');
+                        throw new Error('classModel.readControlFilter() did not return the expected InstanceSet.');
                 });
 
                 it('Access Control Filter called on Class with instances of 2 layers of sub classes.', async () => {
-                    const classModel = AccessControlledSubClassOfAccessControlledSuperClass;
+                    const classModel = ReadControlledSubClassOfReadControlledSuperClass;
                     const instanceSet = new InstanceSet(classModel, [
-                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
-                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean,
-                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship,
-                        instanceOfAccessControlledDiscriminatedSuperClassPasses,
-                        instanceOfAccessControlledDiscriminatedSuperClassFailsString,
-                        instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean,
-                        instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship,
-                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses,
-                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship,
-                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString,
-                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean,
-                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber
+                        instanceOfReadControlledSubClassOfReadControlledSuperClassPasses,
+                        instanceOfReadControlledSubClassOfReadControlledSuperClassFailsBoolean,
+                        instanceOfReadControlledSubClassOfReadControlledSuperClassFailsRelationship,
+                        instanceOfReadControlledDiscriminatedSuperClassPasses,
+                        instanceOfReadControlledDiscriminatedSuperClassFailsString,
+                        instanceOfReadControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfReadControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassPasses,
+                        instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsString,
+                        instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsNumber
                     ]);
                     const expectedInstanceSet = new InstanceSet(classModel, [
-                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
-                        instanceOfAccessControlledDiscriminatedSuperClassPasses,
-                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses
+                        instanceOfReadControlledSubClassOfReadControlledSuperClassPasses,
+                        instanceOfReadControlledDiscriminatedSuperClassPasses,
+                        instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassPasses
                     ]);
 
-                    const filteredInstanceSet = await classModel.accessControlFilter(instanceSet);
+                    const filteredInstanceSet = await classModel.readControlFilter(instanceSet);
                     
                     if (!expectedInstanceSet.equals(filteredInstanceSet))
-                        throw new Error('classModel.accessControlFilter() did not return the expected InstanceSet.');
+                        throw new Error('classModel.readControlFilter() did not return the expected InstanceSet.');
                 });
 
             });
 
-            describe('AccessControlledDiscriminatedSuperClass.accessControlFilter()', () => {
+            describe('ReadControlledDiscriminatedSuperClass.readControlFilter()', () => {
 
                 it('Access Control Filter called on Class with only direct instances of Class.', async () => {
-                    const classModel = AccessControlledDiscriminatedSuperClass;
+                    const classModel = ReadControlledDiscriminatedSuperClass;
                     const instanceSet = new InstanceSet(classModel, [
-                        instanceOfAccessControlledDiscriminatedSuperClassPasses,
-                        instanceOfAccessControlledDiscriminatedSuperClassFailsString,
-                        instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean,
-                        instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship
+                        instanceOfReadControlledDiscriminatedSuperClassPasses,
+                        instanceOfReadControlledDiscriminatedSuperClassFailsString,
+                        instanceOfReadControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfReadControlledDiscriminatedSuperClassFailsRelationship
                     ]);
                     const expectedInstanceSet = new InstanceSet(classModel, [
-                        instanceOfAccessControlledDiscriminatedSuperClassPasses
+                        instanceOfReadControlledDiscriminatedSuperClassPasses
                     ]);
 
-                    const filteredInstanceSet = await classModel.accessControlFilter(instanceSet);
+                    const filteredInstanceSet = await classModel.readControlFilter(instanceSet);
                     
                     if (!expectedInstanceSet.equals(filteredInstanceSet))
-                        throw new Error('classModel.accessControlFilter() did not return the expected InstanceSet.');
+                        throw new Error('classModel.readControlFilter() did not return the expected InstanceSet.');
                 });
 
                 it('Access Control Filter called on Class with instances of 1 layers of sub classes.', async () => {
-                    const classModel = AccessControlledDiscriminatedSuperClass;
+                    const classModel = ReadControlledDiscriminatedSuperClass;
                     const instanceSet = new InstanceSet(classModel, [
-                        instanceOfAccessControlledDiscriminatedSuperClassPasses,
-                        instanceOfAccessControlledDiscriminatedSuperClassFailsString,
-                        instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean,
-                        instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship,
-                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses,
-                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship,
-                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString,
-                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean,
-                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber
+                        instanceOfReadControlledDiscriminatedSuperClassPasses,
+                        instanceOfReadControlledDiscriminatedSuperClassFailsString,
+                        instanceOfReadControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfReadControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassPasses,
+                        instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsString,
+                        instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsNumber
                     ]);
                     const expectedInstanceSet = new InstanceSet(classModel, [
-                        instanceOfAccessControlledDiscriminatedSuperClassPasses,
-                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses
+                        instanceOfReadControlledDiscriminatedSuperClassPasses,
+                        instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassPasses
                     ]);
 
-                    const filteredInstanceSet = await classModel.accessControlFilter(instanceSet);
+                    const filteredInstanceSet = await classModel.readControlFilter(instanceSet);
                     
                     if (!expectedInstanceSet.equals(filteredInstanceSet))
-                        throw new Error('classModel.accessControlFilter() did not return the expected InstanceSet.');
+                        throw new Error('classModel.readControlFilter() did not return the expected InstanceSet.');
                 });
 
             });
 
-            describe('AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass.accessControlFilter()', () => {
+            describe('ReadControlledSubClassOfReadControlledDiscriminatedSuperClass.readControlFilter()', () => {
 
                 it('Access Control Filter called on Class with only direct instances of Class.', async () => {
-                    const classModel = AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass;
+                    const classModel = ReadControlledSubClassOfReadControlledDiscriminatedSuperClass;
                     const instanceSet = new InstanceSet(classModel, [
-                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses,
-                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship,
-                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsString,
-                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean,
-                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsNumber
+                        instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassPasses,
+                        instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsString,
+                        instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsNumber
                     ]);
                     const expectedInstanceSet = new InstanceSet(classModel, [
-                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses
+                        instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassPasses
                     ]);
 
-                    const filteredInstanceSet = await classModel.accessControlFilter(instanceSet);
+                    const filteredInstanceSet = await classModel.readControlFilter(instanceSet);
                     
                     if (!expectedInstanceSet.equals(filteredInstanceSet))
-                        throw new Error('classModel.accessControlFilter() did not return the expected InstanceSet.');
+                        throw new Error('classModel.readControlFilter() did not return the expected InstanceSet.');
                 });
 
             });
 
-            describe('AccessControlledClassAccessControlledByParameters.accessControlFilter()', () => {
+            describe('ReadControlledClassReadControlledByParameters.readControlFilter()', () => {
 
                 it('Instance passes access control check', async () => {
-                    const classModel = AccessControlledClassAccessControlledByParameters;
+                    const classModel = ReadControlledClassReadControlledByParameters;
                     const instanceSet = new InstanceSet(classModel, [
-                        instanceOfAccessControlledClassAccessControlledByParameters,
+                        instanceOfReadControlledClassReadControlledByParameters,
                     ]);
                     const expectedInstanceSet = new InstanceSet(classModel, [
-                        instanceOfAccessControlledClassAccessControlledByParameters
+                        instanceOfReadControlledClassReadControlledByParameters
                     ]);
                     const parameters = [1, 1, true];
 
-                    const filteredInstanceSet = await classModel.accessControlFilter(instanceSet, ...parameters);
+                    const filteredInstanceSet = await classModel.readControlFilter(instanceSet, ...parameters);
                     
                     if (!expectedInstanceSet.equals(filteredInstanceSet))
-                        throw new Error('classModel.accessControlFilter() did not return the expected InstanceSet.');
+                        throw new Error('classModel.readControlFilter() did not return the expected InstanceSet.');
                 });
 
                 it('Instance fails access control check because of Numbers.', async () => {
-                    const classModel = AccessControlledClassAccessControlledByParameters;
+                    const classModel = ReadControlledClassReadControlledByParameters;
                     const instanceSet = new InstanceSet(classModel, [
-                        instanceOfAccessControlledClassAccessControlledByParameters,
+                        instanceOfReadControlledClassReadControlledByParameters,
                     ]);
                     const expectedInstanceSet = new InstanceSet(classModel);
                     const parameters = [-2, 1, true];
 
-                    const filteredInstanceSet = await classModel.accessControlFilter(instanceSet, ...parameters);
+                    const filteredInstanceSet = await classModel.readControlFilter(instanceSet, ...parameters);
                     
                     if (!expectedInstanceSet.equals(filteredInstanceSet))
-                        throw new Error('classModel.accessControlFilter() did not return the expected InstanceSet.');
+                        throw new Error('classModel.readControlFilter() did not return the expected InstanceSet.');
                 });
 
                 it('Instance fails access control check because of Boolean.', async () => {
-                    const classModel = AccessControlledClassAccessControlledByParameters;
+                    const classModel = ReadControlledClassReadControlledByParameters;
                     const instanceSet = new InstanceSet(classModel, [
-                        instanceOfAccessControlledClassAccessControlledByParameters,
+                        instanceOfReadControlledClassReadControlledByParameters,
                     ]);
                     const expectedInstanceSet = new InstanceSet(classModel);
                     const parameters = [1, 1, false];
 
-                    const filteredInstanceSet = await classModel.accessControlFilter(instanceSet, ...parameters);
+                    const filteredInstanceSet = await classModel.readControlFilter(instanceSet, ...parameters);
                     
                     if (!expectedInstanceSet.equals(filteredInstanceSet))
-                        throw new Error('classModel.accessControlFilter() did not return the expected InstanceSet.');
+                        throw new Error('classModel.readControlFilter() did not return the expected InstanceSet.');
                 });
 
             });
@@ -1759,8 +1591,8 @@ describe('Class Model Tests', () => {
             describe('Test findById() with access filtering', () => {
 
                 it('Call findById() on an instance of an access controlled class. Instance passes filter.', async () => {
-                    const classToCallFindByIdOn = AccessControlledSuperClass;
-                    const instanceToFind = instanceOfAccessControlledSuperClassPasses;
+                    const classToCallFindByIdOn = ReadControlledSuperClass;
+                    const instanceToFind = instanceOfReadControlledSuperClassPasses;
                     const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
 
                     if (!instanceFound)
@@ -1775,8 +1607,8 @@ describe('Class Model Tests', () => {
                 });
 
                 it('Call findById() on an instance of an access controlled class, from super class. Instance passes filter.', async () => {
-                    const classToCallFindByIdOn = AccessControlledSuperClass;
-                    const instanceToFind = instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses;
+                    const classToCallFindByIdOn = ReadControlledSuperClass;
+                    const instanceToFind = instanceOfReadControlledSubClassOfReadControlledSuperClassPasses;
                     const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
 
                     if (!instanceFound)
@@ -1792,8 +1624,8 @@ describe('Class Model Tests', () => {
                 });
 
                 it('Call findById() on an instance of an access controlled class. Instance does not pass filter.', async () => {
-                    const classToCallFindByIdOn = AccessControlledSuperClass;
-                    const instanceToFind = instanceOfAccessControlledSuperClassFailsRelationship;
+                    const classToCallFindByIdOn = ReadControlledSuperClass;
+                    const instanceToFind = instanceOfReadControlledSuperClassFailsRelationship;
                     const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
 
                     if (instanceFound)
@@ -1801,8 +1633,8 @@ describe('Class Model Tests', () => {
                 });
 
                 it('Call findById() on an instance of an access controlled class, from super class. Instance does not pass filter based on super access control method.', async () => {
-                    const classToCallFindByIdOn = AccessControlledSuperClass;
-                    const instanceToFind = instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship;
+                    const classToCallFindByIdOn = ReadControlledSuperClass;
+                    const instanceToFind = instanceOfReadControlledSubClassOfReadControlledSuperClassFailsRelationship;
                     const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
 
                     if (instanceFound)
@@ -1811,8 +1643,8 @@ describe('Class Model Tests', () => {
                 });
 
                 it('Call findById() on an instance of an access controlled class, from super class. Instance does not pass filter based on it\'s own access control method.', async () => {
-                    const classToCallFindByIdOn = AccessControlledSuperClass;
-                    const instanceToFind = instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean;
+                    const classToCallFindByIdOn = ReadControlledSuperClass;
+                    const instanceToFind = instanceOfReadControlledSubClassOfReadControlledSuperClassFailsBoolean;
                     const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
 
                     if (instanceFound)
@@ -1825,11 +1657,11 @@ describe('Class Model Tests', () => {
             describe('Test findOne() with access filtering', () => {
 
                 it('Call findOne() on an instance of an access controlled class. instance passes filter.', async () => {
-                    const classToCallFindByIdOn = AccessControlledSuperClass;
-                    const instanceToFind = instanceOfAccessControlledSuperClassPasses;
+                    const classToCallFindByIdOn = ReadControlledSuperClass;
+                    const instanceToFind = instanceOfReadControlledSuperClassPasses;
 
                     const filter = {
-                        name: 'instanceOfAccessControlledSuperClassPasses'
+                        name: 'instanceOfReadControlledSuperClassPasses'
                     }
 
                     const instanceFound = await classToCallFindByIdOn.findOne(filter);
@@ -1846,11 +1678,11 @@ describe('Class Model Tests', () => {
                 });
 
                 it('Call findOne() on an instance of an access controlled class, from super class. Instance passes filter.', async () => {
-                    const classToCallFindByIdOn = AccessControlledSuperClass;
-                    const instanceToFind = instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses;
+                    const classToCallFindByIdOn = ReadControlledSuperClass;
+                    const instanceToFind = instanceOfReadControlledSubClassOfReadControlledSuperClassPasses;
 
                     const filter = {
-                        name: 'instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses'
+                        name: 'instanceOfReadControlledSubClassOfReadControlledSuperClassPasses'
                     }
 
                     const instanceFound = await classToCallFindByIdOn.findOne(filter);
@@ -1867,10 +1699,10 @@ describe('Class Model Tests', () => {
                 });
 
                 it('Call findOne() on an instance of an access controlled class. Instance does not pass filter.', async () => {
-                    const classToCallFindByIdOn = AccessControlledSuperClass;
+                    const classToCallFindByIdOn = ReadControlledSuperClass;
 
                     const filter = {
-                        name: 'instanceOfAccessControlledSuperClassFailsRelationship'
+                        name: 'instanceOfReadControlledSuperClassFailsRelationship'
                     }
 
                     const instanceFound = await classToCallFindByIdOn.findOne(filter);
@@ -1881,10 +1713,10 @@ describe('Class Model Tests', () => {
                 });
 
                 it('Call findOne() on an instance of an access controlled class, from super class. Instance does not pass filter based on super access control method.', async () => {
-                    const classToCallFindByIdOn = AccessControlledSuperClass;
+                    const classToCallFindByIdOn = ReadControlledSuperClass;
 
                     const filter = {
-                        name: 'instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship'
+                        name: 'instanceOfReadControlledSubClassOfReadControlledSuperClassFailsRelationship'
                     }
 
                     const instanceFound = await classToCallFindByIdOn.findOne(filter);
@@ -1895,10 +1727,10 @@ describe('Class Model Tests', () => {
                 });
 
                 it('Call findOne() on an instance of an access controlled class, from super class. Instance does not pass filter based on it\'s own access control method.', async () => {
-                    const classToCallFindByIdOn = AccessControlledSuperClass;
+                    const classToCallFindByIdOn = ReadControlledSuperClass;
 
                     const filter = {
-                        name: 'instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean'
+                        name: 'instanceOfReadControlledSubClassOfReadControlledSuperClassFailsBoolean'
                     }
 
                     const instanceFound = await classToCallFindByIdOn.findOne(filter);
@@ -1914,29 +1746,29 @@ describe('Class Model Tests', () => {
 
                 it('Call find() on access controlled super class with a passing and not passing instance of each sub class.', async () => {
                     const instanceNames = [
-                        'instanceOfAccessControlledSuperClassPasses',
-                        'instanceOfAccessControlledSuperClassFailsRelationship',
-                        'instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses',
-                        'instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsRelationship',
-                        'instanceOfAccessControlledSubClassOfAccessControlledSuperClassFailsBoolean',
-                        'instanceOfAccessControlledDiscriminatedSuperClassPasses',
-                        'instanceOfAccessControlledDiscriminatedSuperClassFailsRelationship',
-                        'instanceOfAccessControlledDiscriminatedSuperClassFailsString',
-                        'instanceOfAccessControlledDiscriminatedSuperClassFailsBoolean',
-                        'instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses',
-                        'instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsRelationship',
-                        'instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassFailsBoolean',
-                        'AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass',
-                        'AccessControlledSubClassOfAccessControlledDiscriminatedSuperClass'
+                        'instanceOfReadControlledSuperClassPasses',
+                        'instanceOfReadControlledSuperClassFailsRelationship',
+                        'instanceOfReadControlledSubClassOfReadControlledSuperClassPasses',
+                        'instanceOfReadControlledSubClassOfReadControlledSuperClassFailsRelationship',
+                        'instanceOfReadControlledSubClassOfReadControlledSuperClassFailsBoolean',
+                        'instanceOfReadControlledDiscriminatedSuperClassPasses',
+                        'instanceOfReadControlledDiscriminatedSuperClassFailsRelationship',
+                        'instanceOfReadControlledDiscriminatedSuperClassFailsString',
+                        'instanceOfReadControlledDiscriminatedSuperClassFailsBoolean',
+                        'instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassPasses',
+                        'instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsRelationship',
+                        'instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassFailsBoolean',
+                        'ReadControlledSubClassOfReadControlledDiscriminatedSuperClass',
+                        'ReadControlledSubClassOfReadControlledDiscriminatedSuperClass'
                     ];
-                    const expectedInstances = new InstanceSet(AccessControlledSuperClass, [
-                        instanceOfAccessControlledSuperClassPasses,
-                        instanceOfAccessControlledSubClassOfAccessControlledSuperClassPasses,
-                        instanceOfAccessControlledDiscriminatedSuperClassPasses,
-                        instanceOfAccessControlledSubClassOfAccessControlledDiscriminatedSuperClassPasses
+                    const expectedInstances = new InstanceSet(ReadControlledSuperClass, [
+                        instanceOfReadControlledSuperClassPasses,
+                        instanceOfReadControlledSubClassOfReadControlledSuperClassPasses,
+                        instanceOfReadControlledDiscriminatedSuperClassPasses,
+                        instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassPasses
                     ]);
 
-                    const instancesFound = await AccessControlledSuperClass.find({name: {$in: instanceNames}});
+                    const instancesFound = await ReadControlledSuperClass.find({name: {$in: instanceNames}});
 
                     if (!expectedInstances.equals(instancesFound)) 
                         throw new Error('find did not filter instances correctly.')
@@ -2124,6 +1956,31 @@ describe('Class Model Tests', () => {
                     throw new Error ('ClassModel.updateControlCheckSet() returned when it should have thrown an error.');
             });
 
+        });
+
+        describe('Update Control Methods Are Inherited', () => {
+            
+            it('A class with no supers has only it\'s own update control method.', () => {
+                if (UpdateControlledSuperClass.updateControlMethods.length === 0)
+                    throw new Error('Class is missing it\'s own update control method.');
+
+                if (UpdateControlledSuperClass.updateControlMethods.length > 1)
+                    throw new Error('Class has more than one update control method.');
+            });
+
+            it('A sub class has both it\'s own update control method, and the super class\' update control method.', () => {
+                if (UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlMethods.length < 2)
+                    throw new Error('Class is missing a update control method.');
+                
+                if (UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlMethods.length != 2)
+                    throw new Error('Class is has the wrong number of update control methods.');
+            });
+
+            it('A discriminated sub class has all the update control methods it should.', () => {
+                if (UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.updateControlMethods.length != 4)
+                    throw new Error('Class is has the wrong number of update control methods.');
+            });
+        
         });
 
         describe('Test Update Control Check throws error when an instance doesn\'t pass check.', () => {
