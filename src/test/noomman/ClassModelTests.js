@@ -46,6 +46,14 @@ const testForErrorAsync = TestingFunctions.testForErrorAsync;
     var SubClassOfSingularRelationshipClass = TestClassModels.SubClassOfSingularRelationshipClass;
     var SubClassOfNonSingularRelationshipClass = TestClassModels.SubClassOfNonSingularRelationshipClass;
 
+    // CreateControlled Classes
+    var CreateControlledSuperClass = TestClassModels.CreateControlledSuperClass;
+    var CreateControlledSubClassOfCreateControlledSuperClass = TestClassModels.CreateControlledSubClassOfCreateControlledSuperClass;
+    var CreateControlledDiscriminatedSuperClass = TestClassModels.CreateControlledDiscriminatedSuperClass;
+    var CreateControlledSubClassOfCreateControlledDiscriminatedSuperClass = TestClassModels.CreateControlledSubClassOfCreateControlledDiscriminatedSuperClass;
+    var ClassControlsCreateControlledSuperClass = TestClassModels.ClassControlsCreateControlledSuperClass;
+    var CreateControlledClassCreateControlledByParameters = TestClassModels.CreateControlledClassCreateControlledByParameters;
+
     // ReadControlled Classes
     var ReadControlledSuperClass = TestClassModels.ReadControlledSuperClass;
     var ReadControlledSubClassOfReadControlledSuperClass = TestClassModels.ReadControlledSubClassOfReadControlledSuperClass;
@@ -63,6 +71,14 @@ const testForErrorAsync = TestingFunctions.testForErrorAsync;
     var UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass = TestClassModels.UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass;
     var ClassControlsUpdateControlledSuperClass = TestClassModels.ClassControlsUpdateControlledSuperClass;
     var UpdateControlledClassUpdateControlledByParameters = TestClassModels.UpdateControlledClassUpdateControlledByParameters;
+
+    // DeleteControlled Classes
+    var DeleteControlledSuperClass = TestClassModels.DeleteControlledSuperClass;
+    var DeleteControlledSubClassOfDeleteControlledSuperClass = TestClassModels.DeleteControlledSubClassOfDeleteControlledSuperClass;
+    var DeleteControlledDiscriminatedSuperClass = TestClassModels.DeleteControlledDiscriminatedSuperClass;
+    var DeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClass = TestClassModels.DeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClass;
+    var ClassControlsDeleteControlledSuperClass = TestClassModels.ClassControlsDeleteControlledSuperClass;
+    var DeleteControlledClassDeleteControlledByParameters = TestClassModels.DeleteControlledClassDeleteControlledByParameters;
 }
 
 describe('Class Model Tests', () => {
@@ -1121,6 +1137,473 @@ describe('Class Model Tests', () => {
 
     });
 
+    describe('ClassModel.createControlCheck()', () => {
+
+        // Set up createControlled Instances
+        // For each class, create on instance which will pass all create control filters, and one each that will fail due to one of the create control methods
+        {
+            // ClassControlsCreateControlledSuperClass Instances
+            var instanceOfClassControlsCreateControlledSuperClassAllowed = new Instance(ClassControlsCreateControlledSuperClass);
+            instanceOfClassControlsCreateControlledSuperClassAllowed.allowed = true;
+            
+            var instanceOfClassControlsCreateControlledSuperClassNotAllowed = new Instance(ClassControlsCreateControlledSuperClass);
+            instanceOfClassControlsCreateControlledSuperClassNotAllowed.allowed = false;
+
+            // CreateControlledSuperClass Instances
+            var instanceOfCreateControlledSuperClassPasses = new Instance(CreateControlledSuperClass);
+            instanceOfCreateControlledSuperClassPasses.name = 'instanceOfCreateControlledSuperClassPasses';
+            instanceOfCreateControlledSuperClassPasses.createControlledBy = instanceOfClassControlsCreateControlledSuperClassAllowed;
+
+            var instanceOfCreateControlledSuperClassFailsRelationship = new Instance(CreateControlledSuperClass);
+            instanceOfCreateControlledSuperClassFailsRelationship.name = 'instanceOfCreateControlledSuperClassFailsRelationship';
+            instanceOfCreateControlledSuperClassFailsRelationship.createControlledBy = instanceOfClassControlsCreateControlledSuperClassNotAllowed;
+
+            var instancesOfCreateControlledSuperClass = new InstanceSet(CreateControlledSuperClass, [
+                instanceOfCreateControlledSuperClassPasses,
+                instanceOfCreateControlledSuperClassFailsRelationship
+            ]);
+
+            // CreateControlledSubClassOfCreateControlledSuperClass Instances
+            var instanceOfCreateControlledSubClassOfCreateControlledSuperClassPasses = new Instance(CreateControlledSubClassOfCreateControlledSuperClass);
+            instanceOfCreateControlledSubClassOfCreateControlledSuperClassPasses.name = 'instanceOfCreateControlledSubClassOfCreateControlledSuperClassPasses';
+            instanceOfCreateControlledSubClassOfCreateControlledSuperClassPasses.createControlledBy = instanceOfClassControlsCreateControlledSuperClassAllowed;
+            instanceOfCreateControlledSubClassOfCreateControlledSuperClassPasses.boolean = true;
+
+            var instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsRelationship = new Instance(CreateControlledSubClassOfCreateControlledSuperClass);
+            instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsRelationship.name = 'instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsRelationship';
+            instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsRelationship.createControlledBy = instanceOfClassControlsCreateControlledSuperClassNotAllowed;
+            instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsRelationship.boolean = true;
+
+            var instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsBoolean = new Instance(CreateControlledSubClassOfCreateControlledSuperClass);
+            instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsBoolean.name = 'instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsBoolean'
+            instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsBoolean.createControlledBy = instanceOfClassControlsCreateControlledSuperClassAllowed;
+            instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsBoolean.boolean = false;
+            
+            var instancesOfCreateControlledSubClassOfCreateControlledSuperClass = new InstanceSet(CreateControlledSubClassOfCreateControlledSuperClass, [
+                instanceOfCreateControlledSubClassOfCreateControlledSuperClassPasses,
+                instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsRelationship,
+                instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsBoolean
+            ]);
+
+            // CreateControlledDiscriminatedSuperClass Instances
+            var instanceOfCreateControlledDiscriminatedSuperClassPasses = new Instance(CreateControlledDiscriminatedSuperClass);
+            instanceOfCreateControlledDiscriminatedSuperClassPasses.name = 'instanceOfCreateControlledDiscriminatedSuperClassPasses';
+            instanceOfCreateControlledDiscriminatedSuperClassPasses.createControlledBy = instanceOfClassControlsCreateControlledSuperClassAllowed;
+            instanceOfCreateControlledDiscriminatedSuperClassPasses.boolean = true;
+            instanceOfCreateControlledDiscriminatedSuperClassPasses.string = 'createControlled';
+
+            var instanceOfCreateControlledDiscriminatedSuperClassFailsRelationship = new Instance(CreateControlledDiscriminatedSuperClass);
+            instanceOfCreateControlledDiscriminatedSuperClassFailsRelationship.name = 'instanceOfCreateControlledDiscriminatedSuperClassFailsRelationship';
+            instanceOfCreateControlledDiscriminatedSuperClassFailsRelationship.createControlledBy = instanceOfClassControlsCreateControlledSuperClassNotAllowed;
+            instanceOfCreateControlledDiscriminatedSuperClassFailsRelationship.boolean = true;
+            instanceOfCreateControlledDiscriminatedSuperClassFailsRelationship.string = 'createControlled';
+
+            var instanceOfCreateControlledDiscriminatedSuperClassFailsString = new Instance(CreateControlledDiscriminatedSuperClass);
+            instanceOfCreateControlledDiscriminatedSuperClassFailsString.name = 'instanceOfCreateControlledDiscriminatedSuperClassFailsString';
+            instanceOfCreateControlledDiscriminatedSuperClassFailsString.createControlledBy = instanceOfClassControlsCreateControlledSuperClassAllowed;
+            instanceOfCreateControlledDiscriminatedSuperClassFailsString.boolean = true;
+            instanceOfCreateControlledDiscriminatedSuperClassFailsString.string = 'not createControlled';
+
+            var instanceOfCreateControlledDiscriminatedSuperClassFailsBoolean = new Instance(CreateControlledDiscriminatedSuperClass);
+            instanceOfCreateControlledDiscriminatedSuperClassFailsBoolean.name = 'instanceOfCreateControlledDiscriminatedSuperClassFailsBoolean';
+            instanceOfCreateControlledDiscriminatedSuperClassFailsBoolean.createControlledBy = instanceOfClassControlsCreateControlledSuperClassAllowed;
+            instanceOfCreateControlledDiscriminatedSuperClassFailsBoolean.boolean = false;
+            instanceOfCreateControlledDiscriminatedSuperClassFailsBoolean.string = 'createControlled';
+            
+            var instancesOfCreateControlledDiscriminatedSuperClass = new InstanceSet(CreateControlledDiscriminatedSuperClass, [
+                instanceOfCreateControlledDiscriminatedSuperClassPasses,
+                instanceOfCreateControlledDiscriminatedSuperClassFailsRelationship,
+                instanceOfCreateControlledDiscriminatedSuperClassFailsString,
+                instanceOfCreateControlledDiscriminatedSuperClassFailsBoolean
+            ]);
+
+            // CreateControlledSubClassOfCreateControlledDiscriminatedSuperClass Instances
+            var instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassPasses = new Instance(CreateControlledSubClassOfCreateControlledDiscriminatedSuperClass);
+            instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassPasses.name = 'instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassPasses';
+            instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassPasses.createControlledBy = instanceOfClassControlsCreateControlledSuperClassAllowed;  
+            instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassPasses.boolean = true;
+            instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassPasses.string = 'createControlled';         
+            instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassPasses.number = 1;
+
+            var instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsRelationship = new Instance(CreateControlledSubClassOfCreateControlledDiscriminatedSuperClass);
+            instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsRelationship.name = 'instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsRelationship';
+            instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsRelationship.createControlledBy = instanceOfClassControlsCreateControlledSuperClassNotAllowed;             
+            instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsRelationship.number = 1;
+            instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsRelationship.boolean = true;
+            instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsRelationship.string = 'createControlled';
+
+            var instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsBoolean = new Instance(CreateControlledSubClassOfCreateControlledDiscriminatedSuperClass);
+            instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsBoolean.name = 'instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsBoolean';
+            instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsBoolean.createControlledBy = instanceOfClassControlsCreateControlledSuperClassAllowed;     
+            instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsBoolean.boolean = false;
+            instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsBoolean.string = 'createControlled';
+            instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsBoolean.number = 1;
+
+            var instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsString = new Instance(CreateControlledSubClassOfCreateControlledDiscriminatedSuperClass);
+            instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsString.name = 'instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsString';
+            instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsString.createControlledBy = instanceOfClassControlsCreateControlledSuperClassAllowed;     
+            instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsString.boolean = true;
+            instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsString.string = 'not createControlled';            
+            instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsString.number = 1;
+
+            var instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsNumber = new Instance(CreateControlledSubClassOfCreateControlledDiscriminatedSuperClass);
+            instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsNumber.name = 'instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsNumber';
+            instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsNumber.createControlledBy = instanceOfClassControlsCreateControlledSuperClassAllowed;
+            instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsNumber.boolean = true;
+            instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsNumber.string = 'createControlled';      
+            instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsNumber.number = -1;
+            
+            var instancesOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClass = new InstanceSet(CreateControlledSubClassOfCreateControlledDiscriminatedSuperClass, [
+                instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassPasses,
+                instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsRelationship,
+                instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsBoolean,
+                instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsString,
+                instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsNumber
+            ]);
+
+            var createControlledInstances = new InstanceSet(CreateControlledSuperClass);
+            createControlledInstances.addInstances(instancesOfCreateControlledSuperClass);
+            createControlledInstances.addInstances(instancesOfCreateControlledSubClassOfCreateControlledSuperClass);
+            createControlledInstances.addInstances(instancesOfCreateControlledDiscriminatedSuperClass);
+            createControlledInstances.addInstances(instancesOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClass);
+
+            // CreateControlledClassCreateControlledByParameters Instances
+            var instanceOfCreateControlledClassCreateControlledByParameters = new Instance(CreateControlledClassCreateControlledByParameters);
+
+        }
+
+        // Save all CreateControl Test Instances
+        before(async () => {
+            await instanceOfClassControlsCreateControlledSuperClassAllowed.save();
+            await instanceOfClassControlsCreateControlledSuperClassNotAllowed.save();
+        });
+
+        after(async () => {
+            await ClassControlsCreateControlledSuperClass.clear();
+            await CreateControlledSuperClass.clear();
+            await CreateControlledSubClassOfCreateControlledSuperClass.clear();
+            await CreateControlledDiscriminatedSuperClass.clear();
+            await CreateControlledSubClassOfCreateControlledDiscriminatedSuperClass.clear();
+            await CreateControlledClassCreateControlledByParameters.clear();
+        });
+
+        describe('Tests for invalid arguments.', () => {
+
+            it('First Argument must be an InstanceSet', async () => {
+                let updatable;
+                const expectedErrorMessage = 'Incorrect parameters. ' + CreateControlledSuperClass.className + '.createControlCheck(InstanceSet instanceSet, ...createControlMethodParameters)';
+                const instanceSet = new InstanceSet(CreateControlledSuperClass, [instanceOfCreateControlledSuperClassPasses, instanceOfCreateControlledSuperClassPasses]);
+
+                try {
+                    updatable = await CreateControlledSuperClass.createControlCheck(instanceOfCreateControlledSuperClassPasses);
+                }
+                catch (error) {
+                    if (error.message != expectedErrorMessage) {
+                        throw  new Error(
+                            'createControlCheck() threw an unexpected error.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' + 
+                            'Actual:   ' + error.message
+                        );
+                    }
+                }
+
+                if (updatable)
+                    throw new Error ('ClassModel.createControlCheck() returned when it should have thrown an error.');
+            });
+
+        });
+
+        describe('Create Control Methods Are Inherited', () => {
+            
+            it('A class with no supers has only it\'s own create control method.', () => {
+                if (CreateControlledSuperClass.createControlMethods.length === 0)
+                    throw new Error('Class is missing it\'s own create control method.');
+
+                if (CreateControlledSuperClass.createControlMethods.length > 1)
+                    throw new Error('Class has more than one create control method.');
+            });
+
+            it('A sub class has both it\'s own create control method, and the super class\' create control method.', () => {
+                if (CreateControlledSubClassOfCreateControlledSuperClass.createControlMethods.length < 2)
+                    throw new Error('Class is missing a create control method.');
+                
+                if (CreateControlledSubClassOfCreateControlledSuperClass.createControlMethods.length != 2)
+                    throw new Error('Class is has the wrong number of create control methods.');
+            });
+
+            it('A discriminated sub class has all the create control methods it should.', () => {
+                if (CreateControlledSubClassOfCreateControlledDiscriminatedSuperClass.createControlMethods.length != 4)
+                    throw new Error('Class is has the wrong number of create control methods.');
+            });
+        
+        });
+
+        describe('Test Create Control Check throws error when an instance doesn\'t pass check.', () => {
+
+            describe('CreateControlledSuperClass.createControlCheck()', () => {
+
+                it('Create Control Check called on Class with only direct instances of Class.', async () => {
+                    const instanceSet = new InstanceSet(CreateControlledSuperClass, [
+                        instanceOfCreateControlledSuperClassPasses,
+                        instanceOfCreateControlledSuperClassFailsRelationship
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(CreateControlledSuperClass, [instanceOfCreateControlledSuperClassFailsRelationship]);
+                    const expectedErrorMessage = 'Illegal attempt to create instances: ' + instancesExpectedToFail.getInstanceIds();
+
+                    await testForErrorAsync('ClassModel.createControlCheck', expectedErrorMessage, async () => {
+                        return  CreateControlledSuperClass.createControlCheck(instanceSet);
+                    });
+                });
+
+                it('Create Control Check called on Class with instances of class and sub class.', async () => {
+                    const instanceSet = new InstanceSet(CreateControlledSuperClass, [
+                        instanceOfCreateControlledSuperClassPasses,
+                        instanceOfCreateControlledSuperClassFailsRelationship,
+                        instanceOfCreateControlledSubClassOfCreateControlledSuperClassPasses,
+                        instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsBoolean,
+                        instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsRelationship
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(CreateControlledSuperClass, [
+                        instanceOfCreateControlledSuperClassFailsRelationship,
+                        instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsBoolean,
+                        instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsRelationship
+                    ]);
+                    const expectedErrorMessage = 'Illegal attempt to create instances: ' + instancesExpectedToFail.getInstanceIds();
+
+                    await testForErrorAsync('ClassModel.createControlCheck', expectedErrorMessage, async () => {
+                        return  CreateControlledSuperClass.createControlCheck(instanceSet);
+                    });
+                });
+
+                it('Create Control Check called on Class with instances of class and 3 layers of sub classes.', async () => {
+                    const instanceSet = new InstanceSet(CreateControlledSuperClass, [
+                        instanceOfCreateControlledSuperClassPasses,
+                        instanceOfCreateControlledSuperClassFailsRelationship,
+                        instanceOfCreateControlledSubClassOfCreateControlledSuperClassPasses,
+                        instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsBoolean,
+                        instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsRelationship,
+                        instanceOfCreateControlledDiscriminatedSuperClassPasses,
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassPasses,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsNumber
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(CreateControlledSuperClass, [
+                        instanceOfCreateControlledSuperClassFailsRelationship,
+                        instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsBoolean,
+                        instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsRelationship,
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsNumber
+                    ]);
+                    const expectedErrorMessage = 'Illegal attempt to create instances: ' + instancesExpectedToFail.getInstanceIds();
+
+                    await testForErrorAsync('ClassModel.createControlCheck', expectedErrorMessage, async () => {
+                        return  CreateControlledSuperClass.createControlCheck(instanceSet);
+                    });
+                });
+
+            });
+
+            describe('CreateControlledSubClassOfCreateControlledSuperClass.createControlCheck()', () => {
+
+                it('Create Control Check called on Class with only direct instances of Class.', async () => {
+                    const instanceSet = new InstanceSet(CreateControlledSuperClass, [
+                        instanceOfCreateControlledSubClassOfCreateControlledSuperClassPasses,
+                        instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsBoolean,
+                        instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsRelationship
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(CreateControlledSuperClass, [
+                        instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsBoolean,
+                        instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsRelationship,
+                    ]);
+                    const expectedErrorMessage = 'Illegal attempt to create instances: ' + instancesExpectedToFail.getInstanceIds();
+
+                    await testForErrorAsync('ClassModel.createControlCheck', expectedErrorMessage, async () => {
+                        return  CreateControlledSubClassOfCreateControlledSuperClass.createControlCheck(instanceSet);
+                    });
+                });
+
+                it('Create Control Check called on Class with instances of class and 1 layers of sub classes.', async () => {
+                    const instanceSet = new InstanceSet(CreateControlledSuperClass, [
+                        instanceOfCreateControlledSubClassOfCreateControlledSuperClassPasses,
+                        instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsBoolean,
+                        instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsRelationship,
+                        instanceOfCreateControlledDiscriminatedSuperClassPasses,
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsRelationship
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(CreateControlledSuperClass, [
+                        instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsBoolean,
+                        instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsRelationship,
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsRelationship
+                    ]);
+                    const expectedErrorMessage = 'Illegal attempt to create instances: ' + instancesExpectedToFail.getInstanceIds();
+
+                    await testForErrorAsync('ClassModel.createControlCheck', expectedErrorMessage, async () => {
+                        return  CreateControlledSubClassOfCreateControlledSuperClass.createControlCheck(instanceSet);
+                    });
+                });
+
+                it('Create Control Check called on Class with instances of 2 layers of sub classes.', async () => {
+                    const instanceSet = new InstanceSet(CreateControlledSuperClass, [
+                        instanceOfCreateControlledSubClassOfCreateControlledSuperClassPasses,
+                        instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsBoolean,
+                        instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsRelationship,
+                        instanceOfCreateControlledDiscriminatedSuperClassPasses,
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassPasses,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsNumber
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(CreateControlledSuperClass, [
+                        instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsBoolean,
+                        instanceOfCreateControlledSubClassOfCreateControlledSuperClassFailsRelationship,
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsNumber
+                    ]);
+                    const expectedErrorMessage = 'Illegal attempt to create instances: ' + instancesExpectedToFail.getInstanceIds();
+
+                    await testForErrorAsync('ClassModel.createControlCheck', expectedErrorMessage, async () => {
+                        return  CreateControlledSubClassOfCreateControlledSuperClass.createControlCheck(instanceSet);
+                    });
+                });
+
+            });
+
+            describe('CreateControlledDiscriminatedSuperClass.createControlCheck()', () => {
+
+                it('Create Control Check called on Class with only direct instances of Class.', async () => {
+                    const instanceSet = new InstanceSet(CreateControlledSuperClass, [
+                        instanceOfCreateControlledDiscriminatedSuperClassPasses,
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsRelationship
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(CreateControlledSuperClass, [
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsRelationship
+                    ]);
+                    const expectedErrorMessage = 'Illegal attempt to create instances: ' + instancesExpectedToFail.getInstanceIds();
+
+                    await testForErrorAsync('ClassModel.createControlCheck', expectedErrorMessage, async () => {
+                        return  CreateControlledDiscriminatedSuperClass.createControlCheck(instanceSet);
+                    });
+                });
+
+                it('Create Control Check called on Class with instances of 1 layers of sub classes', async () => {
+                    const instanceSet = new InstanceSet(CreateControlledSuperClass, [
+                        instanceOfCreateControlledDiscriminatedSuperClassPasses,
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassPasses,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsNumber
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(CreateControlledSuperClass, [
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfCreateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsNumber
+                    ]);
+                    const expectedErrorMessage = 'Illegal attempt to create instances: ' + instancesExpectedToFail.getInstanceIds();
+
+                    await testForErrorAsync('ClassModel.createControlCheck', expectedErrorMessage, async () => {
+                        return  CreateControlledDiscriminatedSuperClass.createControlCheck(instanceSet);
+                    });
+                });
+
+            });
+
+            describe('CreateControlledSubClassOfCreateControlledDiscriminatedSuperClass.createControlCheck()', () => {
+
+                it('Create Control Check called on Class with only direct instances of Class.', async () => {
+                    const instanceSet = new InstanceSet(CreateControlledSuperClass, [
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassPasses,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsNumber
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(CreateControlledSuperClass, [
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsString,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfCreateControlledSubClassOfCreateControlledDiscriminatedSuperClassFailsNumber
+                    ]);
+                    const expectedErrorMessage = 'Illegal attempt to create instances: ' + instancesExpectedToFail.getInstanceIds();
+
+                    await testForErrorAsync('ClassModel.createControlCheck', expectedErrorMessage, async () => {
+                        return  CreateControlledSubClassOfCreateControlledDiscriminatedSuperClass.createControlCheck(instanceSet);
+                    });
+                });
+
+            });
+
+            describe('CreateControlledClassCreateControlledByParameters.createControlCheck()', () => {
+
+                it('Create Control Check passes', async () => {
+                    const instanceSet = new InstanceSet(CreateControlledClassCreateControlledByParameters, [instanceOfCreateControlledClassCreateControlledByParameters]);
+                    await CreateControlledClassCreateControlledByParameters.createControlCheck(instanceSet, 1, 1, true);
+                });
+
+                it('Instance fails create control check because of Numbers.', async () => {
+                    const instanceSet = new InstanceSet(CreateControlledClassCreateControlledByParameters, [
+                        instanceOfCreateControlledClassCreateControlledByParameters,
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(CreateControlledClassCreateControlledByParameters, [instanceOfCreateControlledClassCreateControlledByParameters]);
+                    const expectedErrorMessage = 'Illegal attempt to create instances: ' + instancesExpectedToFail.getInstanceIds();
+
+                    await testForErrorAsync('ClassModel.createControlCheck', expectedErrorMessage, async () => {
+                        return CreateControlledClassCreateControlledByParameters.createControlCheck(instanceSet, -2, 1, true);
+                    });
+                });
+
+                it('Instance fails create control check because of Boolean.', async () => {
+                    const instanceSet = new InstanceSet(CreateControlledClassCreateControlledByParameters, [
+                        instanceOfCreateControlledClassCreateControlledByParameters,
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(CreateControlledClassCreateControlledByParameters, [instanceOfCreateControlledClassCreateControlledByParameters]);
+                    const expectedErrorMessage = 'Illegal attempt to create instances: ' + instancesExpectedToFail.getInstanceIds();
+
+                    await testForErrorAsync('ClassModel.createControlCheck', expectedErrorMessage, async () => {
+                        return  CreateControlledClassCreateControlledByParameters.createControlCheck(instanceSet, 1, 1, false);
+                    });
+                });
+
+            });
+
+        });
+
+    });
+
     describe('ClassModel.readControlFilter()', () => {
 
         // Set up readControlled Instances
@@ -1781,7 +2264,7 @@ describe('Class Model Tests', () => {
 
     });
 
-    describe('ClassModel.updateControlFilterInstanceSet()', () => {
+    describe('ClassModel.updateControlCheck()', () => {
 
         // Set up updateControlled Instances
         // For each class, create on instance which will pass all update control filters, and one each that will fail due to one of the update control methods
@@ -1936,16 +2419,16 @@ describe('Class Model Tests', () => {
 
             it('First Argument must be an InstanceSet', async () => {
                 let updatable;
-                const expectedErrorMessage = 'Incorrect parameters. ' + UpdateControlledSuperClass.className + '.updateControlCheckSet(InstanceSet instanceSet, ...updateControlMethodParameters)';
+                const expectedErrorMessage = 'Incorrect parameters. ' + UpdateControlledSuperClass.className + '.updateControlCheck(InstanceSet instanceSet, ...updateControlMethodParameters)';
                 const instanceSet = new InstanceSet(UpdateControlledSuperClass, [instanceOfUpdateControlledSuperClassPasses, instanceOfUpdateControlledSuperClassPasses]);
 
                 try {
-                    updatable = await UpdateControlledSuperClass.updateControlCheckSet(instanceOfUpdateControlledSuperClassPasses);
+                    updatable = await UpdateControlledSuperClass.updateControlCheck(instanceOfUpdateControlledSuperClassPasses);
                 }
                 catch (error) {
                     if (error.message != expectedErrorMessage) {
                         throw  new Error(
-                            'updateControlCheckSet() threw an unexpected error.\n' + 
+                            'updateControlCheck() threw an unexpected error.\n' + 
                             'Expected: ' + expectedErrorMessage + '\n' + 
                             'Actual:   ' + error.message
                         );
@@ -1953,7 +2436,7 @@ describe('Class Model Tests', () => {
                 }
 
                 if (updatable)
-                    throw new Error ('ClassModel.updateControlCheckSet() returned when it should have thrown an error.');
+                    throw new Error ('ClassModel.updateControlCheck() returned when it should have thrown an error.');
             });
 
         });
@@ -1985,7 +2468,7 @@ describe('Class Model Tests', () => {
 
         describe('Test Update Control Check throws error when an instance doesn\'t pass check.', () => {
 
-            describe('UpdateControlledSuperClass.updateControlCheckSet()', () => {
+            describe('UpdateControlledSuperClass.updateControlCheck()', () => {
 
                 it('Update Control Check called on Class with only direct instances of Class.', async () => {
                     const instanceSet = new InstanceSet(UpdateControlledSuperClass, [
@@ -1995,8 +2478,8 @@ describe('Class Model Tests', () => {
                     const instancesExpectedToFail = new InstanceSet(UpdateControlledSuperClass, [instanceOfUpdateControlledSuperClassFailsRelationship]);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    await testForErrorAsync('ClassModel.updateControlCheckSet', expectedErrorMessage, async () => {
-                        return  UpdateControlledSuperClass.updateControlCheckSet(instanceSet);
+                    await testForErrorAsync('ClassModel.updateControlCheck', expectedErrorMessage, async () => {
+                        return  UpdateControlledSuperClass.updateControlCheck(instanceSet);
                     });
                 });
 
@@ -2015,8 +2498,8 @@ describe('Class Model Tests', () => {
                     ]);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    await testForErrorAsync('ClassModel.updateControlCheckSet', expectedErrorMessage, async () => {
-                        return  UpdateControlledSuperClass.updateControlCheckSet(instanceSet);
+                    await testForErrorAsync('ClassModel.updateControlCheck', expectedErrorMessage, async () => {
+                        return  UpdateControlledSuperClass.updateControlCheck(instanceSet);
                     });
                 });
 
@@ -2051,14 +2534,14 @@ describe('Class Model Tests', () => {
                     ]);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    await testForErrorAsync('ClassModel.updateControlCheckSet', expectedErrorMessage, async () => {
-                        return  UpdateControlledSuperClass.updateControlCheckSet(instanceSet);
+                    await testForErrorAsync('ClassModel.updateControlCheck', expectedErrorMessage, async () => {
+                        return  UpdateControlledSuperClass.updateControlCheck(instanceSet);
                     });
                 });
 
             });
 
-            describe('UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckSet()', () => {
+            describe('UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheck()', () => {
 
                 it('Update Control Check called on Class with only direct instances of Class.', async () => {
                     const instanceSet = new InstanceSet(UpdateControlledSuperClass, [
@@ -2072,8 +2555,8 @@ describe('Class Model Tests', () => {
                     ]);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    await testForErrorAsync('ClassModel.updateControlCheckSet', expectedErrorMessage, async () => {
-                        return  UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckSet(instanceSet);
+                    await testForErrorAsync('ClassModel.updateControlCheck', expectedErrorMessage, async () => {
+                        return  UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheck(instanceSet);
                     });
                 });
 
@@ -2096,8 +2579,8 @@ describe('Class Model Tests', () => {
                     ]);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    await testForErrorAsync('ClassModel.updateControlCheckSet', expectedErrorMessage, async () => {
-                        return  UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckSet(instanceSet);
+                    await testForErrorAsync('ClassModel.updateControlCheck', expectedErrorMessage, async () => {
+                        return  UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheck(instanceSet);
                     });
                 });
 
@@ -2129,14 +2612,14 @@ describe('Class Model Tests', () => {
                     ]);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    await testForErrorAsync('ClassModel.updateControlCheckSet', expectedErrorMessage, async () => {
-                        return  UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheckSet(instanceSet);
+                    await testForErrorAsync('ClassModel.updateControlCheck', expectedErrorMessage, async () => {
+                        return  UpdateControlledSubClassOfUpdateControlledSuperClass.updateControlCheck(instanceSet);
                     });
                 });
 
             });
 
-            describe('UpdateControlledDiscriminatedSuperClass.updateControlCheckSet()', () => {
+            describe('UpdateControlledDiscriminatedSuperClass.updateControlCheck()', () => {
 
                 it('Update Control Check called on Class with only direct instances of Class.', async () => {
                     const instanceSet = new InstanceSet(UpdateControlledSuperClass, [
@@ -2152,8 +2635,8 @@ describe('Class Model Tests', () => {
                     ]);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    await testForErrorAsync('ClassModel.updateControlCheckSet', expectedErrorMessage, async () => {
-                        return  UpdateControlledDiscriminatedSuperClass.updateControlCheckSet(instanceSet);
+                    await testForErrorAsync('ClassModel.updateControlCheck', expectedErrorMessage, async () => {
+                        return  UpdateControlledDiscriminatedSuperClass.updateControlCheck(instanceSet);
                     });
                 });
 
@@ -2180,14 +2663,14 @@ describe('Class Model Tests', () => {
                     ]);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    await testForErrorAsync('ClassModel.updateControlCheckSet', expectedErrorMessage, async () => {
-                        return  UpdateControlledDiscriminatedSuperClass.updateControlCheckSet(instanceSet);
+                    await testForErrorAsync('ClassModel.updateControlCheck', expectedErrorMessage, async () => {
+                        return  UpdateControlledDiscriminatedSuperClass.updateControlCheck(instanceSet);
                     });
                 });
 
             });
 
-            describe('UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.updateControlCheckSet()', () => {
+            describe('UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.updateControlCheck()', () => {
 
                 it('Update Control Check called on Class with only direct instances of Class.', async () => {
                     const instanceSet = new InstanceSet(UpdateControlledSuperClass, [
@@ -2205,22 +2688,18 @@ describe('Class Model Tests', () => {
                     ]);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    await testForErrorAsync('ClassModel.updateControlCheckSet', expectedErrorMessage, async () => {
-                        return  UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.updateControlCheckSet(instanceSet);
+                    await testForErrorAsync('ClassModel.updateControlCheck', expectedErrorMessage, async () => {
+                        return  UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass.updateControlCheck(instanceSet);
                     });
                 });
 
             });
 
-            describe('UpdateControlledClassUpdateControlledByParameters.updateControlCheckSet()', () => {
+            describe('UpdateControlledClassUpdateControlledByParameters.updateControlCheck()', () => {
 
                 it('Update Control Check passes', async () => {
                     const instanceSet = new InstanceSet(UpdateControlledClassUpdateControlledByParameters, [instanceOfUpdateControlledClassUpdateControlledByParameters]);
-                    const updateAllowed = await UpdateControlledClassUpdateControlledByParameters.updateControlCheckSet(instanceSet, 1, 1, true);
-                    
-                    if (!updateAllowed) {
-                        throw new Error('Update check passed when it should have thrown an error.');
-                    }
+                    await UpdateControlledClassUpdateControlledByParameters.updateControlCheck(instanceSet, 1, 1, true);
                 });
 
                 it('Instance fails update control check because of Numbers.', async () => {
@@ -2230,8 +2709,8 @@ describe('Class Model Tests', () => {
                     const instancesExpectedToFail = new InstanceSet(UpdateControlledClassUpdateControlledByParameters, [instanceOfUpdateControlledClassUpdateControlledByParameters]);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    await testForErrorAsync('ClassModel.updateControlCheckSet', expectedErrorMessage, async () => {
-                        return  UpdateControlledClassUpdateControlledByParameters.updateControlCheckSet(instanceSet, -2, 1, true);
+                    await testForErrorAsync('ClassModel.updateControlCheck', expectedErrorMessage, async () => {
+                        return UpdateControlledClassUpdateControlledByParameters.updateControlCheck(instanceSet, -2, 1, true);
                     });
                 });
 
@@ -2242,8 +2721,476 @@ describe('Class Model Tests', () => {
                     const instancesExpectedToFail = new InstanceSet(UpdateControlledClassUpdateControlledByParameters, [instanceOfUpdateControlledClassUpdateControlledByParameters]);
                     const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
 
-                    await testForErrorAsync('ClassModel.updateControlCheckSet', expectedErrorMessage, async () => {
-                        return  UpdateControlledClassUpdateControlledByParameters.updateControlCheckSet(instanceSet, 1, 1, false);
+                    await testForErrorAsync('ClassModel.updateControlCheck', expectedErrorMessage, async () => {
+                        return  UpdateControlledClassUpdateControlledByParameters.updateControlCheck(instanceSet, 1, 1, false);
+                    });
+                });
+
+            });
+
+        });
+
+    });
+
+    describe('ClassModel.deleteControlCheck()', () => {
+
+        // Set up deleteControlled Instances
+        // For each class, create on instance which will pass all delete control filters, and one each that will fail due to one of the delete control methods
+        {
+            // ClassControlsDeleteControlledSuperClass Instances
+            var instanceOfClassControlsDeleteControlledSuperClassAllowed = new Instance(ClassControlsDeleteControlledSuperClass);
+            instanceOfClassControlsDeleteControlledSuperClassAllowed.allowed = true;
+            
+            var instanceOfClassControlsDeleteControlledSuperClassNotAllowed = new Instance(ClassControlsDeleteControlledSuperClass);
+            instanceOfClassControlsDeleteControlledSuperClassNotAllowed.allowed = false;
+
+            // DeleteControlledSuperClass Instances
+            var instanceOfDeleteControlledSuperClassPasses = new Instance(DeleteControlledSuperClass);
+            instanceOfDeleteControlledSuperClassPasses.name = 'instanceOfDeleteControlledSuperClassPasses';
+            instanceOfDeleteControlledSuperClassPasses.deleteControlledBy = instanceOfClassControlsDeleteControlledSuperClassAllowed;
+
+            var instanceOfDeleteControlledSuperClassFailsRelationship = new Instance(DeleteControlledSuperClass);
+            instanceOfDeleteControlledSuperClassFailsRelationship.name = 'instanceOfDeleteControlledSuperClassFailsRelationship';
+            instanceOfDeleteControlledSuperClassFailsRelationship.deleteControlledBy = instanceOfClassControlsDeleteControlledSuperClassNotAllowed;
+
+            var instancesOfDeleteControlledSuperClass = new InstanceSet(DeleteControlledSuperClass, [
+                instanceOfDeleteControlledSuperClassPasses,
+                instanceOfDeleteControlledSuperClassFailsRelationship
+            ]);
+
+            // DeleteControlledSubClassOfDeleteControlledSuperClass Instances
+            var instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassPasses = new Instance(DeleteControlledSubClassOfDeleteControlledSuperClass);
+            instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassPasses.name = 'instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassPasses';
+            instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassPasses.deleteControlledBy = instanceOfClassControlsDeleteControlledSuperClassAllowed;
+            instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassPasses.boolean = true;
+
+            var instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsRelationship = new Instance(DeleteControlledSubClassOfDeleteControlledSuperClass);
+            instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsRelationship.name = 'instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsRelationship';
+            instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsRelationship.deleteControlledBy = instanceOfClassControlsDeleteControlledSuperClassNotAllowed;
+            instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsRelationship.boolean = true;
+
+            var instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsBoolean = new Instance(DeleteControlledSubClassOfDeleteControlledSuperClass);
+            instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsBoolean.name = 'instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsBoolean'
+            instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsBoolean.deleteControlledBy = instanceOfClassControlsDeleteControlledSuperClassAllowed;
+            instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsBoolean.boolean = false;
+            
+            var instancesOfDeleteControlledSubClassOfDeleteControlledSuperClass = new InstanceSet(DeleteControlledSubClassOfDeleteControlledSuperClass, [
+                instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassPasses,
+                instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsRelationship,
+                instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsBoolean
+            ]);
+
+            // DeleteControlledDiscriminatedSuperClass Instances
+            var instanceOfDeleteControlledDiscriminatedSuperClassPasses = new Instance(DeleteControlledDiscriminatedSuperClass);
+            instanceOfDeleteControlledDiscriminatedSuperClassPasses.name = 'instanceOfDeleteControlledDiscriminatedSuperClassPasses';
+            instanceOfDeleteControlledDiscriminatedSuperClassPasses.deleteControlledBy = instanceOfClassControlsDeleteControlledSuperClassAllowed;
+            instanceOfDeleteControlledDiscriminatedSuperClassPasses.boolean = true;
+            instanceOfDeleteControlledDiscriminatedSuperClassPasses.string = 'deleteControlled';
+
+            var instanceOfDeleteControlledDiscriminatedSuperClassFailsRelationship = new Instance(DeleteControlledDiscriminatedSuperClass);
+            instanceOfDeleteControlledDiscriminatedSuperClassFailsRelationship.name = 'instanceOfDeleteControlledDiscriminatedSuperClassFailsRelationship';
+            instanceOfDeleteControlledDiscriminatedSuperClassFailsRelationship.deleteControlledBy = instanceOfClassControlsDeleteControlledSuperClassNotAllowed;
+            instanceOfDeleteControlledDiscriminatedSuperClassFailsRelationship.boolean = true;
+            instanceOfDeleteControlledDiscriminatedSuperClassFailsRelationship.string = 'deleteControlled';
+
+            var instanceOfDeleteControlledDiscriminatedSuperClassFailsString = new Instance(DeleteControlledDiscriminatedSuperClass);
+            instanceOfDeleteControlledDiscriminatedSuperClassFailsString.name = 'instanceOfDeleteControlledDiscriminatedSuperClassFailsString';
+            instanceOfDeleteControlledDiscriminatedSuperClassFailsString.deleteControlledBy = instanceOfClassControlsDeleteControlledSuperClassAllowed;
+            instanceOfDeleteControlledDiscriminatedSuperClassFailsString.boolean = true;
+            instanceOfDeleteControlledDiscriminatedSuperClassFailsString.string = 'not deleteControlled';
+
+            var instanceOfDeleteControlledDiscriminatedSuperClassFailsBoolean = new Instance(DeleteControlledDiscriminatedSuperClass);
+            instanceOfDeleteControlledDiscriminatedSuperClassFailsBoolean.name = 'instanceOfDeleteControlledDiscriminatedSuperClassFailsBoolean';
+            instanceOfDeleteControlledDiscriminatedSuperClassFailsBoolean.deleteControlledBy = instanceOfClassControlsDeleteControlledSuperClassAllowed;
+            instanceOfDeleteControlledDiscriminatedSuperClassFailsBoolean.boolean = false;
+            instanceOfDeleteControlledDiscriminatedSuperClassFailsBoolean.string = 'deleteControlled';
+            
+            var instancesOfDeleteControlledDiscriminatedSuperClass = new InstanceSet(DeleteControlledDiscriminatedSuperClass, [
+                instanceOfDeleteControlledDiscriminatedSuperClassPasses,
+                instanceOfDeleteControlledDiscriminatedSuperClassFailsRelationship,
+                instanceOfDeleteControlledDiscriminatedSuperClassFailsString,
+                instanceOfDeleteControlledDiscriminatedSuperClassFailsBoolean
+            ]);
+
+            // DeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClass Instances
+            var instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassPasses = new Instance(DeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClass);
+            instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassPasses.name = 'instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassPasses';
+            instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassPasses.deleteControlledBy = instanceOfClassControlsDeleteControlledSuperClassAllowed;  
+            instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassPasses.boolean = true;
+            instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassPasses.string = 'deleteControlled';         
+            instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassPasses.number = 1;
+
+            var instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsRelationship = new Instance(DeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClass);
+            instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsRelationship.name = 'instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsRelationship';
+            instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsRelationship.deleteControlledBy = instanceOfClassControlsDeleteControlledSuperClassNotAllowed;             
+            instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsRelationship.number = 1;
+            instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsRelationship.boolean = true;
+            instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsRelationship.string = 'deleteControlled';
+
+            var instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsBoolean = new Instance(DeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClass);
+            instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsBoolean.name = 'instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsBoolean';
+            instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsBoolean.deleteControlledBy = instanceOfClassControlsDeleteControlledSuperClassAllowed;     
+            instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsBoolean.boolean = false;
+            instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsBoolean.string = 'deleteControlled';
+            instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsBoolean.number = 1;
+
+            var instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsString = new Instance(DeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClass);
+            instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsString.name = 'instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsString';
+            instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsString.deleteControlledBy = instanceOfClassControlsDeleteControlledSuperClassAllowed;     
+            instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsString.boolean = true;
+            instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsString.string = 'not deleteControlled';            
+            instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsString.number = 1;
+
+            var instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsNumber = new Instance(DeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClass);
+            instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsNumber.name = 'instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsNumber';
+            instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsNumber.deleteControlledBy = instanceOfClassControlsDeleteControlledSuperClassAllowed;
+            instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsNumber.boolean = true;
+            instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsNumber.string = 'deleteControlled';      
+            instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsNumber.number = -1;
+            
+            var instancesOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClass = new InstanceSet(DeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClass, [
+                instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassPasses,
+                instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsRelationship,
+                instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsBoolean,
+                instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsString,
+                instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsNumber
+            ]);
+
+            var deleteControlledInstances = new InstanceSet(DeleteControlledSuperClass);
+            deleteControlledInstances.addInstances(instancesOfDeleteControlledSuperClass);
+            deleteControlledInstances.addInstances(instancesOfDeleteControlledSubClassOfDeleteControlledSuperClass);
+            deleteControlledInstances.addInstances(instancesOfDeleteControlledDiscriminatedSuperClass);
+            deleteControlledInstances.addInstances(instancesOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClass);
+
+            // DeleteControlledClassDeleteControlledByParameters Instances
+            var instanceOfDeleteControlledClassDeleteControlledByParameters = new Instance(DeleteControlledClassDeleteControlledByParameters);
+
+        }
+
+        // Save all SecurityFilter Test Instances
+        before(async () => {
+            await instanceOfClassControlsDeleteControlledSuperClassAllowed.save();
+            await instanceOfClassControlsDeleteControlledSuperClassNotAllowed.save();
+
+        });
+
+        after(async () => {
+            await ClassControlsDeleteControlledSuperClass.clear();
+            await DeleteControlledSuperClass.clear();
+            await DeleteControlledSubClassOfDeleteControlledSuperClass.clear();
+            await DeleteControlledDiscriminatedSuperClass.clear();
+            await DeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClass.clear();
+            await DeleteControlledClassDeleteControlledByParameters.clear();
+        });
+
+        describe('Tests for invalid arguments.', () => {
+
+            it('First Argument must be an InstanceSet', async () => {
+                let updatable;
+                const expectedErrorMessage = 'Incorrect parameters. ' + DeleteControlledSuperClass.className + '.deleteControlCheck(InstanceSet instanceSet, ...deleteControlMethodParameters)';
+                const instanceSet = new InstanceSet(DeleteControlledSuperClass, [instanceOfDeleteControlledSuperClassPasses, instanceOfDeleteControlledSuperClassPasses]);
+
+                try {
+                    updatable = await DeleteControlledSuperClass.deleteControlCheck(instanceOfDeleteControlledSuperClassPasses);
+                }
+                catch (error) {
+                    if (error.message != expectedErrorMessage) {
+                        throw  new Error(
+                            'deleteControlCheck() threw an unexpected error.\n' + 
+                            'Expected: ' + expectedErrorMessage + '\n' + 
+                            'Actual:   ' + error.message
+                        );
+                    }
+                }
+
+                if (updatable)
+                    throw new Error ('ClassModel.deleteControlCheck() returned when it should have thrown an error.');
+            });
+
+        });
+
+        describe('Delete Control Methods Are Inherited', () => {
+            
+            it('A class with no supers has only it\'s own delete control method.', () => {
+                if (DeleteControlledSuperClass.deleteControlMethods.length === 0)
+                    throw new Error('Class is missing it\'s own delete control method.');
+
+                if (DeleteControlledSuperClass.deleteControlMethods.length > 1)
+                    throw new Error('Class has more than one delete control method.');
+            });
+
+            it('A sub class has both it\'s own delete control method, and the super class\' delete control method.', () => {
+                if (DeleteControlledSubClassOfDeleteControlledSuperClass.deleteControlMethods.length < 2)
+                    throw new Error('Class is missing a delete control method.');
+                
+                if (DeleteControlledSubClassOfDeleteControlledSuperClass.deleteControlMethods.length != 2)
+                    throw new Error('Class is has the wrong number of delete control methods.');
+            });
+
+            it('A discriminated sub class has all the delete control methods it should.', () => {
+                if (DeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClass.deleteControlMethods.length != 4)
+                    throw new Error('Class is has the wrong number of delete control methods.');
+            });
+        
+        });
+
+        describe('Test Delete Control Check throws error when an instance doesn\'t pass check.', () => {
+
+            describe('DeleteControlledSuperClass.deleteControlCheck()', () => {
+
+                it('Delete Control Check called on Class with only direct instances of Class.', async () => {
+                    const instanceSet = new InstanceSet(DeleteControlledSuperClass, [
+                        instanceOfDeleteControlledSuperClassPasses,
+                        instanceOfDeleteControlledSuperClassFailsRelationship
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(DeleteControlledSuperClass, [instanceOfDeleteControlledSuperClassFailsRelationship]);
+                    const expectedErrorMessage = 'Illegal attempt to delete instances: ' + instancesExpectedToFail.getInstanceIds();
+
+                    await testForErrorAsync('ClassModel.deleteControlCheck', expectedErrorMessage, async () => {
+                        return  DeleteControlledSuperClass.deleteControlCheck(instanceSet);
+                    });
+                });
+
+                it('Delete Control Check called on Class with instances of class and sub class.', async () => {
+                    const instanceSet = new InstanceSet(DeleteControlledSuperClass, [
+                        instanceOfDeleteControlledSuperClassPasses,
+                        instanceOfDeleteControlledSuperClassFailsRelationship,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassPasses,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsBoolean,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsRelationship
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(DeleteControlledSuperClass, [
+                        instanceOfDeleteControlledSuperClassFailsRelationship,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsBoolean,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsRelationship
+                    ]);
+                    const expectedErrorMessage = 'Illegal attempt to delete instances: ' + instancesExpectedToFail.getInstanceIds();
+
+                    await testForErrorAsync('ClassModel.deleteControlCheck', expectedErrorMessage, async () => {
+                        return  DeleteControlledSuperClass.deleteControlCheck(instanceSet);
+                    });
+                });
+
+                it('Delete Control Check called on Class with instances of class and 3 layers of sub classes.', async () => {
+                    const instanceSet = new InstanceSet(DeleteControlledSuperClass, [
+                        instanceOfDeleteControlledSuperClassPasses,
+                        instanceOfDeleteControlledSuperClassFailsRelationship,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassPasses,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsBoolean,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsRelationship,
+                        instanceOfDeleteControlledDiscriminatedSuperClassPasses,
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsString,
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassPasses,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsString,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsNumber
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(DeleteControlledSuperClass, [
+                        instanceOfDeleteControlledSuperClassFailsRelationship,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsBoolean,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsRelationship,
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsString,
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsString,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsNumber
+                    ]);
+                    const expectedErrorMessage = 'Illegal attempt to delete instances: ' + instancesExpectedToFail.getInstanceIds();
+
+                    await testForErrorAsync('ClassModel.deleteControlCheck', expectedErrorMessage, async () => {
+                        return  DeleteControlledSuperClass.deleteControlCheck(instanceSet);
+                    });
+                });
+
+            });
+
+            describe('DeleteControlledSubClassOfDeleteControlledSuperClass.deleteControlCheck()', () => {
+
+                it('Delete Control Check called on Class with only direct instances of Class.', async () => {
+                    const instanceSet = new InstanceSet(DeleteControlledSuperClass, [
+                        instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassPasses,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsBoolean,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsRelationship
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(DeleteControlledSuperClass, [
+                        instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsBoolean,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsRelationship,
+                    ]);
+                    const expectedErrorMessage = 'Illegal attempt to delete instances: ' + instancesExpectedToFail.getInstanceIds();
+
+                    await testForErrorAsync('ClassModel.deleteControlCheck', expectedErrorMessage, async () => {
+                        return  DeleteControlledSubClassOfDeleteControlledSuperClass.deleteControlCheck(instanceSet);
+                    });
+                });
+
+                it('Delete Control Check called on Class with instances of class and 1 layers of sub classes.', async () => {
+                    const instanceSet = new InstanceSet(DeleteControlledSuperClass, [
+                        instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassPasses,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsBoolean,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsRelationship,
+                        instanceOfDeleteControlledDiscriminatedSuperClassPasses,
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsString,
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsRelationship
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(DeleteControlledSuperClass, [
+                        instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsBoolean,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsRelationship,
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsString,
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsRelationship
+                    ]);
+                    const expectedErrorMessage = 'Illegal attempt to delete instances: ' + instancesExpectedToFail.getInstanceIds();
+
+                    await testForErrorAsync('ClassModel.deleteControlCheck', expectedErrorMessage, async () => {
+                        return  DeleteControlledSubClassOfDeleteControlledSuperClass.deleteControlCheck(instanceSet);
+                    });
+                });
+
+                it('Delete Control Check called on Class with instances of 2 layers of sub classes.', async () => {
+                    const instanceSet = new InstanceSet(DeleteControlledSuperClass, [
+                        instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassPasses,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsBoolean,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsRelationship,
+                        instanceOfDeleteControlledDiscriminatedSuperClassPasses,
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsString,
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassPasses,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsString,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsNumber
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(DeleteControlledSuperClass, [
+                        instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsBoolean,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledSuperClassFailsRelationship,
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsString,
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsString,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsNumber
+                    ]);
+                    const expectedErrorMessage = 'Illegal attempt to delete instances: ' + instancesExpectedToFail.getInstanceIds();
+
+                    await testForErrorAsync('ClassModel.deleteControlCheck', expectedErrorMessage, async () => {
+                        return  DeleteControlledSubClassOfDeleteControlledSuperClass.deleteControlCheck(instanceSet);
+                    });
+                });
+
+            });
+
+            describe('DeleteControlledDiscriminatedSuperClass.deleteControlCheck()', () => {
+
+                it('Delete Control Check called on Class with only direct instances of Class.', async () => {
+                    const instanceSet = new InstanceSet(DeleteControlledSuperClass, [
+                        instanceOfDeleteControlledDiscriminatedSuperClassPasses,
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsString,
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsRelationship
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(DeleteControlledSuperClass, [
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsString,
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsRelationship
+                    ]);
+                    const expectedErrorMessage = 'Illegal attempt to delete instances: ' + instancesExpectedToFail.getInstanceIds();
+
+                    await testForErrorAsync('ClassModel.deleteControlCheck', expectedErrorMessage, async () => {
+                        return  DeleteControlledDiscriminatedSuperClass.deleteControlCheck(instanceSet);
+                    });
+                });
+
+                it('Delete Control Check called on Class with instances of 1 layers of sub classes', async () => {
+                    const instanceSet = new InstanceSet(DeleteControlledSuperClass, [
+                        instanceOfDeleteControlledDiscriminatedSuperClassPasses,
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsString,
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassPasses,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsString,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsNumber
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(DeleteControlledSuperClass, [
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsString,
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfDeleteControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsString,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsNumber
+                    ]);
+                    const expectedErrorMessage = 'Illegal attempt to delete instances: ' + instancesExpectedToFail.getInstanceIds();
+
+                    await testForErrorAsync('ClassModel.deleteControlCheck', expectedErrorMessage, async () => {
+                        return  DeleteControlledDiscriminatedSuperClass.deleteControlCheck(instanceSet);
+                    });
+                });
+
+            });
+
+            describe('DeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClass.deleteControlCheck()', () => {
+
+                it('Delete Control Check called on Class with only direct instances of Class.', async () => {
+                    const instanceSet = new InstanceSet(DeleteControlledSuperClass, [
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassPasses,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsString,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsNumber
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(DeleteControlledSuperClass, [
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsRelationship,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsString,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsBoolean,
+                        instanceOfDeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClassFailsNumber
+                    ]);
+                    const expectedErrorMessage = 'Illegal attempt to delete instances: ' + instancesExpectedToFail.getInstanceIds();
+
+                    await testForErrorAsync('ClassModel.deleteControlCheck', expectedErrorMessage, async () => {
+                        return  DeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClass.deleteControlCheck(instanceSet);
+                    });
+                });
+
+            });
+
+            describe('DeleteControlledClassDeleteControlledByParameters.deleteControlCheck()', () => {
+
+                it('Delete Control Check passes', async () => {
+                    const instanceSet = new InstanceSet(DeleteControlledClassDeleteControlledByParameters, [instanceOfDeleteControlledClassDeleteControlledByParameters]);
+                    await DeleteControlledClassDeleteControlledByParameters.deleteControlCheck(instanceSet, 1, 1, true);
+                });
+
+                it('Instance fails delete control check because of Numbers.', async () => {
+                    const instanceSet = new InstanceSet(DeleteControlledClassDeleteControlledByParameters, [
+                        instanceOfDeleteControlledClassDeleteControlledByParameters,
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(DeleteControlledClassDeleteControlledByParameters, [instanceOfDeleteControlledClassDeleteControlledByParameters]);
+                    const expectedErrorMessage = 'Illegal attempt to delete instances: ' + instancesExpectedToFail.getInstanceIds();
+
+                    await testForErrorAsync('ClassModel.deleteControlCheck', expectedErrorMessage, async () => {
+                        return DeleteControlledClassDeleteControlledByParameters.deleteControlCheck(instanceSet, -2, 1, true);
+                    });
+                });
+
+                it('Instance fails delete control check because of Boolean.', async () => {
+                    const instanceSet = new InstanceSet(DeleteControlledClassDeleteControlledByParameters, [
+                        instanceOfDeleteControlledClassDeleteControlledByParameters,
+                    ]);
+                    const instancesExpectedToFail = new InstanceSet(DeleteControlledClassDeleteControlledByParameters, [instanceOfDeleteControlledClassDeleteControlledByParameters]);
+                    const expectedErrorMessage = 'Illegal attempt to delete instances: ' + instancesExpectedToFail.getInstanceIds();
+
+                    await testForErrorAsync('ClassModel.deleteControlCheck', expectedErrorMessage, async () => {
+                        return  DeleteControlledClassDeleteControlledByParameters.deleteControlCheck(instanceSet, 1, 1, false);
                     });
                 });
 

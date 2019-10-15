@@ -182,10 +182,14 @@ class InstanceSet extends SuperSet {
         this.forEach(instance => instance.validate());
     }
     
-    async save(...updateControlMethodParameters) {
+    async save(...controlMethodParameters) {
+        const instancesToUpdate = this.filterToInstanceSet(instance => instance.saved());
+        const instancesToCreate = this.difference(instancesToUpdate);
+
         try {
             this.validate();
-            await this.classModel.updateControlCheckSet(this, ...updateControlMethodParameters);
+            await this.classModel.updateControlCheck(instancesToUpdate, ...controlMethodParameters);
+            await this.classModel.createControlCheck(instancesToCreate, ...controlMethodParameters);
         }
         catch (error) {
             throw new Error('Caught validation error when attempting to save InstanceSet: ' + error.message);

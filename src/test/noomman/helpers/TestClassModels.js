@@ -679,6 +679,107 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
 
     }
 
+    // CreateControlled Classes
+    {
+        // A class which is createControlled by another instance. If that instance has a boolean attribute 'allowed' set to 
+        // true, then the instance of this class can be viewed. 
+        var CreateControlledSuperClass = new ClassModel({
+            className: 'CreateControlledSuperClass',
+            attributes: [
+                {
+                    name: 'name',
+                    type: String,
+                },
+            ],
+            relationships: [
+                {
+                    name: 'createControlledBy',
+                    toClass: 'ClassControlsCreateControlledSuperClass',
+                    singular: true,
+                },
+            ],
+            crudControls: {
+                createControl: async instance => {
+                    if (!instance.createControlledBy)
+                        return false;
+                    return instance.createControlledBy.allowed;
+                },
+            }
+        });
+
+        // A class which is createControlled by it's own boolean attribute. If the boolean is set to true, and it passes the 
+        // its super class'es create filter, then the instance will be returned by create filter.
+        var CreateControlledSubClassOfCreateControlledSuperClass = new ClassModel({
+            className: 'CreateControlledSubClassOfCreateControlledSuperClass',
+            superClasses: [CreateControlledSuperClass],
+            attributes: [
+                {
+                    name: 'boolean',
+                    type: Boolean
+                },
+            ],
+            crudControls: {
+                createControl: async instance => { return instance.boolean },
+            },
+        });
+
+        // A class which is createControlled by it's own string attribute. If the string matches 'createControlled', and it passes all
+        // it's super classes createfilters, than an instance of this class will be returned by createFilter().
+        var CreateControlledDiscriminatedSuperClass = new ClassModel({
+            className: 'CreateControlledDiscriminatedSuperClass',
+            discriminated: true,
+            superClasses: [CreateControlledSubClassOfCreateControlledSuperClass],
+            attributes: [
+                {
+                    name: 'string',
+                    type: String,
+                },
+            ],
+            crudControls: {
+                createControl: async instance => { return instance.string == 'createControlled' },
+            }
+        });
+
+        // A class which is createControlled by it's own number attribute. If the number is greater than 0, and it passes all
+        // it's super classes createfilters, than an instance of this class will be returned by createFilter().
+        var CreateControlledSubClassOfCreateControlledDiscriminatedSuperClass = new ClassModel({
+            className: 'CreateControlledSubClassOfCreateControlledDiscriminatedSuperClass',
+            discriminatorSuperClass: CreateControlledDiscriminatedSuperClass,
+            attributes: [
+                {
+                    name: 'number',
+                    type: Number,
+                },
+            ],
+            crudControls: {
+                createControl: async instance => { return instance.number > 0 },
+            },
+        });
+
+        // A class which is used to secure another class. If an instance of this class has its 'allowed' attribute
+        // set to true, than instances of CreateControlledSuperClass related to this instance will pass the createFilter.
+        var ClassControlsCreateControlledSuperClass = new ClassModel({
+            className: 'ClassControlsCreateControlledSuperClass',
+            attributes: [
+                {
+                    name: 'allowed',
+                    type: Boolean,
+                },
+            ],
+        });
+
+        // A class which is createControlled by parameters passed into the createFilter method. If the two numbers add up to a 
+        // positive number, and the boolean is true, than the instance will pass the create filter. 
+        var CreateControlledClassCreateControlledByParameters = new ClassModel({
+            className: 'CreateControlledClassCreateControlledByParameters',
+            crudControls: {
+                createControl: async (instance, numberA, numberB, boolean) => {
+                    return (numberA + numberB > 0) && boolean;
+                },
+            },
+        });
+    }
+
     // ReadControlled Classes
     {
         // A class which is readControlled by another instance. If that instance has a boolean attribute 'allowed' set to 
@@ -915,6 +1016,106 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         });
     }
 
+    // DeleteControlled Classes
+    {
+        // A class which is deleteControlled by another instance. If that instance has a boolean attribute 'allowed' set to 
+        // true, then the instance of this class can be viewed. 
+        var DeleteControlledSuperClass = new ClassModel({
+            className: 'DeleteControlledSuperClass',
+            attributes: [
+                {
+                    name: 'name',
+                    type: String,
+                },
+            ],
+            relationships: [
+                {
+                    name: 'deleteControlledBy',
+                    toClass: 'ClassControlsDeleteControlledSuperClass',
+                    singular: true,
+                },
+            ],
+            crudControls: {
+                deleteControl: async instance => {
+                    let deleteControlledByInstance =  await instance.walk('deleteControlledBy');
+                    return deleteControlledByInstance.allowed;
+                },
+            }
+        });
+
+        // A class which is deleteControlled by it's own boolean attribute. If the boolean is set to true, and it passes the 
+        // its super class'es delete filter, then the instance will be returned by delete filter.
+        var DeleteControlledSubClassOfDeleteControlledSuperClass = new ClassModel({
+            className: 'DeleteControlledSubClassOfDeleteControlledSuperClass',
+            superClasses: [DeleteControlledSuperClass],
+            attributes: [
+                {
+                    name: 'boolean',
+                    type: Boolean
+                },
+            ],
+            crudControls: {
+                deleteControl: async instance => { return instance.boolean },
+            },
+        });
+
+        // A class which is deleteControlled by it's own string attribute. If the string matches 'deleteControlled', and it passes all
+        // it's super classes deletefilters, than an instance of this class will be returned by deleteFilter().
+        var DeleteControlledDiscriminatedSuperClass = new ClassModel({
+            className: 'DeleteControlledDiscriminatedSuperClass',
+            discriminated: true,
+            superClasses: [DeleteControlledSubClassOfDeleteControlledSuperClass],
+            attributes: [
+                {
+                    name: 'string',
+                    type: String,
+                },
+            ],
+            crudControls: {
+                deleteControl: async instance => { return instance.string == 'deleteControlled' },
+            }
+        });
+
+        // A class which is deleteControlled by it's own number attribute. If the number is greater than 0, and it passes all
+        // it's super classes deletefilters, than an instance of this class will be returned by deleteFilter().
+        var DeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClass = new ClassModel({
+            className: 'DeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClass',
+            discriminatorSuperClass: DeleteControlledDiscriminatedSuperClass,
+            attributes: [
+                {
+                    name: 'number',
+                    type: Number,
+                },
+            ],
+            crudControls: {
+                deleteControl: async instance => { return instance.number > 0 },
+            },
+        });
+
+        // A class which is used to secure another class. If an instance of this class has its 'allowed' attribute
+        // set to true, than instances of DeleteControlledSuperClass related to this instance will pass the deleteFilter.
+        var ClassControlsDeleteControlledSuperClass = new ClassModel({
+            className: 'ClassControlsDeleteControlledSuperClass',
+            attributes: [
+                {
+                    name: 'allowed',
+                    type: Boolean,
+                },
+            ],
+        });
+
+        // A class which is deleteControlled by parameters passed into the deleteFilter method. If the two numbers add up to a 
+        // positive number, and the boolean is true, than the instance will pass the delete filter. 
+        var DeleteControlledClassDeleteControlledByParameters = new ClassModel({
+            className: 'DeleteControlledClassDeleteControlledByParameters',
+            crudControls: {
+                deleteControl: async (instance, numberA, numberB, boolean) => {
+                    return (numberA + numberB > 0) && boolean;
+                },
+            },
+        });
+    }
+
 }
 
 module.exports = {
@@ -948,6 +1149,12 @@ module.exports = {
     NonSingularRelationshipClass,
     SubClassOfSingularRelationshipClass,
     SubClassOfNonSingularRelationshipClass,
+    CreateControlledSuperClass, 
+    CreateControlledSubClassOfCreateControlledSuperClass,
+    CreateControlledDiscriminatedSuperClass,
+    CreateControlledSubClassOfCreateControlledDiscriminatedSuperClass,
+    ClassControlsCreateControlledSuperClass,
+    CreateControlledClassCreateControlledByParameters,
     ReadControlledSuperClass,
     ReadControlledSubClassOfReadControlledSuperClass,
     ReadControlledDiscriminatedSuperClass,
@@ -961,5 +1168,11 @@ module.exports = {
     UpdateControlledDiscriminatedSuperClass,
     UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass,
     ClassControlsUpdateControlledSuperClass,
-    UpdateControlledClassUpdateControlledByParameters
+    UpdateControlledClassUpdateControlledByParameters,
+    DeleteControlledSuperClass, 
+    DeleteControlledSubClassOfDeleteControlledSuperClass,
+    DeleteControlledDiscriminatedSuperClass,
+    DeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClass,
+    ClassControlsDeleteControlledSuperClass,
+    DeleteControlledClassDeleteControlledByParameters
 }

@@ -430,7 +430,7 @@ class ClassModel {
                 }
             }
 
-            const filteredInstance = await this.readControlFilterOne(instanceFound, ...readControlMethodParameters);
+            const filteredInstance = await this.readControlFilterInstance(instanceFound, ...readControlMethodParameters);
             return filteredInstance ? filteredInstance : null;
         }
         // If this is a non-discriminated super class, we may need to check this classmodel's collection as well,
@@ -444,7 +444,7 @@ class ClassModel {
                 if (documentFound) {
                     let instanceFound = new Instance(this, documentFound);
 
-                    const filteredInstance = await this.readControlFilterOne(instanceFound, ...readControlMethodParameters)
+                    const filteredInstance = await this.readControlFilterInstance(instanceFound, ...readControlMethodParameters)
                     return filteredInstance ? filteredInstance : null;
                 }
             }
@@ -468,6 +468,24 @@ class ClassModel {
 
     // Crud Control Methods
 
+    async createControlCheck(instanceSet, ...createControlMethodParameters) {
+        if (!(instanceSet instanceof InstanceSet))
+            throw new Error('Incorrect parameters. ' + this.className + '.createControlCheck(InstanceSet instanceSet, ...createControlMethodParameters)');
+        
+        if (instanceSet.isEmpty() || !this.createControlMethods.length)
+            return;
+
+        const rejectedInstances = await this.evaluateCrudControlMethods(instanceSet, 'createControlMethods', ...createControlMethodParameters);
+
+        if (!rejectedInstances.isEmpty())
+            throw new Error('Illegal attempt to create instances: ' + rejectedInstances.getInstanceIds());
+    }
+
+    async createControlCheckInstance(instance, ...createControlMethodParameters) {
+        const instanceSet = new InstanceSet(instance.classModel, [instance]);
+        return this.createControlCheck(instanceSet, ...createControlMethodParameters);
+    }
+
     /* Takes an array of instances of the Class Model and filters out any that do not pass this Class Model's read control method.
      * @param required Array<instance> : An array of instances of this Class Model to filter.
      * @return Promise(Array<Instance>): The given instances filtered for read control.
@@ -486,30 +504,46 @@ class ClassModel {
         return instanceSet.difference(rejectedInstances);
     }
 
-    async readControlFilterOne(instance, ...readControlMethodParameters) {
+    async readControlFilterInstance(instance, ...readControlMethodParameters) {
         const instanceSet = new InstanceSet(this, [instance]);
         const filteredInstanceSet = await this.readControlFilter(instanceSet, ...readControlMethodParameters);
         return filteredInstanceSet.isEmpty() ? null : [...instanceSet][0];
     }
 
-    async updateControlCheck(instance, ...updateControlMethodParameters) {
-        const instanceSet = new InstanceSet(instance.classModel, [instance]);
-        return this.updateControlCheckSet(instanceSet, ...updateControlMethodParameters);
-    }
-
-    async updateControlCheckSet(instanceSet, ...updateControlParameters) {
+    async updateControlCheck(instanceSet, ...updateControlParameters) {
         if (!(instanceSet instanceof InstanceSet))
-            throw new Error('Incorrect parameters. ' + this.className + '.updateControlCheckSet(InstanceSet instanceSet, ...updateControlMethodParameters)');
+            throw new Error('Incorrect parameters. ' + this.className + '.updateControlCheck(InstanceSet instanceSet, ...updateControlMethodParameters)');
 
         if (instanceSet.isEmpty() || !this.updateControlMethods.length)
-            return true;
+            return;
 
         const rejectedInstances = await this.evaluateCrudControlMethods(instanceSet, 'updateControlMethods', ...updateControlParameters);
 
-        if (rejectedInstances.isEmpty())
-            return true;
-        else
+        if (!rejectedInstances.isEmpty())
             throw new Error('Illegal attempt to update instances: ' + rejectedInstances.getInstanceIds());
+    }
+
+    async updateControlCheckInstance(instance, ...updateControlMethodParameters) {
+        const instanceSet = new InstanceSet(instance.classModel, [instance]);
+        return this.updateControlCheck(instanceSet, ...updateControlMethodParameters);
+    }
+
+    async deleteControlCheck(instanceSet, ...deleteControlMethodParameters) {
+        if (!(instanceSet instanceof InstanceSet))
+            throw new Error('Incorrect parameters. ' + this.className + '.deleteControlCheck(InstanceSet instanceSet, ...deleteControlMethodParameters)');
+
+        if (instanceSet.isEmpty() || !this.deleteControlMethods.length)
+            return;
+
+        const rejectedInstances = await this.evaluateCrudControlMethods(instanceSet, 'deleteControlMethods', ...deleteControlMethodParameters);
+
+        if (!rejectedInstances.isEmpty())
+            throw new Error('Illegal attempt to delete instances: ' + rejectedInstances.getInstanceIds());
+    }
+
+    async deleteControlCheckInstance(instance, ...deleteControlMethodParameters) {
+        const instanceSet = new InstanceSet(instance.classModel, [instance]);
+        return this.deleteControlCheck(instanceSet, ...deleteControlMethodParameters);
     }
 
     async evaluateCrudControlMethods(instanceSet, controlMethods, ...methodParameters) {

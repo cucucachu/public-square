@@ -352,13 +352,18 @@ class Instance {
 
     // Update and Delete Methods Methods
 
-    async save(...updateControlMethodParameters) {
+    async save(...controlMethodParameters) {
         if (this.deleted()) 
             throw new Error('instance.save(): You cannot save an instance which has been deleted.');
         
         try {
             this.validate();
-            await this.classModel.updateControlCheck(this, ...updateControlMethodParameters);
+            if (!this.saved()) {
+                await this.classModel.createControlCheckInstance(this, ...controlMethodParameters);
+            }
+            else {
+                await this.classModel.updateControlCheckInstance(this, ...controlMethodParameters);
+            }
         }
         catch (error) {
             throw new Error('Caught validation error when attempting to save Instance: ' + error.message);
