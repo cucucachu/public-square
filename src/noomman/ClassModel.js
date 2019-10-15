@@ -54,15 +54,23 @@ class ClassModel {
             }
         }
 
+        this.createControlMethods = [];
         this.readControlMethods = [];
         this.updateControlMethods = [];
+        this.deleteControlMethods = [];
 
         if (schema.crudControls) {
+            if (schema.crudControls.createControl) {
+                this.createControlMethods.push(schema.crudControls.createControl);
+            }
             if (schema.crudControls.readControl) {
                 this.readControlMethods.push(schema.crudControls.readControl);
             }
             if (schema.crudControls.updateControl) {
                 this.updateControlMethods.push(schema.crudControls.updateControl);
+            }
+            if (schema.crudControls.deleteControl) {
+                this.deleteControlMethods.push(schema.crudControls.deleteControl);
             }
         }
 
@@ -70,8 +78,10 @@ class ClassModel {
             for (const superClass of schema.superClasses) {
                 this.attributes = this.attributes.concat(superClass.attributes);
                 this.relationships = this.relationships.concat(superClass.relationships);
+                this.createControlMethods = this.createControlMethods.concat(superClass.createControlMethods);
                 this.readControlMethods = this.readControlMethods.concat(superClass.readControlMethods);
                 this.updateControlMethods = this.updateControlMethods.concat(superClass.updateControlMethods);
+                this.deleteControlMethods = this.deleteControlMethods.concat(superClass.deleteControlMethods);
                 superClass.subClasses.push(this);
             }
         }
@@ -79,8 +89,10 @@ class ClassModel {
         if (schema.discriminatorSuperClass) {
             this.attributes = this.attributes.concat(schema.discriminatorSuperClass.attributes);
             this.relationships = this.relationships.concat(schema.discriminatorSuperClass.relationships);
+            this.createControlMethods = this.createControlMethods.concat(schema.discriminatorSuperClass.createControlMethods);
             this.readControlMethods = this.readControlMethods.concat(schema.discriminatorSuperClass.readControlMethods);
             this.updateControlMethods = this.updateControlMethods.concat(schema.discriminatorSuperClass.updateControlMethods);
+            this.deleteControlMethods = this.deleteControlMethods.concat(schema.discriminatorSuperClass.deleteControlMethods);
             schema.discriminatorSuperClass.discriminatedSubClasses.push(this);
         }
 
@@ -460,50 +472,18 @@ class ClassModel {
      * @param required Array<instance> : An array of instances of this Class Model to filter.
      * @return Promise(Array<Instance>): The given instances filtered for read control.
      */
+
     async readControlFilter(instanceSet, ...readControlMethodParameters) {
         if (!(instanceSet instanceof InstanceSet))
             throw new Error('Incorrect parameters. ' + this.className + '.readControlFilter(InstanceSet instanceSet, ...readControlMethodParameters)');
-
+        
         // If InstanceSet is empty or not read controlled, just return a copy of it.
         if (!instanceSet.size || this.readControlMethods.length === 0)
             return new InstanceSet(this, instanceSet);
 
-        // Filter instances of this class using the relevant read control methods.
-        const filtered = new InstanceSet(this);
-        let filteredInstanceSetOfThisClass;
+        const rejectedInstances = await this.evaluateCrudControlMethods(instanceSet, 'readControlMethods', ...readControlMethodParameters);
 
-        if (this.discriminated)
-            filteredInstanceSetOfThisClass = instanceSet.filterToInstanceSet(instance => instance.__t === undefined);
-        else
-            filteredInstanceSetOfThisClass = instanceSet.filterForInstancesInThisCollection();
-        
-        let filteredInstancesOfThisClass = [...filteredInstanceSetOfThisClass];
-
-        for (const readControlMethod of this.readControlMethods) {
-            filteredInstancesOfThisClass = await ClassModel.asyncFilter(filteredInstancesOfThisClass, async (instance) => {
-                return await readControlMethod(instance, ...readControlMethodParameters);
-            });
-        }
-
-        filtered.addInstances(filteredInstancesOfThisClass);
-        // Recursively call readControlFilter() for sub classes
-        let subClasses = [];
-
-        if (this.subClasses.length)
-            subClasses = this.subClasses;
-        if (this.discriminatedSubClasses.length)
-            subClasses = this.discriminatedSubClasses;
-        
-        for (let subClass of subClasses) {
-            let instanceSetOfSubClass = instanceSet.filterForClassModel(subClass);
-
-            if (instanceSetOfSubClass.size) {
-                let filteredSubClassInstances = await subClass.readControlFilter(instanceSetOfSubClass, ...readControlMethodParameters);
-                filtered.addInstances(filteredSubClassInstances);
-            }
-        }
-
-        return filtered;
+        return instanceSet.difference(rejectedInstances);
     }
 
     async readControlFilterOne(instance, ...readControlMethodParameters) {
@@ -524,7 +504,7 @@ class ClassModel {
         if (instanceSet.isEmpty() || !this.updateControlMethods.length)
             return true;
 
-        const rejectedInstances = await this.updateControlCheckSetRecursive(instanceSet, ...updateControlParameters);
+        const rejectedInstances = await this.evaluateCrudControlMethods(instanceSet, 'updateControlMethods', ...updateControlParameters);
 
         if (rejectedInstances.isEmpty())
             return true;
@@ -532,28 +512,23 @@ class ClassModel {
             throw new Error('Illegal attempt to update instances: ' + rejectedInstances.getInstanceIds());
     }
 
-    /* Recursive method to be called by updateControlCheck()
-     * Required Parameter instances - Array<instance> : An array of instances of this Class Model to run update control method on.
-     * Returns an InstanceSet containing instances which do not pass update control check.
-     * }
-     */
-    async updateControlCheckSetRecursive(instanceSet, ...updateControlMethodParameters) {
+    async evaluateCrudControlMethods(instanceSet, controlMethods, ...methodParameters) {
         let rejectedInstances = new InstanceSet(this);
 
         const instancesOfThisClass = instanceSet.filterToInstanceSet(instance => {
             return instance.classModel === this;
         });
 
-        let updatableInstancesOfThisClass = [...instancesOfThisClass];
+        let passingInstancesOfThisClass = [...instancesOfThisClass];
 
-        for (const updateControlMethod of this.updateControlMethods) {
-            updatableInstancesOfThisClass = await ClassModel.asyncFilter(updatableInstancesOfThisClass, async (instance) => {
-                return updateControlMethod(instance, ...updateControlMethodParameters);
+        for (const controlMethod of this[controlMethods]) {
+            passingInstancesOfThisClass = await ClassModel.asyncFilter(passingInstancesOfThisClass, async (instance) => {
+                return controlMethod(instance, ...methodParameters);
             });
         }
 
-        updatableInstancesOfThisClass = new InstanceSet(this, updatableInstancesOfThisClass);
-        rejectedInstances = instancesOfThisClass.difference(updatableInstancesOfThisClass);
+        passingInstancesOfThisClass = new InstanceSet(this, passingInstancesOfThisClass);
+        rejectedInstances = instancesOfThisClass.difference(passingInstancesOfThisClass);
 
         if (this.isSuperClass()) {
             if (this.discriminated) {
@@ -570,9 +545,9 @@ class ClassModel {
                         instancesByClass[this.className].push(instance);
     
                 for (let className in instancesByClass) {
-                    if (className != this.className) {
+                    if (className !== this.className) {
                         const subClassModel = AllClassModels[className];
-                        const rejectedSubClassInstances = await subClassModel.updateControlCheckSetRecursive(new InstanceSet(subClassModel, instancesByClass[className]), ...updateControlMethodParameters);
+                        const rejectedSubClassInstances = await subClassModel.evaluateCrudControlMethods(new InstanceSet(subClassModel, instancesByClass[className]), controlMethods, ...methodParameters);
                         rejectedInstances.addInstances(rejectedSubClassInstances);
                     }
                 }
@@ -582,7 +557,7 @@ class ClassModel {
                     let instancesOfSubClass = instanceSet.filterForClassModel(subClass);
     
                     if (!instancesOfSubClass.isEmpty()) {
-                        const rejectedSubClassInstances = await subClass.updateControlCheckSetRecursive(instancesOfSubClass, ...updateControlMethodParameters);
+                        const rejectedSubClassInstances = await subClass.evaluateCrudControlMethods(instancesOfSubClass, controlMethods, ...methodParameters);
                         rejectedInstances.addFromIterable(rejectedSubClassInstances);
                     }
                 }
@@ -590,6 +565,7 @@ class ClassModel {
         }
 
         return rejectedInstances;
+
     }
 
     async deleteMany(instances) {
