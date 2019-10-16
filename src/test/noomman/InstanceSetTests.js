@@ -59,6 +59,14 @@ const testForErrorAsyncRegex = TestingFunctions.testForErrorAsyncRegex;
     var DeleteControlledSuperClass = TestClassModels.DeleteControlledSuperClass;
     var ClassControlsDeleteControlledSuperClass = TestClassModels.ClassControlsDeleteControlledSuperClass;
     var DeleteControlledClassDeleteControlledByParameters = TestClassModels.DeleteControlledClassDeleteControlledByParameters;
+
+    // Validation Classes
+    var ValidationSuperClass = TestClassModels.ValidationSuperClass;
+    var SubClassOfValidationSuperClass = TestClassModels.SubClassOfValidationSuperClass;
+    var ValidationDiscriminatedSuperClass = TestClassModels.ValidationDiscriminatedSuperClass;
+    var SubClassOfValidationDiscriminatedSuperClass = TestClassModels.SubClassOfValidationDiscriminatedSuperClass;
+    var AsyncValidationClass = TestClassModels.AsyncValidationClass;
+    var RelatedValidationClass = TestClassModels.RelatedValidationClass;
 }
 
 describe('InstanceSet Tests', () => {
@@ -1501,6 +1509,378 @@ describe('InstanceSet Tests', () => {
     
             });
 
+            describe('Custom Validations', () => {
+    
+                // Set up instances for async validation tests.
+                {
+                    var instanceOfRelatedValidationClassValid = new Instance(RelatedValidationClass);
+                    var instanceOfRelatedValidationClassInvalid = new Instance(RelatedValidationClass);
+    
+                    instanceOfRelatedValidationClassValid.valid = true;
+                    instanceOfRelatedValidationClassInvalid.valid = false;
+                }
+    
+                before(async () => {
+                    await instanceOfRelatedValidationClassValid.save();
+                    await instanceOfRelatedValidationClassInvalid.save();
+                });
+    
+                after(async () => {
+                    await RelatedValidationClass.clear();
+                });
+    
+                describe('Synchronous Validation Methods', () => {
+                    
+                    describe('Without Inheritance', () => {
+                        
+                        it('No error thrown when a validation passes.', async () => {
+                            const instance = new Instance(ValidationSuperClass);
+                            const instanceSet = new InstanceSet(ValidationSuperClass, [instance]);
+                            instance.assign({
+                                name: 'instance',
+                                number: 1,
+                            });
+    
+                            await instanceSet.validate();
+                        });
+                        
+                        it('Error thrown when a validation fails.', async () => {
+                            const expectedErrorMessage = 'Number must be greater than 0.';
+                            const instance = new Instance(ValidationSuperClass);
+                            const instanceSet = new InstanceSet(ValidationSuperClass, [instance]);
+                            instance.assign({
+                                name: 'instance',
+                                number: 0,
+                            });
+    
+                            await testForErrorAsync('InstanceSet.validate()', expectedErrorMessage, async () => {
+                                return instanceSet.validate();
+                            });
+                        });
+                        
+                        it('Error thrown when a validation fails.', async () => {
+                            const expectedErrorMessage = 'Name cannot be empty.';
+                            const instance = new Instance(ValidationSuperClass);
+                            const instanceSet = new InstanceSet(ValidationSuperClass, [instance]);
+                            instance.assign({
+                                name: '',
+                                number: 1,
+                            });
+    
+                            await testForErrorAsync('InstanceSet.validate()', expectedErrorMessage, async () => {
+                                return instanceSet.validate();
+                            });
+                        });
+    
+                    });
+    
+                    describe('Sub Class Validations', () => {
+                        
+                        it('No error thrown when a validation passes.', async () => {
+                            const instance = new Instance(SubClassOfValidationSuperClass);
+                            const instanceSet = new InstanceSet(SubClassOfValidationSuperClass, [instance]);
+                            instance.assign({
+                                name: 'instance',
+                                number: 1,
+                            });
+    
+                            await instanceSet.validate();
+                        });
+                        
+                        it('Error throw due to sub class\'s own validation.', async () => {
+                            const expectedErrorMessage = 'Number must be less than or equal to 10.';
+                            const instance = new Instance(SubClassOfValidationSuperClass);
+                            const instanceSet = new InstanceSet(SubClassOfValidationSuperClass, [instance]);
+                            instance.assign({
+                                name: 'instance',
+                                number: 100,
+                            });
+    
+                            await testForErrorAsync('InstanceSet.validate()', expectedErrorMessage, async () => {
+                                return instanceSet.validate();
+                            });
+                        });
+                        
+                        it('No error thrown when a validation passes. InstanceSet is a super class InstanceSet.', async () => {
+                            const instance = new Instance(SubClassOfValidationSuperClass);
+                            const instanceSet = new InstanceSet(ValidationSuperClass, [instance]);
+                            instance.assign({
+                                name: 'instance',
+                                number: 1,
+                            });
+    
+                            await instanceSet.validate();
+                        });
+                        
+                        it('Error throw due to sub class\'s own validation. InstanceSet is a super class InstanceSet.', async () => {
+                            const expectedErrorMessage = 'Number must be less than or equal to 10.';
+                            const instance = new Instance(SubClassOfValidationSuperClass);
+                            const instanceSet = new InstanceSet(ValidationSuperClass, [instance]);
+                            instance.assign({
+                                name: 'instance',
+                                number: 100,
+                            });
+    
+                            await testForErrorAsync('InstanceSet.validate()', expectedErrorMessage, async () => {
+                                return instanceSet.validate();
+                            });
+                        });
+                        
+                        it('Error thrown due to super class validation.', async () => {
+                            const expectedErrorMessage = 'Number must be greater than 0.';
+                            const instance = new Instance(SubClassOfValidationSuperClass);
+                            const instanceSet = new InstanceSet(SubClassOfValidationSuperClass, [instance]);
+                            instance.assign({
+                                name: 'instance',
+                                number: 0,
+                            });
+    
+                            await testForErrorAsync('InstanceSet.validate()', expectedErrorMessage, async () => {
+                                return instanceSet.validate();
+                            });
+                        });
+                        
+                        it('Error thrown due to super class validation.', async () => {
+                            const expectedErrorMessage = 'Name cannot be empty.';
+                            const instance = new Instance(SubClassOfValidationSuperClass);
+                            const instanceSet = new InstanceSet(SubClassOfValidationSuperClass, [instance]);
+                            instance.assign({
+                                name: '',
+                                number: 1,
+                            });
+    
+                            await testForErrorAsync('InstanceSet.validate()', expectedErrorMessage, async () => {
+                                return instanceSet.validate();
+                            });
+                        });
+    
+                    });
+    
+                    describe('Sub Class Validations (Discriminated)', () => {
+                        
+                        it('No error thrown when a validation passes.', async () => {
+                            const instance = new Instance(ValidationDiscriminatedSuperClass);
+                            const instanceSet = new InstanceSet(ValidationDiscriminatedSuperClass, [instance]);
+                            instance.assign({
+                                name: 'instance',
+                                number: 1,
+                                boolean: true,
+                            });
+    
+                            await instanceSet.validate();
+                        });
+                        
+                        it('Error throw due to class\'s own validation.', async () => {
+                            const expectedErrorMessage = 'Boolean must be true.';
+                            const instance = new Instance(ValidationDiscriminatedSuperClass);
+                            const instanceSet = new InstanceSet(ValidationDiscriminatedSuperClass, [instance]);
+                            instance.assign({
+                                name: 'instance',
+                                number: 5,
+                                boolean: false,
+                            });
+    
+                            await testForErrorAsync('InstanceSet.validate()', expectedErrorMessage, async () => {
+                                return instanceSet.validate();
+                            });
+                        });
+                        
+                        it('No error thrown when a validation passes. Instance Set is a super class InstanceSet.', async () => {
+                            const instance = new Instance(ValidationDiscriminatedSuperClass);
+                            const instanceSet = new InstanceSet(ValidationSuperClass, [instance]);
+                            instance.assign({
+                                name: 'instance',
+                                number: 1,
+                                boolean: true,
+                            });
+    
+                            await instanceSet.validate();
+                        });
+                        
+                        it('Error throw due to class\'s own validation. Instance Set is a super class InstanceSet.', async () => {
+                            const expectedErrorMessage = 'Boolean must be true.';
+                            const instance = new Instance(ValidationDiscriminatedSuperClass);
+                            const instanceSet = new InstanceSet(ValidationSuperClass, [instance]);
+                            instance.assign({
+                                name: 'instance',
+                                number: 5,
+                                boolean: false,
+                            });
+    
+                            await testForErrorAsync('InstanceSet.validate()', expectedErrorMessage, async () => {
+                                return instanceSet.validate();
+                            });
+                        });
+                        
+                        it('Error thrown due to super class validation.', async () => {
+                            const expectedErrorMessage = 'Number must be greater than 0.';
+                            const instance = new Instance(ValidationDiscriminatedSuperClass);
+                            const instanceSet = new InstanceSet(ValidationDiscriminatedSuperClass, [instance]);
+                            instance.assign({
+                                name: 'instance',
+                                number: 0,
+                                boolean: true,
+                            });
+    
+                            await testForErrorAsync('InstanceSet.validate()', expectedErrorMessage, async () => {
+                                return instanceSet.validate();
+                            });
+                        });
+                        
+                        it('Error thrown due to super class validation.', async () => {
+                            const expectedErrorMessage = 'Name cannot be empty.';
+                            const instance = new Instance(ValidationDiscriminatedSuperClass);
+                            const instanceSet = new InstanceSet(ValidationDiscriminatedSuperClass, [instance]);
+                            instance.assign({
+                                name: '',
+                                number: 1,
+                                boolean: true,
+                            });
+    
+                            await testForErrorAsync('InstanceSet.validate()', expectedErrorMessage, async () => {
+                                return instanceSet.validate();
+                            });
+                        });
+    
+                    });
+    
+                    describe('Sub Sub Class Validations (Discriminated)', () => {
+                        
+                        it('No error thrown when a validation passes.', async () => {
+                            const instance = new Instance(SubClassOfValidationDiscriminatedSuperClass);
+                            const instanceSet = new InstanceSet(SubClassOfValidationDiscriminatedSuperClass, [instance]);
+                            instance.assign({
+                                name: 'instance',
+                                number: 1,
+                                boolean: true,
+                                boolean2: true,
+                            });
+    
+                            await instanceSet.validate();
+                        });
+                        
+                        it('Error throw due to class\'s own validation.', async () => {
+                            const expectedErrorMessage = 'Boolean2 must be true.';
+                            const instance = new Instance(SubClassOfValidationDiscriminatedSuperClass);
+                            const instanceSet = new InstanceSet(SubClassOfValidationDiscriminatedSuperClass, [instance]);
+                            instance.assign({
+                                name: 'instance',
+                                number: 5,
+                                boolean: true,
+                                boolean2: false,
+                            });
+    
+                            await testForErrorAsync('InstanceSet.validate()', expectedErrorMessage, async () => {
+                                return instanceSet.validate();
+                            });
+                        });
+                        
+                        it('No error thrown when a validation passes. Instance Set is a super class InstanceSet', async () => {
+                            const instance = new Instance(SubClassOfValidationDiscriminatedSuperClass);
+                            const instanceSet = new InstanceSet(ValidationSuperClass, [instance]);
+                            instance.assign({
+                                name: 'instance',
+                                number: 1,
+                                boolean: true,
+                                boolean2: true,
+                            });
+    
+                            await instanceSet.validate();
+                        });
+                        
+                        it('Error throw due to class\'s own validation. Instance Set is a super class InstanceSet', async () => {
+                            const expectedErrorMessage = 'Boolean2 must be true.';
+                            const instance = new Instance(SubClassOfValidationDiscriminatedSuperClass);
+                            const instanceSet = new InstanceSet(ValidationSuperClass, [instance]);
+                            instance.assign({
+                                name: 'instance',
+                                number: 5,
+                                boolean: true,
+                                boolean2: false,
+                            });
+    
+                            await testForErrorAsync('InstanceSet.validate()', expectedErrorMessage, async () => {
+                                return instanceSet.validate();
+                            });
+                        });
+                        
+                        it('Error throw due to discriminated super class\'s validation.', async () => {
+                            const expectedErrorMessage = 'Boolean must be true.';
+                            const instance = new Instance(SubClassOfValidationDiscriminatedSuperClass);
+                            const instanceSet = new InstanceSet(SubClassOfValidationDiscriminatedSuperClass, [instance]);
+                            instance.assign({
+                                name: 'instance',
+                                number: 5,
+                                boolean: false,
+                                boolean2: true,
+                            });
+    
+                            await testForErrorAsync('Instance.validate()', expectedErrorMessage, async () => {
+                                return instanceSet.validate();
+                            });
+                        });
+                        
+                        it('Error thrown due to super duper class validation.', async () => {
+                            const expectedErrorMessage = 'Number must be greater than 0.';
+                            const instance = new Instance(SubClassOfValidationDiscriminatedSuperClass);
+                            const instanceSet = new InstanceSet(SubClassOfValidationDiscriminatedSuperClass, [instance]);
+                            instance.assign({
+                                name: 'instance',
+                                number: 0,
+                                boolean: true,
+                                boolean2: true,
+                            });
+    
+                            await testForErrorAsync('Instance.validate()', expectedErrorMessage, async () => {
+                                return instanceSet.validate();
+                            });
+                        });
+                        
+                        it('Error thrown due to super duper class validation.', async () => {
+                            const expectedErrorMessage = 'Name cannot be empty.';
+                            const instance = new Instance(SubClassOfValidationDiscriminatedSuperClass);
+                            const instanceSet = new InstanceSet(SubClassOfValidationDiscriminatedSuperClass, [instance]);
+                            instance.assign({
+                                name: '',
+                                number: 1,
+                                boolean: true,
+                                boolean2: true,
+                            });
+    
+                            await testForErrorAsync('Instance.validate()', expectedErrorMessage, async () => {
+                                return instanceSet.validate();
+                            });
+                        });
+    
+                    });
+    
+                });
+    
+                describe('Asynchronous Validation Methods', () => {
+    
+                    it('Asynchronous validation passes.', async () => {
+                        const instance = new Instance(AsyncValidationClass);
+                        const instanceSet = new InstanceSet(AsyncValidationClass, [instance]);
+                        instance.relatedInstance = instanceOfRelatedValidationClassValid;
+    
+                        await instanceSet.validate();
+                    });
+    
+                    it('Asynchronous validation fails, error thrown.', async () => {
+                        const expectedErrorMessage = 'Related instance is not valid.';
+                        const instance = new Instance(AsyncValidationClass);
+                        const instanceSet = new InstanceSet(AsyncValidationClass, [instance]);
+                        instance.relatedInstance = instanceOfRelatedValidationClassInvalid;
+    
+                        await testForErrorAsync('Instance.validate()', expectedErrorMessage, async () => {
+                            return instanceSet.validate();
+                        });
+                    });
+    
+                });
+    
+            });
+
         });
 
         describe('InstanceSet.save()', () => {
@@ -1792,6 +2172,73 @@ describe('InstanceSet Tests', () => {
     
                     if (instanceFound.name) 
                         throw new Error('.save() threw an error, but the instance was updated anyway.')
+                });
+
+            });
+
+            describe('Save InstanceSet With Custom Validations', () => {
+
+                it('Can save a vaildated InstanceSet which passes validation.', async () => {
+                    const instance = new Instance(ValidationSuperClass);
+                    const instanceSet = new InstanceSet(ValidationSuperClass, [instance]);
+                    instance.assign({
+                        name: 'instance',
+                        number: 1,
+                    });
+    
+                    await instanceSet.save();
+    
+                    const foundInstance = await ValidationSuperClass.findById(instance._id);
+    
+                    if (foundInstance === null)
+                        throw new Error('No validation error thrown, but instance was not saved.');
+                });
+    
+                it('Calling save on an InstanceSet containing an instance which does not pass custom validation throws an error. InstanceSet not saved.', async () => {
+                    const expectedErrorMessage = 'Caught validation error when attempting to save InstanceSet: Number must be greater than 0.';
+                    const instance = new Instance(ValidationSuperClass);
+                    const instanceSet = new InstanceSet(ValidationSuperClass, [instance]);
+                    instance.assign({
+                        name: 'instance',
+                        number: 0,
+                    });
+    
+                    await testForErrorAsync('Instance.save()', expectedErrorMessage, async () => {
+                        return instanceSet.save();
+                    });
+    
+                    const foundInstance = await ValidationSuperClass.findById(instance._id);
+    
+                    if (foundInstance !== null)
+                        throw new Error('Validation error thrown, but instance was saved anyway.');
+                });
+    
+                it('Calling save on an InstanceSet with 1 of 2 instances not passing validation. Error thrown, neither instance saved.', async () => {
+                    const expectedErrorMessage = 'Caught validation error when attempting to save InstanceSet: Number must be greater than 0.';
+                    const instance1 = new Instance(ValidationSuperClass);
+                    const instance2 = new Instance(ValidationSuperClass);
+                    const instanceSet = new InstanceSet(ValidationSuperClass, [instance1, instance2]);
+                    instance1.assign({
+                        name: 'instance',
+                        number: 0,
+                    });
+                    instance2.assign({
+                        name: 'instance',
+                        number: 5,
+                    });
+    
+                    await testForErrorAsync('Instance.save()', expectedErrorMessage, async () => {
+                        return instanceSet.save();
+                    });
+    
+                    const foundInstance = await ValidationSuperClass.find({
+                        _id: {
+                            $in: instanceSet.getObjectIds(),
+                        },
+                    });
+    
+                    if (foundInstance.size !== 0)
+                        throw new Error('Validation error thrown, but instance was saved anyway.');
                 });
 
             });
