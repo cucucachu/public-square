@@ -1008,6 +1008,12 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         // positive number, and the boolean is true, than the instance will pass the update filter. 
         var UpdateControlledClassUpdateControlledByParameters = new ClassModel({
             className: 'UpdateControlledClassUpdateControlledByParameters',
+            attributes: [
+                {
+                    name: 'name',
+                    type: String,
+                }
+            ],
             crudControls: {
                 updateControl: async (instance, numberA, numberB, boolean) => {
                     return (numberA + numberB > 0) && boolean;

@@ -386,18 +386,22 @@ class Instance {
             throw new Error('instance.save(): You cannot save an instance which has been deleted.');
 
         if (!this.saved()) {
+            //console.log('insert');
             await this.classModel.insertOne(this.toDocument());
         }
         else {
+            //console.log('update');
             await this.classModel.update(this.toDocument());
         }
         this.previousState = new InstanceState(this.classModel, this.currentState.toDocument());
         return this;
     }
 
-    async delete() {
+    async delete(...deleteControlMethodParameters) {
         if (!this.saved())
             throw new Error('instance.delete(): You cannot delete an instance which hasn\'t been saved yet');
+
+        this.classModel.deleteControlCheckInstance(this, ...deleteControlMethodParameters)
 
         await this.classModel.delete(this);
 

@@ -297,11 +297,13 @@ class InstanceSet extends SuperSet {
         return instancesFound.union(instancesAlreadyFound);
     }
 
-    async delete() {
+    async delete(...deleteControlMethodParameters) {
         const unsavedInstances = this.filter(instance => instance.saved() == false)
 
         if (unsavedInstances.length) 
             throw new Error('Attempt to delete an InstanceSet containing unsaved Instances.');
+
+        await this.classModel.deleteControlCheck(this, ...deleteControlMethodParameters);
 
         await this.deleteRecursive();
     }
