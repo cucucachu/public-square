@@ -53,6 +53,11 @@ const testForErrorAsync = TestingFunctions.testForErrorAsync;
     var UpdateControlledSuperClass = TestClassModels.UpdateControlledSuperClass;
     var ClassControlsUpdateControlledSuperClass = TestClassModels.ClassControlsUpdateControlledSuperClass;
     var UpdateControlledClassUpdateControlledByParameters = TestClassModels.UpdateControlledClassUpdateControlledByParameters;
+
+    // Delete Controlled Classes
+    var DeleteControlledSuperClass = TestClassModels.DeleteControlledSuperClass;
+    var ClassControlsDeleteControlledSuperClass = TestClassModels.ClassControlsDeleteControlledSuperClass;
+    var DeleteControlledClassDeleteControlledByParameters = TestClassModels.DeleteControlledClassDeleteControlledByParameters;
 }
 
 describe('InstanceSet Tests', () => {
@@ -1743,154 +1748,160 @@ describe('InstanceSet Tests', () => {
                     throw new Error('Found instances\'s saved properties were not set to true.' );
             });
 
-            it('Call save() on an InstanceSet of an update controlled class. InstanceSet saved.', async () => {
-                const instance = new Instance(UpdateControlledSuperClass);
-                instance.name = 'instanceOfUpdateControlledSuperClassPasses-saveAll';
-                instance.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
+            describe('Save Create Controlled Instances', () => {
 
-                const instanceSet = new InstanceSet(UpdateControlledSuperClass, [instance]);
-                await instanceSet.save();
-
-                instance.name = 'instanceOfUpdateControlledSuperClassPasses-saveAll2';
-
-                await instanceSet.save();
-
-                const instanceSaved = await UpdateControlledSuperClass.findById(instance._id);
-                
-                if (!instanceSaved)
-                    throw new Error('Instance was not saved.');
-
-                await instance.delete(instance);
-            });
-
-            it('Save fails due to create control check.', async () => {
-                console.log('test start');
-                const instanceSet = new InstanceSet(UpdateControlledSuperClass, [
-                    instanceOfUpdateControlledSuperClassPasses,
-                    instanceOfUpdateControlledSuperClassFailsRelationship,
-                ]);
-                const expectedErrorMessage = 'Caught validation error when attempting to save InstanceSet: Illegal attempt to update instances: ' + instanceOfUpdateControlledSuperClassFailsRelationship.id;
-                
-                await instanceSet.save();
-
-                instanceOfUpdateControlledSuperClassPasses.name = instanceOfUpdateControlledSuperClassPasses.name + '1';
-                instanceOfUpdateControlledSuperClassFailsRelationship.name = instanceOfUpdateControlledSuperClassFailsRelationship.name + '1';
-
-                await testForErrorAsync('InstanceSet.save()', expectedErrorMessage, async () => {
-                    return instanceSet.save();
+                it('Call save() on an InstanceSet of an create controlled class. InstanceSet saved.', async () => {
+                    const instance = new Instance(CreateControlledSuperClass);
+                    instance.name = 'instanceOfCreateControlledSuperClassPasses-saveAll';
+                    instance.createControlledBy = instanceOfClassControlsCreateControlledSuperClassAllowed;
+    
+                    const instanceSet = new InstanceSet(CreateControlledSuperClass, [instance]);
+                    await instanceSet.save();
+    
+                    const instanceSaved = await CreateControlledSuperClass.findById(instance._id);
+                    
+                    if (!instanceSaved)
+                        throw new Error('Instance was not saved.');
+    
+                    await instance.delete(instance);
                 });
-                
-                const instancesFound = await UpdateControlledSuperClass.find({
-                    _id: {$in: instanceSet.getObjectIds()}
+    
+                it('Save fails due to create control check.', async () => {
+                    const instanceSet = new InstanceSet(CreateControlledSuperClass, [
+                        instanceOfCreateControlledSuperClassPasses,
+                        instanceOfCreateControlledSuperClassFailsRelationship,
+                    ]);
+                    const expectedErrorMessage = 'Illegal attempt to create instances: ' + instanceOfCreateControlledSuperClassFailsRelationship.id;
+                    
+                    await testForErrorAsync('InstanceSet.save()', expectedErrorMessage, async () => {
+                        return instanceSet.save();
+                    });
+                    
+                    const instancesFound = await CreateControlledSuperClass.find({
+                        _id: {$in: instanceSet.getInstanceIds()}
+                    });
+    
+                    if (!instancesFound.isEmpty()) 
+                        throw new Error('.save() threw an error, but the instance was saved anyway.');
                 });
-
-                if (instancesFound.size !== 2 || instancesFound.toArray()[0].name.includes('1') || instancesFound.toArray()[1].name.includes('1'))
-                    throw new Error('Error was thrown but instances were updated anyway.');
-            });
-
-            it('Call save() on an InstanceSet of an update controlled class with updateControlMethodParameters. InstanceSet saved.', async () => {
-                const instance = new Instance(UpdateControlledClassUpdateControlledByParameters);
-                const updateControlMethodParameters = [1, 1, true];
-                const instanceSet = new InstanceSet(UpdateControlledClassUpdateControlledByParameters, [instance]);
-                
-                await instanceSet.save(...updateControlMethodParameters);
-
-                instance.name = 'updated';
-
-                await instanceSet.save(...updateControlMethodParameters);
-
-                const instanceAfterUpdate = await UpdateControlledClassUpdateControlledByParameters.findById(instance._id);
-
-                if (!instanceAfterUpdate || !instanceAfterUpdate.name.includes('updated'))
-                    throw new Error('Instance was not updated.');
-
-                await instance.delete();
-            });
-
-            it('Call save() on an InstanceSet of an update controlled class with updateControlMethodParameters. Save fails due to update control check.', async () => {
-                const instance = new Instance(UpdateControlledClassUpdateControlledByParameters);
-                const expectedErrorMessage = 'Caught validation error when attempting to save InstanceSet: Illegal attempt to update instances: ' + instance.id;
-                const updateControlMethodParameters = [-2, 1, true];
-                const instanceSet = new InstanceSet(UpdateControlledClassUpdateControlledByParameters, [instance]);
-
-                await instanceSet.save();
-
-                instance.name = 'updated';
-
-                await testForErrorAsync('InstanceSet.save()', expectedErrorMessage, async () => {
-                    return instanceSet.save(...updateControlMethodParameters);
-                })
-                
-                const instanceFound = await UpdateControlledClassUpdateControlledByParameters.findById(instance._id);
-
-                if (instanceFound.name) 
-                    throw new Error('.save() threw an error, but the instance was updated anyway.')
-            });
-
-
-            it('Call save() on an InstanceSet of an create controlled class. InstanceSet saved.', async () => {
-                const instance = new Instance(CreateControlledSuperClass);
-                instance.name = 'instanceOfCreateControlledSuperClassPasses-saveAll';
-                instance.createControlledBy = instanceOfClassControlsCreateControlledSuperClassAllowed;
-
-                const instanceSet = new InstanceSet(CreateControlledSuperClass, [instance]);
-                await instanceSet.save();
-
-                const instanceSaved = await CreateControlledSuperClass.findById(instance._id);
-                
-                if (!instanceSaved)
-                    throw new Error('Instance was not saved.');
-
-                await instance.delete(instance);
-            });
-
-            it('Save fails due to create control check.', async () => {
-                const instanceSet = new InstanceSet(CreateControlledSuperClass, [
-                    instanceOfCreateControlledSuperClassPasses,
-                    instanceOfCreateControlledSuperClassFailsRelationship,
-                ]);
-                const expectedErrorMessage = 'Caught validation error when attempting to save InstanceSet: Illegal attempt to create instances: ' + instanceOfCreateControlledSuperClassFailsRelationship.id;
-                
-                await testForErrorAsync('InstanceSet.save()', expectedErrorMessage, async () => {
-                    return instanceSet.save();
+    
+                it('Call save() on an InstanceSet of an create controlled class with createControlMethodParameters. InstanceSet saved.', async () => {
+                    const instance = new Instance(CreateControlledClassCreateControlledByParameters);
+                    const createControlMethodParameters = [1, 1, true];
+                    const instanceSet = new InstanceSet(CreateControlledClassCreateControlledByParameters, [instance]);
+                    
+                    await instanceSet.save(...createControlMethodParameters);
+                    const instanceSaved = CreateControlledClassCreateControlledByParameters.findById(instance._id);
+                    
+                    if (!instanceSaved)
+                        throw new Error('Instance was not saved.');
+    
+                    await instance.delete();
                 });
-                
-                const instancesFound = await CreateControlledSuperClass.find({
-                    _id: {$in: instanceSet.getInstanceIds()}
+    
+                it('Call save() on an InstanceSet of an create controlled class with createControlMethodParameters. Save fails due to create control check.', async () => {
+                    const instance = new Instance(CreateControlledClassCreateControlledByParameters);
+                    const expectedErrorMessage = 'Illegal attempt to create instances: ' + instance.id;
+                    const createControlMethodParameters = [-2, 1, true];
+                    const instanceSet = new InstanceSet(CreateControlledClassCreateControlledByParameters, [instance]);
+    
+                    await testForErrorAsync('InstanceSet.save()', expectedErrorMessage, async () => {
+                        return instanceSet.save(...createControlMethodParameters);
+                    })
+                    
+                    const instanceFound = await CreateControlledClassCreateControlledByParameters.findById(instance._id);
+    
+                    if (instanceFound) 
+                        throw new Error('.save() threw an error, but the instance was saved anyway.')
                 });
 
-                if (!instancesFound.isEmpty()) 
-                    throw new Error('.save() threw an error, but the instance was saved anyway.');
             });
 
-            it('Call save() on an InstanceSet of an create controlled class with createControlMethodParameters. InstanceSet saved.', async () => {
-                const instance = new Instance(CreateControlledClassCreateControlledByParameters);
-                const createControlMethodParameters = [1, 1, true];
-                const instanceSet = new InstanceSet(CreateControlledClassCreateControlledByParameters, [instance]);
-                
-                await instanceSet.save(...createControlMethodParameters);
-                const instanceSaved = CreateControlledClassCreateControlledByParameters.findById(instance._id);
-                
-                if (!instanceSaved)
-                    throw new Error('Instance was not saved.');
+            describe('Save Update Controlled Instances', () => {
 
-                await instance.delete();
-            });
+                it('Call save() on an InstanceSet of an update controlled class. InstanceSet saved.', async () => {
+                    const instance = new Instance(UpdateControlledSuperClass);
+                    instance.name = 'instanceOfUpdateControlledSuperClassPasses-saveAll';
+                    instance.updateControlledBy = instanceOfClassControlsUpdateControlledSuperClassAllowed;
+    
+                    const instanceSet = new InstanceSet(UpdateControlledSuperClass, [instance]);
+                    await instanceSet.save();
+    
+                    instance.name = 'instanceOfUpdateControlledSuperClassPasses-saveAll2';
+    
+                    await instanceSet.save();
+    
+                    const instanceSaved = await UpdateControlledSuperClass.findById(instance._id);
+                    
+                    if (!instanceSaved)
+                        throw new Error('Instance was not saved.');
+    
+                    await instance.delete(instance);
+                });
+    
+                it('Save fails due to create control check.', async () => {
+                    const instanceSet = new InstanceSet(UpdateControlledSuperClass, [
+                        instanceOfUpdateControlledSuperClassPasses,
+                        instanceOfUpdateControlledSuperClassFailsRelationship,
+                    ]);
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + instanceOfUpdateControlledSuperClassFailsRelationship.id;
+                    
+                    await instanceSet.save();
+    
+                    instanceOfUpdateControlledSuperClassPasses.name = instanceOfUpdateControlledSuperClassPasses.name + '1';
+                    instanceOfUpdateControlledSuperClassFailsRelationship.name = instanceOfUpdateControlledSuperClassFailsRelationship.name + '1';
+    
+                    await testForErrorAsync('InstanceSet.save()', expectedErrorMessage, async () => {
+                        return instanceSet.save();
+                    });
+                    
+                    const instancesFound = await UpdateControlledSuperClass.find({
+                        _id: {$in: instanceSet.getObjectIds()}
+                    });
+    
+                    if (instancesFound.size !== 2 || instancesFound.toArray()[0].name.includes('1') || instancesFound.toArray()[1].name.includes('1'))
+                        throw new Error('Error was thrown but instances were updated anyway.');
+                });
+    
+                it('Call save() on an InstanceSet of an update controlled class with updateControlMethodParameters. InstanceSet saved.', async () => {
+                    const instance = new Instance(UpdateControlledClassUpdateControlledByParameters);
+                    const updateControlMethodParameters = [1, 1, true];
+                    const instanceSet = new InstanceSet(UpdateControlledClassUpdateControlledByParameters, [instance]);
+                    
+                    await instanceSet.save(...updateControlMethodParameters);
+    
+                    instance.name = 'updated';
+    
+                    await instanceSet.save(...updateControlMethodParameters);
+    
+                    const instanceAfterUpdate = await UpdateControlledClassUpdateControlledByParameters.findById(instance._id);
+    
+                    if (!instanceAfterUpdate || !instanceAfterUpdate.name.includes('updated'))
+                        throw new Error('Instance was not updated.');
+    
+                    await instance.delete();
+                });
+    
+                it('Call save() on an InstanceSet of an update controlled class with updateControlMethodParameters. Save fails due to update control check.', async () => {
+                    const instance = new Instance(UpdateControlledClassUpdateControlledByParameters);
+                    const expectedErrorMessage = 'Illegal attempt to update instances: ' + instance.id;
+                    const updateControlMethodParameters = [-2, 1, true];
+                    const instanceSet = new InstanceSet(UpdateControlledClassUpdateControlledByParameters, [instance]);
+    
+                    await instanceSet.save();
+    
+                    instance.name = 'updated';
+    
+                    await testForErrorAsync('InstanceSet.save()', expectedErrorMessage, async () => {
+                        return instanceSet.save(...updateControlMethodParameters);
+                    })
+                    
+                    const instanceFound = await UpdateControlledClassUpdateControlledByParameters.findById(instance._id);
+    
+                    if (instanceFound.name) 
+                        throw new Error('.save() threw an error, but the instance was updated anyway.')
+                });
 
-            it('Call save() on an InstanceSet of an create controlled class with createControlMethodParameters. Save fails due to create control check.', async () => {
-                const instance = new Instance(CreateControlledClassCreateControlledByParameters);
-                const expectedErrorMessage = 'Caught validation error when attempting to save InstanceSet: Illegal attempt to create instances: ' + instance.id;
-                const createControlMethodParameters = [-2, 1, true];
-                const instanceSet = new InstanceSet(CreateControlledClassCreateControlledByParameters, [instance]);
-
-                await testForErrorAsync('InstanceSet.save()', expectedErrorMessage, async () => {
-                    return instanceSet.save(...createControlMethodParameters);
-                })
-                
-                const instanceFound = await CreateControlledClassCreateControlledByParameters.findById(instance._id);
-
-                if (instanceFound) 
-                    throw new Error('.save() threw an error, but the instance was saved anyway.')
             });
 
         });
@@ -2266,8 +2277,37 @@ describe('InstanceSet Tests', () => {
 
         describe('InstanceSet.delete()', () => {
 
-            after(async() => {
-                SuperClass.clear();
+            // Set up deleteControlled Instances
+            {
+                // ClassControlsDeleteControlledSuperClass Instances
+                var instanceOfClassControlsDeleteControlledSuperClassAllowed = new Instance(ClassControlsDeleteControlledSuperClass);
+                instanceOfClassControlsDeleteControlledSuperClassAllowed.allowed = true;
+                
+                var instanceOfClassControlsDeleteControlledSuperClassNotAllowed = new Instance(ClassControlsDeleteControlledSuperClass);
+                instanceOfClassControlsDeleteControlledSuperClassNotAllowed.allowed = false;
+    
+                // DeleteControlledSuperClass Instances
+                var instanceOfDeleteControlledSuperClassPasses = new Instance(DeleteControlledSuperClass);
+                instanceOfDeleteControlledSuperClassPasses.name = 'instanceOfDeleteControlledSuperClassPasses';
+                instanceOfDeleteControlledSuperClassPasses.deleteControlledBy = instanceOfClassControlsDeleteControlledSuperClassAllowed;
+    
+                var instanceOfDeleteControlledSuperClassFailsRelationship = new Instance(DeleteControlledSuperClass);
+                instanceOfDeleteControlledSuperClassFailsRelationship.name = 'instanceOfDeleteControlledSuperClassFailsRelationship';
+                instanceOfDeleteControlledSuperClassFailsRelationship.deleteControlledBy = instanceOfClassControlsDeleteControlledSuperClassNotAllowed;
+    
+                
+            }
+    
+            before(async () => {
+                await instanceOfClassControlsDeleteControlledSuperClassAllowed.save();
+                await instanceOfClassControlsDeleteControlledSuperClassNotAllowed.save();
+            });
+    
+            after(async () => {
+                await AllFieldsRequiredClass.clear();
+                await DeleteControlledSuperClass.clear();
+                await DeleteControlledClassDeleteControlledByParameters.clear();
+                await SuperClass.clear();
             });
 
             it('InstanceSet.delete() throws an error if any instance in the InstanceSet has not been saved. No Instances deleted.', async () => {
@@ -2328,6 +2368,80 @@ describe('InstanceSet Tests', () => {
                     if (instance.deleted() !== true)
                         throw new Error('Not all of the instances were marked deleted.');
                 });
+            });
+
+            describe('Delete Delete Controlled Instances', () => {
+
+                it('Call delete() on an InstanceSet of an delete controlled class. InstanceSet deleted.', async () => {
+                    const instance = new Instance(DeleteControlledSuperClass);
+                    instance.name = 'instanceOfDeleteControlledSuperClassPasses-deleteAll';
+                    instance.deleteControlledBy = instanceOfClassControlsDeleteControlledSuperClassAllowed;
+    
+                    const instanceSet = new InstanceSet(DeleteControlledSuperClass, [instance]);
+                    await instanceSet.save();
+    
+                    await instanceSet.delete();
+    
+                    const instanceSaved = await DeleteControlledSuperClass.findById(instance._id);
+                    
+                    if (instanceSaved !== null)
+                        throw new Error('Instance was not deleted.');
+                });
+    
+                it('Delete fails due to create control check.', async () => {
+                    const instanceSet = new InstanceSet(DeleteControlledSuperClass, [
+                        instanceOfDeleteControlledSuperClassPasses,
+                        instanceOfDeleteControlledSuperClassFailsRelationship,
+                    ]);
+                    const expectedErrorMessage = 'Illegal attempt to delete instances: ' + instanceOfDeleteControlledSuperClassFailsRelationship.id;
+                    
+                    await instanceSet.save();
+    
+                    await testForErrorAsync('InstanceSet.delete()', expectedErrorMessage, async () => {
+                        return instanceSet.delete();
+                    });
+                    
+                    const instancesFound = await DeleteControlledSuperClass.find({
+                        _id: {$in: instanceSet.getObjectIds()}
+                    });
+    
+                    if (instancesFound.size !== 2)
+                        throw new Error('Error was thrown but instances were deleted anyway.');
+                });
+    
+                it('Call delete() on an InstanceSet of an delete controlled class with deleteControlMethodParameters. InstanceSet deleted.', async () => {
+                    const instance = new Instance(DeleteControlledClassDeleteControlledByParameters);
+                    const deleteControlMethodParameters = [1, 1, true];
+                    const instanceSet = new InstanceSet(DeleteControlledClassDeleteControlledByParameters, [instance]);
+                    
+                    await instanceSet.save(...deleteControlMethodParameters);
+    
+                    await instanceSet.delete(...deleteControlMethodParameters);
+    
+                    const instanceAfterDelete = await DeleteControlledClassDeleteControlledByParameters.findById(instance._id);
+    
+                    if (instanceAfterDelete !== null)
+                        throw new Error('Instance was not deleted.');
+                });
+    
+                it('Call delete() on an InstanceSet of an delete controlled class with deleteControlMethodParameters. Delete fails due to delete control check.', async () => {
+                    const instance = new Instance(DeleteControlledClassDeleteControlledByParameters);
+                    const expectedErrorMessage = 'Illegal attempt to delete instances: ' + instance.id;
+                    const deleteControlMethodParameters = [-2, 1, true];
+                    const instanceSet = new InstanceSet(DeleteControlledClassDeleteControlledByParameters, [instance]);
+    
+                    await instanceSet.save();
+    
+                    await testForErrorAsync('InstanceSet.delete()', expectedErrorMessage, async () => {
+                        return instanceSet.delete(...deleteControlMethodParameters);
+                    })
+                    
+                    const instanceFound = await DeleteControlledClassDeleteControlledByParameters.findById(instance._id);
+    
+                    if (instanceFound === null) 
+                        throw new Error('.delete() threw an error, but the instance was deleted anyway.')
+                });
+
             });
 
         });

@@ -188,12 +188,13 @@ class InstanceSet extends SuperSet {
 
         try {
             this.validate();
-            await this.classModel.updateControlCheck(instancesToUpdate, ...controlMethodParameters);
-            await this.classModel.createControlCheck(instancesToCreate, ...controlMethodParameters);
         }
         catch (error) {
             throw new Error('Caught validation error when attempting to save InstanceSet: ' + error.message);
         }
+        
+        await this.classModel.updateControlCheck(instancesToUpdate, ...controlMethodParameters);
+        await this.classModel.createControlCheck(instancesToCreate, ...controlMethodParameters);
 
         let promises = this.map(instance => instance.saveWithoutValidation())
         await Promise.all(promises);
