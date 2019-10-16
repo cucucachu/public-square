@@ -64,6 +64,27 @@ async function testForErrorAsync(functionName, expectedErrorMessage, functionToC
         throw new Error(functionName + ' did not throw an error when it should have.');
 }
 
+async function testForErrorAsyncRegex(functionName, expectedErrorMessage, expectedErrorRegex, functionToCall) {
+    let errorThrown = false;
+
+    try {
+        await functionToCall();
+    }
+    catch (error) {
+        if (!expectedErrorRegex.test(error.message)) {
+            throw new Error(
+                functionName + ' threw an error, but not the expected one.\n' + 
+                'expected: ' + expectedErrorMessage + '\n' + 
+                'actual:   ' + error.message
+            )
+        }
+        errorThrown = true;
+    }
+
+    if (!errorThrown)
+        throw new Error(functionName + ' did not throw an error when it should have.');
+}
+
 function arraysEqual(array1, array2) {
     if (!Array.isArray(array1) || !Array.isArray(array2))
         throw new Error('arraysEqual() called with arguments which are not arrays.');
@@ -133,6 +154,7 @@ module.exports = {
     testForError,
     testForErrorRegex,
     testForErrorAsync,
+    testForErrorAsyncRegex,
     arraysEqual,
     objectsEqual,
 }

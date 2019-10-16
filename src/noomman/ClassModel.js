@@ -74,6 +74,14 @@ class ClassModel {
             }
         }
 
+        this.validations = [];
+
+        if (schema.validations) {
+            for (const validation of schema.validations) {
+                this.validations.push(validation);
+            }
+        }
+
         if (schema.superClasses) {
             for (const superClass of schema.superClasses) {
                 this.attributes = this.attributes.concat(superClass.attributes);
@@ -82,6 +90,7 @@ class ClassModel {
                 this.readControlMethods = this.readControlMethods.concat(superClass.readControlMethods);
                 this.updateControlMethods = this.updateControlMethods.concat(superClass.updateControlMethods);
                 this.deleteControlMethods = this.deleteControlMethods.concat(superClass.deleteControlMethods);
+                this.validations = this.validations.concat(superClass.validations);
                 superClass.subClasses.push(this);
             }
         }
@@ -93,6 +102,7 @@ class ClassModel {
             this.readControlMethods = this.readControlMethods.concat(schema.discriminatorSuperClass.readControlMethods);
             this.updateControlMethods = this.updateControlMethods.concat(schema.discriminatorSuperClass.updateControlMethods);
             this.deleteControlMethods = this.deleteControlMethods.concat(schema.discriminatorSuperClass.deleteControlMethods);
+            this.validations = this.validations.concat(schema.discriminatorSuperClass.validations);
             schema.discriminatorSuperClass.discriminatedSubClasses.push(this);
         }
 
@@ -160,6 +170,9 @@ class ClassModel {
                 }
             });
         }
+
+        if (schema.validations && !Array.isArray(schema.validations))
+            throw new Error('If validations are provided, it must be an Array.');
 
     }
 

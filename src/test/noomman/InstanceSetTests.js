@@ -7,6 +7,7 @@ const TestClassModels = require('./helpers/TestClassModels');
 const TestingFunctions = require('./helpers/TestingFunctions');
 const testForError = TestingFunctions.testForError;
 const testForErrorAsync = TestingFunctions.testForErrorAsync;
+const testForErrorAsyncRegex = TestingFunctions.testForErrorAsyncRegex;
 
 // Load all TestClassModels 
 {
@@ -1296,7 +1297,7 @@ describe('InstanceSet Tests', () => {
 
             describe('Required Validation', () => {
     
-                it('All fields are required. All are set. No error thrown.', () => {
+                it('All fields are required. All are set. No error thrown.', async () => {
                     const instance1 = new Instance(AllFieldsRequiredClass);
                     instance1.assign({
                         string: 'String',
@@ -1323,13 +1324,13 @@ describe('InstanceSet Tests', () => {
                     });
                     const instanceSet = new InstanceSet(AllFieldsRequiredClass, [instance1, instance2]);
                         
-                    instanceSet.validate();
+                    await instanceSet.validate();
     
                     return true;
     
                 });
     
-                it('All fields are required. All but string are set. Error thrown.', () => {
+                it('All fields are required. All but string are set. Error thrown.', async () => {
                     const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: string: Path `string` is required.';
                     const instance = new Instance(AllFieldsRequiredClass);
                     instance.assign({
@@ -1344,12 +1345,12 @@ describe('InstanceSet Tests', () => {
                     });
                     const instanceSet = new InstanceSet(AllFieldsRequiredClass, [instance]);
     
-                    testForError('instanceSet.validate()', expectedErrorMessage, () => {
-                        instanceSet.validate();
+                    await testForErrorAsync('instanceSet.validate()', expectedErrorMessage, async () => {
+                        return instanceSet.validate();
                     });    
                 });
     
-                it('All fields are required. One instance is valid, the other is not. Error thrown.', () => {
+                it('All fields are required. One instance is valid, the other is not. Error thrown.', async () => {
                     const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: string: Path `string` is required.';
                     const instance1 = new Instance(AllFieldsRequiredClass);
                     instance1.assign({
@@ -1376,8 +1377,8 @@ describe('InstanceSet Tests', () => {
                     });
                     const instanceSet = new InstanceSet(AllFieldsRequiredClass, [instance1, instance2]);
     
-                    testForError('instanceSet.validate()', expectedErrorMessage, () => {
-                        instanceSet.validate();
+                    await testForErrorAsync('instanceSet.validate()', expectedErrorMessage, async () => {
+                        return instanceSet.validate();
                     });    
                 });
     
@@ -1385,106 +1386,58 @@ describe('InstanceSet Tests', () => {
     
             describe('Required Group Validation', () => {
                     
-                it('Multiple fields (one of each type) share a required group no fields are set. Error thrown.', () => {
+                it('Multiple fields (one of each type) share a required group no fields are set. Error thrown.', async () => {
                     const expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
                     const instance = new Instance(AllFieldsInRequiredGroupClass);
                     const instanceSet = new InstanceSet(AllFieldsInRequiredGroupClass, [instance]);
         
-                    try {
-                        instanceSet.validate();
-                    }
-                    catch (error) {
-                        if (error.message == expectedErrorMessage) {
-                            return true;
-                        }
-                        else {
-                            throw new Error(
-                                'instanceSet.validate returned the wrong error message.\n' + 
-                                'Expected: ' + expectedErrorMessage + '\n' +
-                                'Actual:   ' + error.message
-                            );
-                        }
-                    }
-        
-                    throw new Error('instanceSet.validate did not throw an error when it should have.');
+                    await testForErrorAsync('InstanceSet.validate()', expectedErrorMessage, async () => {
+                        return instanceSet.validate();
+                    });
                 });
                     
-                it('Multiple fields (one of each type) share a required group boolean is set to false. Error thrown.', () => {
+                it('Multiple fields (one of each type) share a required group boolean is set to false. Error thrown.', async () => {
                     const expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
                     const instance = new Instance(AllFieldsInRequiredGroupClass);
                     const instanceSet = new InstanceSet(AllFieldsInRequiredGroupClass, [instance]);
     
                     instanceSet.boolean = false;
         
-                    try {
-                        instance.validate();
-                    }
-                    catch (error) {
-                        if (error.message == expectedErrorMessage) {
-                            return true;
-                        }
-                        else {
-                            throw new Error(
-                                'instanceSet.validate returned the wrong error message.\n' + 
-                                'Expected: ' + expectedErrorMessage + '\n' +
-                                'Actual:   ' + error.message
-                            );
-                        }
-                    }
-        
-                    throw new Error('instanceSet.validate did not throw an error when it should have.');
+                    await testForErrorAsync('InstanceSet.validate()', expectedErrorMessage, async () => {
+                        return instanceSet.validate();
+                    });
                 });
                     
-                it('Multiple fields (one of each type) share a required group string is set to "". No Error thrown.', () => {
+                it('Multiple fields (one of each type) share a required group string is set to "". No Error thrown.', async () => {
                     const expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
                     const instance = new Instance(AllFieldsInRequiredGroupClass);
                     instance.string = '';
                     const instanceSet = new InstanceSet(AllFieldsInRequiredGroupClass, [instance]);
         
-                    instanceSet.validate();
+                    await instanceSet.validate();
                 });
                 
-                it('Multiple fields (one of each type) share a required group and strings is set. No error thrown.', () => {
+                it('Multiple fields (one of each type) share a required group and strings is set. No error thrown.', async () => {
                     const instance = new Instance(AllFieldsInRequiredGroupClass);
                     instance.strings = ['String'];
                     const instanceSet = new InstanceSet(AllFieldsInRequiredGroupClass, [instance]);
     
-                    try {
-                        instanceSet.validate();
-                    }
-                    catch (error) {
-                        throw new Error(
-                            'instanceSet.validate threw an error when it shouldn\'t have.\n' + 
-                            'Error: ' + error.message
-                        );
-                    }
-    
-                    return true;
+                    await instanceSet.validate();
                 });
                 
-                it('Multiple fields (one of each type) share a required group and boolean is set. No error thrown.', () => {
+                it('Multiple fields (one of each type) share a required group and boolean is set. No error thrown.', async () => {
                     const instance = new Instance(AllFieldsInRequiredGroupClass);
                     instance.boolean = true;
                     const instanceSet = new InstanceSet(AllFieldsInRequiredGroupClass, [instance]);
     
-                    try {
-                        instanceSet.validate();
-                    }
-                    catch (error) {
-                        throw new Error(
-                            'instanceSet.validate threw an error when it shouldn\'t have.\n' + 
-                            'Error: ' + error.message
-                        );
-                    }
-    
-                    return true;
+                    await instanceSet.validate();
                 });
                 
             });
     
             describe('Mutex Validation', () => {
                 
-                it('2 attribute fields (boolean, date) have a mutex and both are set. Error thrown.', () => {
+                it('2 attribute fields (boolean, date) have a mutex and both are set. Error thrown.', async () => {
                     const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field boolean with mutex \'a\'. Field date with mutex \'a\'.';
                     let expectedErrorMutex = /^Mutex violations found for instance .* Field boolean with mutex \'a\'. Field date with mutex \'a\'.$/;
                     const instance = new Instance(MutexClassA);
@@ -1495,44 +1448,21 @@ describe('InstanceSet Tests', () => {
                     });
                     const instanceSet = new InstanceSet(MutexClassA, [instance]);
     
-                    try {
-                        instanceSet.validate();
-                    }
-                    catch (error) {
-                        if (expectedErrorMutex.test(error.message)) {
-                            return true;
-                        }
-                        else {
-                            throw new Error(
-                                'instanceSet.validate returned the wrong error message.\n' + 
-                                'Expected: ' + expectedErrorMessage + '\n' +
-                                'Actual:   ' + error.message
-                            );
-                        }
-                    }
-    
-                    throw new Error('instanceSet.validate did not throw an error when it should have.');
+
+                    testForErrorAsyncRegex('InstanceSet.validate()', expectedErrorMessage, expectedErrorMutex, async () => {
+                        return instanceSet.validate();
+                    });
                 });
                 
-                it('2 attribute fields (boolean, date) have a mutex and one (boolean) is set. No error thrown.', () => {    
+                it('2 attribute fields (boolean, date) have a mutex and one (boolean) is set. No error thrown.', async () => {    
                     const instance = new Instance(MutexClassA);
                     instance.boolean = true;
                     const instanceSet = new InstanceSet(MutexClassA, [instance]);
     
-                    try {
-                        instanceSet.validate();
-                    }
-                    catch (error) {
-                        throw new Error(
-                            'instanceSet.validate threw an error when it shouldn\'t have.\n' + 
-                            'Error: ' + error.message
-                        );
-                    }
-                    
-                    return true;
+                    await instanceSet.validate();
                 });
                 
-                it('2 singular relationship fields have a mutex and both are set. Error thrown.', () => {
+                it('2 singular relationship fields have a mutex and both are set. Error thrown.', async () => {
                     const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field class1 with mutex \'a\'. Field class2 with mutex \'a\'.';
                     let expectedErrorMutex = /^Mutex violations found for instance .* Field class1 with mutex \'a\'. Field class2 with mutex \'a\'.$/;  
                     const instance = new Instance(MutexClassB);
@@ -1540,45 +1470,21 @@ describe('InstanceSet Tests', () => {
                     instance.class1 = new Instance(CompareClass1);
                     instance.class2 = new Instance(CompareClass2);
                     const instanceSet = new InstanceSet(MutexClassB, [instance]);
-    
-                    try {
-                        instanceSet.validate();
-                    }
-                    catch (error) {
-                        if (expectedErrorMutex.test(error.message)) {
-                            return true;
-                        }
-                        else {
-                            throw new Error(
-                                'instanceSet.validate returned the wrong error message.\n' + 
-                                'Expected: ' + expectedErrorMessage + '\n' +
-                                'Actual:   ' + error.message
-                            );
-                        }
-                    }
-    
-                    throw new Error('instanceSet.validate did not throw an error when it should have.');
+
+                    testForErrorAsyncRegex('InstanceSet.validate()', expectedErrorMessage, expectedErrorMutex, async () => {
+                        return instanceSet.validate();
+                    });
                 });
                 
-                it('2 singular relationship fields have a mutex and one is set. No error thrown.', () => {    
+                it('2 singular relationship fields have a mutex and one is set. No error thrown.', async () => {    
                     const instance = new Instance(MutexClassB);
                     instance.class1 = new Instance(CompareClass1);
                     const instanceSet = new InstanceSet(MutexClassB, [instance]);
     
-                    try {
-                        instanceSet.validate();
-                    }
-                    catch (error) {
-                        throw new Error(
-                            'instanceSet.validate threw an error when it shouldn\'t have.\n' + 
-                            'Error: ' + error.message
-                        );
-                    }
-    
-                    return true;
+                    await instanceSet.validate();
                 });
                 
-                it('2 non-singular relationship fields have a mutex and both are set. Error thrown.', () => {
+                it('2 non-singular relationship fields have a mutex and both are set. Error thrown.', async () => {
                     const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field class1s with mutex \'a\'. Field class2s with mutex \'a\'.';
                     let expectedErrorMutex = /^Mutex violations found for instance .* Field class1s with mutex \'a\'. Field class2s with mutex \'a\'.$/;
     
@@ -1587,24 +1493,10 @@ describe('InstanceSet Tests', () => {
                     instance.class1s = new InstanceSet(CompareClass1, [new Instance(CompareClass1), new Instance(CompareClass1)]);
                     instance.class2s = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
                     const instanceSet = new InstanceSet(MutexClassC, [instance]);
-    
-                    try {
-                        instanceSet.validate();
-                    }
-                    catch (error) {
-                        if (expectedErrorMutex.test(error.message)) {
-                            return true;
-                        }
-                        else {
-                            throw new Error(
-                                'instanceSet.validate returned the wrong error message.\n' + 
-                                'Expected: ' + expectedErrorMessage + '\n' +
-                                'Actual:   ' + error.message
-                            );
-                        }
-                    }
-    
-                    throw new Error('instanceSet.validate did not throw an error when it should have.');
+
+                    testForErrorAsyncRegex('InstanceSet.validate()', expectedErrorMessage, expectedErrorMutex, async () => {
+                        return instanceSet.validate();
+                    });
                 });
     
             });

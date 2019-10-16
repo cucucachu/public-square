@@ -1122,6 +1122,113 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         });
     }
 
+    // Validation Classes
+    {
+        var ValidationSuperClass = new ClassModel({
+            className: 'ValidationSuperClass',
+            attributes: [
+                {
+                    name: 'name',
+                    type: String,
+                },
+                {
+                    name: 'number',
+                    type: Number,
+                },
+            ],
+            validations: [
+                instance => {
+                    if (instance.number <= 0)
+                        throw new Error('Number must be greater than 0.');
+                },
+                instance => {
+                    if (instance.name === '')
+                        throw new Error('Name cannot be empty.');
+                },
+            ],
+        });
+
+        var SubClassOfValidationSuperClass = new ClassModel({
+            className: 'SubClassOfValidationSuperClass',
+            superClasses: [ValidationSuperClass],
+            validations: [
+                instance => {
+                    if (instance.number > 10) {
+                        throw new Error('Number must be less than or equal to 10.');
+                    }
+                }
+            ]
+        });
+
+        var ValidationDiscriminatedSuperClass = new ClassModel({
+            className: 'ValidationDiscriminatedSuperClass',
+            superClasses: [ValidationSuperClass],
+            discriminated: true,
+            attributes: [
+                {
+                    name: 'boolean',
+                    type: Boolean,
+                    required: true,
+                }
+            ],
+            validations: [
+                instance => {
+                    if (!instance.boolean) {
+                        throw new Error('Boolean must be true.');
+                    }
+                }
+            ]
+        });
+
+        var SubClassOfValidationDiscriminatedSuperClass = new ClassModel({
+            className: 'SubClassOfValidationDiscriminatedSuperClass',
+            discriminatorSuperClass: ValidationDiscriminatedSuperClass,
+            attributes: [
+                {
+                    name: 'boolean2',
+                    type: Boolean,
+                    required: true,
+                }
+            ],
+            validations: [
+                instance => {
+                    if (!instance.boolean2) {
+                        throw new Error('Boolean2 must be true.');
+                    }
+                }
+            ],
+        });
+
+        var AsyncValidationClass = new ClassModel({
+            className: 'AsyncValidationClass',
+            relationships: [
+                {
+                    name: 'relatedInstance',
+                    toClass: 'RelatedValidationClass',
+                    singular: true,
+                }
+            ],
+            validations: [
+                async instance => {
+                    const related = await instance.walk('relatedInstance');
+                    if (related === null || !related.valid)
+                        throw new Error('Related instance is not valid.');
+                },
+            ],
+        });
+
+        var RelatedValidationClass = new ClassModel({
+            className: 'RelatedValidationClass',
+            attributes: [
+                {
+                    name: 'valid',
+                    type: Boolean,
+                    required: true,
+                },
+            ],
+        });
+    }
+
 }
 
 module.exports = {
@@ -1180,5 +1287,11 @@ module.exports = {
     DeleteControlledDiscriminatedSuperClass,
     DeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClass,
     ClassControlsDeleteControlledSuperClass,
-    DeleteControlledClassDeleteControlledByParameters
+    DeleteControlledClassDeleteControlledByParameters,
+    ValidationSuperClass,
+    SubClassOfValidationSuperClass,
+    ValidationDiscriminatedSuperClass,
+    SubClassOfValidationDiscriminatedSuperClass,
+    AsyncValidationClass,
+    RelatedValidationClass,
 }

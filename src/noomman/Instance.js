@@ -272,11 +272,12 @@ class Instance {
     }
 
     // Validations
-    validate() {
+    async validate() {
         this.currentState.sync();
         this.requiredValidation();
         this.requiredGroupValidation();
         this.mutexValidation();
+        await this.customValidations();
     }
 
     mutexValidation() {
@@ -350,6 +351,15 @@ class Instance {
         }
     }
 
+    async customValidations() {
+        for (const validationMethod of this.classModel.validations) {
+            let result = validationMethod(this);
+            if (result instanceof Promise) {
+                await result;
+            }
+        }
+    }
+
     // Update and Delete Methods Methods
 
     async save(...controlMethodParameters) {
@@ -357,7 +367,7 @@ class Instance {
             throw new Error('instance.save(): You cannot save an instance which has been deleted.');
         
         try {
-            this.validate();
+            await this.validate();
         }
         catch (error) {
             throw new Error('Caught validation error when attempting to save Instance: ' + error.message);

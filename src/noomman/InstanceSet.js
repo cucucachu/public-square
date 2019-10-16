@@ -178,8 +178,14 @@ class InstanceSet extends SuperSet {
 
     // Validate, Save, Walk, Delete
 
-    validate() {
-        this.forEach(instance => instance.validate());
+    async validate() {
+        const promises = [];
+
+        for (const instance of this) {
+            promises.push(instance.validate());
+        }
+
+        await Promise.all(promises);
     }
     
     async save(...controlMethodParameters) {
@@ -187,7 +193,7 @@ class InstanceSet extends SuperSet {
         const instancesToCreate = this.difference(instancesToUpdate);
 
         try {
-            this.validate();
+            await this.validate();
         }
         catch (error) {
             throw new Error('Caught validation error when attempting to save InstanceSet: ' + error.message);

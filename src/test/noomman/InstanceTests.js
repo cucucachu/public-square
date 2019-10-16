@@ -10,6 +10,7 @@ const TestingFunctions = require('./helpers/TestingFunctions');
 const testForError = TestingFunctions.testForError;
 const testForErrorRegex = TestingFunctions.testForErrorRegex;
 const testForErrorAsync = TestingFunctions.testForErrorAsync;
+const testForErrorAsyncRegex = TestingFunctions.testForErrorAsyncRegex;
 const arraysEqual = TestingFunctions.arraysEqual;
 const objectsEqual = TestingFunctions.objectsEqual;
 
@@ -69,6 +70,14 @@ const objectsEqual = TestingFunctions.objectsEqual;
     var DeleteControlledSuperClass = TestClassModels.DeleteControlledSuperClass;
     var ClassControlsDeleteControlledSuperClass = TestClassModels.ClassControlsDeleteControlledSuperClass;
     var DeleteControlledClassDeleteControlledByParameters = TestClassModels.DeleteControlledClassDeleteControlledByParameters;
+
+    // Validation Classes
+    var ValidationSuperClass = TestClassModels.ValidationSuperClass;
+    var SubClassOfValidationSuperClass = TestClassModels.SubClassOfValidationSuperClass;
+    var ValidationDiscriminatedSuperClass = TestClassModels.ValidationDiscriminatedSuperClass;
+    var SubClassOfValidationDiscriminatedSuperClass = TestClassModels.SubClassOfValidationDiscriminatedSuperClass;
+    var AsyncValidationClass = TestClassModels.AsyncValidationClass;
+    var RelatedValidationClass = TestClassModels.RelatedValidationClass;
 }
 
 describe('Instance Tests', () => {
@@ -2065,7 +2074,7 @@ describe('Instance Tests', () => {
 
         describe('Required Validation', () => {
 
-            it('All fields are required. All are set. No error thrown.', () => {
+            it('All fields are required. All are set. No error thrown.', async () => {
                 const instance = new Instance(AllFieldsRequiredClass);
                 instance.assign({
                     string: 'String',
@@ -2079,10 +2088,10 @@ describe('Instance Tests', () => {
                     class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
                 });
                     
-                instance.validate();
+                await instance.validate();
             });
 
-            it('All fields are required. All are set from document. No error thrown.', () => {
+            it('All fields are required. All are set from document. No error thrown.', async () => {
                 const document = {
                     _id: database.ObjectId(),
                     string: 'String',
@@ -2097,10 +2106,10 @@ describe('Instance Tests', () => {
                 };
                 const instance = new Instance(AllFieldsRequiredClass, document);
                     
-                instance.validate();
+                await instance.validate();
             });
 
-            it('All fields are required. All but string are set. Error thrown.', () => {
+            it('All fields are required. All but string are set. Error thrown.', async () => {
                 const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: string: Path `string` is required.';
                 const instance = new Instance(AllFieldsRequiredClass);
                 instance.assign({
@@ -2114,13 +2123,13 @@ describe('Instance Tests', () => {
                     class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
                 });
 
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
+                await testForErrorAsync('instance.validate()', expectedErrorMessage, async () => {
+                    return instance.validate();
                 });
 
             });
 
-            it('All fields are required. String is set to empty string. No error thrown.', () => {
+            it('All fields are required. String is set to empty string. No error thrown.', async () => {
                 const instance = new Instance(AllFieldsRequiredClass);
                 instance.assign({
                     string: '',
@@ -2134,10 +2143,10 @@ describe('Instance Tests', () => {
                     class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
                 });
 
-                instance.validate();
+                await instance.validate();
             });
 
-            it('All fields are required. All but Stings are set. Error thrown.', () => {
+            it('All fields are required. All but Stings are set. Error thrown.', async () => {
                 const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: strings: Path `strings` is required.';
                 const instance = new Instance(AllFieldsRequiredClass);
                 instance.assign({
@@ -2151,13 +2160,13 @@ describe('Instance Tests', () => {
                     class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
                 });
 
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
+                await testForErrorAsync('instance.validate()', expectedErrorMessage, async () => {
+                    return instance.validate();
                 });
 
             });
 
-            it('All fields are required. Strings is set to empty array. Error thrown.', () => {
+            it('All fields are required. Strings is set to empty array. Error thrown.', async () => {
                 const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: strings: Path `strings` is required.';
                 const instance = new Instance(AllFieldsRequiredClass);
                 instance.assign({
@@ -2172,13 +2181,13 @@ describe('Instance Tests', () => {
                     class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
                 });
 
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
+                await testForErrorAsync('instance.validate()', expectedErrorMessage, async () => {
+                    return instance.validate();
                 });
 
             });
 
-            it('All fields are required. All but date are set. Error thrown.', () => {
+            it('All fields are required. All but date are set. Error thrown.', async () => {
                 const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: date: Path `date` is required.';
                 const instance = new Instance(AllFieldsRequiredClass);
                 instance.assign({
@@ -2192,13 +2201,13 @@ describe('Instance Tests', () => {
                     class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
                 });
 
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
+                await testForErrorAsync('instance.validate()', expectedErrorMessage, async () => {
+                    return instance.validate();
                 });
 
             });
 
-            it('All fields are required. All but boolean are set. Error thrown.', () => {
+            it('All fields are required. All but boolean are set. Error thrown.', async () => {
                 const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: boolean: Path `boolean` is required.';
                 const instance = new Instance(AllFieldsRequiredClass);
                 instance.assign({
@@ -2212,13 +2221,13 @@ describe('Instance Tests', () => {
                     class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
                 });
 
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
+                await testForErrorAsync('instance.validate()', expectedErrorMessage, async () => {
+                    return instance.validate();
                 });
 
             });
 
-            it('All fields are required. All but booleans are set. Error thrown.', () => {
+            it('All fields are required. All but booleans are set. Error thrown.', async () => {
                 const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: booleans: Path `booleans` is required.';
                 const instance = new Instance(AllFieldsRequiredClass);
                 instance.assign({
@@ -2232,13 +2241,13 @@ describe('Instance Tests', () => {
                     class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
                 });
 
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
+                await testForErrorAsync('instance.validate()', expectedErrorMessage, async () => {
+                    return instance.validate();
                 });
 
             });
 
-            it('All fields are required. Booleans set to empty array. Error thrown.', () => {
+            it('All fields are required. Booleans set to empty array. Error thrown.', async () => {
                 const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: booleans: Path `booleans` is required.';
                 const instance = new Instance(AllFieldsRequiredClass);
                 instance.assign({
@@ -2253,13 +2262,13 @@ describe('Instance Tests', () => {
                     class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
                 });
 
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
+                await testForErrorAsync('instance.validate()', expectedErrorMessage, async () => {
+                    return instance.validate();
                 });
 
             });
 
-            it('All fields are required. All but number are set. Error thrown.', () => {
+            it('All fields are required. All but number are set. Error thrown.', async () => {
                 const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: number: Path `number` is required.';
                 const instance = new Instance(AllFieldsRequiredClass);
                 instance.assign({
@@ -2273,13 +2282,13 @@ describe('Instance Tests', () => {
                     class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
                 });
 
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
+                await testForErrorAsync('instance.validate()', expectedErrorMessage, async () => {
+                    return instance.validate();
                 });
 
             });
 
-            it('All fields are required. All but numbers are set. Error thrown.', () => {
+            it('All fields are required. All but numbers are set. Error thrown.', async () => {
                 const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: numbers: Path `numbers` is required.';
                 const instance = new Instance(AllFieldsRequiredClass);
                 instance.assign({
@@ -2293,13 +2302,13 @@ describe('Instance Tests', () => {
                     class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
                 });
 
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
+                await testForErrorAsync('instance.validate()', expectedErrorMessage, async () => {
+                    return instance.validate();
                 });
 
             });
 
-            it('All fields are required. Numbers is set to an empty array. Error thrown.', () => {
+            it('All fields are required. Numbers is set to an empty array. Error thrown.', async () => {
                 const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: numbers: Path `numbers` is required.';
                 const instance = new Instance(AllFieldsRequiredClass);
                 instance.assign({
@@ -2314,13 +2323,13 @@ describe('Instance Tests', () => {
                     class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
                 });
 
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
+                await testForErrorAsync('instance.validate()', expectedErrorMessage, async () => {
+                    return instance.validate();
                 });
 
             });
 
-            it('All fields are required. All but class1 are set. Error thrown.', () => {
+            it('All fields are required. All but class1 are set. Error thrown.', async () => {
                 const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: class1: Path `class1` is required.';
                 const instance = new Instance(AllFieldsRequiredClass);
                 instance.assign({
@@ -2334,13 +2343,13 @@ describe('Instance Tests', () => {
                     class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
                 });
 
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
+                await testForErrorAsync('instance.validate()', expectedErrorMessage, async () => {
+                    return instance.validate();
                 });
 
             });
 
-            it('All fields are required. All but class2s are set. Error thrown.', () => {
+            it('All fields are required. All but class2s are set. Error thrown.', async () => {
                 const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: class2s: Path `class2s` is required.';
                 const instance = new Instance(AllFieldsRequiredClass);
                 instance.assign({
@@ -2354,13 +2363,13 @@ describe('Instance Tests', () => {
                     class1: new Instance(CompareClass1),
                 });
 
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
+                await testForErrorAsync('instance.validate()', expectedErrorMessage, async () => {
+                    return instance.validate();
                 });
 
             });
 
-            it('All fields are required. All but class2s are set. Class2s set to empty instance set. Error thrown.', () => {
+            it('All fields are required. All but class2s are set. Class2s set to empty instance set. Error thrown.', async () => {
                 const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: class2s: Path `class2s` is required.';
                 const instance = new Instance(AllFieldsRequiredClass);
                 instance.assign({
@@ -2375,8 +2384,8 @@ describe('Instance Tests', () => {
                     class2: new InstanceSet(CompareClass2),
                 });
 
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
+                await testForErrorAsync('instance.validate()', expectedErrorMessage, async () => {
+                    return instance.validate();
                 });
 
             });
@@ -2385,131 +2394,131 @@ describe('Instance Tests', () => {
 
         describe('Required Group Validation', () => {
                 
-            it('Multiple fields (one of each type) share a required group no fields are set. Error thrown.', () => {
+            it('Multiple fields (one of each type) share a required group no fields are set. Error thrown.', async () => {
                 const expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
                 const instance = new Instance(AllFieldsInRequiredGroupClass);
     
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
+                await testForErrorAsync('instance.validate()', expectedErrorMessage, async () => {
+                    return instance.validate();
                 });
             });
                 
-            it('Multiple fields (one of each type) share a required group boolean is set to false. No error thrown.', () => {
+            it('Multiple fields (one of each type) share a required group boolean is set to false. No error thrown.', async () => {
                 const instance = new Instance(AllFieldsInRequiredGroupClass);
                 instance.boolean = false;
-                instance.validate();
+                await instance.validate();
             });
                 
-            it('Multiple fields (one of each type) share a required group string is set to "". No error thrown.', () => {
+            it('Multiple fields (one of each type) share a required group string is set to "". No error thrown.', async () => {
                 const instance = new Instance(AllFieldsInRequiredGroupClass);
                 instance.string = '';
-                instance.validate();
+                await instance.validate();
             });
                 
-            it('Multiple fields (one of each type) share a required group class2s is set to empty instance set. Error thrown.', () => {
+            it('Multiple fields (one of each type) share a required group class2s is set to empty instance set. Error thrown.', async () => {
                 const expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
                 const instance = new Instance(AllFieldsInRequiredGroupClass);
                 instance.class2s = new InstanceSet(CompareClass2);
     
-                testForError('instance.validate()', expectedErrorMessage, () => {
-                    instance.validate();
+                await testForErrorAsync('instance.validate()', expectedErrorMessage, async () => {
+                    return instance.validate();
                 });
             });
             
-            it('Multiple fields (one of each type) share a required group and string is set. No error thrown.', () => {
+            it('Multiple fields (one of each type) share a required group and string is set. No error thrown.', async () => {
                 const instance = new Instance(AllFieldsInRequiredGroupClass);
                 instance.string = 'String';
 
-                instance.validate();
+                await instance.validate();
             });
             
-            it('Multiple fields (one of each type) share a required group and strings is set. No error thrown.', () => {
+            it('Multiple fields (one of each type) share a required group and strings is set. No error thrown.', async () => {
                 const instance = new Instance(AllFieldsInRequiredGroupClass);
                 instance.strings = ['String'];
 
-                instance.validate();
+                await instance.validate();
             });
             
-            it('Multiple fields (one of each type) share a required group and boolean is set. No error thrown.', () => {
+            it('Multiple fields (one of each type) share a required group and boolean is set. No error thrown.', async () => {
                 const instance = new Instance(AllFieldsInRequiredGroupClass);
                 instance.boolean = true;
 
-                instance.validate();
+                await instance.validate();
             });
             
-            it('Multiple fields (one of each type) share a required group and booleans is set. No error thrown.', () => {
+            it('Multiple fields (one of each type) share a required group and booleans is set. No error thrown.', async () => {
                 const instance = new Instance(AllFieldsInRequiredGroupClass);
                 instance.booleans = [true];
 
-                instance.validate();
+                await instance.validate();
             });
             
-            it('Multiple fields (one of each type) share a required group and date is set. No error thrown.', () => {
+            it('Multiple fields (one of each type) share a required group and date is set. No error thrown.', async () => {
                 const instance = new Instance(AllFieldsInRequiredGroupClass);
                 instance.date = new Date();
 
-                instance.validate();
+                await instance.validate();
             });
             
-            it('Multiple fields (one of each type) share a required group and number is set. No error thrown.', () => {
+            it('Multiple fields (one of each type) share a required group and number is set. No error thrown.', async () => {
                 const instance = new Instance(AllFieldsInRequiredGroupClass);
                 instance.number = 1;
 
-                instance.validate();
+                await instance.validate();
             });
             
-            it('Multiple fields (one of each type) share a required group and number is set to 0. No error thrown.', () => {
+            it('Multiple fields (one of each type) share a required group and number is set to 0. No error thrown.', async () => {
                 const instance = new Instance(AllFieldsInRequiredGroupClass);
                 instance.number = 0;
 
-                instance.validate();
+                await instance.validate();
             });
             
-            it('Multiple fields (one of each type) share a required group and numbers is set. No error thrown.', () => {
+            it('Multiple fields (one of each type) share a required group and numbers is set. No error thrown.', async () => {
                 const instance = new Instance(AllFieldsInRequiredGroupClass);
                 instance.numbers = [1];
 
-                instance.validate();
+                await instance.validate();
             });
             
-            it('Multiple fields (one of each type) share a required group and class1 is set. No error thrown.', () => {
+            it('Multiple fields (one of each type) share a required group and class1 is set. No error thrown.', async () => {
                 const instance = new Instance(AllFieldsInRequiredGroupClass);
                 instance.class1 = new Instance(CompareClass1);
 
-                instance.validate();
+                await instance.validate();
             });
             
-            it('Multiple fields (one of each type) share a required group and class2s is set. No error thrown.', () => {
+            it('Multiple fields (one of each type) share a required group and class2s is set. No error thrown.', async () => {
                 const instance = new Instance(AllFieldsInRequiredGroupClass);
                 instance.class2s = new InstanceSet(CompareClass2, [new Instance(CompareClass2)]);
 
-                instance.validate();
+                await instance.validate();
             });
             
         });
 
         describe('Mutex Validation', () => {
             
-            it('2 attributes (boolean, date) have a mutex and both are set. Error thrown.', () => {
+            it('2 attributes (boolean, date) have a mutex and both are set. Error thrown.', async () => {
                 const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field boolean with mutex \'a\'. Field date with mutex \'a\'.';
                 const expectedErrorRegex = /^Mutex violations found for instance .* Field boolean with mutex \'a\'. Field date with mutex \'a\'.$/;
                 const instance = new Instance(MutexClassA);
                 instance.boolean = true;
                 instance.date = new Date();
 
-                testForErrorRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, () => {
-                    instance.validate();
+                await testForErrorAsyncRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, async () => {
+                    return instance.validate();
                 });
             });
             
-            it('2 attribute fields (boolean, date) have a mutex and one (boolean) is set. No error thrown.', () => {
+            it('2 attribute fields (boolean, date) have a mutex and one (boolean) is set. No error thrown.', async () => {
                 const instance = new Instance(MutexClassA);
                 instance.boolean = true;
 
-                instance.validate();
+                await instance.validate();
             });
             
-            it('2 singular relationship fields have a mutex and both are set. Error thrown.', () => {
+            it('2 singular relationship fields have a mutex and both are set. Error thrown.', async () => {
                 const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field class1 with mutex \'a\'. Field class2 with mutex \'a\'.';
                 const expectedErrorRegex = /^Mutex violations found for instance .* Field class1 with mutex \'a\'. Field class2 with mutex \'a\'.$/;
                 const instance = new Instance(MutexClassB);
@@ -2517,19 +2526,19 @@ describe('Instance Tests', () => {
                 instance.class1 = new Instance(CompareClass1);
                 instance.class2 = new Instance(CompareClass2);
 
-                testForErrorRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, () => {
-                    instance.validate();
+                await testForErrorAsyncRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, async () => {
+                    return instance.validate();
                 });
             });
             
-            it('2 singular relationship fields have a mutex and one is set. No error thrown.', () => {
+            it('2 singular relationship fields have a mutex and one is set. No error thrown.', async () => {
                 const instance = new Instance(MutexClassB);
                 instance.class1 = new Instance(CompareClass1);
 
-                instance.validate();
+                await instance.validate();
             });
             
-            it('2 non-singular relationship fields have a mutex and both are set. Error thrown.', () => {
+            it('2 non-singular relationship fields have a mutex and both are set. Error thrown.', async () => {
                 const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field class1s with mutex \'a\'. Field class2s with mutex \'a\'.';
                 const expectedErrorRegex = /^Mutex violations found for instance .* Field class1s with mutex \'a\'. Field class2s with mutex \'a\'.$/;
                 const instance = new Instance(MutexClassC);
@@ -2537,150 +2546,415 @@ describe('Instance Tests', () => {
                 instance.class1s = new InstanceSet(CompareClass1, [new Instance(CompareClass1), new Instance(CompareClass1)]);
                 instance.class2s = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
 
-                testForErrorRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, () => {
-                    instance.validate();
+                await testForErrorAsyncRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, async () => {
+                    return instance.validate();
                 });
             });
             
-            it('2 non-singular relationship fields have a mutex and one is set. No error thrown.', () => {
+            it('2 non-singular relationship fields have a mutex and one is set. No error thrown.', async () => {
                 const instance = new Instance(MutexClassC);
                 instance.class1s = new InstanceSet(CompareClass1, [new Instance(CompareClass1), new Instance(CompareClass1)]);
 
-                instance.validate();
+                await instance.validate();
             });
             
-            it('Multiple fields (one of each type) have a mutex and string is set. No error thrown.', () => {
+            it('Multiple fields (one of each type) have a mutex and string is set. No error thrown.', async () => {
                 const instance = new Instance(AllFieldsMutexClass);
                 instance.string = 'String';
 
-                instance.validate();
+                await instance.validate();
             });
             
-            it('Multiple fields (one of each type) have a mutex and date is set. No error thrown.', () => {
+            it('Multiple fields (one of each type) have a mutex and date is set. No error thrown.', async () => {
                 const instance = new Instance(AllFieldsMutexClass);
                 instance.date = new Date();
 
-                instance.validate();
+                await instance.validate();
             });
             
-            it('Multiple fields (one of each type) have a mutex and boolean is set to false. No error thrown.', () => {
+            it('Multiple fields (one of each type) have a mutex and boolean is set to false. No error thrown.', async () => {
                 const instance = new Instance(AllFieldsMutexClass);
                 instance.boolean = false;
-                instance.validate();
+                await instance.validate();
             });
             
-            it('Multiple fields (one of each type) have a mutex and boolean is set to true. No error thrown.', () => {
+            it('Multiple fields (one of each type) have a mutex and boolean is set to true. No error thrown.', async () => {
                 const instance = new Instance(AllFieldsMutexClass);
                 instance.boolean = true;
 
-                instance.validate();
+                await instance.validate();
             });
             
-            it('Multiple fields (one of each type) have a mutex and number is set to 0. Error thrown.', () => {
+            it('Multiple fields (one of each type) have a mutex and number is set to 0. Error thrown.', async () => {
                 const instance = new Instance(AllFieldsMutexClass);
                 instance.number = 0;
-                instance.validate();
+                await instance.validate();
             });
             
-            it('Multiple fields (one of each type) have a mutex and number is set to 1. No error thrown.', () => {
+            it('Multiple fields (one of each type) have a mutex and number is set to 1. No error thrown.', async () => {
                 const instance = new Instance(AllFieldsMutexClass);
                 instance.number = 1;
 
-                instance.validate();
+                await instance.validate();
             });
             
-            it('Multiple fields (one of each type) have a mutex and numbers is set to empty array. Error thrown.', () => {
+            it('Multiple fields (one of each type) have a mutex and numbers is set to empty array. Error thrown.', async () => {
                 const instance = new Instance(AllFieldsMutexClass);
                 instance.numbers = [];
-
-                instance.validate();
+                await instance.validate();
             });
             
-            it('Multiple fields (one of each type) have a mutex and numbers is set to an array of 0s. No error thrown.', () => {
+            it('Multiple fields (one of each type) have a mutex and numbers is set to an array of 0s. No error thrown.', async () => {
                 const instance = new Instance(AllFieldsMutexClass);
                 instance.numbers = [0, 0, 0];
-
-                instance.validate();
+                await instance.validate();
             });
             
-            it('Multiple fields (one of each type) have a mutex and numbers is set to an array of 1s. No error thrown.', () => {
+            it('Multiple fields (one of each type) have a mutex and numbers is set to an array of 1s. No error thrown.', async () => {
                 const instance = new Instance(AllFieldsMutexClass);
                 instance.numbers = [1, 1, 1];
-
-                instance.validate();
+                await instance.validate();
             });
             
-            it('Multiple fields (one of each type) have a mutex and class1 is set. No error thrown.', () => {
+            it('Multiple fields (one of each type) have a mutex and class1 is set. No error thrown.', async () => {
                 const instance = new Instance(AllFieldsMutexClass);
                 instance.class1 = new Instance(CompareClass1);
-
-                instance.validate();
+                await instance.validate();
             });
             
-            it('Multiple fields (one of each type) have a mutex and class2s are set to a single instance. No error thrown.', () => {
+            it('Multiple fields (one of each type) have a mutex and class2s are set to a single instance. No error thrown.', async () => {
                 const instance = new Instance(AllFieldsMutexClass);
                 instance.class2s = new InstanceSet(CompareClass2, [new Instance(CompareClass2)]);
-
-                instance.validate();
+                await instance.validate();
             });
             
-            it('Multiple fields (one of each type) have a mutex and class2s are set to multiple instances. No error thrown.', () => {
+            it('Multiple fields (one of each type) have a mutex and class2s are set to multiple instances. No error thrown.', async () => {
                 const instance = new Instance(AllFieldsMutexClass);
                 instance.class2s = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
-
-                instance.validate();
+                await instance.validate();
             });
             
-            it('Multiple fields (one of each type) have a mutex and none are set. No error thrown.', () => {
+            it('Multiple fields (one of each type) have a mutex and none are set. No error thrown.', async () => {
                 const instance = new Instance(AllFieldsMutexClass);
-
-                instance.validate();
+                await instance.validate();
             });
             
-            it('Multiple fields (one of each type) have a mutex and number is set to 1 and numbers, strings, booleans, and class2s are set to empty array. No error thrown.', () => {
+            it('Multiple fields (one of each type) have a mutex and number is set to 1 and numbers, strings, booleans, and class2s are set to empty array. No error thrown.', async () => {
                 const instance = new Instance(AllFieldsMutexClass);
                 instance.number = 1;
                 instance.numbers = [];
                 instance.booleans = [];
                 instance.strings = [];
-
-                instance.validate();
+                await instance.validate();
             });
             
-            it('Multiple fields (one of each type) have a mutex and number is set to 0 and numbers are set to an array of 0s. Error thrown.', () => {
+            it('Multiple fields (one of each type) have a mutex and number is set to 0 and numbers are set to an array of 0s. Error thrown.', async () => {
                 const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field number with mutex \'a\'. Field numbers with mutex \'a\'.';
                 const expectedErrorRegex = /^Mutex violations found for instance .* Field number with mutex \'a\'. Field numbers with mutex \'a\'.$/;
                 const instance = new Instance(AllFieldsMutexClass);
                 instance.number = 0;
                 instance.numbers = [0, 0, 0];
 
-                testForErrorRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, () => {
-                    instance.validate();
+                await testForErrorAsyncRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, async () => {
+                    return instance.validate();
                 });
             });
                 
-            it('Multiple fields (one of each type) have a mutex and number is set to 1 and booleans is set to [false]. Error thrown.', () => {
+            it('Multiple fields (one of each type) have a mutex and number is set to 1 and booleans is set to [false]. Error thrown.', async () => {
                 const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field booleans with mutex \'a\'. Field number with mutex \'a\'.';
                 const expectedErrorRegex = /^Mutex violations found for instance .* Field booleans with mutex \'a\'. Field number with mutex \'a\'.$/;
                 const instance = new Instance(AllFieldsMutexClass);
                 instance.number = 1;
                 instance.booleans = [false];
 
-                testForErrorRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, () => {
-                    instance.validate();
+                await testForErrorAsyncRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, async () => {
+                    return instance.validate();
                 });
             });
                 
-            it('Multiple fields (one of each type) have a mutex and number is set to 1 and strings is set to [\"\"]. Error thrown.', () => {
+            it('Multiple fields (one of each type) have a mutex and number is set to 1 and strings is set to [\"\"]. Error thrown.', async () => {
                 const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field strings with mutex \'a\'. Field number with mutex \'a\'.';
                 const expectedErrorRegex = /^Mutex violations found for instance .* Field strings with mutex \'a\'. Field number with mutex \'a\'.$/;
                 const instance = new Instance(AllFieldsMutexClass);
                 instance.number = 1;
                 instance.strings = [''];
 
-                testForErrorRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, () => {
-                    instance.validate();
+                await testForErrorAsyncRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, async () => {
+                    return instance.validate();
                 });
+            });
+
+        });
+
+        describe('Custom Validations', () => {
+
+            // Set up instances for async validation tests.
+            {
+                var instanceOfRelatedValidationClassValid = new Instance(RelatedValidationClass);
+                var instanceOfRelatedValidationClassInvalid = new Instance(RelatedValidationClass);
+
+                instanceOfRelatedValidationClassValid.valid = true;
+                instanceOfRelatedValidationClassInvalid.valid = false;
+            }
+
+            before(async () => {
+                await instanceOfRelatedValidationClassValid.save();
+                await instanceOfRelatedValidationClassInvalid.save();
+            });
+
+            after(async () => {
+                await RelatedValidationClass.clear();
+            });
+
+            describe('Synchronous Validation Methods', () => {
+                
+                describe('Without Inheritance', () => {
+                    
+                    it('No error thrown when a validation passes.', async () => {
+                        const instance = new Instance(ValidationSuperClass);
+                        instance.assign({
+                            name: 'instance',
+                            number: 1,
+                        });
+
+                        await instance.validate();
+                    });
+                    
+                    it('Error thrown when a validation fails.', async () => {
+                        const expectedErrorMessage = 'Number must be greater than 0.';
+                        const instance = new Instance(ValidationSuperClass);
+                        instance.assign({
+                            name: 'instance',
+                            number: 0,
+                        });
+
+                        await testForErrorAsync('Instance.validate()', expectedErrorMessage, async () => {
+                            return instance.validate();
+                        });
+                    });
+                    
+                    it('Error thrown when a validation fails.', async () => {
+                        const expectedErrorMessage = 'Name cannot be empty.';
+                        const instance = new Instance(ValidationSuperClass);
+                        instance.assign({
+                            name: '',
+                            number: 1,
+                        });
+
+                        await testForErrorAsync('Instance.validate()', expectedErrorMessage, async () => {
+                            return instance.validate();
+                        });
+                    });
+
+                });
+
+                describe('Sub Class Validations', () => {
+                    
+                    it('No error thrown when a validation passes.', async () => {
+                        const instance = new Instance(SubClassOfValidationSuperClass);
+                        instance.assign({
+                            name: 'instance',
+                            number: 1,
+                        });
+
+                        await instance.validate();
+                    });
+                    
+                    it('Error throw due to sub class\'s own validation.', async () => {
+                        const expectedErrorMessage = 'Number must be less than or equal to 10.';
+                        const instance = new Instance(SubClassOfValidationSuperClass);
+                        instance.assign({
+                            name: 'instance',
+                            number: 100,
+                        });
+
+                        await testForErrorAsync('Instance.validate()', expectedErrorMessage, async () => {
+                            return instance.validate();
+                        });
+                    });
+                    
+                    it('Error thrown due to super class validation.', async () => {
+                        const expectedErrorMessage = 'Number must be greater than 0.';
+                        const instance = new Instance(SubClassOfValidationSuperClass);
+                        instance.assign({
+                            name: 'instance',
+                            number: 0,
+                        });
+
+                        await testForErrorAsync('Instance.validate()', expectedErrorMessage, async () => {
+                            return instance.validate();
+                        });
+                    });
+                    
+                    it('Error thrown due to super class validation.', async () => {
+                        const expectedErrorMessage = 'Name cannot be empty.';
+                        const instance = new Instance(SubClassOfValidationSuperClass);
+                        instance.assign({
+                            name: '',
+                            number: 1,
+                        });
+
+                        await testForErrorAsync('Instance.validate()', expectedErrorMessage, async () => {
+                            return instance.validate();
+                        });
+                    });
+
+                });
+
+                describe('Sub Class Validations (Discriminated)', () => {
+                    
+                    it('No error thrown when a validation passes.', async () => {
+                        const instance = new Instance(ValidationDiscriminatedSuperClass);
+                        instance.assign({
+                            name: 'instance',
+                            number: 1,
+                            boolean: true,
+                        });
+
+                        await instance.validate();
+                    });
+                    
+                    it('Error throw due to class\'s own validation.', async () => {
+                        const expectedErrorMessage = 'Boolean must be true.';
+                        const instance = new Instance(ValidationDiscriminatedSuperClass);
+                        instance.assign({
+                            name: 'instance',
+                            number: 5,
+                            boolean: false,
+                        });
+
+                        await testForErrorAsync('Instance.validate()', expectedErrorMessage, async () => {
+                            return instance.validate();
+                        });
+                    });
+                    
+                    it('Error thrown due to super class validation.', async () => {
+                        const expectedErrorMessage = 'Number must be greater than 0.';
+                        const instance = new Instance(ValidationDiscriminatedSuperClass);
+                        instance.assign({
+                            name: 'instance',
+                            number: 0,
+                            boolean: true,
+                        });
+
+                        await testForErrorAsync('Instance.validate()', expectedErrorMessage, async () => {
+                            return instance.validate();
+                        });
+                    });
+                    
+                    it('Error thrown due to super class validation.', async () => {
+                        const expectedErrorMessage = 'Name cannot be empty.';
+                        const instance = new Instance(ValidationDiscriminatedSuperClass);
+                        instance.assign({
+                            name: '',
+                            number: 1,
+                            boolean: true,
+                        });
+
+                        await testForErrorAsync('Instance.validate()', expectedErrorMessage, async () => {
+                            return instance.validate();
+                        });
+                    });
+
+                });
+
+                describe('Sub Sub Class Validations (Discriminated)', () => {
+                    
+                    it('No error thrown when a validation passes.', async () => {
+                        const instance = new Instance(SubClassOfValidationDiscriminatedSuperClass);
+                        instance.assign({
+                            name: 'instance',
+                            number: 1,
+                            boolean: true,
+                            boolean2: true,
+                        });
+
+                        await instance.validate();
+                    });
+                    
+                    it('Error throw due to class\'s own validation.', async () => {
+                        const expectedErrorMessage = 'Boolean2 must be true.';
+                        const instance = new Instance(SubClassOfValidationDiscriminatedSuperClass);
+                        instance.assign({
+                            name: 'instance',
+                            number: 5,
+                            boolean: true,
+                            boolean2: false,
+                        });
+
+                        await testForErrorAsync('Instance.validate()', expectedErrorMessage, async () => {
+                            return instance.validate();
+                        });
+                    });
+                    
+                    it('Error throw due to discriminated super class\'s validation.', async () => {
+                        const expectedErrorMessage = 'Boolean must be true.';
+                        const instance = new Instance(SubClassOfValidationDiscriminatedSuperClass);
+                        instance.assign({
+                            name: 'instance',
+                            number: 5,
+                            boolean: false,
+                            boolean2: true,
+                        });
+
+                        await testForErrorAsync('Instance.validate()', expectedErrorMessage, async () => {
+                            return instance.validate();
+                        });
+                    });
+                    
+                    it('Error thrown due to super duper class validation.', async () => {
+                        const expectedErrorMessage = 'Number must be greater than 0.';
+                        const instance = new Instance(SubClassOfValidationDiscriminatedSuperClass);
+                        instance.assign({
+                            name: 'instance',
+                            number: 0,
+                            boolean: true,
+                            boolean2: true,
+                        });
+
+                        await testForErrorAsync('Instance.validate()', expectedErrorMessage, async () => {
+                            return instance.validate();
+                        });
+                    });
+                    
+                    it('Error thrown due to super duper class validation.', async () => {
+                        const expectedErrorMessage = 'Name cannot be empty.';
+                        const instance = new Instance(SubClassOfValidationDiscriminatedSuperClass);
+                        instance.assign({
+                            name: '',
+                            number: 1,
+                            boolean: true,
+                            boolean2: true,
+                        });
+
+                        await testForErrorAsync('Instance.validate()', expectedErrorMessage, async () => {
+                            return instance.validate();
+                        });
+                    });
+
+                });
+
+            });
+
+            describe('Asynchronous Validation Methods', () => {
+
+                it('Asynchronous validation passes.', async () => {
+                    const instance = new Instance(AsyncValidationClass);
+                    instance.relatedInstance = instanceOfRelatedValidationClassValid;
+
+                    await instance.validate();
+                });
+
+                it('Asynchronous validation fails, error thrown.', async () => {
+                    const expectedErrorMessage = 'Related instance is not valid.';
+                    const instance = new Instance(AsyncValidationClass);
+                    instance.relatedInstance = instanceOfRelatedValidationClassInvalid;
+
+                    await testForErrorAsync('Instance.validate()', expectedErrorMessage, async () => {
+                        return instance.validate();
+                    });
+                });
+
             });
 
         });
@@ -2744,6 +3018,7 @@ describe('Instance Tests', () => {
             await UpdateControlledClassUpdateControlledByParameters.clear();
             await CreateControlledSuperClass.clear();
             await CreateControlledClassCreateControlledByParameters.clear();
+            await ValidationSuperClass.clear();
         });
 
         it('instance.save() works properly.', async () => {
@@ -2798,7 +3073,7 @@ describe('Instance Tests', () => {
 
             const found = await AllFieldsRequiredClass.findById(instance._id);
 
-            if (found) 
+            if (found !== null)
                 throw new Error('instance was saved.');
         });
 
@@ -2959,6 +3234,43 @@ describe('Instance Tests', () => {
     
                 if (instanceFound.name) 
                     throw new Error('.save() threw an error, but the instance was saved anyway.')
+            });
+
+        });
+
+        describe('Saving Instances of Class With Custom Validations', () => {
+
+            it('Can save a vaildated instance which passes validation.', async () => {
+                const instance = new Instance(ValidationSuperClass);
+                instance.assign({
+                    name: 'instance',
+                    number: 1,
+                });
+
+                await instance.save();
+
+                const foundInstance = await ValidationSuperClass.findById(instance._id);
+
+                if (foundInstance === null)
+                    throw new Error('No validation error thrown, but instance was not saved.');
+            });
+
+            it('Calling save on an instance which does not pass custom validation throws an error. Instance not saved.', async () => {
+                const expectedErrorMessage = 'Caught validation error when attempting to save Instance: Number must be greater than 0.';
+                const instance = new Instance(ValidationSuperClass);
+                instance.assign({
+                    name: 'instance',
+                    number: 0,
+                });
+
+                await testForErrorAsync('Instance.save()', expectedErrorMessage, async () => {
+                    return instance.save();
+                });
+
+                const foundInstance = await ValidationSuperClass.findById(instance._id);
+
+                if (foundInstance !== null)
+                    throw new Error('Validation error thrown, but instance was saved anyway.');
             });
 
         });
