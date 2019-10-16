@@ -386,11 +386,9 @@ class Instance {
             throw new Error('instance.save(): You cannot save an instance which has been deleted.');
 
         if (!this.saved()) {
-            //console.log('insert');
             await this.classModel.insertOne(this.toDocument());
         }
         else {
-            //console.log('update');
             await this.classModel.update(this.toDocument());
         }
         this.previousState = new InstanceState(this.classModel, this.currentState.toDocument());
