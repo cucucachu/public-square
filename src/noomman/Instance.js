@@ -358,21 +358,17 @@ class Instance {
         
         try {
             this.validate();
-            if (!this.saved()) {
-                await this.classModel.createControlCheckInstance(this, ...controlMethodParameters);
-            }
-            else {
-                await this.classModel.updateControlCheckInstance(this, ...controlMethodParameters);
-            }
         }
         catch (error) {
             throw new Error('Caught validation error when attempting to save Instance: ' + error.message);
         }
 
         if (!this.saved()) {
+            await this.classModel.createControlCheckInstance(this, ...controlMethodParameters);
             await this.classModel.insertOne(this.toDocument());
         }
         else {
+            await this.classModel.updateControlCheckInstance(this, ...controlMethodParameters);
             await this.classModel.update(this.toDocument());
         }
 
@@ -399,7 +395,7 @@ class Instance {
         if (!this.saved())
             throw new Error('instance.delete(): You cannot delete an instance which hasn\'t been saved yet');
 
-        this.classModel.deleteControlCheckInstance(this, ...deleteControlMethodParameters)
+        await this.classModel.deleteControlCheckInstance(this, ...deleteControlMethodParameters)
 
         await this.classModel.delete(this);
 
