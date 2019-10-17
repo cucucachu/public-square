@@ -719,7 +719,7 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 },
             ],
             crudControls: {
-                createControl: async instance => { return instance.boolean },
+                createControl: instance => instance.boolean ,
             },
         });
 
@@ -736,7 +736,7 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 },
             ],
             crudControls: {
-                createControl: async instance => { return instance.string == 'createControlled' },
+                createControl:  instance => instance.string == 'createControlled',
             }
         });
 
@@ -752,7 +752,7 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 },
             ],
             crudControls: {
-                createControl: async instance => { return instance.number > 0 },
+                createControl: instance => instance.number > 0 ,
             },
         });
 
@@ -773,7 +773,7 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         var CreateControlledClassCreateControlledByParameters = new ClassModel({
             className: 'CreateControlledClassCreateControlledByParameters',
             crudControls: {
-                createControl: async (instance, numberA, numberB, boolean) => {
+                createControl: (instance, numberA, numberB, boolean) => {
                     return (numberA + numberB > 0) && boolean;
                 },
             },
@@ -819,7 +819,7 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 },
             ],
             crudControls: {
-                readControl: async instance => { return instance.boolean },
+                readControl: instance => instance.boolean,
             },
         });
 
@@ -836,7 +836,7 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 },
             ],
             crudControls: {
-                readControl: async instance => { return instance.string == 'readControlled' },
+                readControl: instance => instance.string == 'readControlled',
             },
         });
 
@@ -852,9 +852,7 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 },
             ],
             crudControls: {
-                readControl: async instance => { 
-                    return instance.number > 0 
-                },
+                readControl: instance => instance.number > 0 ,
             }
         });
 
@@ -875,7 +873,7 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         var ReadControlledClassReadControlledByParameters = new ClassModel({
             className: 'ReadControlledClassReadControlledByParameters',
             crudControls: {
-                readControl: async (instance, numberA, numberB, boolean) => {
+                readControl: (instance, numberA, numberB, boolean) => {
                     return (numberA + numberB > 0) && boolean;
                 },
             },
@@ -955,7 +953,7 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 },
             ],
             crudControls: {
-                updateControl: async instance => { return instance.boolean },
+                updateControl: instance => instance.boolean,
             },
         });
 
@@ -972,7 +970,7 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 },
             ],
             crudControls: {
-                updateControl: async instance => { return instance.string == 'updateControlled' },
+                updateControl: instance => instance.string == 'updateControlled',
             }
         });
 
@@ -988,7 +986,7 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 },
             ],
             crudControls: {
-                updateControl: async instance => { return instance.number > 0 },
+                updateControl: instance => instance.number > 0,
             },
         });
 
@@ -1015,7 +1013,7 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 }
             ],
             crudControls: {
-                updateControl: async (instance, numberA, numberB, boolean) => {
+                updateControl: (instance, numberA, numberB, boolean) => {
                     return (numberA + numberB > 0) && boolean;
                 },
             },
@@ -1061,7 +1059,7 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 },
             ],
             crudControls: {
-                deleteControl: async instance => { return instance.boolean },
+                deleteControl: instance => instance.boolean,
             },
         });
 
@@ -1078,7 +1076,7 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 },
             ],
             crudControls: {
-                deleteControl: async instance => { return instance.string == 'deleteControlled' },
+                deleteControl: instance => instance.string == 'deleteControlled',
             }
         });
 
@@ -1094,7 +1092,7 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 },
             ],
             crudControls: {
-                deleteControl: async instance => { return instance.number > 0 },
+                deleteControl: instance => instance.number > 0,
             },
         });
 
@@ -1115,7 +1113,7 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         var DeleteControlledClassDeleteControlledByParameters = new ClassModel({
             className: 'DeleteControlledClassDeleteControlledByParameters',
             crudControls: {
-                deleteControl: async (instance, numberA, numberB, boolean) => {
+                deleteControl: (instance, numberA, numberB, boolean) => {
                     return (numberA + numberB > 0) && boolean;
                 },
             },

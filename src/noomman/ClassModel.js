@@ -481,6 +481,64 @@ class ClassModel {
 
     // Crud Control Methods
 
+    async evaluateCrudControlMethods(instanceSet, controlMethods, ...methodParameters) {
+        let rejectedInstances = new InstanceSet(this);
+
+        const instancesOfThisClass = instanceSet.filterToInstanceSet(instance => {
+            return instance.classModel === this;
+        });
+
+        for (const instance of instancesOfThisClass) {
+            for (const controlMethod of this[controlMethods]) {
+                let result = controlMethod(instance, ...methodParameters);
+                if (result instanceof Promise) {
+                    result = await result;
+                }
+                if (!result) {
+                    rejectedInstances.add(instance);
+                    continue;
+                }
+            }
+        }
+
+        if (this.isSuperClass()) {
+            if (this.discriminated) {
+                let instancesByClass = {};
+                instancesByClass[this.className] = [];
+    
+                for (let instance of instanceSet)
+                    if (instance.__t)
+                        if (!instancesByClass[instance.__t])
+                            instancesByClass[instance.__t] = [instance];
+                        else
+                            instancesByClass[instance.__t].push(instance);
+                    else 
+                        instancesByClass[this.className].push(instance);
+    
+                for (let className in instancesByClass) {
+                    if (className !== this.className) {
+                        const subClassModel = AllClassModels[className];
+                        const rejectedSubClassInstances = await subClassModel.evaluateCrudControlMethods(new InstanceSet(subClassModel, instancesByClass[className]), controlMethods, ...methodParameters);
+                        rejectedInstances.addInstances(rejectedSubClassInstances);
+                    }
+                }
+            }
+            else if (this.subClasses.length) {
+                for (let subClass of this.subClasses) {
+                    let instancesOfSubClass = instanceSet.filterForClassModel(subClass);
+    
+                    if (!instancesOfSubClass.isEmpty()) {
+                        const rejectedSubClassInstances = await subClass.evaluateCrudControlMethods(instancesOfSubClass, controlMethods, ...methodParameters);
+                        rejectedInstances.addFromIterable(rejectedSubClassInstances);
+                    }
+                }
+            }
+        }
+
+        return rejectedInstances;
+
+    }
+
     async createControlCheck(instanceSet, ...createControlMethodParameters) {
         if (!(instanceSet instanceof InstanceSet))
             throw new Error('Incorrect parameters. ' + this.className + '.createControlCheck(InstanceSet instanceSet, ...createControlMethodParameters)');
@@ -557,62 +615,6 @@ class ClassModel {
     async deleteControlCheckInstance(instance, ...deleteControlMethodParameters) {
         const instanceSet = new InstanceSet(instance.classModel, [instance]);
         return this.deleteControlCheck(instanceSet, ...deleteControlMethodParameters);
-    }
-
-    async evaluateCrudControlMethods(instanceSet, controlMethods, ...methodParameters) {
-        let rejectedInstances = new InstanceSet(this);
-
-        const instancesOfThisClass = instanceSet.filterToInstanceSet(instance => {
-            return instance.classModel === this;
-        });
-
-        let passingInstancesOfThisClass = [...instancesOfThisClass];
-
-        for (const controlMethod of this[controlMethods]) {
-            passingInstancesOfThisClass = await ClassModel.asyncFilter(passingInstancesOfThisClass, async (instance) => {
-                return controlMethod(instance, ...methodParameters);
-            });
-        }
-
-        passingInstancesOfThisClass = new InstanceSet(this, passingInstancesOfThisClass);
-        rejectedInstances = instancesOfThisClass.difference(passingInstancesOfThisClass);
-
-        if (this.isSuperClass()) {
-            if (this.discriminated) {
-                let instancesByClass = {};
-                instancesByClass[this.className] = [];
-    
-                for (let instance of instanceSet)
-                    if (instance.__t)
-                        if (!instancesByClass[instance.__t])
-                            instancesByClass[instance.__t] = [instance];
-                        else
-                            instancesByClass[instance.__t].push(instance);
-                    else 
-                        instancesByClass[this.className].push(instance);
-    
-                for (let className in instancesByClass) {
-                    if (className !== this.className) {
-                        const subClassModel = AllClassModels[className];
-                        const rejectedSubClassInstances = await subClassModel.evaluateCrudControlMethods(new InstanceSet(subClassModel, instancesByClass[className]), controlMethods, ...methodParameters);
-                        rejectedInstances.addInstances(rejectedSubClassInstances);
-                    }
-                }
-            }
-            else if (this.subClasses.length) {
-                for (let subClass of this.subClasses) {
-                    let instancesOfSubClass = instanceSet.filterForClassModel(subClass);
-    
-                    if (!instancesOfSubClass.isEmpty()) {
-                        const rejectedSubClassInstances = await subClass.evaluateCrudControlMethods(instancesOfSubClass, controlMethods, ...methodParameters);
-                        rejectedInstances.addFromIterable(rejectedSubClassInstances);
-                    }
-                }
-            }
-        }
-
-        return rejectedInstances;
-
     }
 
     async deleteMany(instances) {
