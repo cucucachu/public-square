@@ -361,7 +361,7 @@ class Instance {
 
     async customValidations() {
         for (const validationMethod of this.classModel.validations) {
-            let result = validationMethod(this);
+            let result = validationMethod.apply(this);
             if (result instanceof Promise) {
                 await result;
             }

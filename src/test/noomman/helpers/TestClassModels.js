@@ -1122,6 +1122,7 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
 
     // Validation Classes
     {
+
         var ValidationSuperClass = new ClassModel({
             className: 'ValidationSuperClass',
             attributes: [
@@ -1135,12 +1136,12 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 },
             ],
             validations: [
-                instance => {
-                    if (instance.number <= 0)
+                function() {
+                    if (this.number <= 0)
                         throw new Error('Number must be greater than 0.');
                 },
-                instance => {
-                    if (instance.name === '')
+                function() {
+                    if (this.name === '')
                         throw new Error('Name cannot be empty.');
                 },
             ],
@@ -1150,8 +1151,8 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             className: 'SubClassOfValidationSuperClass',
             superClasses: [ValidationSuperClass],
             validations: [
-                instance => {
-                    if (instance.number > 10) {
+                function() {
+                    if (this.number > 10) {
                         throw new Error('Number must be less than or equal to 10.');
                     }
                 }
@@ -1170,8 +1171,8 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 }
             ],
             validations: [
-                instance => {
-                    if (!instance.boolean) {
+                function() {
+                    if (!this.boolean) {
                         throw new Error('Boolean must be true.');
                     }
                 }
@@ -1189,8 +1190,8 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 }
             ],
             validations: [
-                instance => {
-                    if (!instance.boolean2) {
+                function() {
+                    if (!this.boolean2) {
                         throw new Error('Boolean2 must be true.');
                     }
                 }
@@ -1207,8 +1208,8 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 }
             ],
             validations: [
-                async instance => {
-                    const related = await instance.walk('relatedInstance');
+                async function() {
+                    const related = await this.walk('relatedInstance');
                     if (related === null || !related.valid)
                         throw new Error('Related instance is not valid.');
                 },
