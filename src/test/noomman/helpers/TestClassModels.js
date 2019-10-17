@@ -699,10 +699,10 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 },
             ],
             crudControls: {
-                createControl: async instance => {
-                    if (!instance.createControlledBy)
+                createControl: async function() {
+                    if (!this.createControlledBy)
                         return false;
-                    return instance.createControlledBy.allowed;
+                    return this.createControlledBy.allowed;
                 },
             }
         });
@@ -719,7 +719,9 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 },
             ],
             crudControls: {
-                createControl: instance => instance.boolean ,
+                createControl: function() { 
+                    return this.boolean 
+                },
             },
         });
 
@@ -736,7 +738,9 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 },
             ],
             crudControls: {
-                createControl:  instance => instance.string == 'createControlled',
+                createControl:  function() {
+                    return this.string == 'createControlled';
+                },
             }
         });
 
@@ -752,7 +756,9 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 },
             ],
             crudControls: {
-                createControl: instance => instance.number > 0 ,
+                createControl: function() {
+                    return this.number > 0;
+                }
             },
         });
 
@@ -773,7 +779,7 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         var CreateControlledClassCreateControlledByParameters = new ClassModel({
             className: 'CreateControlledClassCreateControlledByParameters',
             crudControls: {
-                createControl: (instance, numberA, numberB, boolean) => {
+                createControl: (numberA, numberB, boolean) => {
                     return (numberA + numberB > 0) && boolean;
                 },
             },
@@ -800,8 +806,8 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 },
             ],
             crudControls: {
-                readControl: async instance => {
-                    const readControlledByInstance = await instance.walk('readControlledBy')
+                readControl: async function() {
+                    const readControlledByInstance = await this.walk('readControlledBy')
                     return readControlledByInstance.allowed;
                 },
             }
@@ -819,7 +825,9 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 },
             ],
             crudControls: {
-                readControl: instance => instance.boolean,
+                readControl: function() {
+                    return this.boolean;
+                },
             },
         });
 
@@ -836,7 +844,9 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 },
             ],
             crudControls: {
-                readControl: instance => instance.string == 'readControlled',
+                readControl: function() {
+                    return this.string == 'readControlled';
+                }
             },
         });
 
@@ -852,7 +862,9 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 },
             ],
             crudControls: {
-                readControl: instance => instance.number > 0 ,
+                readControl: function() {
+                    return this.number > 0;
+                }
             }
         });
 
@@ -873,7 +885,7 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         var ReadControlledClassReadControlledByParameters = new ClassModel({
             className: 'ReadControlledClassReadControlledByParameters',
             crudControls: {
-                readControl: (instance, numberA, numberB, boolean) => {
+                readControl: (numberA, numberB, boolean) => {
                     return (numberA + numberB > 0) && boolean;
                 },
             },
@@ -934,8 +946,8 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 },
             ],
             crudControls: {
-                updateControl: async instance => {
-                    let updateControlledByInstance =  await instance.walk('updateControlledBy');
+                updateControl: async function() {
+                    let updateControlledByInstance = await this.walk('updateControlledBy');
                     return updateControlledByInstance.allowed;
                 },
             }
@@ -953,7 +965,9 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 },
             ],
             crudControls: {
-                updateControl: instance => instance.boolean,
+                updateControl: function() {
+                    return this.boolean;
+                }
             },
         });
 
@@ -970,7 +984,9 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 },
             ],
             crudControls: {
-                updateControl: instance => instance.string == 'updateControlled',
+                updateControl: function() {
+                    return this.string === 'updateControlled';
+                }
             }
         });
 
@@ -986,7 +1002,9 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 },
             ],
             crudControls: {
-                updateControl: instance => instance.number > 0,
+                updateControl: function() {
+                    return this.number > 0;
+                },
             },
         });
 
@@ -1013,7 +1031,7 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 }
             ],
             crudControls: {
-                updateControl: (instance, numberA, numberB, boolean) => {
+                updateControl: (numberA, numberB, boolean) => {
                     return (numberA + numberB > 0) && boolean;
                 },
             },
@@ -1040,8 +1058,8 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 },
             ],
             crudControls: {
-                deleteControl: async instance => {
-                    let deleteControlledByInstance =  await instance.walk('deleteControlledBy');
+                deleteControl: async function() {
+                    let deleteControlledByInstance =  await this.walk('deleteControlledBy');
                     return deleteControlledByInstance.allowed;
                 },
             }
@@ -1059,7 +1077,9 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 },
             ],
             crudControls: {
-                deleteControl: instance => instance.boolean,
+                deleteControl: function() {
+                    return this.boolean;
+                },
             },
         });
 
@@ -1076,7 +1096,9 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 },
             ],
             crudControls: {
-                deleteControl: instance => instance.string == 'deleteControlled',
+                deleteControl: function() {
+                    return this.string === 'deleteControlled';
+                },
             }
         });
 
@@ -1092,7 +1114,9 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 },
             ],
             crudControls: {
-                deleteControl: instance => instance.number > 0,
+                deleteControl: function() {
+                    return this.number > 0;
+                },
             },
         });
 
@@ -1113,7 +1137,7 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         var DeleteControlledClassDeleteControlledByParameters = new ClassModel({
             className: 'DeleteControlledClassDeleteControlledByParameters',
             crudControls: {
-                deleteControl: (instance, numberA, numberB, boolean) => {
+                deleteControl: (numberA, numberB, boolean) => {
                     return (numberA + numberB > 0) && boolean;
                 },
             },

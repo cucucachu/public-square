@@ -490,7 +490,7 @@ class ClassModel {
 
         for (const instance of instancesOfThisClass) {
             for (const controlMethod of this[controlMethods]) {
-                let result = controlMethod(instance, ...methodParameters);
+                let result = controlMethod.apply(instance, methodParameters);
                 if (result instanceof Promise) {
                     result = await result;
                 }
