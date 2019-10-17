@@ -2110,8 +2110,8 @@ describe('Instance Tests', () => {
             });
 
             it('All fields are required. All but string are set. Error thrown.', async () => {
-                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: string: Path `string` is required.';
                 const instance = new Instance(AllFieldsRequiredClass);
+                const expectedErrorMessage = instance.id + ': Missing required property(s): "string"';
                 instance.assign({
                     strings: ['String'],
                     date: new Date(),
@@ -2147,8 +2147,8 @@ describe('Instance Tests', () => {
             });
 
             it('All fields are required. All but Stings are set. Error thrown.', async () => {
-                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: strings: Path `strings` is required.';
                 const instance = new Instance(AllFieldsRequiredClass);
+                const expectedErrorMessage = instance.id + ': Missing required property(s): "strings"';
                 instance.assign({
                     string: 'String',
                     date: new Date(),
@@ -2167,8 +2167,8 @@ describe('Instance Tests', () => {
             });
 
             it('All fields are required. Strings is set to empty array. Error thrown.', async () => {
-                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: strings: Path `strings` is required.';
                 const instance = new Instance(AllFieldsRequiredClass);
+                const expectedErrorMessage = instance.id + ': Missing required property(s): "strings"';
                 instance.assign({
                     string: 'String',
                     strings: [],
@@ -2188,8 +2188,8 @@ describe('Instance Tests', () => {
             });
 
             it('All fields are required. All but date are set. Error thrown.', async () => {
-                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: date: Path `date` is required.';
                 const instance = new Instance(AllFieldsRequiredClass);
+                const expectedErrorMessage = instance.id + ': Missing required property(s): "date"';
                 instance.assign({
                     string: 'String',
                     strings: ['String'],
@@ -2208,8 +2208,8 @@ describe('Instance Tests', () => {
             });
 
             it('All fields are required. All but boolean are set. Error thrown.', async () => {
-                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: boolean: Path `boolean` is required.';
                 const instance = new Instance(AllFieldsRequiredClass);
+                const expectedErrorMessage = instance.id + ': Missing required property(s): "boolean"';
                 instance.assign({
                     string: 'String',
                     strings: ['String'],
@@ -2228,8 +2228,8 @@ describe('Instance Tests', () => {
             });
 
             it('All fields are required. All but booleans are set. Error thrown.', async () => {
-                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: booleans: Path `booleans` is required.';
                 const instance = new Instance(AllFieldsRequiredClass);
+                const expectedErrorMessage = instance.id + ': Missing required property(s): "booleans"';
                 instance.assign({
                     string: 'String',
                     strings: ['String'],
@@ -2248,8 +2248,8 @@ describe('Instance Tests', () => {
             });
 
             it('All fields are required. Booleans set to empty array. Error thrown.', async () => {
-                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: booleans: Path `booleans` is required.';
                 const instance = new Instance(AllFieldsRequiredClass);
+                const expectedErrorMessage = instance.id + ': Missing required property(s): "booleans"';
                 instance.assign({
                     string: 'String',
                     strings: ['String'],
@@ -2269,8 +2269,8 @@ describe('Instance Tests', () => {
             });
 
             it('All fields are required. All but number are set. Error thrown.', async () => {
-                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: number: Path `number` is required.';
                 const instance = new Instance(AllFieldsRequiredClass);
+                const expectedErrorMessage = instance.id + ': Missing required property(s): "number"';
                 instance.assign({
                     string: 'String',
                     strings: ['String'],
@@ -2289,8 +2289,8 @@ describe('Instance Tests', () => {
             });
 
             it('All fields are required. All but numbers are set. Error thrown.', async () => {
-                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: numbers: Path `numbers` is required.';
                 const instance = new Instance(AllFieldsRequiredClass);
+                const expectedErrorMessage = instance.id + ': Missing required property(s): "numbers"';
                 instance.assign({
                     string: 'String',
                     strings: ['String'],
@@ -2309,8 +2309,8 @@ describe('Instance Tests', () => {
             });
 
             it('All fields are required. Numbers is set to an empty array. Error thrown.', async () => {
-                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: numbers: Path `numbers` is required.';
                 const instance = new Instance(AllFieldsRequiredClass);
+                const expectedErrorMessage = instance.id + ': Missing required property(s): "numbers"';
                 instance.assign({
                     string: 'String',
                     strings: ['String'],
@@ -2330,8 +2330,8 @@ describe('Instance Tests', () => {
             });
 
             it('All fields are required. All but class1 are set. Error thrown.', async () => {
-                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: class1: Path `class1` is required.';
                 const instance = new Instance(AllFieldsRequiredClass);
+                const expectedErrorMessage = instance.id + ': Missing required property(s): "class1"';
                 instance.assign({
                     string: 'String',
                     strings: ['String'],
@@ -2350,8 +2350,8 @@ describe('Instance Tests', () => {
             });
 
             it('All fields are required. All but class2s are set. Error thrown.', async () => {
-                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: class2s: Path `class2s` is required.';
                 const instance = new Instance(AllFieldsRequiredClass);
+                const expectedErrorMessage = instance.id + ': Missing required property(s): "class2s"';
                 instance.assign({
                     string: 'String',
                     strings: ['String'],
@@ -2370,8 +2370,8 @@ describe('Instance Tests', () => {
             });
 
             it('All fields are required. All but class2s are set. Class2s set to empty instance set. Error thrown.', async () => {
-                const expectedErrorMessage = 'AllFieldsRequiredClass validation failed: class2s: Path `class2s` is required.';
                 const instance = new Instance(AllFieldsRequiredClass);
+                const expectedErrorMessage = instance.id + ': Missing required property(s): "class2s"';
                 instance.assign({
                     string: 'String',
                     strings: ['String'],
@@ -2395,8 +2395,8 @@ describe('Instance Tests', () => {
         describe('Required Group Validation', () => {
                 
             it('Multiple fields (one of each type) share a required group no fields are set. Error thrown.', async () => {
-                const expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
                 const instance = new Instance(AllFieldsInRequiredGroupClass);
+                const expectedErrorMessage = instance.id + ': Required Group violations found for requirement group(s): "a".'
     
                 await testForErrorAsync('instance.validate()', expectedErrorMessage, async () => {
                     return instance.validate();
@@ -2416,8 +2416,8 @@ describe('Instance Tests', () => {
             });
                 
             it('Multiple fields (one of each type) share a required group class2s is set to empty instance set. Error thrown.', async () => {
-                const expectedErrorMessage = 'Required Group violations found for requirement group(s):  a';
                 const instance = new Instance(AllFieldsInRequiredGroupClass);
+                const expectedErrorMessage = instance.id + ': Required Group violations found for requirement group(s): "a".'
                 instance.class2s = new InstanceSet(CompareClass2);
     
                 await testForErrorAsync('instance.validate()', expectedErrorMessage, async () => {
@@ -2500,13 +2500,12 @@ describe('Instance Tests', () => {
         describe('Mutex Validation', () => {
             
             it('2 attributes (boolean, date) have a mutex and both are set. Error thrown.', async () => {
-                const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field boolean with mutex \'a\'. Field date with mutex \'a\'.';
-                const expectedErrorRegex = /^Mutex violations found for instance .* Field boolean with mutex \'a\'. Field date with mutex \'a\'.$/;
                 const instance = new Instance(MutexClassA);
+                const expectedErrorMessage = instance.id + ': Mutex violation(s): Property "boolean" with mutex "a". Property "date" with mutex "a".';
                 instance.boolean = true;
                 instance.date = new Date();
 
-                await testForErrorAsyncRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, async () => {
+                await testForErrorAsync('instance.validate()', expectedErrorMessage, async () => {
                     return instance.validate();
                 });
             });
@@ -2519,14 +2518,13 @@ describe('Instance Tests', () => {
             });
             
             it('2 singular relationship fields have a mutex and both are set. Error thrown.', async () => {
-                const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field class1 with mutex \'a\'. Field class2 with mutex \'a\'.';
-                const expectedErrorRegex = /^Mutex violations found for instance .* Field class1 with mutex \'a\'. Field class2 with mutex \'a\'.$/;
                 const instance = new Instance(MutexClassB);
+                const expectedErrorMessage = instance.id + ': Mutex violation(s): Property "class1" with mutex "a". Property "class2" with mutex "a".';
 
                 instance.class1 = new Instance(CompareClass1);
                 instance.class2 = new Instance(CompareClass2);
 
-                await testForErrorAsyncRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, async () => {
+                await testForErrorAsync('instance.validate()', expectedErrorMessage, async () => {
                     return instance.validate();
                 });
             });
@@ -2539,14 +2537,13 @@ describe('Instance Tests', () => {
             });
             
             it('2 non-singular relationship fields have a mutex and both are set. Error thrown.', async () => {
-                const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field class1s with mutex \'a\'. Field class2s with mutex \'a\'.';
-                const expectedErrorRegex = /^Mutex violations found for instance .* Field class1s with mutex \'a\'. Field class2s with mutex \'a\'.$/;
                 const instance = new Instance(MutexClassC);
+                const expectedErrorMessage = instance.id + ': Mutex violation(s): Property "class1s" with mutex "a". Property "class2s" with mutex "a".';
 
                 instance.class1s = new InstanceSet(CompareClass1, [new Instance(CompareClass1), new Instance(CompareClass1)]);
                 instance.class2s = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
 
-                await testForErrorAsyncRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, async () => {
+                await testForErrorAsync('instance.validate()', expectedErrorMessage, async () => {
                     return instance.validate();
                 });
             });
@@ -2649,37 +2646,34 @@ describe('Instance Tests', () => {
             });
             
             it('Multiple fields (one of each type) have a mutex and number is set to 0 and numbers are set to an array of 0s. Error thrown.', async () => {
-                const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field number with mutex \'a\'. Field numbers with mutex \'a\'.';
-                const expectedErrorRegex = /^Mutex violations found for instance .* Field number with mutex \'a\'. Field numbers with mutex \'a\'.$/;
                 const instance = new Instance(AllFieldsMutexClass);
+                const expectedErrorMessage = instance.id + ': Mutex violation(s): Property "number" with mutex "a". Property "numbers" with mutex "a".';
                 instance.number = 0;
                 instance.numbers = [0, 0, 0];
 
-                await testForErrorAsyncRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, async () => {
+                await testForErrorAsync('instance.validate()', expectedErrorMessage, async () => {
                     return instance.validate();
                 });
             });
                 
             it('Multiple fields (one of each type) have a mutex and number is set to 1 and booleans is set to [false]. Error thrown.', async () => {
-                const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field booleans with mutex \'a\'. Field number with mutex \'a\'.';
-                const expectedErrorRegex = /^Mutex violations found for instance .* Field booleans with mutex \'a\'. Field number with mutex \'a\'.$/;
                 const instance = new Instance(AllFieldsMutexClass);
+                const expectedErrorMessage = instance.id + ': Mutex violation(s): Property "booleans" with mutex "a". Property "number" with mutex "a".';
                 instance.number = 1;
                 instance.booleans = [false];
 
-                await testForErrorAsyncRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, async () => {
+                await testForErrorAsync('instance.validate()', expectedErrorMessage, async () => {
                     return instance.validate();
                 });
             });
                 
             it('Multiple fields (one of each type) have a mutex and number is set to 1 and strings is set to [\"\"]. Error thrown.', async () => {
-                const expectedErrorMessage = 'Mutex violations found for instance <ObjectId> Field strings with mutex \'a\'. Field number with mutex \'a\'.';
-                const expectedErrorRegex = /^Mutex violations found for instance .* Field strings with mutex \'a\'. Field number with mutex \'a\'.$/;
                 const instance = new Instance(AllFieldsMutexClass);
+                const expectedErrorMessage = instance.id + ': Mutex violation(s): Property "strings" with mutex "a". Property "number" with mutex "a".';
                 instance.number = 1;
                 instance.strings = [''];
 
-                await testForErrorAsyncRegex('instance.validate()', expectedErrorMessage, expectedErrorRegex, async () => {
+                await testForErrorAsync('instance.validate()', expectedErrorMessage, async () => {
                     return instance.validate();
                 });
             });
@@ -2721,8 +2715,8 @@ describe('Instance Tests', () => {
                     });
                     
                     it('Error thrown when a validation fails.', async () => {
-                        const expectedErrorMessage = 'Number must be greater than 0.';
                         const instance = new Instance(ValidationSuperClass);
+                        const expectedErrorMessage = instance.id + ': Number must be greater than 0.';
                         instance.assign({
                             name: 'instance',
                             number: 0,
@@ -2734,8 +2728,8 @@ describe('Instance Tests', () => {
                     });
                     
                     it('Error thrown when a validation fails.', async () => {
-                        const expectedErrorMessage = 'Name cannot be empty.';
                         const instance = new Instance(ValidationSuperClass);
+                        const expectedErrorMessage = instance.id + ': Name cannot be empty.';
                         instance.assign({
                             name: '',
                             number: 1,
@@ -2761,8 +2755,8 @@ describe('Instance Tests', () => {
                     });
                     
                     it('Error throw due to sub class\'s own validation.', async () => {
-                        const expectedErrorMessage = 'Number must be less than or equal to 10.';
                         const instance = new Instance(SubClassOfValidationSuperClass);
+                        const expectedErrorMessage = instance.id + ': Number must be less than or equal to 10.';
                         instance.assign({
                             name: 'instance',
                             number: 100,
@@ -2774,8 +2768,8 @@ describe('Instance Tests', () => {
                     });
                     
                     it('Error thrown due to super class validation.', async () => {
-                        const expectedErrorMessage = 'Number must be greater than 0.';
                         const instance = new Instance(SubClassOfValidationSuperClass);
+                        const expectedErrorMessage = instance.id + ': Number must be greater than 0.';
                         instance.assign({
                             name: 'instance',
                             number: 0,
@@ -2787,8 +2781,8 @@ describe('Instance Tests', () => {
                     });
                     
                     it('Error thrown due to super class validation.', async () => {
-                        const expectedErrorMessage = 'Name cannot be empty.';
                         const instance = new Instance(SubClassOfValidationSuperClass);
+                        const expectedErrorMessage = instance.id + ': Name cannot be empty.';
                         instance.assign({
                             name: '',
                             number: 1,
@@ -2815,8 +2809,8 @@ describe('Instance Tests', () => {
                     });
                     
                     it('Error throw due to class\'s own validation.', async () => {
-                        const expectedErrorMessage = 'Boolean must be true.';
                         const instance = new Instance(ValidationDiscriminatedSuperClass);
+                        const expectedErrorMessage = instance.id + ': Boolean must be true.';
                         instance.assign({
                             name: 'instance',
                             number: 5,
@@ -2829,8 +2823,8 @@ describe('Instance Tests', () => {
                     });
                     
                     it('Error thrown due to super class validation.', async () => {
-                        const expectedErrorMessage = 'Number must be greater than 0.';
                         const instance = new Instance(ValidationDiscriminatedSuperClass);
+                        const expectedErrorMessage = instance.id + ': Number must be greater than 0.';
                         instance.assign({
                             name: 'instance',
                             number: 0,
@@ -2843,8 +2837,8 @@ describe('Instance Tests', () => {
                     });
                     
                     it('Error thrown due to super class validation.', async () => {
-                        const expectedErrorMessage = 'Name cannot be empty.';
                         const instance = new Instance(ValidationDiscriminatedSuperClass);
+                        const expectedErrorMessage = instance.id + ': Name cannot be empty.';
                         instance.assign({
                             name: '',
                             number: 1,
@@ -2873,8 +2867,8 @@ describe('Instance Tests', () => {
                     });
                     
                     it('Error throw due to class\'s own validation.', async () => {
-                        const expectedErrorMessage = 'Boolean2 must be true.';
                         const instance = new Instance(SubClassOfValidationDiscriminatedSuperClass);
+                        const expectedErrorMessage = instance.id + ': Boolean2 must be true.';
                         instance.assign({
                             name: 'instance',
                             number: 5,
@@ -2888,8 +2882,8 @@ describe('Instance Tests', () => {
                     });
                     
                     it('Error throw due to discriminated super class\'s validation.', async () => {
-                        const expectedErrorMessage = 'Boolean must be true.';
                         const instance = new Instance(SubClassOfValidationDiscriminatedSuperClass);
+                        const expectedErrorMessage = instance.id + ': Boolean must be true.';
                         instance.assign({
                             name: 'instance',
                             number: 5,
@@ -2903,8 +2897,8 @@ describe('Instance Tests', () => {
                     });
                     
                     it('Error thrown due to super duper class validation.', async () => {
-                        const expectedErrorMessage = 'Number must be greater than 0.';
                         const instance = new Instance(SubClassOfValidationDiscriminatedSuperClass);
+                        const expectedErrorMessage = instance.id + ': Number must be greater than 0.';
                         instance.assign({
                             name: 'instance',
                             number: 0,
@@ -2918,8 +2912,8 @@ describe('Instance Tests', () => {
                     });
                     
                     it('Error thrown due to super duper class validation.', async () => {
-                        const expectedErrorMessage = 'Name cannot be empty.';
                         const instance = new Instance(SubClassOfValidationDiscriminatedSuperClass);
+                        const expectedErrorMessage = instance.id + ': Name cannot be empty.';
                         instance.assign({
                             name: '',
                             number: 1,
@@ -2946,8 +2940,8 @@ describe('Instance Tests', () => {
                 });
 
                 it('Asynchronous validation fails, error thrown.', async () => {
-                    const expectedErrorMessage = 'Related instance is not valid.';
                     const instance = new Instance(AsyncValidationClass);
+                    const expectedErrorMessage = instance.id + ': Related instance is not valid.';
                     instance.relatedInstance = instanceOfRelatedValidationClassInvalid;
 
                     await testForErrorAsync('Instance.validate()', expectedErrorMessage, async () => {
@@ -3054,8 +3048,8 @@ describe('Instance Tests', () => {
         });
 
         it('instance.save() throws an error when instance is invalid. Instance not saved.', async () => {
-            const expectedErrorMessage = 'Caught validation error when attempting to save Instance: AllFieldsRequiredClass validation failed: string: Path `string` is required.';
             const instance = new Instance(AllFieldsRequiredClass);
+            const expectedErrorMessage = 'Caught validation error when attempting to save Instance: ' + instance.id + ': Missing required property(s): "string"';
             instance.assign({
                 strings: ['String'],
                 date: new Date(),
@@ -3256,8 +3250,8 @@ describe('Instance Tests', () => {
             });
 
             it('Calling save on an instance which does not pass custom validation throws an error. Instance not saved.', async () => {
-                const expectedErrorMessage = 'Caught validation error when attempting to save Instance: Number must be greater than 0.';
                 const instance = new Instance(ValidationSuperClass);
+                const expectedErrorMessage = 'Caught validation error when attempting to save Instance: ' + instance.id + ': Number must be greater than 0.';
                 instance.assign({
                     name: 'instance',
                     number: 0,

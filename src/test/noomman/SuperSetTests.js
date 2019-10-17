@@ -396,7 +396,7 @@ describe('SuperSet Tests', () => {
                         )
                 });
 
-                it('No issue when attempting to remove elements that aren\t in the instance set.', () => {
+                it('No issue when attempting to remove elements that aren\'t in the instance set.', () => {
                     const superSet = new SuperSet([1, 2, 3]);
                     const toRemove = new SuperSet([2, 3, 4, 5]);
                     const expectedSet = new SuperSet([1]);
