@@ -168,11 +168,11 @@ class InstanceSet extends SuperSet {
     }
 
     filterForInstancesInThisCollection() {
-        if (this.classModel.abstract && !this.classModel.discriminated)
+        if (this.classModel.abstract && !this.classModel.discriminated())
             return new InstanceSet(this.classModel);
 
         return this.filterToInstanceSet(instance => 
-                instance.classModel === this.classModel || instance.classModel.discriminatorSuperClass == this.classModel
+                instance.classModel.collection === this.classModel.collection
             );
     }
 
@@ -305,6 +305,9 @@ class InstanceSet extends SuperSet {
     }
 
     async delete(...deleteControlMethodParameters) {
+        if (this.size == 0)
+            return;
+
         const unsavedInstances = this.filter(instance => instance.saved() == false)
 
         if (unsavedInstances.length) 
@@ -319,14 +322,18 @@ class InstanceSet extends SuperSet {
         let deletePromises = [];
         const instancesOfThisCollection = this.filterForInstancesInThisCollection();
 
-        for (const subClass of this.classModel.subClasses) {
-            const instancesOfSubClass = this.filterForClassModel(subClass);
-            deletePromises.push(instancesOfSubClass.deleteRecursive());
+        if (!instancesOfThisCollection.isEmpty()) {
+            deletePromises.push(this.classModel.deleteMany(instancesOfThisCollection));
+            instancesOfThisCollection.forEach(instance => instance.currentState = null);
         }
 
-        if (!instancesOfThisCollection.isEmpty()) {
-            await this.classModel.deleteMany(instancesOfThisCollection);
-            instancesOfThisCollection.forEach(instance => instance.currentState = null);
+        if (this.classModel.isSuperClass()) {
+            const subClassesWithDifferenctCollections = this.classModel.subClasses.filter(subClass => !subClass.useSuperClassCollection);
+
+            for (const subClass of subClassesWithDifferenctCollections) {
+                const instancesOfSubClass = this.filterForClassModel(subClass);
+                deletePromises.push(instancesOfSubClass.deleteRecursive());
+            }
         }
         
         if (deletePromises.length)

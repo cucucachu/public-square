@@ -44,7 +44,7 @@ const objectsEqual = TestingFunctions.objectsEqual;
     var SubClassOfAbstractSuperClass = TestClassModels.SubClassOfAbstractSuperClass;
     var AbstractSubClassOfSuperClass = TestClassModels.AbstractSubClassOfSuperClass;
     var SubClassOfMultipleSuperClasses = TestClassModels.SubClassOfMultipleSuperClasses;
-    var SubClassOfDiscriminatorSuperClass = TestClassModels.SubClassOfDiscriminatorSuperClass;
+    var SubClassOfDiscriminatedSuperClass = TestClassModels.SubClassOfDiscriminatedSuperClass;
     var DiscriminatedSubClassOfSuperClass = TestClassModels.DiscriminatedSubClassOfSuperClass;
     var SubClassOfDiscriminatedSubClassOfSuperClass = TestClassModels.SubClassOfDiscriminatedSubClassOfSuperClass;
     var SubClassOfSubClassOfSuperClass = TestClassModels.SubClassOfSubClassOfSuperClass;
@@ -3706,7 +3706,7 @@ describe('Instance Tests', () => {
         });
         
         it('When called with a discriminated super class, returns true', () => {
-            const instance = new Instance(SubClassOfDiscriminatorSuperClass);
+            const instance = new Instance(SubClassOfDiscriminatedSuperClass);
             if (!instance.isInstanceOf(DiscriminatedSuperClass))
                 throw new Error('isInstanceOf() returned false.');
         });

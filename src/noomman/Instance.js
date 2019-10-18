@@ -28,7 +28,7 @@ class Instance {
         }
         else {
             this._id = db.ObjectId();
-            this.__t = classModel.discriminatorSuperClass ? classModel.className : undefined;
+            this.__t = classModel.useSuperClassCollection ? classModel.className : undefined;
             this.previousState = null;
             this.currentState = new InstanceState(classModel);
         }

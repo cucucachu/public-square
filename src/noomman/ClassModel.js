@@ -19,18 +19,12 @@ class ClassModel {
 
         this.className = schema.className;
         this.subClasses = [];
-        this.discriminatedSubClasses = [];
         this.abstract = schema.abstract;
-        this.discriminated = schema.discriminated;
+        this.useSuperClassCollection = schema.useSuperClassCollection;
         this.superClasses = schema.superClasses ? schema.superClasses : [];
-        this.discriminatorSuperClass = schema.discriminatorSuperClass;
-        
-        // collection        
-        this.collection = schema.discriminatorSuperClass ? schema.discriminatorSuperClass.collection : schema.className.toLowerCase();
-        if (schema.discriminatorSuperClass) {
-            this.collection = schema.discriminatorSuperClass.collection;
-        }
-        else {
+        this.collection = schema.useSuperClassCollection ? schema.superClasses[0].collection : schema.className.toLowerCase();
+
+        if (!schema.useSuperClassCollection) {
             const lastLetter = schema.className.substr(-1).toLowerCase();
             this.collection = schema.className.toLowerCase();
             if (lastLetter === 's') {
@@ -95,17 +89,6 @@ class ClassModel {
             }
         }
 
-        if (schema.discriminatorSuperClass) {
-            this.attributes = this.attributes.concat(schema.discriminatorSuperClass.attributes);
-            this.relationships = this.relationships.concat(schema.discriminatorSuperClass.relationships);
-            this.createControlMethods = this.createControlMethods.concat(schema.discriminatorSuperClass.createControlMethods);
-            this.readControlMethods = this.readControlMethods.concat(schema.discriminatorSuperClass.readControlMethods);
-            this.updateControlMethods = this.updateControlMethods.concat(schema.discriminatorSuperClass.updateControlMethods);
-            this.deleteControlMethods = this.deleteControlMethods.concat(schema.discriminatorSuperClass.deleteControlMethods);
-            this.validations = this.validations.concat(schema.discriminatorSuperClass.validations);
-            schema.discriminatorSuperClass.discriminatedSubClasses.push(this);
-        }
-
         AllClassModels[this.className] = this;
     }
 
@@ -126,20 +109,12 @@ class ClassModel {
         if (schema.superClasses && schema.superClasses.length == 0)
             throw new Error('If superClasses is set, it cannot be an empty Array.');
 
-        if (schema.discriminatorSuperClass && Array.isArray(schema.discriminatorSuperClass))
-            throw new Error('If discriminatorSuperClass is set, it can only be a single class.');
+        if (schema.useSuperClassCollection && (!schema.superClasses || schema.superClasses.length !== 1)) {
+            throw new Error('If useSuperClassCollection is true, a single super class must be provided.');
+        }
 
-        if (schema.superClasses && schema.discriminatorSuperClass)
-            throw new Error('A ClassModel cannot have both superClasses and discriminatorSuperClass.');
-
-        if (schema.discriminatorSuperClass && !schema.discriminatorSuperClass.discriminated)
-            throw new Error('If a class is used as a discriminatedSuperClass, that class must have its "discriminated" field set to true.');
-        
-        if (schema.superClasses)
-            schema.superClasses.forEach(function(superClass) {
-                if (superClass.discriminated)
-                    throw new Error('If a class is set as a superClass, that class cannot have its "discriminated" field set to true.');
-            });
+        if (schema.useSuperClassCollection && schema.abstract)
+            throw new Error('If useSuperClassCollection is true, abstract cannot be true.');
 
         if (schema.superClasses) {
             for (const superClass of schema.superClasses) {
@@ -154,22 +129,15 @@ class ClassModel {
                         throw new Error('Sub class schema cannot contain the same relationship names as a super class schema.');
                     }
                 }
+
+                if (superClass.useSuperClassCollection) {
+                    throw new Error('You cannot create a sub class of a class which has useSuperClassCollection set to true.');
+                }
             }
         }
 
-        if (schema.discriminatorSuperClass && schema.abstract) 
-            throw new Error('A discriminator sub class cannot be abstract.');
-
-        if (schema.discriminatorSuperClass && schema.discriminated)
-            throw new Error('A sub class of a discriminated super class cannot be discriminated.');
-
-        if (schema.superClasses) {
-            schema.superClasses.forEach(function(superClass) {
-                if (superClass.discriminatorSuperClass) {
-                    throw new Error('A class cannot be a sub class of a sub class of a discriminated class.');
-                }
-            });
-        }
+        if (schema.useSuperClassCollection && schema.abstract) 
+            throw new Error('If useSuperClassCollection is true, the class cannot be abstract.');
 
         if (schema.validations && !Array.isArray(schema.validations))
             throw new Error('If validations are provided, it must be an Array.');
@@ -190,11 +158,6 @@ class ClassModel {
                 return true;
         }
 
-        for (const subClass of this.discriminatedSubClasses) {
-            if (subClass.isInstanceOfThisClass(instance))
-                return true;
-        }
-
         return false;
     }
 
@@ -203,11 +166,6 @@ class ClassModel {
             return true;
         
         for (const subClass of this.subClasses) {
-            if (subClass.isInstanceOfThisClass(instanceSet))
-                return true;
-        }
-
-        for (const subClass of this.discriminatedSubClasses) {
             if (subClass.isInstanceOfThisClass(instanceSet))
                 return true;
         }
@@ -266,6 +224,14 @@ class ClassModel {
         return true;
     }
 
+    discriminated() {
+        for (const subClass of this.subClasses) {
+            if (subClass.useSuperClassCollection)
+                return true;
+        }
+        return false;
+    }
+
     /*
      * Helper function for findById and findOne
      * Loops through promises one at a time and returns the first non null resolution. Will break the loop on the first non-null resolution.
@@ -322,7 +288,7 @@ class ClassModel {
     }
 
     isSuperClass() {
-        return ((this.subClasses && this.subClasses.length) || this.discriminated)
+        return (this.subClasses && this.subClasses.length)
     }
 
 
@@ -357,52 +323,40 @@ class ClassModel {
      * Returns a promise, which will resolve with the instance with the given query filter if it can be found, otherwise null.
      */
     async find(queryFilter, ...readControlMethodParameters) {
-        const concrete = !this.abstract;
-        const abstract = this.abstract;
-        const discriminated = this.discriminated;
-        const isSuperClass = (this.subClasses.length > 0 || this.discriminated);
-        const subClasses = this.subClasses;
-        const className = this.className;
+        const foundInstances = new InstanceSet(this);
+
+        const subClassesWithDifferentCollections = this.subClasses ? this.subClasses.filter(subClass => !subClass.useSuperClassCollection) : [];
 
         // If this class is a non-discriminated abstract class and it doesn't have any sub classes, throw an error.
-        if (abstract && !isSuperClass)
-            throw new Error('Error in ' + className + '.find(). This class is abstract and non-discriminated, but it has no sub-classes.');
+        if (this.abstract && !this.isSuperClass())
+            throw new Error('Error in ' + this.className + '.find(). This class is abstract and non-discriminated, but it has no sub-classes.');
 
-        // If this is a discriminated class, or it is a concrete class with no subclasses, find the instance in this ClassModel's collection.
-        if ((concrete && !isSuperClass) || discriminated) {
-            const foundDocuments = await db.find(this.collection, queryFilter);
-            const foundInstances = foundDocuments.map(document => { 
+        if (this.useSuperClassCollection) {
+            queryFilter.__t = this.className;
+        }
+
+        if (this.collection) {
+            const documentsFoundInThisCollection = await db.find(this.collection, queryFilter); 
+            const instancesFoundInThisCollection = new InstanceSet(this, documentsFoundInThisCollection.map(document => { 
                 if (document.__t)
                     return new Instance(AllClassModels[document.__t], document);
                 return new Instance(this, document);
-            });
-            const foundInstanceSet = new InstanceSet(this, foundInstances);
-            return this.readControlFilter(foundInstanceSet, ...readControlMethodParameters);
+            }));
+            const instancesFoundInThisCollectionFiltered = await this.readControlFilter(instancesFoundInThisCollection, ...readControlMethodParameters)
+            foundInstances.addInstances(instancesFoundInThisCollectionFiltered);
+        }
+        
+        const promises = [];
+  
+        for (const subClass of subClassesWithDifferentCollections) {
+            delete queryFilter.__t;
+            promises.push(subClass.find(queryFilter, ...readControlMethodParameters));
         }
 
-        // If this is a non-discriminated super class, we may need to check this classmodel's collection as well,
-        //  as well as the subclasses collections.
-        if (isSuperClass && !discriminated) {
-            let promises = [];
-            let filteredInstancesOfThisClass;
-
-            if (concrete) {
-                let foundDocumentsOfThisClass = await db.find(this.collection, queryFilter);
-
-                if (foundDocumentsOfThisClass.length) {
-                    const foundInstances = foundDocumentsOfThisClass.map(instance => { return new Instance(this, instance)});
-                    const foundInstancesOfThisClass = new InstanceSet(this, foundInstances);
-                    filteredInstancesOfThisClass = await this.readControlFilter(foundInstancesOfThisClass, ...readControlMethodParameters);
-                }
-            }
-            for (let subClass of subClasses)
-                promises.push(subClass.find(queryFilter, ...readControlMethodParameters));
-
-            let foundInstances = await this.allPromiseResoltionsInstanceSets(promises);
-            
-            foundInstances.addInstances(filteredInstancesOfThisClass)
-            return foundInstances;
-        }
+        const instancesFoundOfSubClasses = await this.allPromiseResoltionsInstanceSets(promises);
+        
+        foundInstances.addInstances(instancesFoundOfSubClasses)
+        return foundInstances;
     }
 
     /* Finds an instance of this ClassModel using the given query filter in the database. 
@@ -412,62 +366,41 @@ class ClassModel {
      * Returns a promise, which will resolve with the instance with the given query filter if it can be found, otherwise null.
      */
     async findOne(queryFilter, ...readControlMethodParameters) {
-        const concrete = !this.abstract;
-        const abstract = this.abstract;
-        const discriminated = this.discriminated;
-        const isSuperClass = (this.subClasses.length > 0 || this.discriminated);
-        const subClasses = this.subClasses;
-        const className = this.className;
+        const subClassesWithDifferentCollections = this.subClasses ? this.subClasses.filter(subClass => !subClass.useSuperClassCollection) : [];
 
         // If this class is a non-discriminated abstract class and it doesn't have any sub classes, throw an error.
-        if (abstract && !isSuperClass)
-            throw new Error('Error in ' + className + '.findOne(). This class is abstract and non-discriminated, but it has no sub-classes.');
+        if (this.abstract && !this.isSuperClass())
+            throw new Error('Error in ' + this.className + '.findOne(). This class is abstract and non-discriminated, but it has no sub-classes.');
 
-        // If this is a discriminated class, or it is a concrete class with no subclasses, find the instance in this ClassModel's collection.
-        if ((concrete && !isSuperClass) || discriminated) {
-            const documentFound = await db.findOne(this.collection, queryFilter);
-            if (!documentFound)
+        if (this.useSuperClassCollection) {
+            queryFilter.__t = this.className;
+        }
+
+        if (this.collection) {
+            const documentFoundInThisCollection = await db.findOne(this.collection, queryFilter);
+
+            if (documentFoundInThisCollection !== null) {
+                let instanceFoundInThisCollection;
+                if (documentFoundInThisCollection.__t)
+                    instanceFoundInThisCollection = new Instance(AllClassModels[documentFoundInThisCollection.__t], documentFoundInThisCollection);
+                else 
+                    instanceFoundInThisCollection = new Instance(this, documentFoundInThisCollection);
+    
+                    return this.readControlFilterInstance(instanceFoundInThisCollection, ...readControlMethodParameters)
+            }
+
+            if (subClassesWithDifferentCollections.length == 0)
                 return null;
-
-            let instanceFound;
-
-            if (!discriminated)
-                instanceFound = new Instance(this, documentFound);
-            else {
-                if (documentFound.__t) {
-                    const classModelForInstance = AllClassModels[documentFound.__t];
-                    instanceFound = new Instance(classModelForInstance, documentFound);
-                }
-                else {
-                    instanceFound = new Instance(this, documentFound);
-                }
-            }
-
-            const filteredInstance = await this.readControlFilterInstance(instanceFound, ...readControlMethodParameters);
-            return filteredInstance ? filteredInstance : null;
         }
-        // If this is a non-discriminated super class, we may need to check this classmodel's collection as well,
-        //  as well as the subclasses collections.
-        if (isSuperClass && !discriminated) {
-            let promises = [];
 
-            // If this is a concrete super class, we need to check this ClassModel's own collection.
-            if (concrete){
-                const documentFound = await db.findOne(this.collection, queryFilter);
-                if (documentFound) {
-                    let instanceFound = new Instance(this, documentFound);
+        delete queryFilter.__t;
 
-                    const filteredInstance = await this.readControlFilterInstance(instanceFound, ...readControlMethodParameters)
-                    return filteredInstance ? filteredInstance : null;
-                }
-            }
+        const promises = [];
+        // Call findOne on our subclasses as well.
+        for (let subClass of subClassesWithDifferentCollections)
+            promises.push(subClass.findOne(queryFilter, ...readControlMethodParameters));
 
-            // Call findOne on our subclasses as well.
-            for (let subClass of subClasses)
-                promises.push(subClass.findOne(queryFilter));
-
-            return ClassModel.firstNonNullPromiseResolution(promises);
-        }
+        return ClassModel.firstNonNullPromiseResolution(promises);
     }
 
     /* Finds an instance of this ClassModel with the given id in the database. 
@@ -502,35 +435,12 @@ class ClassModel {
         }
 
         if (this.isSuperClass()) {
-            if (this.discriminated) {
-                let instancesByClass = {};
-                instancesByClass[this.className] = [];
-    
-                for (let instance of instanceSet)
-                    if (instance.__t)
-                        if (!instancesByClass[instance.__t])
-                            instancesByClass[instance.__t] = [instance];
-                        else
-                            instancesByClass[instance.__t].push(instance);
-                    else 
-                        instancesByClass[this.className].push(instance);
-    
-                for (let className in instancesByClass) {
-                    if (className !== this.className) {
-                        const subClassModel = AllClassModels[className];
-                        const rejectedSubClassInstances = await subClassModel.evaluateCrudControlMethods(new InstanceSet(subClassModel, instancesByClass[className]), controlMethods, ...methodParameters);
-                        rejectedInstances.addInstances(rejectedSubClassInstances);
-                    }
-                }
-            }
-            else if (this.subClasses.length) {
-                for (let subClass of this.subClasses) {
-                    let instancesOfSubClass = instanceSet.filterForClassModel(subClass);
-    
-                    if (!instancesOfSubClass.isEmpty()) {
-                        const rejectedSubClassInstances = await subClass.evaluateCrudControlMethods(instancesOfSubClass, controlMethods, ...methodParameters);
-                        rejectedInstances.addFromIterable(rejectedSubClassInstances);
-                    }
+            for (let subClass of this.subClasses) {
+                let instancesOfSubClass = instanceSet.filterForClassModel(subClass);
+
+                if (!instancesOfSubClass.isEmpty()) {
+                    const rejectedSubClassInstances = await subClass.evaluateCrudControlMethods(instancesOfSubClass, controlMethods, ...methodParameters);
+                    rejectedInstances.addFromIterable(rejectedSubClassInstances);
                 }
             }
         }
@@ -623,10 +533,10 @@ class ClassModel {
 
     // Clear the collection. Never run in production! Only run in a test environment.
     async clear() {
-        if (this.abstract && !this.discriminated)
+        if (this.abstract && !this.discriminated())
             throw new Error('Cannot call clear() on an abstract, non-discriminated class. Class: ' + classModel.className);
 
-        if (this.discriminatorSuperClass) {
+        if (this.useSuperClassCollection) {
             return db.collection(this.collection).deleteMany({ __t: this.className });
         }
         else {

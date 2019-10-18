@@ -448,7 +448,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
 
         var DiscriminatedSuperClass = new ClassModel({
             className: "DiscriminatedSuperClass",
-            discriminated: true,
             attributes: [
                 {
                     name: 'name',
@@ -467,7 +466,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
 
         var AbstractDiscriminatedSuperClass = new ClassModel({
             className: "AbstractDiscriminatedSuperClass",
-            discriminated: true,
             abstract: true,
             attributes: [
                 {
@@ -548,9 +546,10 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             ],
         });   
 
-        var SubClassOfDiscriminatorSuperClass = new ClassModel({
-            className: 'SubClassOfDiscriminatorSuperClass',
-            discriminatorSuperClass: DiscriminatedSuperClass,
+        var SubClassOfDiscriminatedSuperClass = new ClassModel({
+            className: 'SubClassOfDiscriminatedSuperClass',
+            superClasses: [DiscriminatedSuperClass],
+            useSuperClassCollection: true,
             attributes: [
                 {
                     name: 'discriminatedBoolean',
@@ -565,7 +564,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
 
         var DiscriminatedSubClassOfSuperClass = new ClassModel({
             className: 'DiscriminatedSubClassOfSuperClass',
-            discriminated: true,
             superClasses: [SuperClass],
             attributes: [
                 {
@@ -581,7 +579,8 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
 
         var SubClassOfDiscriminatedSubClassOfSuperClass = new ClassModel({
             className: 'SubClassOfDiscriminatedSubClassOfSuperClass',
-            discriminatorSuperClass: DiscriminatedSubClassOfSuperClass,
+            superClasses: [DiscriminatedSubClassOfSuperClass],
+            useSuperClassCollection: true,
             attributes: [
                 {
                     name: 'subDiscriminatedBoolean',
@@ -729,7 +728,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         // it's super classes createfilters, than an instance of this class will be returned by createFilter().
         var CreateControlledDiscriminatedSuperClass = new ClassModel({
             className: 'CreateControlledDiscriminatedSuperClass',
-            discriminated: true,
             superClasses: [CreateControlledSubClassOfCreateControlledSuperClass],
             attributes: [
                 {
@@ -748,7 +746,8 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         // it's super classes createfilters, than an instance of this class will be returned by createFilter().
         var CreateControlledSubClassOfCreateControlledDiscriminatedSuperClass = new ClassModel({
             className: 'CreateControlledSubClassOfCreateControlledDiscriminatedSuperClass',
-            discriminatorSuperClass: CreateControlledDiscriminatedSuperClass,
+            superClasses: [CreateControlledDiscriminatedSuperClass],
+            useSuperClassCollection: true,
             attributes: [
                 {
                     name: 'number',
@@ -835,7 +834,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         // it's super classes readfilters, than an instance of this class will be returned by readFilter().
         var ReadControlledDiscriminatedSuperClass = new ClassModel({
             className: 'ReadControlledDiscriminatedSuperClass',
-            discriminated: true,
             superClasses: [ReadControlledSubClassOfReadControlledSuperClass],
             attributes: [
                 {
@@ -854,7 +852,8 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         // it's super classes readfilters, than an instance of this class will be returned by readFilter().
         var ReadControlledSubClassOfReadControlledDiscriminatedSuperClass = new ClassModel({
             className: 'ReadControlledSubClassOfReadControlledDiscriminatedSuperClass',
-            discriminatorSuperClass: ReadControlledDiscriminatedSuperClass,
+            superClasses: [ReadControlledDiscriminatedSuperClass],
+            useSuperClassCollection: true,
             attributes: [
                 {
                     name: 'number',
@@ -975,7 +974,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         // it's super classes updatefilters, than an instance of this class will be returned by updateFilter().
         var UpdateControlledDiscriminatedSuperClass = new ClassModel({
             className: 'UpdateControlledDiscriminatedSuperClass',
-            discriminated: true,
             superClasses: [UpdateControlledSubClassOfUpdateControlledSuperClass],
             attributes: [
                 {
@@ -994,7 +992,8 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         // it's super classes updatefilters, than an instance of this class will be returned by updateFilter().
         var UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass = new ClassModel({
             className: 'UpdateControlledSubClassOfUpdateControlledDiscriminatedSuperClass',
-            discriminatorSuperClass: UpdateControlledDiscriminatedSuperClass,
+            superClasses: [UpdateControlledDiscriminatedSuperClass],
+            useSuperClassCollection: true,
             attributes: [
                 {
                     name: 'number',
@@ -1087,7 +1086,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         // it's super classes deletefilters, than an instance of this class will be returned by deleteFilter().
         var DeleteControlledDiscriminatedSuperClass = new ClassModel({
             className: 'DeleteControlledDiscriminatedSuperClass',
-            discriminated: true,
             superClasses: [DeleteControlledSubClassOfDeleteControlledSuperClass],
             attributes: [
                 {
@@ -1106,7 +1104,8 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         // it's super classes deletefilters, than an instance of this class will be returned by deleteFilter().
         var DeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClass = new ClassModel({
             className: 'DeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClass',
-            discriminatorSuperClass: DeleteControlledDiscriminatedSuperClass,
+            superClasses: [DeleteControlledDiscriminatedSuperClass],
+            useSuperClassCollection: true,
             attributes: [
                 {
                     name: 'number',
@@ -1186,7 +1185,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         var ValidationDiscriminatedSuperClass = new ClassModel({
             className: 'ValidationDiscriminatedSuperClass',
             superClasses: [ValidationSuperClass],
-            discriminated: true,
             attributes: [
                 {
                     name: 'boolean',
@@ -1205,7 +1203,8 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
 
         var SubClassOfValidationDiscriminatedSuperClass = new ClassModel({
             className: 'SubClassOfValidationDiscriminatedSuperClass',
-            discriminatorSuperClass: ValidationDiscriminatedSuperClass,
+            superClasses: [ValidationDiscriminatedSuperClass],
+            useSuperClassCollection: true,
             attributes: [
                 {
                     name: 'boolean2',
@@ -1276,7 +1275,7 @@ module.exports = {
     SubClassOfAbstractSuperClass,
     AbstractSubClassOfSuperClass,
     SubClassOfMultipleSuperClasses,
-    SubClassOfDiscriminatorSuperClass,
+    SubClassOfDiscriminatedSuperClass,
     DiscriminatedSubClassOfSuperClass,
     SubClassOfDiscriminatedSubClassOfSuperClass,
     SubClassOfSubClassOfSuperClass,

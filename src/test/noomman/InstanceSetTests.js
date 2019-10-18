@@ -2689,7 +2689,7 @@ describe('InstanceSet Tests', () => {
                 const instance6 = new Instance(SubClassOfAbstractSubClassOfSuperClass);
                 const instances = [instance1, instance2, instance3, instance4, instance5, instance6];
                 const instanceSet = new InstanceSet(SuperClass, instances);
-                await instanceSet.save();                
+                await instanceSet.save();
                 await instanceSet.delete();
 
                 const instancesFound = await SuperClass.find({ _id: { $in: instanceSet.getInstanceIds() } });

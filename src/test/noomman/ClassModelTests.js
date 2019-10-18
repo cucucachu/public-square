@@ -34,7 +34,7 @@ const testForErrorAsync = TestingFunctions.testForErrorAsync;
     var SubClassOfAbstractSuperClass = TestClassModels.SubClassOfAbstractSuperClass;
     var AbstractSubClassOfSuperClass = TestClassModels.AbstractSubClassOfSuperClass;
     var SubClassOfMultipleSuperClasses = TestClassModels.SubClassOfMultipleSuperClasses;
-    var SubClassOfDiscriminatorSuperClass = TestClassModels.SubClassOfDiscriminatorSuperClass;
+    var SubClassOfDiscriminatedSuperClass = TestClassModels.SubClassOfDiscriminatedSuperClass;
     var DiscriminatedSubClassOfSuperClass = TestClassModels.DiscriminatedSubClassOfSuperClass;
     var SubClassOfDiscriminatedSubClassOfSuperClass = TestClassModels.SubClassOfDiscriminatedSubClassOfSuperClass;
     var SubClassOfSubClassOfSuperClass = TestClassModels.SubClassOfSubClassOfSuperClass;
@@ -148,75 +148,47 @@ describe('Class Model Tests', () => {
                 });
             });
     
-            it('If discriminatorSuperClass is set, it can only be a single class.', () => {
-                testForError('ClassModel.constructor()', 'If discriminatorSuperClass is set, it can only be a single class.', () => {
+            it('If useSuperClassCollection is set, superClasses have only one class.', () => {
+                testForError('ClassModel.constructor()', 'If useSuperClassCollection is true, a single super class must be provided.', () => {
                     new ClassModel({
                         className: 'SubClassModel',
-                        discriminatorSuperClass: [SuperClass, DiscriminatedSuperClass]
+                        superClasses: [SuperClass, DiscriminatedSuperClass],
+                        useSuperClassCollection: true,
                     })
                 });
             });
     
-            it('A ClassModel cannot have both superClasses and discriminatorSuperClass.', () => {
-                testForError('ClassModel.constructor()', 'A ClassModel cannot have both superClasses and discriminatorSuperClass.', () => {
+            it('If useSuperClassCollection is set, superClasses must be given.', () => {
+                testForError('ClassModel.constructor()', 'If useSuperClassCollection is true, a single super class must be provided.', () => {
                     new ClassModel({
                         className: 'SubClassModel',
-                        superClasses: [SuperClass],
-                        discriminatorSuperClass: DiscriminatedSuperClass
-                    });
+                        useSuperClassCollection: true,
+                    })
                 });
             });
     
-            it('A ClassModel cannot have both superClasses and discriminatorSuperClass.', () => {
-                testForError('ClassModel.constructor()', 'A ClassModel cannot have both superClasses and discriminatorSuperClass.', () => {
+            it('A sub class with useSuperClassCollection set to true cannot be abstract.', () => {
+                testForError('ClassModel.constructor()', 'If useSuperClassCollection is true, abstract cannot be true.', () => {
                     new ClassModel({
                         className: 'SubClassModel',
-                        superClasses: [SuperClass],
-                        discriminatorSuperClass: DiscriminatedSuperClass
-                    });
-                });
-            });
-    
-            it('If a class is used as a discriminatedSuperClass, that class must have its "discriminated" field set to true.', () => {
-                testForError('ClassModel.constructor()', 'If a class is used as a discriminatedSuperClass, that class must have its "discriminated" field set to true.', () => {
-                    new ClassModel({
-                        className: 'SubClassModel',
-                        discriminatorSuperClass: SuperClass
-                    });
-                });
-            });
-    
-            it('If a class is set as a superClass, that class cannot have its "discriminated" field set to true.', () => {
-                testForError('ClassModel.constructor()', 'If a class is set as a superClass, that class cannot have its "discriminated" field set to true.', () => {
-                    new ClassModel({
-                        className: 'SubClassModel',
-                        superClasses: [DiscriminatedSuperClass]
+                        abstract: true,
+                        superClasses: [DiscriminatedSuperClass],
+                        useSuperClassCollection: true,
                     });
                 });
             });  
     
-            it('A discriminator sub class cannot be abstract.', () => {
-                testForError('ClassModel.constructor()', 'A discriminator sub class cannot be abstract.', () => {
+            it('A sub class of a class using super class collection cannot have a subclass.', () => {
+                testForError('ClassModel.constructor()', 'You cannot create a sub class of a class which has useSuperClassCollection set to true.', () => {
                     new ClassModel({
                         className: 'SubClassModel',
-                        discriminatorSuperClass: DiscriminatedSuperClass,
-                        abstract: true
-                    });
-                });
-            });  
-    
-            it('A sub class of a discriminated super class cannot be discriminated.', () => {
-                testForError('ClassModel.constructor()', 'A sub class of a discriminated super class cannot be discriminated.', () => {
-                    new ClassModel({
-                        className: 'SubClassModel',
-                        discriminatorSuperClass: DiscriminatedSuperClass,
-                        discriminated: true
+                        superClasses: [SubClassOfDiscriminatedSuperClass],
                     });
                 });
             });  
     
             it('Sub class schema cannot contain the same field names as a super class schema.', () => {
-                try {
+                testForError('ClassModel.contructor()', 'Sub class schema cannot contain the same attribute names as a super class schema.', () => {
                     new ClassModel({
                         className: 'SubClassModel',
                         superClasses: [SuperClass],
@@ -227,23 +199,35 @@ describe('Class Model Tests', () => {
                             }
                         ],
                     });
-                }
-                catch(error) {
-                    if (error.message == 'Sub class schema cannot contain the same attribute names as a super class schema.')
-                        return true;
-                    else 
-                        throw new Error(error.message);
-                }
+                });
+            });  
     
-                throw new Error('Constructor should have thrown an error: Sub class schema cannot contain the same field names as a super class schema.');
+            it('Sub class schema cannot contain the same field names as a super class schema.', () => {
+                testForError('ClassModel.contructor()', 'Sub class schema cannot contain the same attribute names as a super class schema.', () => {
+                    new ClassModel({
+                        className: 'SubClassModel',
+                        superClasses: [DiscriminatedSuperClass],
+                        useSuperClassCollection: true,
+                        attributes: [
+                            {
+                                name: 'boolean',
+                                type: Boolean,
+                            }
+                        ],
+                    });
+                });
             });  
     
             it('If a sub class is created, it is pushed to the super class\'s "subClasses" array.', () => {
-    
                 if (SuperClass.subClasses.length == 0)
                     throw new Error('SuperClass.subClasses array has no entries in it.');
                 if (!SuperClass.subClasses.includes(SubClassOfSuperClass)) 
                     throw new Error('SuperClass.subClasses does not contain sub class.');
+                
+                if (DiscriminatedSuperClass.subClasses.length == 0)
+                    throw new Error('DiscriminatedSuperClass.subClasses array has no entries in it.');
+                if (!DiscriminatedSuperClass.subClasses.includes(SubClassOfDiscriminatedSuperClass)) 
+                    throw new Error('DiscriminatedSuperClass.subClasses does not contain sub class.');
     
                 return true;
             });
@@ -328,25 +312,18 @@ describe('Class Model Tests', () => {
             });
     
             it('A class cannot be a sub class of a sub class of a discriminated class.', () => {
-                try {
+                testForError('ClassModel.constructor', 'You cannot create a sub class of a class which has useSuperClassCollection set to true.', () => {
                     new ClassModel({
                         className: 'SubClassModel',
-                        superClasses: [SubClassOfDiscriminatorSuperClass]
+                        superClasses: [SubClassOfDiscriminatedSuperClass]
                     });
-                }
-                catch(error) {
-                    if (error.message == 'A class cannot be a sub class of a sub class of a discriminated class.')
-                        return true;
-                    else 
-                        throw new Error(error.message);
-                }
-    
-                throw new Error('Constructor should have thrown an error: A class cannot be a sub class of a sub class of a discriminated class.');
+
+                });
             });
     
-            it('An abstract, non-discriminated class should have no Model.', () => {
-                if (AbstractSuperClass.Model)
-                    throw new Error('An abstract, non-discriminated class should have no Model.');
+            it.skip('An abstract, non-discriminated class should have no collection.', () => {
+                if (AbstractSuperClass.collection);
+                    throw new Error('An abstract class should not have a collection.');
             });
 
         });
@@ -431,7 +408,7 @@ describe('Class Model Tests', () => {
                     boolean: false,
                 }
 
-                await SubClassOfDiscriminatorSuperClass.insertOne(document);
+                await SubClassOfDiscriminatedSuperClass.insertOne(document);
 
                 const found = await database.findById(DiscriminatedSuperClass.collection, id);
 
@@ -490,7 +467,7 @@ describe('Class Model Tests', () => {
                     boolean: false,
                 }
 
-                await SubClassOfDiscriminatorSuperClass.insertMany([document1, document2]);
+                await SubClassOfDiscriminatedSuperClass.insertMany([document1, document2]);
 
                 const found = await database.find(DiscriminatedSuperClass.collection, {
                     _id: {
@@ -537,9 +514,9 @@ describe('Class Model Tests', () => {
                     boolean: false,
                 }
 
-                await SubClassOfDiscriminatorSuperClass.insertOne(document);
+                await SubClassOfDiscriminatedSuperClass.insertOne(document);
                 document.boolean = true;
-                await SubClassOfDiscriminatorSuperClass.update(document);
+                await SubClassOfDiscriminatedSuperClass.update(document);
 
                 const found = await database.findById(DiscriminatedSuperClass.collection, id);
 
@@ -561,7 +538,7 @@ describe('Class Model Tests', () => {
             var instanceOfSuperClass = new Instance(SuperClass);
             var instanceOfSubClassOfSuperClass = new Instance(SubClassOfSuperClass);
             var instanceOfSubClassOfAbstractSuperClass = new Instance(SubClassOfAbstractSuperClass);
-            var instanceOfSubClassOfDiscriminatorSuperClass = new Instance(SubClassOfDiscriminatorSuperClass);
+            var instanceOfSubClassOfDiscriminatedSuperClass = new Instance(SubClassOfDiscriminatedSuperClass);
             var instanceOfSubClassOfDiscriminatedSubClassOfSuperClass = new Instance(SubClassOfDiscriminatedSubClassOfSuperClass);
             var instanceOfSubClassOfSubClassOfSuperClass = new Instance(SubClassOfSubClassOfSuperClass);
             var instanceOfSubClassOfAbstractSubClassOfSuperClass = new Instance(SubClassOfAbstractSubClassOfSuperClass);
@@ -571,7 +548,7 @@ describe('Class Model Tests', () => {
             instanceOfSuperClass.name = 'instanceOfSuperClass';
             instanceOfSubClassOfSuperClass.name = 'instanceOfSubClassOfSuperClass';
             instanceOfSubClassOfAbstractSuperClass.name = 'instanceOfSubClassOfAbstractSuperClass';
-            instanceOfSubClassOfDiscriminatorSuperClass.name = 'instanceOfSubClassOfDiscriminatorSuperClass';
+            instanceOfSubClassOfDiscriminatedSuperClass.name = 'instanceOfSubClassOfDiscriminatedSuperClass';
             instanceOfSubClassOfDiscriminatedSubClassOfSuperClass.name = 'instanceOfSubClassOfDiscriminatedSubClassOfSuperClass';
             instanceOfSubClassOfSubClassOfSuperClass.name = 'instanceOfSubClassOfSubClassOfSuperClass';
             instanceOfSubClassOfAbstractSubClassOfSuperClass.name = 'instanceOfSubClassOfAbstractSubClassOfSuperClass';
@@ -583,7 +560,7 @@ describe('Class Model Tests', () => {
                 instanceOfDiscriminatedSuperClass.save(),
                 instanceOfSuperClass.save(),
                 instanceOfSubClassOfSuperClass.save(),
-                instanceOfSubClassOfDiscriminatorSuperClass.save(),
+                instanceOfSubClassOfDiscriminatedSuperClass.save(),
                 instanceOfSubClassOfAbstractSuperClass.save(),
                 instanceOfSubClassOfDiscriminatedSubClassOfSuperClass.save(),
                 instanceOfSubClassOfSubClassOfSuperClass.save(),
@@ -597,7 +574,7 @@ describe('Class Model Tests', () => {
                 DiscriminatedSuperClass.clear(),
                 SuperClass.clear(),
                 SubClassOfSuperClass.clear(),
-                SubClassOfDiscriminatorSuperClass.clear(),
+                SubClassOfDiscriminatedSuperClass.clear(),
                 SubClassOfAbstractSuperClass.clear(),
                 AllFieldsRequiredClass.clear(),
                 DiscriminatedSubClassOfSuperClass.clear(),
@@ -628,11 +605,11 @@ describe('Class Model Tests', () => {
                 });
 
                 it('An instance of a concrete discriminated class can be found.', async () => {
-                    const classToCallFindOneOn = SubClassOfDiscriminatorSuperClass;
-                    const instanceToFind = instanceOfSubClassOfDiscriminatorSuperClass;
+                    const classToCallFindOneOn = SubClassOfDiscriminatedSuperClass;
+                    const instanceToFind = instanceOfSubClassOfDiscriminatedSuperClass;
 
                     const filter = {
-                        name: 'instanceOfSubClassOfDiscriminatorSuperClass'
+                        name: 'instanceOfSubClassOfDiscriminatedSuperClass'
                     }
 
                     const instanceFound = await classToCallFindOneOn.findOne(filter);
@@ -684,10 +661,10 @@ describe('Class Model Tests', () => {
 
                 it('An instance of a sub class of a discrimintated super class can be found from the super class.', async () => {
                     const classToCallFindOneOn = DiscriminatedSuperClass;
-                    const instanceToFind = instanceOfSubClassOfDiscriminatorSuperClass;
+                    const instanceToFind = instanceOfSubClassOfDiscriminatedSuperClass;
 
                     const filter = {
-                        name: 'instanceOfSubClassOfDiscriminatorSuperClass'
+                        name: 'instanceOfSubClassOfDiscriminatedSuperClass'
                     }
 
                     const instanceFound = await classToCallFindOneOn.findOne(filter);
@@ -811,8 +788,8 @@ describe('Class Model Tests', () => {
                 });
 
                 it('An instance of a concrete discriminated class can be found.', async () => {
-                    const classToCallFindInstanceByIdOn = SubClassOfDiscriminatorSuperClass;
-                    const instanceToFind = instanceOfSubClassOfDiscriminatorSuperClass;
+                    const classToCallFindInstanceByIdOn = SubClassOfDiscriminatedSuperClass;
+                    const instanceToFind = instanceOfSubClassOfDiscriminatedSuperClass;
 
                     const instanceFound = await classToCallFindInstanceByIdOn.findById(instanceToFind._id);
 
@@ -855,7 +832,7 @@ describe('Class Model Tests', () => {
 
                 it('An instance of a sub class of a discrimintated super class can be found from the super class.', async () => {
                     const classToCallFindInstanceByIdOn = DiscriminatedSuperClass;
-                    const instanceToFind = instanceOfSubClassOfDiscriminatorSuperClass;
+                    const instanceToFind = instanceOfSubClassOfDiscriminatedSuperClass;
 
                     const instanceFound = await classToCallFindInstanceByIdOn.findById(instanceToFind._id);
 
@@ -962,13 +939,13 @@ describe('Class Model Tests', () => {
                     });
         
                     it('An instance of a concrete discriminated class can be found.', async () => {
-                        const classToCallFindOn = SubClassOfDiscriminatorSuperClass;
-                        const classOfInstance = SubClassOfDiscriminatorSuperClass;
-                        const instanceToFind = instanceOfSubClassOfDiscriminatorSuperClass;
+                        const classToCallFindOn = SubClassOfDiscriminatedSuperClass;
+                        const classOfInstance = SubClassOfDiscriminatedSuperClass;
+                        const instanceToFind = instanceOfSubClassOfDiscriminatedSuperClass;
                         const expectedInstances = new InstanceSet(classOfInstance, [instanceToFind]);
     
                         const filter = {
-                            name: 'instanceOfSubClassOfDiscriminatorSuperClass'
+                            name: 'instanceOfSubClassOfDiscriminatedSuperClass'
                         }
     
                         const instancesFound = await classToCallFindOn.find(filter);
@@ -1015,11 +992,11 @@ describe('Class Model Tests', () => {
         
                     it('An instance of a sub class of a discrimintated super class can be from the super class.', async () => {
                         const classToCallFindOn = DiscriminatedSuperClass;
-                        const instanceToFind = instanceOfSubClassOfDiscriminatorSuperClass;
+                        const instanceToFind = instanceOfSubClassOfDiscriminatedSuperClass;
                         const expectedInstances = new InstanceSet(classToCallFindOn, [instanceToFind]);
     
                         const filter = {
-                            name: 'instanceOfSubClassOfDiscriminatorSuperClass'
+                            name: 'instanceOfSubClassOfDiscriminatedSuperClass'
                         }
     
                         const instancesFound = await classToCallFindOn.find(filter);
