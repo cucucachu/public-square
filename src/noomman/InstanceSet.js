@@ -7,6 +7,7 @@ class InstanceSet extends SuperSet {
 
     constructor(classModel, instances) {
         InstanceSet.constructorValidations(classModel, instances);
+        
         super(instances);
         this.classModel = classModel;
     }
@@ -41,6 +42,9 @@ class InstanceSet extends SuperSet {
         if (this.classModel)
             InstanceSet.addInstancesValidations(this.classModel, [instance]);
 
+        if (this.hasInstance(instance))
+            return;
+
         super.add(instance);
     }
 
@@ -49,14 +53,25 @@ class InstanceSet extends SuperSet {
     }
 
     addInstances(instances) {
-        //Check if iterable is really iterable
         if (!instances)
             return;
 
         InstanceSet.addInstancesValidations(this.classModel, instances);
 
         for (const instance of instances)
-            super.add(instance);
+            this.add(instance);
+    }
+
+    remove(instance) {
+        if (!instance || !(instance instanceof Instance))
+            return;
+
+        for (const instanceToCheck of this) {
+            if (instanceToCheck._id.equals(instance._id)) {
+                super.remove(instanceToCheck);
+                break;
+            }
+        }
     }
 
     // Override super method.
@@ -75,6 +90,14 @@ class InstanceSet extends SuperSet {
         instances.forEach(instance => this.remove(instance));
     }
 
+    hasInstance(instanceToCheck) {
+        for (const instance of this) {
+            if (instance._id.equals(instanceToCheck._id))
+                return true;
+        }
+        return false;
+    }
+
     // Set Math
     equals(instanceSet) {
         if (!(instanceSet instanceof InstanceSet))
@@ -86,12 +109,9 @@ class InstanceSet extends SuperSet {
         if (this.size == 0 && instanceSet.size == 0)
             return true;
 
-        const myIds = this.getInstanceIds();
-        const otherIds = instanceSet.getInstanceIds();
-
-        for (const id of otherIds) {
-            if (!(myIds.includes(id)))
-                return false;
+        for (const instance of this) {
+            if (!instanceSet.hasInstance(instance))
+                return false
         }
 
         return true;
@@ -101,7 +121,7 @@ class InstanceSet extends SuperSet {
         if (!(instanceSet instanceof InstanceSet))
             throw new Error('InstanceSet.difference() argument is not an InstanceSet.');
 
-        return new InstanceSet(this.classModel, [...this].filter(x => !instanceSet.has(x)));
+        return new InstanceSet(this.classModel, [...this].filter(x => !instanceSet.hasInstance(x)));
     }
 
     union(instanceSet) {
@@ -127,7 +147,7 @@ class InstanceSet extends SuperSet {
         if (instanceSet.size == 0 || this.size == 0)
             return new InstanceSet(this.classModel);
         
-        return new InstanceSet(this.classModel, [...this].filter(x => instanceSet.has(x)));
+        return new InstanceSet(this.classModel, [...this].filter(x => instanceSet.hasInstance(x)));
     }
 
     symmetricDifference(instanceSet) {

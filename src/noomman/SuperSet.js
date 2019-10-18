@@ -99,8 +99,8 @@ class SuperSet extends Set {
         if (!(typeof iterable[Symbol.iterator] === 'function'))
             throw new Error('SuperSet.addFromIterable() called with an argument which is not iterable.');
 
-        for (const instance of iterable)
-            this.add(instance);
+        for (const item of iterable)
+            this.add(item);
     }
 
     remove(element) {
