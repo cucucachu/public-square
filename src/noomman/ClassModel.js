@@ -323,6 +323,11 @@ class ClassModel {
      * Returns a promise, which will resolve with the instance with the given query filter if it can be found, otherwise null.
      */
     async find(queryFilter, ...readControlMethodParameters) {
+        const unfiltered = await this.pureFind(queryFilter);
+        return this.readControlFilter(unfiltered, ...readControlMethodParameters);
+    }
+
+    async pureFind(queryFilter) {
         const foundInstances = new InstanceSet(this);
 
         const subClassesWithDifferentCollections = this.subClasses ? this.subClasses.filter(subClass => !subClass.useSuperClassCollection) : [];
@@ -342,15 +347,15 @@ class ClassModel {
                     return new Instance(AllClassModels[document.__t], document);
                 return new Instance(this, document);
             }));
-            const instancesFoundInThisCollectionFiltered = await this.readControlFilter(instancesFoundInThisCollection, ...readControlMethodParameters)
-            foundInstances.addInstances(instancesFoundInThisCollectionFiltered);
+            //const instancesFoundInThisCollectionFiltered = await this.readControlFilter(instancesFoundInThisCollection, ...readControlMethodParameters)
+            foundInstances.addInstances(instancesFoundInThisCollection);
         }
         
         const promises = [];
   
         for (const subClass of subClassesWithDifferentCollections) {
             delete queryFilter.__t;
-            promises.push(subClass.find(queryFilter, ...readControlMethodParameters));
+            promises.push(subClass.pureFind(queryFilter));
         }
 
         const instancesFoundOfSubClasses = await this.allPromiseResoltionsInstanceSets(promises);
@@ -366,6 +371,12 @@ class ClassModel {
      * Returns a promise, which will resolve with the instance with the given query filter if it can be found, otherwise null.
      */
     async findOne(queryFilter, ...readControlMethodParameters) {
+        const unfiltered = await this.pureFindOne(queryFilter);
+        return unfiltered === null ? null : this.readControlFilterInstance(unfiltered, ...readControlMethodParameters);
+    }
+
+
+    async pureFindOne(queryFilter) {
         const subClassesWithDifferentCollections = this.subClasses ? this.subClasses.filter(subClass => !subClass.useSuperClassCollection) : [];
 
         // If this class is a non-discriminated abstract class and it doesn't have any sub classes, throw an error.
@@ -380,13 +391,10 @@ class ClassModel {
             const documentFoundInThisCollection = await db.findOne(this.collection, queryFilter);
 
             if (documentFoundInThisCollection !== null) {
-                let instanceFoundInThisCollection;
                 if (documentFoundInThisCollection.__t)
-                    instanceFoundInThisCollection = new Instance(AllClassModels[documentFoundInThisCollection.__t], documentFoundInThisCollection);
+                    return new Instance(AllClassModels[documentFoundInThisCollection.__t], documentFoundInThisCollection);
                 else 
-                    instanceFoundInThisCollection = new Instance(this, documentFoundInThisCollection);
-    
-                    return this.readControlFilterInstance(instanceFoundInThisCollection, ...readControlMethodParameters)
+                    return new Instance(this, documentFoundInThisCollection);
             }
 
             if (subClassesWithDifferentCollections.length == 0)
@@ -398,7 +406,7 @@ class ClassModel {
         const promises = [];
         // Call findOne on our subclasses as well.
         for (let subClass of subClassesWithDifferentCollections)
-            promises.push(subClass.findOne(queryFilter, ...readControlMethodParameters));
+            promises.push(subClass.pureFindOne(queryFilter));
 
         return ClassModel.firstNonNullPromiseResolution(promises);
     }
@@ -410,6 +418,10 @@ class ClassModel {
      */
     async findById(id, ...readControlMethodParameters) {
         return this.findOne({_id: id}, ...readControlMethodParameters);
+    }
+
+    async pureFindById(id) {
+        return this.pureFindOne({_id: id});
     }
 
     // Crud Control Methods
