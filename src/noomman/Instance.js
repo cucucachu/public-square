@@ -167,7 +167,7 @@ class Instance {
      * @return Promise which when resolved returns the related instance if relationship is singular, or an Array of the related 
      *           instances if the relationship is non-singular.
      */ 
-    async walk(relationshipName, filter=null, ...accessControlMethodParameters) {
+    async walk(relationshipName) {
         if (!relationshipName)
             throw new Error('instance.walk() called with insufficient arguments. Should be walk(relationshipName, <optional>filter).');
         
@@ -176,67 +176,45 @@ class Instance {
         
         if (!this.classModel.attributes.map(attribute => attribute.name).includes(relationshipName) && !this.classModel.relationships.map(relationship => relationship.name).includes(relationshipName))
             throw new Error('instance.walk(): First argument needs to be a relationship property in ' + this.classModel.className + '\'s schema.');
-    
-        // if (!this.classModel.propertyIsARelationship(relationshipName))
-        //     throw new Error('instance.walk(): property "' + relationshipName + '" is not a relationship.');
 
         if (!this.classModel.relationships.map(relationship => relationship.name).includes(relationshipName))
             throw new Error('instance.walk(): property "' + relationshipName + '" is not a relationship.');
-        
-        if (filter && typeof(filter) !== "object")
-            throw new Error('instance.walk(): Second argument needs to be an object.');
     
         
         const relationshipDefinition = this.classModel.relationships.filter(relationship => relationship.name ===relationshipName)[0];
         const relatedClass = this.classModel.getRelatedClassModel(relationshipName);
-        const noFilter = filter ? false : true;
-        filter = filter ? filter : {}
 
-            // If relationship is to a singular instance, use findOne()
+        // If relationship is to a singular instance, use findOne()
         if (relationshipDefinition.singular) {
             if (this[relationshipName] == null) {
                 return null;
             }
             else {
-                if (this[relationshipName] instanceof Instance && noFilter) {
-                    return this[relationshipName];
-                }
-                else {
-                    const id = this[relationshipName] instanceof Instance ? this[relationshipName]._id : this[relationshipName];
-                    Object.assign(filter, {
-                        _id: id,
-                    });
-                    const relatedInstance = await relatedClass.findOne(filter, ...accessControlMethodParameters);
-                    
-                    if (noFilter)
-                        this[relationshipName] = relatedInstance;
-    
-                    return relatedInstance;
-                }
+                if (!(this[relationshipName] instanceof Instance))
+                    this[relationshipName] = await relatedClass.pureFindById(this[relationshipName]);
+
+                return this[relationshipName];
             }
         }
         // If nonsingular, use find()
         else {
-            if (this[relationshipName] == null || this[relationshipName].length == 0) {
+            if (this[relationshipName] == null || (Array.isArray(this[relationshipName]) && this[relationshipName].length == 0)) {
                 return [];
             }
             else {
-                if (!Array.isArray(this[relationshipName]) && noFilter) {
-                    return this[relationshipName];
-                }
-                else {
-                    const ids = !Array.isArray(this[relationshipName]) ? this[relationshipName].getObjectIds() : this[relationshipName];
-                    Object.assign(filter, {
-                        _id: {$in: ids}
+                if (Array.isArray(this[relationshipName])) {
+                    this[relationshipName] = await relatedClass.pureFind({
+                        _id: {$in: this[relationshipName]}
                     });
-                    const relatedInstanceSet = await relatedClass.find(filter, ...accessControlMethodParameters);
-                    if (noFilter)
-                        this[relationshipName] = relatedInstanceSet;
-
-                    return relatedInstanceSet;
                 }
+                
+                return this[relationshipName];
             }
         }
+    }
+    
+    async readControlFilter(...readControlMethodParameters) {
+        return this.classModel.readControlFilterInstance(this, ...readControlMethodParameters);
     }
 
     // Validation Methods

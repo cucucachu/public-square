@@ -324,6 +324,10 @@ class InstanceSet extends SuperSet {
         return instancesFound.union(instancesAlreadyFound);
     }
 
+    async readControlFilter(...readControlMethodParameters) {
+        return this.classModel.readControlFilter(this, ...readControlMethodParameters);
+    }
+
     async delete(...deleteControlMethodParameters) {
         if (this.size == 0)
             return;
