@@ -98,6 +98,27 @@ class InstanceSet extends SuperSet {
         return false;
     }
 
+    getInstanceWithId(id) {
+        for (const instance of this) {
+            if (instance._id.equals(id))
+                return instance;
+        }
+        return null;
+    }
+
+    getInstancesWithIds(ids) {  
+        const instances = new InstanceSet(this.classModel); 
+        for (const id of ids) {
+            for (const instance of this) {
+                if (instance._id.equals(id)) {
+                    instances.add(instance);
+                    break;
+                }
+            }
+        }
+        return instances;
+    }
+
     // Set Math
     equals(instanceSet) {
         if (!(instanceSet instanceof InstanceSet))
@@ -226,7 +247,7 @@ class InstanceSet extends SuperSet {
         await Promise.all(promises);
     }
 
-    walkValidations(relationshipName, filter) {
+    walkValidations(relationshipName) {
         if (!relationshipName) 
             throw new Error('InstanceSet.walk() called without relationship.');
 
@@ -235,93 +256,74 @@ class InstanceSet extends SuperSet {
 
         if (!this.classModel.relationships.map(relationship => relationship.name).includes(relationshipName))
             throw new Error('InstanceSet.walk() called with an invalid relationship for ClassModel ' + this.classModel.className + '.');
-        
-        if (filter && typeof(filter) !== "object")
-            throw new Error('InstanceSet.walk() filter argument must be an object.');
     }
 
-    async walk(relationshipName, filter=null, ...accessControlMethodParameters) {
-        this.walkValidations(relationshipName, filter);
-
-        const relationshipDefinition = this.classModel.relationships.filter(relationship => relationship.name === relationshipName)[0];
-        const relatedClass = this.classModel.getRelatedClassModel(relationshipName);
-        const noFilter = filter ? false : true;
-        filter = filter ? filter : {};
-        let instanceIdsToFind;
-        const instancesAlreadyFound = new InstanceSet(relatedClass);
+    async walk(relationshipName) {
+        this.walkValidations(relationshipName);
 
         if(this.isEmpty())
             return new InstanceSet(relatedClass);
+        
+        const relationshipDefinition = this.classModel.relationships.filter(relationship => relationship.name ===relationshipName)[0];
+        const relatedClass = this.classModel.getRelatedClassModel(relationshipName);
+        const instanceIdsToFind = [];
+        const walkResult = new InstanceSet(relatedClass);
 
+        // Determine which instances we need to get from the database.
         if (relationshipDefinition.singular) {
-            if (noFilter) {
-                const populatedRelationships = this.map(instance => instance[relationshipName]).filter(instance => instance instanceof Instance);
-                instancesAlreadyFound.addInstances(populatedRelationships);
-                instanceIdsToFind = this.map(instance => instance[relationshipName]).filter(instanceOrId => instanceOrId !== null && !(instanceOrId instanceof Instance));
-                const instanceIdsAlreadyFound = instancesAlreadyFound.map(instance => instance.id);
-                instanceIdsToFind = instanceIdsToFind.filter(id => !instanceIdsAlreadyFound.includes(id.toHexString()));
-            }
-            else {
-                instanceIdsToFind = this.map(instance => instance[relationshipName]);
-                instanceIdsToFind = instanceIdsToFind.map(instanceOrId => {
-                    if (instanceOrId instanceof Instance) {
-                        return instanceOrId._id;
-                    }
-                    else {
-                        return instanceOrId;
-                    }
-                });
-                instanceIdsToFind = instanceIdsToFind.filter(id => id !== null);
+            for (const instance of this) {
+                if (!(instance[relationshipName] instanceof Instance) && !instanceIdsToFind.includes(instance[relationshipName])) {
+                    instanceIdsToFind.push(instance[relationshipName]);
+                }
             }
         }
         else {
-            if (noFilter) {
-                instanceIdsToFind = this
-                    .map(instance => instance[relationshipName])
-                    .filter(ids => {
-                         return (ids != null && Array.isArray(ids) && ids.length); 
-                        })
-    
-                if (instanceIdsToFind.length)
-                    instanceIdsToFind = instanceIdsToFind.reduce((acc, cur) => acc.concat(cur));
-    
-                let populatedRelationships = this.map(instance => instance[relationshipName]).filter(instanceSet => instanceSet instanceof InstanceSet && instanceSet.size);             
-                
-                if (populatedRelationships.length) {
-                    populatedRelationships = populatedRelationships.forEach(instanceSet => instancesAlreadyFound.addInstances(instanceSet));
+            for (const instance of this) {
+                if (!(instance[relationshipName] instanceof InstanceSet)) {
+                    if (instance[relationshipName].length == 0)
+                        continue;
+                    for (const id of instance[relationshipName]) {
+                        if (!instanceIdsToFind.includes(id)) {
+                            instanceIdsToFind.push(id);
+                        }
+                    }
                 }
-                const instanceIdsAlreadyFound = instancesAlreadyFound.map(instance => instance.id);
-                instanceIdsToFind = instanceIdsToFind.filter(id => !instanceIdsAlreadyFound.includes(id.toHexString()));
+            }
+        }
+
+        // If there are instances to find, retrieve them and populate instance relationships.
+        if (instanceIdsToFind.length) {
+            // Retrieve instances from database.
+            const instancesRetrieved = await relatedClass.pureFind({ _id: { $in: instanceIdsToFind } });
+    
+            // Populate individual instance relationships.
+            if (relationshipDefinition.singular) {
+                for (const instance of this) {
+                    if (!(instance[relationshipName] instanceof Instance) && instance[relationshipName] !== null) {
+                        instance[relationshipName] = instancesRetrieved.getInstanceWithId(instance[relationshipName]);
+                    }
+                }
             }
             else {
-                instanceIdsToFind = this.map(instance => instance[relationshipName]);
-                instanceIdsToFind = instanceIdsToFind.map(instanceSetOrIds => {
-                    if (instanceSetOrIds instanceof InstanceSet) {
-                        return instanceSetOrIds.getObjectIds();
+                for (const instance of this) {
+                    if (!(instance[relationshipName] instanceof InstanceSet) && instance[relationshipName].length !== 0) {
+                        instance[relationshipName] = instancesRetrieved.getInstancesWithIds(instance[relationshipName]);
                     }
-                    else {
-                        return instanceSetOrIds;
-                    }
-                });
-                instanceIdsToFind = instanceIdsToFind.filter(ids => Array.isArray(ids) && ids.length);
-                if (instanceIdsToFind.length)
-                    instanceIdsToFind = instanceIdsToFind.reduce((acc, cur) => acc.concat(cur));
+                }    
             }
         }
 
-        let instancesFound = new InstanceSet(relatedClass);
-
-        if (instanceIdsToFind.length) {
-            instanceIdsToFind =  [...(new Set(instanceIdsToFind))];
-    
-            Object.assign(filter, {
-                _id: {$in : instanceIdsToFind},
-            });
-
-            instancesFound = await relatedClass.find(filter, ...accessControlMethodParameters);
+        // Return combination of all instance relationships.
+        for (const instance of this) {
+            if (relationshipDefinition.singular) {
+                walkResult.add(instance[relationshipName]);
+            }
+            else {
+                walkResult.addInstances(instance[relationshipName]);
+            }
         }
 
-        return instancesFound.union(instancesAlreadyFound);
+        return walkResult;
     }
 
     async readControlFilter(...readControlMethodParameters) {

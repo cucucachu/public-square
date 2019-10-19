@@ -2350,16 +2350,6 @@ describe('InstanceSet Tests', () => {
     
                 });
     
-                it('Filter must be an object, if given.', async () => {
-                    const instanceSet = new InstanceSet(SingularRelationshipClass);
-                    const expectedErrorMessage = 'InstanceSet.walk() filter argument must be an object.';
-    
-                    await testForErrorAsync('InstanceSet.walk())', expectedErrorMessage, async () => {
-                        return instanceSet.walk('singularRelationship', 1);
-                    });
-    
-                });
-    
             });
     
             describe('Walking Relationships', () => {
@@ -2421,22 +2411,7 @@ describe('InstanceSet Tests', () => {
                             if (!expectedInstanceSet.equals(returnedInstanceSet))
                                 throw new Error('walk() did not return the correct InstanceSet.');
                         });
-            
-                        it('Walking a nonsingular relationship by calling walk() from the super class.', async () => {
-                            const instanceSet = new InstanceSet(NonSingularRelationshipClass, [
-                                instanceOfSubClassOfNonSingularRelationshipClass
-                            ]);
-                            const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
-                                instanceOfSubClassOfSingularRelationshipClassA
-                            ]);
-                            const filter = { boolean: true };
-            
-                            const returnedInstanceSet = await instanceSet.walk('nonSingularRelationship', filter);
-            
-                            if (!expectedInstanceSet.equals(returnedInstanceSet))
-                                throw new Error('walk() did not return the correct InstanceSet.');
-                        });
-        
+                    
                     });
         
                     describe('Walking Relationships On InstanceSets with Multiple Instances', () => {
@@ -2470,23 +2445,6 @@ describe('InstanceSet Tests', () => {
                                 instanceOfSubClassOfSingularRelationshipClassB
                             ]);
                             const returnedInstanceSet = await instanceSet.walk('nonSingularRelationship');
-            
-                            if (!expectedInstanceSet.equals(returnedInstanceSet))
-                                throw new Error('walk() did not return the correct InstanceSet.');
-                        });
-            
-                        it('Walking a non singular relationship by calling walk() from the super class with filtering.', async () => {
-                            const instanceSet = new InstanceSet(NonSingularRelationshipClass, [
-                                instanceOfNonSingularRelationshipClass,
-                                instanceOfSubClassOfNonSingularRelationshipClass
-                            ]);
-                            const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
-                                instanceOfSingularRelationshipClassA,
-                                instanceOfSubClassOfSingularRelationshipClassA,
-                            ]);
-                            const filter = { boolean: true };
-        
-                            const returnedInstanceSet = await instanceSet.walk('nonSingularRelationship', filter);
             
                             if (!expectedInstanceSet.equals(returnedInstanceSet))
                                 throw new Error('walk() did not return the correct InstanceSet.');
@@ -2531,22 +2489,6 @@ describe('InstanceSet Tests', () => {
                         if (!expectedInstanceSet.equals(returnedInstanceSet))
                             throw new Error('walk() did not return the correct InstanceSet.');
                     });
-        
-                    it('Walking a non singular relationship by calling walk() from the super class with filtering.', async () => {
-                        const instance1 = new Instance(NonSingularRelationshipClass, documentOfNonSingularRelationshipClass);
-                        const instance2 = new Instance(SubClassOfNonSingularRelationshipClass, documentOfSubClassOfNonSingularRelationshipClass);
-                        const instanceSet = new InstanceSet(NonSingularRelationshipClass, [instance1, instance2]);
-                        const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
-                            instanceOfSingularRelationshipClassA,
-                            instanceOfSubClassOfSingularRelationshipClassA,
-                        ]);
-                        const filter = { boolean: true };
-    
-                        const returnedInstanceSet = await instanceSet.walk('nonSingularRelationship', filter);
-        
-                        if (!expectedInstanceSet.equals(returnedInstanceSet))
-                            throw new Error('walk() did not return the correct InstanceSet.');
-                    });
 
                 });
 
@@ -2581,22 +2523,6 @@ describe('InstanceSet Tests', () => {
                             instanceOfSubClassOfSingularRelationshipClassB
                         ]);
                         const returnedInstanceSet = await instanceSet.walk('nonSingularRelationship');
-        
-                        if (!expectedInstanceSet.equals(returnedInstanceSet))
-                            throw new Error('walk() did not return the correct InstanceSet.');
-                    });
-        
-                    it('Walking a non singular relationship by calling walk() from the super class with filtering.', async () => {
-                        const instance1 = instanceOfNonSingularRelationshipClass;
-                        const instance2 = new Instance(SubClassOfNonSingularRelationshipClass, documentOfSubClassOfNonSingularRelationshipClass);
-                        const instanceSet = new InstanceSet(NonSingularRelationshipClass, [instance1, instance2]);
-                        const expectedInstanceSet = new InstanceSet(SingularRelationshipClass, [
-                            instanceOfSingularRelationshipClassA,
-                            instanceOfSubClassOfSingularRelationshipClassA,
-                        ]);
-                        const filter = { boolean: true };
-    
-                        const returnedInstanceSet = await instanceSet.walk('nonSingularRelationship', filter);
         
                         if (!expectedInstanceSet.equals(returnedInstanceSet))
                             throw new Error('walk() did not return the correct InstanceSet.');
