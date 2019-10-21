@@ -272,17 +272,17 @@ class InstanceSet extends SuperSet {
         // Determine which instances we need to get from the database.
         if (relationshipDefinition.singular) {
             for (const instance of this) {
-                if (!(instance[relationshipName] instanceof Instance) && !instanceIdsToFind.includes(instance[relationshipName])) {
-                    instanceIdsToFind.push(instance[relationshipName]);
+                if (!(instance['_' + relationshipName] instanceof Instance) && !instanceIdsToFind.includes(instance['_' + relationshipName])) {
+                    instanceIdsToFind.push(instance['_' + relationshipName]);
                 }
             }
         }
         else {
             for (const instance of this) {
-                if (!(instance[relationshipName] instanceof InstanceSet)) {
-                    if (instance[relationshipName].length == 0)
+                if (!(instance['_' + relationshipName] instanceof InstanceSet)) {
+                    if (instance['_' + relationshipName].length == 0)
                         continue;
-                    for (const id of instance[relationshipName]) {
+                    for (const id of instance['_' + relationshipName]) {
                         if (!instanceIdsToFind.includes(id)) {
                             instanceIdsToFind.push(id);
                         }
@@ -299,15 +299,15 @@ class InstanceSet extends SuperSet {
             // Populate individual instance relationships.
             if (relationshipDefinition.singular) {
                 for (const instance of this) {
-                    if (!(instance[relationshipName] instanceof Instance) && instance[relationshipName] !== null) {
-                        instance[relationshipName] = instancesRetrieved.getInstanceWithId(instance[relationshipName]);
+                    if (!(instance['_' + relationshipName] instanceof Instance) && instance['_' + relationshipName] !== null) {
+                        instance[relationshipName] = instancesRetrieved.getInstanceWithId(instance['_' + relationshipName]);
                     }
                 }
             }
             else {
                 for (const instance of this) {
-                    if (!(instance[relationshipName] instanceof InstanceSet) && instance[relationshipName].length !== 0) {
-                        instance[relationshipName] = instancesRetrieved.getInstancesWithIds(instance[relationshipName]);
+                    if (!(instance['_' + relationshipName] instanceof InstanceSet) && instance['_' + relationshipName].length !== 0) {
+                        instance[relationshipName] = instancesRetrieved.getInstancesWithIds(instance['_' + relationshipName]);
                     }
                 }    
             }
@@ -316,10 +316,10 @@ class InstanceSet extends SuperSet {
         // Return combination of all instance relationships.
         for (const instance of this) {
             if (relationshipDefinition.singular) {
-                walkResult.add(instance[relationshipName]);
+                walkResult.add(instance['_' + relationshipName]);
             }
             else {
-                walkResult.addInstances(instance[relationshipName]);
+                walkResult.addInstances(instance['_' + relationshipName]);
             }
         }
 

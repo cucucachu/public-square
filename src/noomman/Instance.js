@@ -80,7 +80,13 @@ class Instance {
             },
 
             get(trapTarget, key, receiver) {
-                if (documentProperties.includes(key))
+                if (classModel.relationships.map(relationship => relationship.name).includes(key))
+                    return receiver.walk(key);
+
+                if (classModel.relationships.map(relationship => '_' + relationship.name).includes(key))
+                    return trapTarget.currentState[key.slice(1)];
+
+                if (attributeNames.includes(key))
                     return trapTarget.currentState[key];
 
                 if (key === 'id')
@@ -150,14 +156,6 @@ class Instance {
                 this[key] = object[key];
         }
     }
-
-    // documentEquals(otherDocument) {
-    //     return this[doc] == otherDocument;
-    // }
-
-    // getDocumentProperty(propertyName) {
-    //     return this[doc][propertyName];
-    // }
     
     /* 
      * Walks a relationship from a given instance of this Class Model, returning the related instance or instances. 
@@ -186,29 +184,29 @@ class Instance {
 
         // If relationship is to a singular instance, use findOne()
         if (relationshipDefinition.singular) {
-            if (this[relationshipName] == null) {
+            if (this['_' + relationshipName] == null) {
                 return null;
             }
             else {
-                if (!(this[relationshipName] instanceof Instance))
-                    this[relationshipName] = await relatedClass.pureFindById(this[relationshipName]);
+                if (!(this['_' + relationshipName] instanceof Instance))
+                    this[relationshipName] = await relatedClass.pureFindById(this['_' + relationshipName]);
 
-                return this[relationshipName];
+                return this['_' + relationshipName];
             }
         }
         // If nonsingular, use find()
         else {
-            if (this[relationshipName] == null || (Array.isArray(this[relationshipName]) && this[relationshipName].length == 0)) {
+            if (this['_' + relationshipName] == null || (Array.isArray(this['_' + relationshipName]) && this['_' + relationshipName].length == 0)) {
                 return [];
             }
             else {
-                if (Array.isArray(this[relationshipName])) {
+                if (Array.isArray(this['_' + relationshipName])) {
                     this[relationshipName] = await relatedClass.pureFind({
-                        _id: {$in: this[relationshipName]}
+                        _id: {$in: this['_' + relationshipName]}
                     });
                 }
                 
-                return this[relationshipName];
+                return this['_' + relationshipName];
             }
         }
     }
@@ -229,6 +227,7 @@ class Instance {
      */
     propertyIsSet(propertyName) {
         const attribute = this.classModel.attributes.filter(attribute => attribute.name === propertyName);
+        const singularRelationship = this.classModel.relationships.filter(relationship => relationship.name === propertyName && relationship.singular);
         const nonSingularRelationship = this.classModel.relationships.filter(relationship => relationship.name === propertyName && !relationship.singular);
 
         if (attribute.length && attribute[0].list) {
@@ -237,9 +236,14 @@ class Instance {
             }
         }
         else if (nonSingularRelationship.length) {
-            if (Array.isArray(this[propertyName]) && this[propertyName].length === 0)
+            const value = this['_' + propertyName];
+            if (Array.isArray(value) && value.length === 0)
                 return false;
-            if (this[propertyName] !== null && this[propertyName].size === 0)
+            if (value !== null && value.size === 0)
+                return false;
+        }
+        else if (singularRelationship.length) {
+            if (this['_' + propertyName] === null)
                 return false;
         }
         else {

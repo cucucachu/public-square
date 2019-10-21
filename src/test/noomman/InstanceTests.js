@@ -1532,7 +1532,7 @@ describe('Instance Tests', () => {
 
                 describe('Singular Relationships', () => {
 
-                    it('Setting a singular relationship to an Instance.', () => {
+                    it('Setting a singular relationship to an Instance.', async () => {
                         const relationshipName = 'class1';
                         const value = new Instance(CompareClass1);
                         const document = {
@@ -1545,11 +1545,11 @@ describe('Instance Tests', () => {
                         if (!instance.currentState[relationshipName].equals(value))
                             throw new Error('instance.currentState' + relationshipName + ' not set.');
 
-                        if (!instance[relationshipName].equals(value))
+                        if (!(await instance[relationshipName]).equals(value))
                             throw new Error('instance.' + relationshipName + ' not set.');
                     });
 
-                    it('Setting a singular relationship to null.', () => {
+                    it('Setting a singular relationship to null.', async () => {
                         const relationshipName = 'class1';
                         const value = null;
                         const document = {
@@ -1562,12 +1562,11 @@ describe('Instance Tests', () => {
                         if (instance.currentState[relationshipName] !== null)
                             throw new Error('instance.currentState' + relationshipName + ' not set.');
 
-                        if (instance[relationshipName] !== null)
-                        throw new Error('instance.' + relationshipName + ' not set.');
-
+                        if ((await instance[relationshipName]) !== null)
+                            throw new Error('instance.' + relationshipName + ' not set.');
                     });
 
-                    it('Setting a singular relationship to undefined.', () => {
+                    it('Setting a singular relationship to undefined.', async () => {
                         const relationshipName = 'class1';
                         const value = undefined;
                         const document = {
@@ -1580,7 +1579,7 @@ describe('Instance Tests', () => {
                         if (instance.currentState[relationshipName] !== null)
                             throw new Error('instance.currentState' + relationshipName + ' not set.');
 
-                        if (instance[relationshipName] !== null)
+                        if ((await instance[relationshipName]) !== null)
                             throw new Error('instance.' + relationshipName + ' not set.');
                     });
 
@@ -1588,7 +1587,7 @@ describe('Instance Tests', () => {
 
                 describe('Non-Singular Relationships', () => {
 
-                    it('Setting a non-singular relationship to an InstanceSet.', () => {
+                    it('Setting a non-singular relationship to an InstanceSet.', async () => {
                         const relationshipName = 'class2s';
                         const value = new InstanceSet(CompareClass2, [new Instance(CompareClass2)]);
                         const document = {
@@ -1601,11 +1600,11 @@ describe('Instance Tests', () => {
                         if (!instance.currentState[relationshipName].equals(value))
                             throw new Error('instance.currentState' + relationshipName + ' not set.');
 
-                        if (!instance[relationshipName].equals(value))
+                        if (!(await instance[relationshipName]).equals(value))
                             throw new Error('instance.' + relationshipName + ' not set.');
                     });
 
-                    it('Setting a non-singular relationship to null.', () => {
+                    it('Setting a non-singular relationship to null.', async () => {
                         const relationshipName = 'class2s';
                         const value = null;
                         const document = {
@@ -1618,11 +1617,11 @@ describe('Instance Tests', () => {
                         if (!arraysEqual(instance.currentState[relationshipName], []))
                             throw new Error('instance.currentState' + relationshipName + ' not set.');
 
-                        if (!arraysEqual(instance[relationshipName], []))
+                        if (!arraysEqual((await instance[relationshipName]), []))
                             throw new Error('instance.' + relationshipName + ' not set.');
                     });
 
-                    it('Setting a non-singular relationship to undefined.', () => {
+                    it('Setting a non-singular relationship to undefined.', async () => {
                         const relationshipName = 'class2s';
                         const value = undefined;
                         const document = {
@@ -1635,7 +1634,7 @@ describe('Instance Tests', () => {
                         if (!arraysEqual(instance.currentState[relationshipName], []))
                             throw new Error('instance.currentState' + relationshipName + ' not set.');
 
-                        if (!arraysEqual(instance[relationshipName], []))
+                        if (!arraysEqual((await instance[relationshipName]), []))
                             throw new Error('instance.' + relationshipName + ' not set.');
                     });
 
@@ -1799,88 +1798,192 @@ describe('Instance Tests', () => {
             });
 
             describe('Getting Relationships', () => {
+
+                describe('Getting Relationships (with walk)', () => {
+
+                    after(async () => {
+                        await CompareClass1.clear();
+                        await CompareClass2.clear();
+                    });
                 
-                describe('Singular Relationships', () => {
+                    describe('Singular Relationships', () => {
+    
+                        it('Instance returned for singular relationship when set to an Instance.', async () => {
+                            const relationshipName = 'class1';
+                            const value = new Instance(CompareClass1);
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+            
+                            instance[relationshipName] = value;
+    
+                            if (!(await instance[relationshipName]).equals(value))
+                                throw new Error('instance.' + relationshipName + ' did not return the instance.');
+                        });
+    
+                        it('Instance returned for singular relationship when set to an id but not an Instance.', async () => {
+                            const relationshipName = 'class1';
+                            const value = new Instance(CompareClass1);
+                            value.name = 'relatedInstance';
+                            value.class2 = new Instance(CompareClass2);
+                            await value.save();
 
-                    it('Instance returned for singular relationship when set to an Instance.', () => {
-                        const relationshipName = 'class1';
-                        const value = new Instance(CompareClass1);
-                        const document = {
-                            _id: database.ObjectId(),
-                        };
-                        const instance = new Instance(AllAttributesAndRelationshipsClass, document);
-        
-                        instance[relationshipName] = value;
-
-                        if (!instance[relationshipName].equals(value))
-                            throw new Error('instance.' + relationshipName + ' did not return the instance.');
+                            const document = {
+                                _id: database.ObjectId(),
+                                class1: value._id,
+                            };
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+    
+                            if (!(await instance[relationshipName]).equals(value))
+                                throw new Error('instance.' + relationshipName + ' did not return the instance.');
+                        });
+    
+                        it('Null returned for singular relationship when not set.', async () => {
+                            const relationshipName = 'class1';
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+    
+                            if ((await instance[relationshipName]) !== null)
+                                throw new Error('instance.' + relationshipName + ' did not return null.');
+                        });
+    
                     });
-
-                    it('Id returned for singular relationship when set to an id but not an Instance.', () => {
-                        const relationshipName = 'class1';
-                        const value = new Instance(CompareClass1);
-                        const document = {
-                            _id: database.ObjectId(),
-                            class1: value._id,
-                        };
-                        const instance = new Instance(AllAttributesAndRelationshipsClass, document);
-
-                        if (instance[relationshipName] !== value._id)
-                            throw new Error('instance.' + relationshipName + ' did not return the id.');
-                    });
-
-                    it('Null returned for singular relationship when not set.', () => {
-                        const relationshipName = 'class1';
-                        const value = new Instance(CompareClass1);
-                        const document = {
-                            _id: database.ObjectId(),
-                        };
-                        const instance = new Instance(AllAttributesAndRelationshipsClass, document);
-
-                        if (instance[relationshipName] !== null)
-                            throw new Error('instance.' + relationshipName + ' did not return null.');
+                    
+                    describe('Non-Singular Relationships', () => {
+    
+                        it('InstanceSet returned for non-singular relationship when set to an InstanceSet.', async () => {
+                            const relationshipName = 'class2s';
+                            const value = new InstanceSet(CompareClass2, [new Instance(CompareClass2)]);
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+            
+                            instance[relationshipName] = value;
+    
+                            if (!(await instance[relationshipName]).equals(value))
+                                throw new Error('instance.' + relationshipName + ' did not return InstanceSet.');
+                        });
+    
+                        it('InstanceSet returned for non-singular relationship when set to an array of ids but not an InstanceSet.', async () => {
+                            const relationshipName = 'class2s';
+                            const relatedInstance = new Instance(CompareClass2);
+                            relatedInstance.name = 'relatedInstance';
+                            const value = new InstanceSet(CompareClass2, [relatedInstance]);
+                            const document = {
+                                _id: database.ObjectId(),
+                                [relationshipName]: value.map(instance => instance._id),
+                            };
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+                            await value.save();
+                            
+                            if (!(await instance[relationshipName]).equals(value))
+                                throw new Error('instance.' + relationshipName + ' did not return InstanceSet.');
+                        });
+    
+                        it('Empty array returned for non-singular relationship when not set.', async () => {
+                            const relationshipName = 'class2s';
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+    
+                            if (!arraysEqual((await instance[relationshipName]), []))
+                                throw new Error('instance.' + relationshipName + ' did not return empty array.');
+                        });
+    
                     });
 
                 });
+
+                describe('Getting Relationships (_ no walk)', () => {
                 
-                describe('Non-Singular Relationships', () => {
-
-                    it('InstanceSet returned for non-singular relationship when set to an InstanceSet.', () => {
-                        const relationshipName = 'class2s';
-                        const value = new InstanceSet(CompareClass2, [new Instance(CompareClass2)]);
-                        const document = {
-                            _id: database.ObjectId(),
-                        };
-                        const instance = new Instance(AllAttributesAndRelationshipsClass, document);
-        
-                        instance[relationshipName] = value;
-
-                        if (!instance[relationshipName].equals(value))
-                            throw new Error('instance.' + relationshipName + ' did not return InstanceSet.');
+                    describe('Singular Relationships', () => {
+    
+                        it('Instance returned for singular relationship when set to an Instance.', () => {
+                            const relationshipName = 'class1';
+                            const value = new Instance(CompareClass1);
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+            
+                            instance[relationshipName] = value;
+    
+                            if (!instance['_' + relationshipName].equals(value))
+                                throw new Error('instance.' + relationshipName + ' did not return the instance.');
+                        });
+    
+                        it('Id returned for singular relationship when set to an id but not an Instance.', () => {
+                            const relationshipName = 'class1';
+                            const value = new Instance(CompareClass1);
+                            const document = {
+                                _id: database.ObjectId(),
+                                class1: value._id,
+                            };
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+    
+                            if (instance['_' + relationshipName] !== value._id)
+                                throw new Error('instance.' + relationshipName + ' did not return the id.');
+                        });
+    
+                        it('Null returned for singular relationship when not set.', () => {
+                            const relationshipName = 'class1';
+                            const value = new Instance(CompareClass1);
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+    
+                            if (instance['_' + relationshipName] !== null)
+                                throw new Error('instance.' + relationshipName + ' did not return null.');
+                        });
+    
                     });
-
-                    it('Ids array returned for non-singular relationship when set to an array of ids but not an InstanceSet.', () => {
-                        const relationshipName = 'class2s';
-                        const value = new InstanceSet(CompareClass2, [new Instance(CompareClass2)]);
-                        const document = {
-                            _id: database.ObjectId(),
-                            [relationshipName]: value.map(instance => instance._id),
-                        };
-                        const instance = new Instance(AllAttributesAndRelationshipsClass, document);
-
-                        if (!arraysEqual(instance[relationshipName].map(id => id.toHexString()), value.map(instance => instance.id)))
-                            throw new Error('instance.' + relationshipName + ' did not return Ids array.');
-                    });
-
-                    it('Empty array returned for non-singular relationship when not set.', () => {
-                        const relationshipName = 'class2s';
-                        const document = {
-                            _id: database.ObjectId(),
-                        };
-                        const instance = new Instance(AllAttributesAndRelationshipsClass, document);
-
-                        if (!arraysEqual(instance[relationshipName].map(id => id), []))
-                            throw new Error('instance.' + relationshipName + ' did not return empty array.');
+                    
+                    describe('Non-Singular Relationships', () => {
+    
+                        it('InstanceSet returned for non-singular relationship when set to an InstanceSet.', () => {
+                            const relationshipName = 'class2s';
+                            const value = new InstanceSet(CompareClass2, [new Instance(CompareClass2)]);
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+            
+                            instance[relationshipName] = value;
+    
+                            if (!instance['_' + relationshipName].equals(value))
+                                throw new Error('instance.' + relationshipName + ' did not return InstanceSet.');
+                        });
+    
+                        it('Ids array returned for non-singular relationship when set to an array of ids but not an InstanceSet.', () => {
+                            const relationshipName = 'class2s';
+                            const value = new InstanceSet(CompareClass2, [new Instance(CompareClass2)]);
+                            const document = {
+                                _id: database.ObjectId(),
+                                [relationshipName]: value.map(instance => instance._id),
+                            };
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+    
+                            if (!arraysEqual(instance['_' + relationshipName].map(id => id.toHexString()), value.map(instance => instance.id)))
+                                throw new Error('instance.' + relationshipName + ' did not return Ids array.');
+                        });
+    
+                        it('Empty array returned for non-singular relationship when not set.', () => {
+                            const relationshipName = 'class2s';
+                            const document = {
+                                _id: database.ObjectId(),
+                            };
+                            const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+    
+                            if (!arraysEqual(instance['_' + relationshipName].map(id => id), []))
+                                throw new Error('instance.' + relationshipName + ' did not return empty array.');
+                        });
+    
                     });
 
                 });
@@ -1933,7 +2036,7 @@ describe('Instance Tests', () => {
                     throw new Error('List attribute not set to empty array.');
             });
 
-            it('Deleting a singular relationship (set by document) sets instanceReference.instance and instanceReference._id to null.', () => {
+            it('Deleting a singular relationship (set by document) sets instanceReference.instance and instanceReference._id to null.', async () => {
                 const document = {
                     _id: database.ObjectId(),
                     class1: database.ObjectId(), 
@@ -1941,22 +2044,22 @@ describe('Instance Tests', () => {
                 const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                 delete instance.class1;
                 
-                if (instance['class1'] !== null)
+                if (await instance['class1'] !== null || instance['_class1'] !== null)
                     throw new Error('Delete did not set the relationship to null.');
 
             });
 
-            it('Deleting a singular relationship (set to instance) sets instanceReference.instance and instanceReference._id to null.', () => {
+            it('Deleting a singular relationship (set to instance) sets instanceReference.instance and instanceReference._id to null.', async () => {
                 const instance = new Instance(AllAttributesAndRelationshipsClass);
                 instance.class1 = new Instance(CompareClass1);
                 delete instance.class1;
                 
-                if (instance['class1'] !== null)
+                if (await instance['class1'] !== null || instance['_class1'] !== null)
                     throw new Error('Delete did not set the relationship to null.');
 
             });
 
-            it('Deleting a non-singular relationship (set by document) sets instanceSetReference.instanceSet to null and instanceSetReference._ids to empty string.', () => {
+            it('Deleting a non-singular relationship (set by document) sets instanceSetReference.instanceSet to null and instanceSetReference._ids to empty string.', async () => {
                 const document = {
                     _id: database.ObjectId(),
                     class2s: [database.ObjectId(), database.ObjectId()], 
@@ -1964,16 +2067,22 @@ describe('Instance Tests', () => {
                 const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                 delete instance.class2s;
                 
-                if (!Array.isArray(instance['class2s']) || instance['class2s'].length !== 0)
+                if (!Array.isArray(await instance['class2s']) || (await instance['class2s']).length !== 0)
+                    throw new Error('Non-singular relationship did delete properly.');
+                
+                if (!Array.isArray(instance['_class2s']) || instance['_class2s'].length !== 0)
                     throw new Error('Non-singular relationship did delete properly.');
             });
 
-            it('Deleting a non-singular relationship (set to InstanceSet) sets instanceSetReference.instanceSet to null and instanceSetReference._ids to empty string.', () => {
+            it('Deleting a non-singular relationship (set to InstanceSet) sets instanceSetReference.instanceSet to null and instanceSetReference._ids to empty string.', async () => {
                 const instance = new Instance(AllAttributesAndRelationshipsClass);
                 instance.class2s = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
                 delete instance.class2s;
                 
-                if (!Array.isArray(instance['class2s']) || instance['class2s'].length !== 0)
+                if (!Array.isArray(await instance['class2s']) || (await instance['class2s']).length !== 0)
+                    throw new Error('Non-singular relationship did delete properly.');
+                
+                if (!Array.isArray(instance['_class2s']) || instance['_class2s'].length !== 0)
                     throw new Error('Non-singular relationship did delete properly.');
             });
 
@@ -2024,25 +2133,25 @@ describe('Instance Tests', () => {
             }
         });
 
-        it('instance.assign assigns singular relationships.', () => {
+        it('instance.assign assigns singular relationships.', async () => {
             const instance = new Instance(AllAttributesAndRelationshipsClass);
             const objectToAssign = {
                 class1: new Instance(CompareClass1),
             }
             instance.assign(objectToAssign);
 
-            if (instance.class1 !== objectToAssign.class1)
+            if ((await instance.class1) !== objectToAssign.class1)
                 throw new Error('Assign did not assign the relationship correclty.');
         });
 
-        it('instance.assign assigns non-singular relationships.', () => {
+        it('instance.assign assigns non-singular relationships.', async () => {
             const instance = new Instance(AllAttributesAndRelationshipsClass);
             const objectToAssign = {
                 class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]),
             }
             instance.assign(objectToAssign);
 
-            if (instance.class2s !== objectToAssign.class2s)
+            if (await instance.class2s !== objectToAssign.class2s)
                 throw new Error('Assign did not assign the relationship correclty.');
         });
 
@@ -3100,7 +3209,6 @@ describe('Instance Tests', () => {
                 const instance = new Instance(CreateControlledSuperClass);
                 instance.name = 'instanceOfCreateControlledSuperClassPasses-saveAll';
                 instance.createControlledBy = instanceOfClassControlsCreateControlledSuperClassAllowed;
-    
                 await instance.save();
     
                 const instanceSaved = await CreateControlledSuperClass.findById(instance._id);
@@ -3598,7 +3706,7 @@ describe('Instance Tests', () => {
                     if (!expectedInstance.equals(foundInstance))
                         throw new Error('walk() did not return the correct instance.');
 
-                    if (instance['singularRelationship'] !== foundInstance)
+                    if (instance['_singularRelationship'] !== foundInstance)
                         throw new Error('walk() did not set the relationship on the original instance.');
                 });
     
@@ -3613,7 +3721,7 @@ describe('Instance Tests', () => {
                     if (!expectedInstanceSet.equals(foundInstanceSet))
                         throw new Error('walk() did not return the correct instances.');
 
-                    if (instance['nonSingularRelationship'] !== foundInstanceSet)
+                    if (instance['_nonSingularRelationship'] !== foundInstanceSet)
                         throw new Error('walk() did not set the relationship on the original instance.');
                 });
     
@@ -3628,7 +3736,7 @@ describe('Instance Tests', () => {
                     if (!expectedInstance.equals(foundInstance))
                         throw new Error('walk() did not return the correct instance.');
 
-                        if (instance['singularRelationship'] !== foundInstance)
+                        if (instance['_singularRelationship'] !== foundInstance)
                             throw new Error('walk() did not set the relationship on the original instance.');
                 });
     
@@ -3643,7 +3751,7 @@ describe('Instance Tests', () => {
                     if (!expectedInstanceSet.equals(foundInstanceSet))
                         throw new Error('walk() did not return the correct instances.');
 
-                    if (instance['nonSingularRelationship'] !== foundInstanceSet)
+                    if (instance['_nonSingularRelationship'] !== foundInstanceSet)
                         throw new Error('walk() did not set the relationship on the original instance.');
                 });
 

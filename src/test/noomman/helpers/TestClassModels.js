@@ -699,9 +699,10 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             ],
             crudControls: {
                 createControl: async function() {
-                    if (!this.createControlledBy)
+                    const relatedInstance = await this.createControlledBy;
+                    if (!relatedInstance)
                         return false;
-                    return this.createControlledBy.allowed;
+                    return relatedInstance.allowed;
                 },
             }
         });
@@ -802,12 +803,12 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                     name: 'readControlledBy',
                     toClass: 'ClassControlsReadControlledSuperClass',
                     singular: true,
+                    required: true,
                 },
             ],
             crudControls: {
                 readControl: async function() {
-                    const readControlledByInstance = await this.walk('readControlledBy')
-                    return readControlledByInstance.allowed;
+                    return (await this.readControlledBy).allowed;
                 },
             }
         });
@@ -946,8 +947,7 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             ],
             crudControls: {
                 updateControl: async function() {
-                    let updateControlledByInstance = await this.walk('updateControlledBy');
-                    return updateControlledByInstance.allowed;
+                    return (await this.updateControlledBy).allowed;
                 },
             }
         });
@@ -1058,8 +1058,7 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
             ],
             crudControls: {
                 deleteControl: async function() {
-                    let deleteControlledByInstance =  await this.walk('deleteControlledBy');
-                    return deleteControlledByInstance.allowed;
+                    return (await this.deleteControlledBy).allowed;
                 },
             }
         });
