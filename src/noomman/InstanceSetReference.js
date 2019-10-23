@@ -26,6 +26,9 @@ class InstanceSetReference {
     }
 
     equals(that) {
+        if (that === null)
+            return false;
+
         this.sync();
         that.sync();
         if ((!this._ids && that._ids) || (this._ids && !that._ids))
@@ -53,6 +56,36 @@ class InstanceSetReference {
     }
 
     diff(that) {
+        if (that === null) {
+            if (!this.isEmpty()) {
+                return {
+                    $set: this._ids,
+                }
+            }
+            else {
+                return {};
+            }
+        }
+
+        this.sync();
+        that.sync();
+
+        if (this.equals(that)) {
+            return {};
+        }
+        else if (this.isEmpty() && !that.isEmpty()) {
+            return {
+                $unset: this._ids,
+            }
+        }
+        else {
+            return {
+                $set: this._ids,
+            }
+        }
+    }
+
+    diff2(that) {
         this.sync();
         that.sync();
         if (this.isEmpty() && that.isEmpty()) {

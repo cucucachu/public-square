@@ -995,7 +995,7 @@ describe('Instance State Tests', () => {
 
     describe('InstanceState.diff() Tests', () => {
         
-        describe('Attribute Diffs', () => {
+        describe.only('Attribute Diffs', () => {
 
             describe('Singular Attribute Diffs', () => {
 
@@ -1005,14 +1005,14 @@ describe('Instance State Tests', () => {
                         const attributeName = 'string';
                         const attributeValue = 'something';
                         const previousDocument = {};
-                        const currentDocument = { 
+                        const currentDocument = {
                             [attributeName]: attributeValue,
                         }
                         const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
                         const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
     
-                        if (!diff.add || diff.add[attributeName] === undefined || diff.add[attributeName] !== attributeValue)
+                        if (!diff.$set || diff.$set[attributeName] === undefined || diff.$set[attributeName] !== attributeValue)
                             throw new Error('diff did not include the expected change to the attribute.')
     
                     });
@@ -1028,7 +1028,7 @@ describe('Instance State Tests', () => {
                         const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
     
-                        if (!diff.add || diff.add[attributeName] === undefined || diff.add[attributeName] !== attributeValue)
+                        if (!diff.$set || diff.$set[attributeName] === undefined || diff.$set[attributeName] !== attributeValue)
                             throw new Error('diff did not include the expected change to the attribute.')
     
                     });
@@ -1044,7 +1044,7 @@ describe('Instance State Tests', () => {
                         const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
     
-                        if (!diff.add || diff.add[attributeName] === undefined || diff.add[attributeName] !== attributeValue)
+                        if (!diff.$set || diff.$set[attributeName] === undefined || diff.$set[attributeName] !== attributeValue)
                             throw new Error('diff did not include the expected change to the attribute.')
                     });
     
@@ -1059,7 +1059,7 @@ describe('Instance State Tests', () => {
                         const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
     
-                        if (!diff.add || diff.add[attributeName] === undefined || diff.add[attributeName] !== attributeValue)
+                        if (!diff.$set || diff.$set[attributeName] === undefined || diff.$set[attributeName] !== attributeValue)
                             throw new Error('diff did not include the expected change to the attribute.')
                     });
     
@@ -1074,7 +1074,7 @@ describe('Instance State Tests', () => {
                         const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
     
-                        if (!diff.add || diff.add[attributeName] === undefined || diff.add[attributeName] !== attributeValue)
+                        if (!diff.$set || diff.$set[attributeName] === undefined || diff.$set[attributeName] !== attributeValue)
                             throw new Error('diff did not include the expected change to the attribute.')
                     });
     
@@ -1089,7 +1089,7 @@ describe('Instance State Tests', () => {
                         const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
     
-                        if (!diff.add || diff.add[attributeName] === undefined || diff.add[attributeName] !== attributeValue)
+                        if (!diff.$set || diff.$set[attributeName] === undefined || diff.$set[attributeName] !== attributeValue)
                             throw new Error('diff did not include the expected change to the attribute.')
                     });
     
@@ -1104,8 +1104,8 @@ describe('Instance State Tests', () => {
                         const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
     
-                        if (!diff.add || diff.add[attributeName] === undefined || diff.add[attributeName] !== attributeValue)
-                            throw new Error('diff did not include the expected change to the attribute.')
+                        if (!diff.$set || diff.$set[attributeName] === undefined || diff.$set[attributeName] !== attributeValue)
+                            throw new Error('diff did not include the expected change to the attribute.');
                     });
     
                 });
@@ -1123,7 +1123,7 @@ describe('Instance State Tests', () => {
                         const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
     
-                        if (!diff.remove || diff.remove[attributeName] === undefined || diff.remove[attributeName] !== attributeValue)
+                        if (!diff.$unset || diff.$unset[attributeName] === undefined || diff.$unset[attributeName] !== attributeValue)
                             throw new Error('diff did not include the expected change to the attribute.')
                     });
     
@@ -1138,7 +1138,7 @@ describe('Instance State Tests', () => {
                         const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
     
-                        if (!diff.remove || diff.remove[attributeName] === undefined || diff.remove[attributeName] !== attributeValue)
+                        if (!diff.$unset || diff.$unset[attributeName] === undefined || diff.$unset[attributeName] !== attributeValue)
                             throw new Error('diff did not include the expected change to the attribute.')
                     });
     
@@ -1153,7 +1153,7 @@ describe('Instance State Tests', () => {
                         const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
     
-                        if (!diff.remove || diff.remove[attributeName] === undefined || diff.remove[attributeName] !== attributeValue)
+                        if (!diff.$unset || diff.$unset[attributeName] === undefined || diff.$unset[attributeName] !== attributeValue)
                             throw new Error('diff did not include the expected change to the attribute.')
                     });
     
@@ -1168,7 +1168,7 @@ describe('Instance State Tests', () => {
                         const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
     
-                        if (!diff.remove || diff.remove[attributeName] === undefined || diff.remove[attributeName] !== attributeValue)
+                        if (!diff.$unset || diff.$unset[attributeName] === undefined || diff.$unset[attributeName] !== attributeValue)
                             throw new Error('diff did not include the expected change to the attribute.')
                     });
     
@@ -1183,7 +1183,7 @@ describe('Instance State Tests', () => {
                         const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
     
-                        if (!diff.remove || diff.remove[attributeName] === undefined || diff.remove[attributeName] !== attributeValue)
+                        if (!diff.$unset || diff.$unset[attributeName] === undefined || diff.$unset[attributeName] !== attributeValue)
                             throw new Error('diff did not include the expected change to the attribute.')
                     });
     
@@ -1198,7 +1198,7 @@ describe('Instance State Tests', () => {
                         const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
     
-                        if (!diff.remove || diff.remove[attributeName] === undefined || diff.remove[attributeName] !== attributeValue)
+                        if (!diff.$unset || diff.$unset[attributeName] === undefined || diff.$unset[attributeName] !== attributeValue)
                             throw new Error('diff did not include the expected change to the attribute.')
                     });
     
@@ -1213,7 +1213,7 @@ describe('Instance State Tests', () => {
                         const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
 
-                        if (!diff.remove || diff.remove[attributeName] === undefined || diff.remove[attributeName] !== attributeValue)
+                        if (!diff.$unset || diff.$unset[attributeName] === undefined || diff.$unset[attributeName] !== attributeValue)
                             throw new Error('diff did not include the expected change to the attribute.')
                     });
 
@@ -1236,12 +1236,10 @@ describe('Instance State Tests', () => {
                             const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
                             const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
-        
-                            if (!diff.update || diff.update[attributeName] === undefined)
-                                throw new Error('diff did not include an update for the attribute.')
-     
-                            if (diff.update[attributeName].insert !== currentValue || diff.update[attributeName].remove !== previousValue || diff.update[attributeName].value !== currentValue)
-                                throw new Error('The attribute update was not set as expected.');
+    
+                            if (!diff.$set || diff.$set[attributeName] === undefined || diff.$set[attributeName] !== currentValue)
+                                throw new Error('diff did not include the expected change to the attribute.');
+
                         });
         
                         it('\'string\' attribute updated from empty string to something.', () => {
@@ -1258,11 +1256,8 @@ describe('Instance State Tests', () => {
                             const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
     
-                            if (!diff.update || diff.update[attributeName] === undefined)
-                                throw new Error('diff did not include an update for the attribute.')
-     
-                            if (diff.update[attributeName].insert !== currentValue || diff.update[attributeName].remove !== previousValue || diff.update[attributeName].value !== currentValue)
-                                throw new Error('The attribute update was not set as expected.');
+                            if (!diff.$set || diff.$set[attributeName] === undefined || diff.$set[attributeName] !== currentValue)
+                                throw new Error('diff did not include the expected change to the attribute.');
                         });
         
                         it('\'string\' attribute updated from something to empty string.', () => {
@@ -1278,12 +1273,9 @@ describe('Instance State Tests', () => {
                             const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
                             const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
-        
-                            if (!diff.update || diff.update[attributeName] === undefined)
-                                throw new Error('diff did not include an update for the attribute.')
-     
-                            if (diff.update[attributeName].insert !== currentValue || diff.update[attributeName].remove !== previousValue || diff.update[attributeName].value !== currentValue)
-                                throw new Error('The attribute update was not set as expected.');
+    
+                            if (!diff.$set || diff.$set[attributeName] === undefined || diff.$set[attributeName] !== currentValue)
+                                throw new Error('diff did not include the expected change to the attribute.');
                         });
         
                         it('\'date\' attribute updated.', () => {
@@ -1299,12 +1291,9 @@ describe('Instance State Tests', () => {
                             const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
                             const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
-        
-                            if (!diff.update || diff.update[attributeName] === undefined)
-                                throw new Error('diff did not include an update for the attribute.')
-     
-                            if (diff.update[attributeName].insert !== currentValue || diff.update[attributeName].remove !== previousValue || diff.update[attributeName].value !== currentValue)
-                                throw new Error('The attribute update was not set as expected.');
+    
+                            if (!diff.$set || diff.$set[attributeName] === undefined || diff.$set[attributeName] !== currentValue)
+                                throw new Error('diff did not include the expected change to the attribute.');
                         });
         
                         it('\'number\' attribute updated.', () => {
@@ -1320,12 +1309,9 @@ describe('Instance State Tests', () => {
                             const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
                             const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
-        
-                            if (!diff.update || diff.update[attributeName] === undefined)
-                                throw new Error('diff did not include an update for the attribute.')
-     
-                            if (diff.update[attributeName].insert !== currentValue || diff.update[attributeName].remove !== previousValue || diff.update[attributeName].value !== currentValue)
-                                throw new Error('The attribute update was not set as expected.');
+    
+                            if (!diff.$set || diff.$set[attributeName] === undefined || diff.$set[attributeName] !== currentValue)
+                                throw new Error('diff did not include the expected change to the attribute.');
                         });
         
                         it('\'number\' attribute updated.', () => {
@@ -1341,12 +1327,9 @@ describe('Instance State Tests', () => {
                             const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
                             const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
-        
-                            if (!diff.update || diff.update[attributeName] === undefined)
-                                throw new Error('diff did not include an update for the attribute.')
-     
-                            if (diff.update[attributeName].insert !== currentValue || diff.update[attributeName].remove !== previousValue || diff.update[attributeName].value !== currentValue)
-                                throw new Error('The attribute update was not set as expected.');
+    
+                            if (!diff.$set || diff.$set[attributeName] === undefined || diff.$set[attributeName] !== currentValue)
+                                throw new Error('diff did not include the expected change to the attribute.');
                         });
         
                         it('\'boolean\' attribute updated.', () => {
@@ -1362,12 +1345,9 @@ describe('Instance State Tests', () => {
                             const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
                             const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
-        
-                            if (!diff.update || diff.update[attributeName] === undefined)
-                                throw new Error('diff did not include an update for the attribute.')
-     
-                            if (diff.update[attributeName].insert !== currentValue || diff.update[attributeName].remove !== previousValue || diff.update[attributeName].value !== currentValue)
-                                throw new Error('The attribute update was not set as expected.');
+    
+                            if (!diff.$set || diff.$set[attributeName] === undefined || diff.$set[attributeName] !== currentValue)
+                                throw new Error('diff did not include the expected change to the attribute.');
                         });
         
                         it('\'boolean\' attribute updated.', () => {
@@ -1383,12 +1363,9 @@ describe('Instance State Tests', () => {
                             const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
                             const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
-        
-                            if (!diff.update || diff.update[attributeName] === undefined)
-                                throw new Error('diff did not include an update for the attribute.')
-     
-                            if (diff.update[attributeName].insert !== currentValue || diff.update[attributeName].remove !== previousValue || diff.update[attributeName].value !== currentValue)
-                                throw new Error('The attribute update was not set as expected.');
+    
+                            if (!diff.$set || diff.$set[attributeName] === undefined || diff.$set[attributeName] !== currentValue)
+                                throw new Error('diff did not include the expected change to the attribute.');
                         });
 
                     });
@@ -1409,7 +1386,7 @@ describe('Instance State Tests', () => {
                             const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
         
-                            if (!diff.update && diff.update[attributeName] !== undefined)
+                            if (diff.$set && diff.$set[attributeName] !== undefined)
                                 throw new Error('diff included the update when it shouldn\'t have.');
                         });
 
@@ -1427,7 +1404,7 @@ describe('Instance State Tests', () => {
                             const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
         
-                            if (!diff.update && diff.update[attributeName] !== undefined)
+                            if (diff.$set && diff.$set[attributeName] !== undefined)
                                 throw new Error('diff included the update when it shouldn\'t have.');
                         });
 
@@ -1445,7 +1422,7 @@ describe('Instance State Tests', () => {
                             const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
         
-                            if (!diff.update && diff.update[attributeName] !== undefined)
+                            if (diff.$set && diff.$set[attributeName] !== undefined)
                                 throw new Error('diff included the update when it shouldn\'t have.');
                         });
 
@@ -1463,7 +1440,7 @@ describe('Instance State Tests', () => {
                             const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
         
-                            if (!diff.update && diff.update[attributeName] !== undefined)
+                            if (diff.$set && diff.$set[attributeName] !== undefined)
                                 throw new Error('diff included the update when it shouldn\'t have.');
                         });
 
@@ -1481,7 +1458,7 @@ describe('Instance State Tests', () => {
                             const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
         
-                            if (!diff.update && diff.update[attributeName] !== undefined)
+                            if (diff.$set && diff.$set[attributeName] !== undefined)
                                 throw new Error('diff included the update when it shouldn\'t have.');
                         });
 
@@ -1499,7 +1476,7 @@ describe('Instance State Tests', () => {
                             const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
         
-                            if (!diff.update && diff.update[attributeName] !== undefined)
+                            if (diff.$set && diff.$set[attributeName] !== undefined)
                                 throw new Error('diff included the update when it shouldn\'t have.');
                         });
 
@@ -1517,7 +1494,7 @@ describe('Instance State Tests', () => {
                             const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
         
-                            if (!diff.update && diff.update[attributeName] !== undefined)
+                            if (diff.$set && diff.$set[attributeName] !== undefined)
                                 throw new Error('diff included the update when it shouldn\'t have.');
                         });
 
@@ -1542,8 +1519,8 @@ describe('Instance State Tests', () => {
                         const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
 
-                        if (!arraysEqual(diff.add[attributeName], attributeValue))
-                            throw new Error('diff does not contain the expected attribute value.')
+                        if (!arraysEqual(diff.$set[attributeName], attributeValue))
+                            throw new Error('diff does not contain the expected attribute value.');
     
                     });
     
@@ -1558,9 +1535,8 @@ describe('Instance State Tests', () => {
                         const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
 
-
-                        if (!arraysEqual(diff.add[attributeName], attributeValue))
-                            throw new Error('diff does not contain the expected attribute value.')
+                        if (!arraysEqual(diff.$set[attributeName], attributeValue))
+                            throw new Error('diff does not contain the expected attribute value.');
                     });
 
                     it('Current document has \'booleans\' set and previous document does not contain \'booleans\'.', () => {
@@ -1574,8 +1550,8 @@ describe('Instance State Tests', () => {
                         const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
 
-                        if (!arraysEqual(diff.add[attributeName], attributeValue))
-                            throw new Error('diff does not contain the expected attribute value.')
+                        if (!arraysEqual(diff.$set[attributeName], attributeValue))
+                            throw new Error('diff does not contain the expected attribute value.');
                     });
     
                 });
@@ -1593,8 +1569,8 @@ describe('Instance State Tests', () => {
                         const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
 
-                        if (!arraysEqual(diff.remove[attributeName], attributeValue))
-                            throw new Error('diff does not contain the expected attribute value.')
+                        if (!arraysEqual(diff.$unset[attributeName], attributeValue))
+                            throw new Error('diff does not contain the expected attribute value.');
                     });
     
                     it('Previous document has \'booleans\' set and current document does not contain \'booleans\'.', () => {
@@ -1608,9 +1584,8 @@ describe('Instance State Tests', () => {
                         const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
 
-
-                        if (!arraysEqual(diff.remove[attributeName], attributeValue))
-                            throw new Error('diff does not contain the expected attribute value.')
+                        if (!arraysEqual(diff.$unset[attributeName], attributeValue))
+                            throw new Error('diff does not contain the expected attribute value.');
                     });
     
                     it('Previous document has \'numbers\' set and current document does not contain \'numbers\'.', () => {
@@ -1624,9 +1599,8 @@ describe('Instance State Tests', () => {
                         const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
 
-
-                        if (!arraysEqual(diff.remove[attributeName], attributeValue))
-                            throw new Error('diff does not contain the expected attribute value.')
+                        if (!arraysEqual(diff.$unset[attributeName], attributeValue))
+                            throw new Error('diff does not contain the expected attribute value.');
                     });
 
                 });
@@ -1650,21 +1624,9 @@ describe('Instance State Tests', () => {
                             const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
                             const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
-    
-                            if (!diff.update || !diff.update[attributeName])
-                                throw new Error('Diff does not contain the update for the attibute.');
-        
-                            if (!arraysEqual(currentValue, diff.update[attributeName].value))
-                                throw new Error('diff.update.value is not set correctly.');
-        
-                            if (!arraysEqual(previousValue, diff.update[attributeName].previous))
-                                throw new Error('diff.update.previous is not set correctly.');
-                            
-                            if (!arraysEqual(valuesAdded, diff.update[attributeName].insert))
-                                throw new Error('diff.update.insert is not set correctly.');
 
-                            if (!arraysEqual(valuesRemoved, diff.update[attributeName].remove))
-                                throw new Error('diff.update.remove is not set correctly.');
+                            if (!arraysEqual(diff.$set[attributeName], currentValue))
+                                throw new Error('diff does not contain the expected attribute value.');
                         });
 
                         it('Adding an element to list Element \'booleans\'.', () => {
@@ -1682,18 +1644,9 @@ describe('Instance State Tests', () => {
                             const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
                             const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
-        
-                            if (!arraysEqual(currentValue, diff.update[attributeName].value))
-                                throw new Error('diff.update.value is not set correctly.');
-        
-                            if (!arraysEqual(previousValue, diff.update[attributeName].previous))
-                                throw new Error('diff.update.previous is not set correctly.');
-                            
-                            if (!arraysEqual(valuesAdded, diff.update[attributeName].insert))
-                                throw new Error('diff.update.insert is not set correctly.');
 
-                            if (!arraysEqual(valuesRemoved, diff.update[attributeName].remove))
-                                throw new Error('diff.update.remove is not set correctly.');
+                            if (!arraysEqual(diff.$set[attributeName], currentValue))
+                                throw new Error('diff does not contain the expected attribute value.');
                         });
 
                         it('Adding an element to list Element \'numbers\'.', () => {
@@ -1711,25 +1664,16 @@ describe('Instance State Tests', () => {
                             const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
                             const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
-        
-                            if (!arraysEqual(currentValue, diff.update[attributeName].value))
-                                throw new Error('diff.update.value is not set correctly.');
-        
-                            if (!arraysEqual(previousValue, diff.update[attributeName].previous))
-                                throw new Error('diff.update.previous is not set correctly.');
-                            
-                            if (!arraysEqual(valuesAdded, diff.update[attributeName].insert))
-                                throw new Error('diff.update.insert is not set correctly.');
 
-                            if (!arraysEqual(valuesRemoved, diff.update[attributeName].remove))
-                                throw new Error('diff.update.remove is not set correctly.');
+                            if (!arraysEqual(diff.$set[attributeName], currentValue))
+                                throw new Error('diff does not contain the expected attribute value.');
                         });
 
                     });
 
                     describe('Removing Elements from List Attributes.', () => {
 
-                        it('Adding an element to list Element \'strings\'.', () => {
+                        it('Removing an element from list Element \'strings\'.', () => {
                             const attributeName = 'strings';
                             const previousValue = ['string1', 'string2'];
                             const valuesAdded = [];
@@ -1744,24 +1688,12 @@ describe('Instance State Tests', () => {
                             const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
                             const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
-    
-                            if (!diff.update || !diff.update[attributeName])
-                                throw new Error('Diff does not contain the update for the attibute.');
-        
-                            if (!arraysEqual(currentValue, diff.update[attributeName].value))
-                                throw new Error('diff.update.value is not set correctly.');
-        
-                            if (!arraysEqual(previousValue, diff.update[attributeName].previous))
-                                throw new Error('diff.update.previous is not set correctly.');
-                            
-                            if (!arraysEqual(valuesAdded, diff.update[attributeName].insert))
-                                throw new Error('diff.update.insert is not set correctly.');
 
-                            if (!arraysEqual(valuesRemoved, diff.update[attributeName].remove))
-                                throw new Error('diff.update.remove is not set correctly.');
+                            if (!arraysEqual(diff.$set[attributeName], currentValue))
+                                throw new Error('diff does not contain the expected attribute value.');
                         });
 
-                        it('Adding an element to list Element \'booleans\'.', () => {
+                        it('Removing an element from list Element \'booleans\'.', () => {
                             const attributeName = 'booleans';
                             const previousValue = [true, false];
                             const valuesAdded = [];
@@ -1770,30 +1702,18 @@ describe('Instance State Tests', () => {
                             const previousDocument = { 
                                 [attributeName]: previousValue,
                             }
-                            const currentDocument = { 
+                            const currentDocument = {
                                 [attributeName]: currentValue,
                             }
                             const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
                             const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
-    
-                            if (!diff.update || !diff.update[attributeName])
-                                throw new Error('Diff does not contain the update for the attibute.');
-        
-                            if (!arraysEqual(currentValue, diff.update[attributeName].value))
-                                throw new Error('diff.update.value is not set correctly.');
-        
-                            if (!arraysEqual(previousValue, diff.update[attributeName].previous))
-                                throw new Error('diff.update.previous is not set correctly.');
                             
-                            if (!arraysEqual(valuesAdded, diff.update[attributeName].insert))
-                                throw new Error('diff.update.insert is not set correctly.');
-
-                            if (!arraysEqual(valuesRemoved, diff.update[attributeName].remove))
-                                throw new Error('diff.update.remove is not set correctly.');
+                            if (!arraysEqual(diff.$set[attributeName], currentValue))
+                                throw new Error('diff does not contain the expected attribute value.');
                         });
 
-                        it('Adding an element to list Element \'numbers\'.', () => {
+                        it('Removing an element from list Element \'numbers\'.', () => {
                             const attributeName = 'numbers';
                             const previousValue = [0, 1, 2];
                             const valuesAdded = [];
@@ -1808,21 +1728,9 @@ describe('Instance State Tests', () => {
                             const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
                             const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
-    
-                            if (!diff.update || !diff.update[attributeName])
-                                throw new Error('Diff does not contain the update for the attibute.');
-        
-                            if (!arraysEqual(currentValue, diff.update[attributeName].value))
-                                throw new Error('diff.update.value is not set correctly.');
-        
-                            if (!arraysEqual(previousValue, diff.update[attributeName].previous))
-                                throw new Error('diff.update.previous is not set correctly.');
                             
-                            if (!arraysEqual(valuesAdded, diff.update[attributeName].insert))
-                                throw new Error('diff.update.insert is not set correctly.');
-
-                            if (!arraysEqual(valuesRemoved, diff.update[attributeName].remove))
-                                throw new Error('diff.update.remove is not set correctly.');
+                            if (!arraysEqual(diff.$set[attributeName], currentValue))
+                                throw new Error('diff does not contain the expected attribute value.');
                         });
 
                     });
@@ -1844,21 +1752,9 @@ describe('Instance State Tests', () => {
                             const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
                             const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
-    
-                            if (!diff.update || !diff.update[attributeName])
-                                throw new Error('Diff does not contain the update for the attibute.');
-        
-                            if (!arraysEqual(currentValue, diff.update[attributeName].value))
-                                throw new Error('diff.update.value is not set correctly.');
-        
-                            if (!arraysEqual(previousValue, diff.update[attributeName].previous))
-                                throw new Error('diff.update.previous is not set correctly.');
                             
-                            if (!arraysEqual(valuesAdded, diff.update[attributeName].insert))
-                                throw new Error('diff.update.insert is not set correctly.');
-
-                            if (!arraysEqual(valuesRemoved, diff.update[attributeName].remove))
-                                throw new Error('diff.update.remove is not set correctly.');
+                            if (!arraysEqual(diff.$set[attributeName], currentValue))
+                                throw new Error('diff does not contain the expected attribute value.');
                         });
 
                         it('Switching the order of attributes in List Attribute \'booleans\'.', () => {
@@ -1876,21 +1772,9 @@ describe('Instance State Tests', () => {
                             const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
                             const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
-    
-                            if (!diff.update || !diff.update[attributeName])
-                                throw new Error('Diff does not contain the update for the attibute.');
-        
-                            if (!arraysEqual(currentValue, diff.update[attributeName].value))
-                                throw new Error('diff.update.value is not set correctly.');
-        
-                            if (!arraysEqual(previousValue, diff.update[attributeName].previous))
-                                throw new Error('diff.update.previous is not set correctly.');
                             
-                            if (!arraysEqual(valuesAdded, diff.update[attributeName].insert))
-                                throw new Error('diff.update.insert is not set correctly.');
-
-                            if (!arraysEqual(valuesRemoved, diff.update[attributeName].remove))
-                                throw new Error('diff.update.remove is not set correctly.');
+                            if (!arraysEqual(diff.$set[attributeName], currentValue))
+                                throw new Error('diff does not contain the expected attribute value.');
                         });
 
                         it('Completely replacing the values in List Attribute \'numbers\'.', () => {
@@ -1908,21 +1792,9 @@ describe('Instance State Tests', () => {
                             const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
                             const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
-    
-                            if (!diff.update || !diff.update[attributeName])
-                                throw new Error('Diff does not contain the update for the attibute.');
-        
-                            if (!arraysEqual(currentValue, diff.update[attributeName].value))
-                                throw new Error('diff.update.value is not set correctly.');
-        
-                            if (!arraysEqual(previousValue, diff.update[attributeName].previous))
-                                throw new Error('diff.update.previous is not set correctly.');
                             
-                            if (!arraysEqual(valuesAdded, diff.update[attributeName].insert))
-                                throw new Error('diff.update.insert is not set correctly.');
-
-                            if (!arraysEqual(valuesRemoved, diff.update[attributeName].remove))
-                                throw new Error('diff.update.remove is not set correctly.');
+                            if (!arraysEqual(diff.$set[attributeName], currentValue))
+                                throw new Error('diff does not contain the expected attribute value.');
                         });
 
                     });

@@ -25,6 +25,28 @@ class InstanceReference {
     }
 
     diff(that) {
+        if (that === null) {
+            return {
+                $set: this._id,
+            }
+        }
+        else if (this.equals(that)) {
+            return {};
+        }
+        else if (this.isEmpty() && !that.isEmpty()) {
+            return {
+                $unset: that._id,
+            }
+        }
+        else {
+            return {
+                $set: this._id,
+            }
+        }
+
+    }
+
+    diff2(that) {
         if (this.isEmpty() && that.isEmpty()) {
             return {};
         }

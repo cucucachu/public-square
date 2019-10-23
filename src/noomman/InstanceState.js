@@ -240,10 +240,109 @@ class InstanceState {
                 document[relationshipName] = relationship._ids;
         }
 
-        return document;        
+        return document;
     }
 
     diff(that) {
+        this.sync();
+        that.sync();
+
+        const diffObject = {};
+        const $set = {};
+        const $unset = {};
+
+        for (const attributeDefinition of this.classModel.attributes) {
+            const thisAttribute = this.attributes[attributeDefinition.name];
+            const thatAttribute = that !== null ? that.attributes[attributeDefinition.name] : null;
+            let thisEmpty = thisAttribute === null;
+            let thatEmpty = thatAttribute === null;
+
+            
+            if (attributeDefinition.list) {
+                thisEmpty = thisEmpty || thisAttribute.length === 0;
+                thatEmpty = thatEmpty || thatAttribute.length === 0;
+            }
+
+            if (thisEmpty && thatEmpty) {
+                continue;
+            }
+            else if (thisEmpty && !thatEmpty) {
+                $unset[attributeDefinition.name] = thatAttribute;
+            }
+            else if (!thisEmpty && thatEmpty) {
+                $set[attributeDefinition.name] = thisAttribute;
+            }
+            else if (!thisEmpty && !thatEmpty) {
+                if (!attributeDefinition.list) {
+                    if (attributeDefinition.type === Date) {
+                        if (!moment(thisAttribute).isSame(thatAttribute)) {
+                            $set[attributeDefinition.name] = thisAttribute;
+                        }
+                    }
+                    else {
+                        if (thisAttribute !== thatAttribute) {
+                            $set[attributeDefinition.name] = thisAttribute;
+                        }
+                    }
+                }
+                else {
+                    if (thisAttribute.length !== thatAttribute.length) {
+                        $set[attributeDefinition.name] = thisAttribute;
+                    }
+                    else {
+                        for (const index in thisAttribute) {
+                            if (attributeDefinition.type === Date) {
+                                if (!moment(thisAttribute[index]).isSame(thatAttribute[index])) {
+                                    $set[attributeDefinition.name] = thisAttribute;
+                                    break;
+                                }
+                            }
+                            else {
+                                if (thisAttribute[index] !== thatAttribute[index]) {
+                                    $set[attributeDefinition.name] = thisAttribute;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        for (const relationshipDefinition of this.classModel.relationships) {
+            let thisRelationship, thatRelationship;
+            if (relationshipDefinition.singular) {
+                thisRelationship = this.instanceReferences[relationshipDefinition.name];
+                thatRelationship = that !== null ? that.instanceReferences[relationshipDefinition.name] : null;
+            }
+            else { 
+                thisRelationship = this.instanceSetReferences[relationshipDefinition.name];
+                thatRelationship = that !== null ? that.instanceSetReferences[relationshipDefinition.name] : null;
+            }
+
+            const relationshipDiff = thisRelationship.diff(thatRelationship);
+
+            if (relationshipDiff.$set) {
+                $set[relationshipDefinition.name] = relationship.$set;
+            }
+            else if (relationshipDiff.$unset) {
+                $unset[relationshipDefinition.name] = relationship.$unset;
+            }
+        }
+
+
+        if (Object.keys($set).length) {
+            diffObject.$set = $set;
+        }
+
+        if (Object.keys($unset).length) {
+            diffObject.$unset = $unset;
+        }
+
+        return diffObject;
+    }
+
+    diff2(that) {
         this.sync();
         that.sync();
         const diffObject = {
