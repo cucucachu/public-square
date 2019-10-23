@@ -293,16 +293,25 @@ class InstanceState {
                     }
                     else {
                         for (const index in thisAttribute) {
-                            if (attributeDefinition.type === Date) {
-                                if (!moment(thisAttribute[index]).isSame(thatAttribute[index])) {
-                                    $set[attributeDefinition.name] = thisAttribute;
-                                    break;
-                                }
+                            if (thisAttribute[index] === null && thatAttribute[index] === null) {
+                                continue;
+                            }
+                            else if (thisAttribute[index] !== null && thatAttribute[index] === null || thisAttribute[index] === null && thatAttribute[index] !== null) {
+                                $set[attributeDefinition.name] = thisAttribute;
+                                break;
                             }
                             else {
-                                if (thisAttribute[index] !== thatAttribute[index]) {
-                                    $set[attributeDefinition.name] = thisAttribute;
-                                    break;
+                                if (attributeDefinition.type === Date) {
+                                    if (!moment(thisAttribute[index]).isSame(thatAttribute[index])) {
+                                        $set[attributeDefinition.name] = thisAttribute;
+                                        break;
+                                    }
+                                }
+                                else {
+                                    if (thisAttribute[index] !== thatAttribute[index]) {
+                                        $set[attributeDefinition.name] = thisAttribute;
+                                        break;
+                                    }
                                 }
                             }
                         }

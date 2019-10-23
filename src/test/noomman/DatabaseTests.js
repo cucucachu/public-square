@@ -128,7 +128,7 @@ describe('Database Tests', () => {
 
         });
 
-        describe('database.update()', () => {
+        describe('database.overwrite()', () => {
             
             const id = database.ObjectId();
 
@@ -141,12 +141,12 @@ describe('Database Tests', () => {
                 await database.insertOne(collection, document);
             });
 
-            it('Can find and update a document.', async () => {
+            it('Can find and overwrite a document.', async () => {
                 const document = await database.findById(collection, id);
 
                 document.name = 'Joe';
 
-                await database.update(collection, document);
+                await database.overwrite(collection, document);
 
                 
                 const documentAfterUpdate = await database.findById(collection, id);

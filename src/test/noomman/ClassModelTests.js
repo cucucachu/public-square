@@ -483,7 +483,7 @@ describe('Class Model Tests', () => {
 
         });
 
-        describe('ClassModel.update()', () => {
+        describe('ClassModel.overwrite()', () => {
 
             it('Can update a document.', async () => {
                 const id = database.ObjectId();
@@ -496,7 +496,7 @@ describe('Class Model Tests', () => {
 
                 await SuperClass.insertOne(document);
                 document.boolean = true;
-                await SuperClass.update(document);
+                await SuperClass.overwrite(document);
 
                 const found = await database.findById(SuperClass.collection, id);
 
@@ -516,7 +516,7 @@ describe('Class Model Tests', () => {
 
                 await SubClassOfDiscriminatedSuperClass.insertOne(document);
                 document.boolean = true;
-                await SubClassOfDiscriminatedSuperClass.update(document);
+                await SubClassOfDiscriminatedSuperClass.overwrite(document);
 
                 const found = await database.findById(DiscriminatedSuperClass.collection, id);
 

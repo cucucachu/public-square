@@ -3064,6 +3064,262 @@ describe('Instance Tests', () => {
 
     });
 
+    describe('instance.diff()', () => {
+
+        describe('Diff With Attribute Changes', () => {
+
+            it('Updating attributes.', () => {
+                const document = {
+                    _id: database.ObjectId(),
+                    string: 'yoyoyo',
+                    strings: ['bob', 'is', 'your', 'uncle'],
+                    boolean: true,
+                    booleans: [true, false],
+                    date: new Date(),
+                    dates: [null, new Date()],
+                    number: 15,
+                    numbers: [0, 1, 0],
+                }
+                const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+                instance.assign({
+                    string: 'yayaya',
+                    booleans: [false, true],
+                    date: new Date('1000-01-01'),
+                    numbers: [1, 0, 1],
+                });
+    
+                instance.strings = null;
+                instance.number = undefined;
+    
+                const diff = instance.diff();
+    
+                if (!diff.$set) {
+                    throw new Error('Diff is missing the $set object.');
+                }
+                if (!diff.$set.string || !diff.$set.date || !diff.$set.booleans || !diff.$set.numbers) {
+                    throw new Error('Diff is missing at least one of the $set properties.');
+                }
+                if (Object.keys(diff.$set).length > 4) {
+                    throw new Error('Diff has $set properties it shouldn\'t.');
+                }
+                if (!diff.$unset) {
+                    throw new Error('Diff is missing the $unset object.');
+                }
+                if (!diff.$unset.strings || !diff.$unset.number) {
+                    throw new Error('Diff is missing at least one of the $unset properties.');
+                }
+                if (Object.keys(diff.$unset).length > 2) {
+                    throw new Error('Diff has $unset properties it shouldn\'t.');
+                }
+                if (diff.$addToSet || diff.$pull) {
+                    throw new Error('Diff has an $addToSet or $pull object when it shouldn\'t.');
+                }
+            });
+    
+            it('Updating attributes.', () => {
+                const document = {
+                    _id: database.ObjectId(),
+                    string: 'yoyoyo',
+                    strings: ['bob', 'is', 'your', 'uncle'],
+                    boolean: true,
+                    booleans: [true, false],
+                    date: new Date(),
+                    dates: [null, new Date()],
+                    number: 15,
+                    numbers: [0, 1, 0],
+                }
+                const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+    
+                instance.strings = null;
+                instance.number = undefined;
+    
+                const diff = instance.diff();
+    
+                if (!diff.$unset) {
+                    throw new Error('Diff is missing the $unset object.');
+                }
+                if (!diff.$unset.strings || !diff.$unset.number) {
+                    throw new Error('Diff is missing at least one of the $unset properties.');
+                }
+                if (!arraysEqual(diff.$unset.strings, ['bob', 'is', 'your', 'uncle'])) {
+                    throw new Error('Diff has incorrect value for diff.$unset.strings.');
+                }
+                if (diff.$unset.number !== 15) {
+                    throw new Error('Diff has incorrect value for diff.$unset.number');
+                }
+                if (diff.$set || diff.$addToSet || diff.$pull) {
+                    throw new Error('Diff has a $set, $addToSet, or $pull object when it shouldn\'t.');
+                }
+            });
+    
+            it('Updating attributes. $set has correct values.', () => {
+                const document = {
+                    _id: database.ObjectId(),
+                    string: 'yoyoyo',
+                    strings: ['bob', 'is', 'your', 'uncle'],
+                    boolean: true,
+                    booleans: [true, false],
+                    date: new Date(),
+                    dates: [null, new Date()],
+                    number: 15,
+                    numbers: [0, 1, 0],
+                }
+                const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+                instance.assign({
+                    string: 'yayaya',
+                    booleans: [false, true],
+                    date: new Date('1000-01-01'),
+                    numbers: [1, 0, 1],
+                });
+    
+                const diff = instance.diff();
+    
+                if (!diff.$set) {
+                    throw new Error('Diff is missing the $set object.');
+                }
+                if (!diff.$set.string || !diff.$set.date || !diff.$set.booleans || !diff.$set.numbers) {
+                    throw new Error('Diff is missing at least one of the $set properties.');
+                }
+                if (Object.keys(diff.$set).length > 4) {
+                    throw new Error('Diff has $set properties it shouldn\'t.');
+                }
+                if (diff.$set.string !== 'yayaya') {
+                    throw new Error('Diff has incorrect value for diff.$set.string.');
+                }
+                if (!arraysEqual(diff.$set.booleans, [false, true])) {
+                    throw new Error('Diff has incorrect value for diff.$set.booleans.');
+                }
+                if (!moment(new Date('1000-01-01')).isSame(diff.$set.date)) {
+                    throw new Error('Diff has incorrect value for diff.$set.date.');
+                }
+                if (!arraysEqual(diff.$set.numbers, [1, 0, 1])) {
+                    throw new Error('Diff has incorrect value for diff.$set.numbers.');
+                }
+                if (diff.$addToSet || diff.$pull || diff.$unset) {
+                    throw new Error('Diff has an $unset, $addToSet, or $pull object when it shouldn\'t.');
+                }
+            });
+    
+            it('Updating list attributes to empty leads to an $unset diff.', () => {
+                const document = {
+                    _id: database.ObjectId(),
+                    string: 'yoyoyo',
+                    strings: ['bob', 'is', 'your', 'uncle'],
+                    boolean: true,
+                    booleans: [true, false],
+                    date: new Date(),
+                    dates: [null, new Date()],
+                    number: 15,
+                    numbers: [0, 1, 0],
+                }
+                const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+                instance.assign({
+                    strings: [],
+                    booleans: [],
+                    dates: [],
+                    numbers: [],
+                });
+    
+                const diff = instance.diff();
+    
+                if (!diff.$unset) {
+                    throw new Error('Diff is missing the $unset object.');
+                }
+                if (!diff.$unset.strings || !diff.$unset.numbers || !diff.$unset.dates || !diff.$unset.booleans) {
+                    throw new Error('Diff is missing at least one of the $unset properties.');
+                }
+                if (Object.keys(diff.$unset).length > 4) {
+                    throw new Error('Diff has $unset properties it shouldn\'t.');
+                }
+                if (diff.$addToSet || diff.$pull || diff.$set) {
+                    throw new Error('Diff has a $set, $addToSet, or $pull object when it shouldn\'t.');
+                }
+            });
+
+        });
+
+        describe('Diff With Relationship Changes', () => {
+
+            it('Updating relationships, replacing values', () => {
+                const oldClass1Value = database.ObjectId();
+                const oldClass2sValue = [database.ObjectId(), database.ObjectId()];
+                const newClass1Value = new Instance(CompareClass1);
+                const newClass2sValue = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
+                const document = {
+                    _id: database.ObjectId(),
+                    class1: oldClass1Value,
+                    class2s: oldClass2sValue,
+                }
+                const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+                instance.assign({
+                    class1: newClass1Value,
+                    class2s: newClass2sValue,
+                });
+    
+                const diff = instance.diff();
+
+                if (!diff.$set || !diff.$addToSet || !diff.$pull) {
+                    throw new Error('Diff is missing one of the operations.');
+                }
+                if (!diff.$set.class1) {
+                    throw new Error('Diff is missing property diff.$set.class1');
+                }
+                if (!diff.$set.class1.equals(newClass1Value._id)) {
+                    throw new Error('Value for diff.$set.class1 is incorrect.');
+                }
+                if (!diff.$addToSet.class2s) {
+                    throw new Error('Diff is missing property diff.$addToSet.class2s');
+                }
+                if (!diff.$addToSet.class2s.$each) {
+                    throw new Error('Diff is missing property diff.$addToSet.class2s.$each');
+                }
+                if (!arraysEqual(newClass2sValue.getObjectIds(), diff.$addToSet.class2s.$each)) {
+                    throw new Error('Value for diff.$addToSet.class2s.$each is incorrect.');
+                }
+                if (!diff.$pull.class2s) {
+                    throw new Error('Diff is missing property diff.$pull.class2s');
+                }
+                if (!diff.$pull.class2s.$in) {
+                    throw new Error('Diff is missing property diff.$pull.class2s.$in');
+                }
+                if (!arraysEqual(oldClass2sValue, diff.$pull.class2s.$in)) {
+                    throw new Error('Value for diff.$pull.class2s.$in is incorrect.');
+                }
+            });
+
+            it('Updating relationships. Adding one Instance and removing one Instance from a non-singular Relationship.', () => {
+                const oldClass2Instance = new Instance(CompareClass2);
+                const oldClass2sValue = [oldClass2Instance._id, database.ObjectId()];
+                const newClass2sValue = new InstanceSet(CompareClass2, [oldClass2Instance, new Instance(CompareClass2)]);
+                const document = {
+                    _id: database.ObjectId(),
+                    class2s: oldClass2sValue,
+                }
+                const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+                instance.assign({
+                    class2s: newClass2sValue,
+                });
+    
+                const diff = instance.diff();
+
+                if (!diff.$addToSet.class2s) {
+                    throw new Error('Diff is missing property diff.$addToSet.class2s');
+                }
+                if (!diff.$addToSet.class2s.equals([...newClass2sValue][1]._id)) {
+                    throw new Error('Value for diff.$addToSet.class2s is incorrect.');
+                }
+                if (!diff.$pull.class2s) {
+                    throw new Error('Diff is missing property diff.$pull.class2s');
+                }
+                if (!diff.$pull.class2s.equals(oldClass2sValue[1])) {
+                    throw new Error('Value for diff.$pull.class2s is incorrect.');
+                }
+            });
+
+        });
+
+    });
+
     describe('instance.save()', () => {
 
         // Set up createControlled Instances

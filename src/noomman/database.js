@@ -42,13 +42,22 @@ async function insertMany(collection, docs) {
 	return db.collection(collection).insertMany(docs);
 }
 
-async function update(collection, doc) {
+async function overwrite(collection, doc) {
 	const filter = {
 		_id: doc._id,
 	};
 	const update = {
 		$set: doc
 	}
+
+	return db.collection(collection).updateOne(filter, update);
+}
+
+async function update(collection, instance) {
+	const filter = {
+		_id: instance._id,
+	};
+	const update = instance.diff();
 
 	return db.collection(collection).updateOne(filter, update);
 }
@@ -108,6 +117,7 @@ module.exports = {
 	insertOne,
 	insertMany,
 	update,
+	overwrite,
 	deleteOne,
 	deleteMany,
 	clearCollection,

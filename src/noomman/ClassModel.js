@@ -302,8 +302,12 @@ class ClassModel {
         return db.insertMany(this.collection, documents);
     }
 
-    async update(document) {
-        return db.update(this.collection, document);
+    async update(instance) {
+        return db.update(this.collection, instance);
+    }
+
+    async overwrite(instance) {
+        return db.overwrite(this.collection, instance);
     }
 
     async delete(instance) {
