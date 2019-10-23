@@ -250,6 +250,8 @@ class InstanceState {
         const diffObject = {};
         const $set = {};
         const $unset = {};
+        const $addToSet = {};
+        const $pull = {};
 
         for (const attributeDefinition of this.classModel.attributes) {
             const thisAttribute = this.attributes[attributeDefinition.name];
@@ -325,8 +327,28 @@ class InstanceState {
             if (relationshipDiff.$set) {
                 $set[relationshipDefinition.name] = relationshipDiff.$set;
             }
-            else if (relationshipDiff.$unset) {
+            if (relationshipDiff.$unset) {
                 $unset[relationshipDefinition.name] = relationshipDiff.$unset;
+            }
+            if (relationshipDiff.$addToSet) {
+                if (relationshipDiff.$addToSet.length > 1) {
+                    $addToSet[relationshipDefinition.name] = {
+                        $each: relationshipDiff.$addToSet,
+                    };
+                }
+                else {
+                    $addToSet[relationshipDefinition.name] = relationshipDiff.$addToSet[0];
+                }
+            }
+            if (relationshipDiff.$pull) {
+                if (relationshipDiff.$pull.length > 1) {
+                    $pull[relationshipDefinition.name] = {
+                        $in: relationshipDiff.$pull,
+                    };
+                }
+                else {
+                    $pull[relationshipDefinition.name] = relationshipDiff.$pull[0];
+                }
             }
         }
 
@@ -337,6 +359,14 @@ class InstanceState {
 
         if (Object.keys($unset).length) {
             diffObject.$unset = $unset;
+        }
+
+        if (Object.keys($addToSet).length) {
+            diffObject.$addToSet = $addToSet;
+        }
+
+        if (Object.keys($pull).length) {
+            diffObject.$pull = $pull;
         }
 
         return diffObject;

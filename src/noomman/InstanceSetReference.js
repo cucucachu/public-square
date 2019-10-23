@@ -73,15 +73,31 @@ class InstanceSetReference {
         if (this.equals(that)) {
             return {};
         }
+        else if (!this.isEmpty() && that.isEmpty()) {
+            return {
+                $set: this._ids,
+            }
+        }
         else if (this.isEmpty() && !that.isEmpty()) {
             return {
                 $unset: this._ids,
             }
         }
         else {
-            return {
-                $set: this._ids,
+            const diffObject = {}
+            const thisSet = new SuperSet(this._ids);
+            const thatSet = new SuperSet(that._ids);
+
+            const toInsert = [...thisSet.difference(thatSet)];
+            const toRemove = [...thatSet.difference(thisSet)];
+
+            if (toInsert.length) {
+                diffObject.$addToSet = toInsert;
             }
+            if (toRemove.length) {
+                diffObject.$pull = toRemove;
+            }
+            return diffObject;            
         }
     }
 
