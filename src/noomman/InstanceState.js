@@ -323,10 +323,10 @@ class InstanceState {
             const relationshipDiff = thisRelationship.diff(thatRelationship);
 
             if (relationshipDiff.$set) {
-                $set[relationshipDefinition.name] = relationship.$set;
+                $set[relationshipDefinition.name] = relationshipDiff.$set;
             }
             else if (relationshipDiff.$unset) {
-                $unset[relationshipDefinition.name] = relationship.$unset;
+                $unset[relationshipDefinition.name] = relationshipDiff.$unset;
             }
         }
 

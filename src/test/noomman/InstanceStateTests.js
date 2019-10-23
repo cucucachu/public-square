@@ -995,7 +995,7 @@ describe('Instance State Tests', () => {
 
     describe('InstanceState.diff() Tests', () => {
         
-        describe.only('Attribute Diffs', () => {
+        describe('Attribute Diffs', () => {
 
             describe('Singular Attribute Diffs', () => {
 
@@ -1822,10 +1822,10 @@ describe('Instance State Tests', () => {
                         const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
 
-                        if (!diff.add || !diff.add[relationshipName])
+                        if (!diff.$set || !diff.$set[relationshipName])
                             throw new Error('diff.add is missing the relationship change.');
 
-                        if (diff.add[relationshipName] != relatedId.toHexString())
+                        if (!diff.$set[relationshipName].equals(relatedId))
                             throw new Error('diff is missing the added instance Id.');
                     });
 
@@ -1844,10 +1844,10 @@ describe('Instance State Tests', () => {
                         const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
 
-                        if (!diff.remove || !diff.remove[relationshipName])
-                            throw new Error('diff.remove is missing the relationship change.');
+                        if (!diff.$unset || !diff.$unset[relationshipName])
+                            throw new Error('diff.add is missing the relationship change.');
 
-                        if (diff.remove[relationshipName] != relatedId.toHexString())
+                        if (!diff.$unset[relationshipName].equals(relatedId))
                             throw new Error('diff is missing the added instance Id.');
                     });
 
@@ -1869,20 +1869,11 @@ describe('Instance State Tests', () => {
                         const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
 
-                        if (!diff.update || !diff.update[relationshipName])
-                            throw new Error('diff.update is missing the relationship change.');
+                        if (!diff.$set || !diff.$set[relationshipName])
+                            throw new Error('diff.add is missing the relationship change.');
 
-                        if (diff.update[relationshipName].previous != previousId.toHexString())
-                            throw new Error('diff previous value is incorect.');
-
-                        if (diff.update[relationshipName].value != currentId.toHexString())
-                            throw new Error('diff is current value is incorrect.');
-
-                        if (diff.update[relationshipName].remove != previousId.toHexString())
-                            throw new Error('diff remove value is incorect.');
-
-                        if (diff.update[relationshipName].insert != currentId.toHexString())
-                            throw new Error('diff is insert value is incorrect.');
+                        if (!diff.$set[relationshipName].equals(currentId))
+                            throw new Error('diff is missing the added instance Id.');
                     });
 
                 });
@@ -1907,10 +1898,10 @@ describe('Instance State Tests', () => {
                         const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
 
-                        if (!diff || !diff.add[relationshipName])
+                        if (!diff || !diff.$set[relationshipName])
                             throw new Error('Diff did not return with an add.');
 
-                        if (!arraysEqual(currentIds, diff.add[relationshipName]))
+                        if (!arraysEqual(currentIds, diff.$set[relationshipName]))
                             throw new Error('Diff did not return the add with the correct ids.');
                     });
                     
@@ -1933,11 +1924,11 @@ describe('Instance State Tests', () => {
                         const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                         const diff = currentInstanceState.diff(previousInstanceState);
 
-                        if (!diff || !diff.remove[relationshipName])
-                            throw new Error('Diff did not return with an remove.');
+                        if (!diff || !diff.$unset[relationshipName])
+                            throw new Error('Diff did not return with an add.');
 
-                        if (!arraysEqual(previousIds, diff.remove[relationshipName]))
-                            throw new Error('Diff did not return the remove with the correct ids.');
+                        if (!arraysEqual(currentIds, diff.$unset[relationshipName]))
+                            throw new Error('Diff did not return the add with the correct ids.');
                     });
 
                 });
@@ -1967,21 +1958,12 @@ describe('Instance State Tests', () => {
                             const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
                             const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
+
+                            if (!diff || !diff.$set[relationshipName])
+                                throw new Error('Diff did not return with an add.');
     
-                            if (!diff || !diff.update[relationshipName])
-                                throw new Error('Diff did not return with an update.');
-    
-                            if (!arraysEqual(currentIds, diff.update[relationshipName].value))
-                                throw new Error('Diff did not return the value with the correct ids.');
-    
-                            if (!arraysEqual(previousIds, diff.update[relationshipName].previous))
-                                throw new Error('Diff did not return the previous with the correct ids.');
-    
-                            if (!arraysEqual(insertIds, diff.update[relationshipName].insert))
-                                throw new Error('Diff did not return the insert with the correct ids.');
-    
-                            if (!arraysEqual(removeIds, diff.update[relationshipName].remove))
-                                throw new Error('Diff did not return the remove with the correct ids.');
+                            if (!arraysEqual(currentIds, diff.$set[relationshipName]))
+                                throw new Error('Diff did not return the add with the correct ids.');
 
                         });
 
@@ -2010,21 +1992,12 @@ describe('Instance State Tests', () => {
                             const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
                             const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
+
+                            if (!diff || !diff.$set[relationshipName])
+                                throw new Error('Diff did not return with an add.');
     
-                            if (!diff || !diff.update[relationshipName])
-                                throw new Error('Diff did not return with an update.');
-    
-                            if (!arraysEqual(currentIds, diff.update[relationshipName].value))
-                                throw new Error('Diff did not return the value with the correct ids.');
-    
-                            if (!arraysEqual(previousIds, diff.update[relationshipName].previous))
-                                throw new Error('Diff did not return the previous with the correct ids.');
-    
-                            if (!arraysEqual(insertIds, diff.update[relationshipName].insert))
-                                throw new Error('Diff did not return the insert with the correct ids.');
-    
-                            if (!arraysEqual(removeIds, diff.update[relationshipName].remove))
-                                throw new Error('Diff did not return the remove with the correct ids.');
+                            if (!arraysEqual(currentIds, diff.$set[relationshipName]))
+                                throw new Error('Diff did not return the add with the correct ids.');
                         });
 
                     });
@@ -2054,21 +2027,12 @@ describe('Instance State Tests', () => {
                             const previousInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, previousDocument);
                             const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
+
+                            if (!diff || !diff.$set[relationshipName])
+                                throw new Error('Diff did not return with an add.');
     
-                            if (!diff || !diff.update[relationshipName])
-                                throw new Error('Diff did not return with an update.');
-    
-                            if (!arraysEqual(currentIds, diff.update[relationshipName].value))
-                                throw new Error('Diff did not return the value with the correct ids.');
-    
-                            if (!arraysEqual(previousIds, diff.update[relationshipName].previous))
-                                throw new Error('Diff did not return the previous with the correct ids.');
-    
-                            if (!arraysEqual(insertIds, diff.update[relationshipName].insert))
-                                throw new Error('Diff did not return the insert with the correct ids.');
-    
-                            if (!arraysEqual(removeIds, diff.update[relationshipName].remove))
-                                throw new Error('Diff did not return the remove with the correct ids.');
+                            if (!arraysEqual(currentIds, diff.$set[relationshipName]))
+                                throw new Error('Diff did not return the add with the correct ids.');
                         });
 
                     });
