@@ -3240,6 +3240,59 @@ describe('Instance Tests', () => {
 
         describe('Diff With Relationship Changes', () => {
 
+            it('Setting a Non-Singular Relationship', () => {
+                const newClass2sValue = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
+                const document = {
+                    _id: database.ObjectId(),
+                }
+                const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+                instance.assign({
+                    class2s: newClass2sValue,
+                });
+    
+                const diff = instance.diff();
+
+                if (!diff.$set) {
+                    throw new Error('Diff is missing one of the operations.');
+                }
+                if (!diff.$set.class2s) {
+                    throw new Error('Diff is missing property diff.$set.class2s');
+                }
+                if (!arraysEqual(newClass2sValue.getObjectIds(), diff.$set.class2s)) {
+                    throw new Error('Value for diff.$set.class2s.$each is incorrect.');
+                }
+                if (diff.$unset || diff.$addToSet || diff.$pull) {
+                    throw new Error('Diff contains extra operations.');
+                }
+            });
+
+            it('Un-Setting a Non-Singular Relationship', () => {
+                const oldClass2sValue =[new Instance(CompareClass2)._id, new Instance(CompareClass2)._id];
+                const document = {
+                    _id: database.ObjectId(),
+                    class2s: oldClass2sValue,
+                }
+                const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+                instance.assign({
+                    class2s: null,
+                });
+    
+                const diff = instance.diff();
+
+                if (!diff.$unset) {
+                    throw new Error('Diff is missing one of the operations.');
+                }
+                if (!diff.$unset.class2s) {
+                    throw new Error('Diff is missing property diff.$unset.class2s');
+                }
+                if (!arraysEqual(oldClass2sValue, diff.$unset.class2s)) {
+                    throw new Error('Value for diff.$unset.class2s is incorrect.');
+                }
+                if (diff.$set || diff.$addToSet || diff.$pull) {
+                    throw new Error('Diff contains extra operations.');
+                }
+            });
+
             it('Updating relationships, replacing values', () => {
                 const oldClass1Value = database.ObjectId();
                 const oldClass2sValue = [database.ObjectId(), database.ObjectId()];
@@ -3258,7 +3311,7 @@ describe('Instance Tests', () => {
     
                 const diff = instance.diff();
 
-                if (!diff.$set || !diff.$addToSet || !diff.$pull) {
+                if (!diff.$set) {
                     throw new Error('Diff is missing one of the operations.');
                 }
                 if (!diff.$set.class1) {
@@ -3267,23 +3320,14 @@ describe('Instance Tests', () => {
                 if (!diff.$set.class1.equals(newClass1Value._id)) {
                     throw new Error('Value for diff.$set.class1 is incorrect.');
                 }
-                if (!diff.$addToSet.class2s) {
-                    throw new Error('Diff is missing property diff.$addToSet.class2s');
+                if (!diff.$set.class2s) {
+                    throw new Error('Diff is missing property diff.$set.class2s');
                 }
-                if (!diff.$addToSet.class2s.$each) {
-                    throw new Error('Diff is missing property diff.$addToSet.class2s.$each');
+                if (!arraysEqual(newClass2sValue.getObjectIds(), diff.$set.class2s)) {
+                    throw new Error('Value for diff.$set.class2s.$each is incorrect.');
                 }
-                if (!arraysEqual(newClass2sValue.getObjectIds(), diff.$addToSet.class2s.$each)) {
-                    throw new Error('Value for diff.$addToSet.class2s.$each is incorrect.');
-                }
-                if (!diff.$pull.class2s) {
-                    throw new Error('Diff is missing property diff.$pull.class2s');
-                }
-                if (!diff.$pull.class2s.$in) {
-                    throw new Error('Diff is missing property diff.$pull.class2s.$in');
-                }
-                if (!arraysEqual(oldClass2sValue, diff.$pull.class2s.$in)) {
-                    throw new Error('Value for diff.$pull.class2s.$in is incorrect.');
+                if (diff.$unset || diff.$addToSet || diff.$pull) {
+                    throw new Error('Diff contains extra operations.');
                 }
             });
 
@@ -3302,17 +3346,125 @@ describe('Instance Tests', () => {
     
                 const diff = instance.diff();
 
+                if (!diff.$set.class2s) {
+                    throw new Error('Diff is missing property diff.$set.class2s');
+                }
+                if (!arraysEqual(diff.$set.class2s, newClass2sValue.getObjectIds())) {
+                    throw new Error('Value for diff.$set.class2s is incorrect.');
+                }
+                if (diff.$unset || diff.$addToSet || diff.$pull) {
+                    throw new Error('Diff contains extra operations.');
+                }
+            });
+
+            it('Updating relationships. Adding one Instance to a non-singular Relationship.', () => {
+                const oldClass2Instance = new Instance(CompareClass2);
+                const oldClass2sValue = [oldClass2Instance._id];
+                const newClass2sValue = new InstanceSet(CompareClass2, [oldClass2Instance, new Instance(CompareClass2)]);
+                const document = {
+                    _id: database.ObjectId(),
+                    class2s: oldClass2sValue,
+                }
+                const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+                instance.assign({
+                    class2s: newClass2sValue,
+                });
+    
+                const diff = instance.diff();
+
                 if (!diff.$addToSet.class2s) {
                     throw new Error('Diff is missing property diff.$addToSet.class2s');
                 }
                 if (!diff.$addToSet.class2s.equals([...newClass2sValue][1]._id)) {
                     throw new Error('Value for diff.$addToSet.class2s is incorrect.');
                 }
+                if (diff.$set || diff.$unset || diff.$pull) {
+                    throw new Error('Diff contains extra operations.');
+                }
+            });
+
+            it('Updating relationships. Adding two Instances to a non-singular Relationship.', () => {
+                const oldClass2Instance = new Instance(CompareClass2);
+                const oldClass2sValue = [oldClass2Instance._id];
+                const newClass2sValue = new InstanceSet(CompareClass2, [oldClass2Instance, new Instance(CompareClass2), new Instance(CompareClass2)]);
+                const document = {
+                    _id: database.ObjectId(),
+                    class2s: oldClass2sValue,
+                }
+                const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+                instance.assign({
+                    class2s: newClass2sValue,
+                });
+    
+                const diff = instance.diff();
+                
+                if (!diff.$addToSet.class2s) {
+                    throw new Error('Diff is missing property diff.$addToSet.class2s');
+                }
+                if (!diff.$addToSet.class2s.$each) {
+                    throw new Error('Diff is missing property diff.$addToSet.class2s.$each');
+                }
+                if (!arraysEqual(diff.$addToSet.class2s.$each, newClass2sValue.getObjectIds().slice(1))) {
+                    throw new Error('Value for diff.$addToSet.class2s.$each is incorrect.');
+                }
+                if (diff.$unset || diff.$set || diff.$pull) {
+                    throw new Error('Diff contains extra operations.');
+                }
+            });
+
+            it('Updating relationships. Removing one Instance from a non-singular Relationship.', () => {
+                const oldClass2Instance = new Instance(CompareClass2);
+                const oldClass2sValue = [oldClass2Instance._id, new Instance(CompareClass2)._id];
+                const newClass2sValue = new InstanceSet(CompareClass2, [oldClass2Instance]);
+                const document = {
+                    _id: database.ObjectId(),
+                    class2s: oldClass2sValue,
+                }
+                const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+                instance.assign({
+                    class2s: newClass2sValue,
+                });
+    
+                const diff = instance.diff();
+                
                 if (!diff.$pull.class2s) {
                     throw new Error('Diff is missing property diff.$pull.class2s');
                 }
                 if (!diff.$pull.class2s.equals(oldClass2sValue[1])) {
                     throw new Error('Value for diff.$pull.class2s is incorrect.');
+                }
+                if (diff.$unset || diff.$set || diff.$addToSet) {
+                    throw new Error('Diff contains extra operations.');
+                }
+            });
+
+            it('Updating relationships. Removing two Instances from a non-singular Relationship.', () => {
+                const oldClass2Instance = new Instance(CompareClass2);
+                const oldClass2sValue = [oldClass2Instance._id, new Instance(CompareClass2)._id, new Instance(CompareClass2)._id];
+                const newClass2sValue = new InstanceSet(CompareClass2, [oldClass2Instance]);
+                const document = {
+                    _id: database.ObjectId(),
+                    class2s: oldClass2sValue,
+                }
+                const instance = new Instance(AllAttributesAndRelationshipsClass, document);
+                instance.assign({
+                    class2s: newClass2sValue,
+                });
+    
+                const diff = instance.diff();
+                
+                if (!diff.$pull.class2s) {
+                    throw new Error('Diff is missing property diff.$pull.class2s');
+                }
+                
+                if (!diff.$pull.class2s.$in) {
+                    throw new Error('Diff is missing property diff.$pull.class2s.$in');
+                }
+                if (!arraysEqual(diff.$pull.class2s.$in, oldClass2sValue.slice(1))) {
+                    throw new Error('Value for diff.$pull.class2s.$in is incorrect.');
+                }
+                if (diff.$unset || diff.$set || diff.$addToSet) {
+                    throw new Error('Diff contains extra operations.');
                 }
             });
 
@@ -3378,9 +3530,10 @@ describe('Instance Tests', () => {
             await CreateControlledSuperClass.clear();
             await CreateControlledClassCreateControlledByParameters.clear();
             await ValidationSuperClass.clear();
+            await AllAttributesAndRelationshipsClass.clear();
         });
 
-        it('instance.save() works properly.', async () => {
+        it('instance.save() works properly on a new instance.', async () => {
             const instance = new Instance(AllFieldsRequiredClass);
             instance.assign({
                 string: 'String',
@@ -3393,8 +3546,58 @@ describe('Instance Tests', () => {
                 class1: new Instance(CompareClass1),
                 class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
             });
+
             await instance.save();
             const found = await AllFieldsRequiredClass.findById(instance._id);
+
+            if (!found) 
+                throw new Error('instance.save() did not throw an error, but was not saved.');
+
+            if (instance.id !== found.id)
+                throw new Error('instance.save() did not throw an error, but the instance found is different than the instance saved.');
+
+            if (!instance.saved()) 
+                throw new Error('instance.save() did not set the saved property to true.');
+
+            if (!found.equals(instance))
+                throw new Error('instance.save() did not save all the properties of the instance.');
+            
+            if (!instance.currentState.equals(instance.previousState))
+                throw new Error('instance.previousState was not updated to match current state.');
+        });
+
+        it('instance.save() works properly when updating an instance.', async () => {
+            const instance = new Instance(AllAttributesAndRelationshipsClass);
+            instance.assign({
+                string: 'String',
+                strings: ['String'],
+                date: new Date(),
+                boolean: true,
+                booleans: [true],
+                number: 1,
+                numbers: [1],
+                class1: new Instance(CompareClass1),
+                class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
+            });
+
+            await instance.save();
+
+            instance.assign({
+                string: 'String2',
+                strings: ['String2'],
+                date: new Date(),
+                dates: [new Date('1000-01-01')],
+                boolean: false,
+                booleans: [],
+                number: null,
+                numbers: undefined,
+                class1: new Instance(CompareClass1),
+                class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
+            });
+
+            await instance.save();
+
+            const found = await AllAttributesAndRelationshipsClass.findById(instance._id);
 
             if (!found) 
                 throw new Error('instance.save() did not throw an error, but was not saved.');

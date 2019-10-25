@@ -369,8 +369,8 @@ class Instance {
         }
         else {
             await this.classModel.updateControlCheckInstance(this, ...controlMethodParameters);
-            //await this.classModel.update(this);
-            await this.classModel.overwrite(this.toDocument());
+            await this.classModel.update(this);
+            //await this.classModel.overwrite(this.toDocument());
         }
 
         this.previousState = new InstanceState(this.classModel, this.currentState.toDocument());
@@ -386,7 +386,7 @@ class Instance {
             await this.classModel.insertOne(this.toDocument());
         }
         else {
-            await this.classModel.overwrite(this.toDocument());
+            await this.classModel.update(this);
         }
         this.previousState = new InstanceState(this.classModel, this.currentState.toDocument());
         return this;

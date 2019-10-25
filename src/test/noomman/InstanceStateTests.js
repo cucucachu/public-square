@@ -1910,7 +1910,7 @@ describe('Instance State Tests', () => {
 
                 describe('Removing Relationship', () => {
 
-                    it('Adding ids to a nonsingular relationship that was empty.', () => {
+                    it('Removing all ids to a nonsingular relationship that populated.', () => {
                         const relationshipName = 'class2s';
                         const previousIds = [database.ObjectId(), database.ObjectId()];
                         const currentIds = [];
@@ -1927,7 +1927,7 @@ describe('Instance State Tests', () => {
                         if (!diff || !diff.$unset[relationshipName])
                             throw new Error('Diff did not return with an add.');
 
-                        if (!arraysEqual(currentIds, diff.$unset[relationshipName]))
+                        if (!arraysEqual(previousIds, diff.$unset[relationshipName]))
                             throw new Error('Diff did not return the add with the correct ids.');
                     });
 
@@ -2088,16 +2088,13 @@ describe('Instance State Tests', () => {
                             const currentInstanceState = new InstanceState(AllAttributesAndRelationshipsClass, currentDocument);
                             const diff = currentInstanceState.diff(previousInstanceState);
 
-                            if (!diff.$addToSet || !diff.$addToSet[relationshipName] || !diff.$addToSet[relationshipName].$each) {
+                            if (!diff.$set || !diff.$set[relationshipName]) {
                                 throw new Error('Diff does not contain expected structure.');
                             }
-                            if (!arraysEqual(diff.$addToSet[relationshipName].$each, insertIds)) {
-                                throw new Error('Operation does not contain expected Ids.');
+                            if (diff.$unset || diff.$addToSet || diff.$pull) {
+                                throw new Error('Diff has unnecesary operations.');
                             }
-                            if (!diff.$pull || !diff.$pull[relationshipName] || !diff.$pull[relationshipName].$in) {
-                                throw new Error('Diff does not contain expected structure.');
-                            }
-                            if (!arraysEqual(diff.$pull[relationshipName].$in, removeIds)) {
+                            if (!arraysEqual(diff.$set[relationshipName], currentIds)) {
                                 throw new Error('Operation does not contain expected Ids.');
                             }
                         });

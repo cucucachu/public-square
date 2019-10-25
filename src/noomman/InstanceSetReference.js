@@ -80,7 +80,7 @@ class InstanceSetReference {
         }
         else if (this.isEmpty() && !that.isEmpty()) {
             return {
-                $unset: this._ids,
+                $unset: that._ids,
             }
         }
         else {
@@ -91,49 +91,16 @@ class InstanceSetReference {
             const toInsert = [...thisSet.difference(thatSet)];
             const toRemove = [...thatSet.difference(thisSet)];
 
-            if (toInsert.length) {
+            if (toInsert.length && !toRemove.length) {
                 diffObject.$addToSet = toInsert;
             }
-            if (toRemove.length) {
+            else if (toRemove.length && !toInsert.length) {
                 diffObject.$pull = toRemove;
             }
+            else {
+                diffObject.$set = this._ids;
+            }
             return diffObject;            
-        }
-    }
-
-    diff2(that) {
-        this.sync();
-        that.sync();
-        if (this.isEmpty() && that.isEmpty()) {
-            return {};
-        }
-        if (!this.isEmpty() && that.isEmpty()) {
-            return {
-                add: this._ids,
-            }
-        }
-        if (this.isEmpty() && !that.isEmpty()) {
-            return {
-                remove: that._ids,
-            }
-        }
-        
-        const thisSet = new SuperSet(this._ids);
-        const thatSet = new SuperSet(that._ids);
-
-        if (thisSet.equals(thatSet))
-            return {};
-
-        const toInsert = [...thisSet.difference(thatSet)];
-        const toRemove = [...thatSet.difference(thisSet)];
-
-        return {
-            update: {
-                value: this._ids,
-                previous: that._ids,
-                insert: [...toInsert],
-                remove: [...toRemove],
-            }
         }
     }
 
