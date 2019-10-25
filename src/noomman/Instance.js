@@ -197,7 +197,7 @@ class Instance {
         // If nonsingular, use find()
         else {
             if (this['_' + relationshipName] == null || (Array.isArray(this['_' + relationshipName]) && this['_' + relationshipName].length == 0)) {
-                return [];
+                return this.classModel.emptyInstanceSet();
             }
             else {
                 if (Array.isArray(this['_' + relationshipName])) {
@@ -363,6 +363,10 @@ class Instance {
             throw new Error('Caught validation error when attempting to save Instance: ' + error.message);
         }
 
+        if (this.currentState.equals(this.previousState)) {
+            return this;
+        }
+
         if (!this.saved()) {
             await this.classModel.createControlCheckInstance(this, ...controlMethodParameters);
             await this.classModel.insertOne(this.toDocument());
@@ -381,6 +385,9 @@ class Instance {
     async saveWithoutValidation() {
         if (this.deleted()) 
             throw new Error('instance.save(): You cannot save an instance which has been deleted.');
+
+        if (this.currentState.equals(this.previousState))
+            return this;
 
         if (!this.saved()) {
             await this.classModel.insertOne(this.toDocument());

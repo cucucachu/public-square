@@ -291,6 +291,10 @@ class ClassModel {
         return (this.subClasses && this.subClasses.length)
     }
 
+    emptyInstanceSet() {
+        return new InstanceSet(this);
+    }
+
 
     // Insert, Update, Delete Methods
 

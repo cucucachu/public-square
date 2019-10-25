@@ -1617,7 +1617,7 @@ describe('Instance Tests', () => {
                         if (!arraysEqual(instance.currentState[relationshipName], []))
                             throw new Error('instance.currentState' + relationshipName + ' not set.');
 
-                        if (!arraysEqual((await instance[relationshipName]), []))
+                        if (!(await instance[relationshipName]).isEmpty())
                             throw new Error('instance.' + relationshipName + ' not set.');
                     });
 
@@ -1634,7 +1634,7 @@ describe('Instance Tests', () => {
                         if (!arraysEqual(instance.currentState[relationshipName], []))
                             throw new Error('instance.currentState' + relationshipName + ' not set.');
 
-                        if (!arraysEqual((await instance[relationshipName]), []))
+                        if (!(await instance[relationshipName]).isEmpty())
                             throw new Error('instance.' + relationshipName + ' not set.');
                     });
 
@@ -1884,15 +1884,15 @@ describe('Instance Tests', () => {
                                 throw new Error('instance.' + relationshipName + ' did not return InstanceSet.');
                         });
     
-                        it('Empty array returned for non-singular relationship when not set.', async () => {
+                        it('Empty InstanceSet returned for non-singular relationship when not set.', async () => {
                             const relationshipName = 'class2s';
                             const document = {
                                 _id: database.ObjectId(),
                             };
                             const instance = new Instance(AllAttributesAndRelationshipsClass, document);
     
-                            if (!arraysEqual((await instance[relationshipName]), []))
-                                throw new Error('instance.' + relationshipName + ' did not return empty array.');
+                            if (!(await instance[relationshipName]).isEmpty())
+                                throw new Error('instance.' + relationshipName + ' did not return empty InstanceSet.');
                         });
     
                     });
@@ -2067,11 +2067,11 @@ describe('Instance Tests', () => {
                 const instance = new Instance(AllAttributesAndRelationshipsClass, document);
                 delete instance.class2s;
                 
-                if (!Array.isArray(await instance['class2s']) || (await instance['class2s']).length !== 0)
-                    throw new Error('Non-singular relationship did delete properly.');
+                if (!((await instance.class2s) instanceof InstanceSet) || !(await instance.class2s).isEmpty())
+                    throw new Error('Non-singular relationship did not delete properly.');
                 
                 if (!Array.isArray(instance['_class2s']) || instance['_class2s'].length !== 0)
-                    throw new Error('Non-singular relationship did delete properly.');
+                    throw new Error('Non-singular relationship did not delete properly.');
             });
 
             it('Deleting a non-singular relationship (set to InstanceSet) sets instanceSetReference.instanceSet to null and instanceSetReference._ids to empty string.', async () => {
@@ -2079,11 +2079,11 @@ describe('Instance Tests', () => {
                 instance.class2s = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
                 delete instance.class2s;
                 
-                if (!Array.isArray(await instance['class2s']) || (await instance['class2s']).length !== 0)
-                    throw new Error('Non-singular relationship did delete properly.');
+                if (!((await instance.class2s) instanceof InstanceSet) || !(await instance.class2s).isEmpty())
+                    throw new Error('Non-singular relationship did not delete properly.');
                 
                 if (!Array.isArray(instance['_class2s']) || instance['_class2s'].length !== 0)
-                    throw new Error('Non-singular relationship did delete properly.');
+                    throw new Error('Non-singular relationship did not delete properly.');
             });
 
         });
@@ -3531,135 +3531,278 @@ describe('Instance Tests', () => {
             await CreateControlledClassCreateControlledByParameters.clear();
             await ValidationSuperClass.clear();
             await AllAttributesAndRelationshipsClass.clear();
+            await CompareClass1.clear();
+            await CompareClass2.clear();
         });
 
-        it('instance.save() works properly on a new instance.', async () => {
-            const instance = new Instance(AllFieldsRequiredClass);
-            instance.assign({
-                string: 'String',
-                strings: ['String'],
-                date: new Date(),
-                boolean: true,
-                booleans: [true],
-                number: 1,
-                numbers: [1],
-                class1: new Instance(CompareClass1),
-                class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
+        describe('Saving New Instances', () => {
+
+            it('instance.save() works properly on a new instance.', async () => {
+                const instance = new Instance(AllFieldsRequiredClass);
+                instance.assign({
+                    string: 'String',
+                    strings: ['String'],
+                    date: new Date(),
+                    boolean: true,
+                    booleans: [true],
+                    number: 1,
+                    numbers: [1],
+                    class1: new Instance(CompareClass1),
+                    class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
+                });
+    
+                await instance.save();
+                const found = await AllFieldsRequiredClass.findById(instance._id);
+    
+                if (!found) 
+                    throw new Error('instance.save() did not throw an error, but was not saved.');
+    
+                if (instance.id !== found.id)
+                    throw new Error('instance.save() did not throw an error, but the instance found is different than the instance saved.');
+    
+                if (!instance.saved()) 
+                    throw new Error('instance.save() did not set the saved property to true.');
+    
+                if (!found.equals(instance))
+                    throw new Error('instance.save() did not save all the properties of the instance.');
+                
+                if (!instance.currentState.equals(instance.previousState))
+                    throw new Error('instance.previousState was not updated to match current state.');
+            });
+    
+            it('instance.save() throws an error when instance is invalid. Instance not saved.', async () => {
+                const instance = new Instance(AllFieldsRequiredClass);
+                const expectedErrorMessage = 'Caught validation error when attempting to save Instance: ' + instance.id + ': Missing required property(s): "string"';
+                instance.assign({
+                    strings: ['String'],
+                    date: new Date(),
+                    boolean: true,
+                    booleans: [true],
+                    number: 1,
+                    numbers: [1],
+                    class1: new Instance(CompareClass1),
+                    class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
+                });
+    
+                await testForErrorAsync('instance.save', expectedErrorMessage, async () => {
+                    return instance.save();
+                });
+    
+                const found = await AllFieldsRequiredClass.findById(instance._id);
+    
+                if (found !== null)
+                    throw new Error('instance was saved.');
+            });
+    
+            it('instance.save() throws an error if instance has already been deleted. Instance not saved.', async () => {
+                const expectedErrorMessage = 'instance.save(): You cannot save an instance which has been deleted.';
+                const instance = new Instance(AllFieldsRequiredClass);
+                instance.assign({
+                    string: 'String',
+                    strings: ['String'],
+                    date: new Date(),
+                    boolean: true,
+                    booleans: [true],
+                    number: 1,
+                    numbers: [1],
+                    class1: new Instance(CompareClass1),
+                    class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
+                });
+    
+                await instance.save();
+                await instance.delete();
+    
+                await testForErrorAsync('instance.save', expectedErrorMessage, async () => {
+                    return instance.save();
+                });
             });
 
-            await instance.save();
-            const found = await AllFieldsRequiredClass.findById(instance._id);
+        });
 
-            if (!found) 
-                throw new Error('instance.save() did not throw an error, but was not saved.');
+        describe('Saving Existing Instances (Update)', () => {
 
-            if (instance.id !== found.id)
-                throw new Error('instance.save() did not throw an error, but the instance found is different than the instance saved.');
+            it('instance.save() works properly when updating an instance.', async () => {
+                const instance = new Instance(AllAttributesAndRelationshipsClass);
+                instance.assign({
+                    string: 'String',
+                    strings: ['String'],
+                    date: new Date(),
+                    boolean: true,
+                    booleans: [true],
+                    number: 1,
+                    numbers: [1],
+                    class1: new Instance(CompareClass1),
+                    class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
+                });
+    
+                await instance.save();
+    
+                instance.assign({
+                    string: 'String2',
+                    strings: ['String2'],
+                    date: new Date(),
+                    dates: [new Date('1000-01-01')],
+                    boolean: false,
+                    booleans: [],
+                    number: null,
+                    numbers: undefined,
+                    class1: new Instance(CompareClass1),
+                    class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
+                });
+    
+                await instance.save();
+    
+                const found = await AllAttributesAndRelationshipsClass.findById(instance._id);
+    
+                if (!found) 
+                    throw new Error('instance.save() did not throw an error, but was not saved.');
+    
+                if (instance.id !== found.id)
+                    throw new Error('instance.save() did not throw an error, but the instance found is different than the instance saved.');
+    
+                if (!instance.saved()) 
+                    throw new Error('instance.save() did not set the saved property to true.');
+    
+                if (!found.equals(instance))
+                    throw new Error('instance.save() did not save all the properties of the instance.');
+                
+                if (!instance.currentState.equals(instance.previousState))
+                    throw new Error('instance.previousState was not updated to match current state.');
+            });
 
-            if (!instance.saved()) 
-                throw new Error('instance.save() did not set the saved property to true.');
+            it('Updating an instance to set a singular relationship.', async () => {
+                const instance = new Instance(AllAttributesAndRelationshipsClass);
+                await instance.save();
 
-            if (!found.equals(instance))
-                throw new Error('instance.save() did not save all the properties of the instance.');
+                const related = new Instance(CompareClass1);
+                await related.save();
+
+                instance.class1 = related;
+                await instance.save();
+
+                const found = await AllAttributesAndRelationshipsClass.findById(instance._id);
+
+                if (!(await found.class1).equals(related))
+                    throw new Error('Instance was not updated properly.');
+            });
+
+            it('Updating an instance to un-set a singular relationship.', async () => {
+                const instance = new Instance(AllAttributesAndRelationshipsClass);
+                const related = new Instance(CompareClass1);
+                await related.save();
+                instance.class1 = related;
+                await instance.save();
+
+                instance.class1 = null;
+                await instance.save();
+
+                const found = await AllAttributesAndRelationshipsClass.findById(instance._id);
+
+                if ((await found.class1) != null)
+                    throw new Error('Instance was not updated properly.');
+            });
+
+            it('Updating an instance to set a non-singular relationship.', async () => {
+                const instance = new Instance(AllAttributesAndRelationshipsClass);
+                await instance.save();
+                const relatedSet = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
+                await relatedSet.save();
+
+                instance.class2s = relatedSet;
+                await instance.save();
+
+                const found = await AllAttributesAndRelationshipsClass.findById(instance._id);
+
+                if (!(await found.class2s).equals(relatedSet)) 
+                    throw new Error('Instance was not updated properly.');
+            });
+
+            it('Updating an instance to un-set a non-singular relationship.', async () => {
+                const instance = new Instance(AllAttributesAndRelationshipsClass);
+                const relatedSet = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
+                instance.class2s = relatedSet;
+                await relatedSet.save();
+                await instance.save();
+
+                instance.class2s = null;
+                await instance.save();
+
+                const found = await AllAttributesAndRelationshipsClass.findById(instance._id);
+
+                if (!(await found.class2s).isEmpty()) 
+                    throw new Error('Instance was not updated properly.');
+            });
+
+            it('Updating an instance to add one instance to a non-singular relationship.', async () => {
+                const instance = new Instance(AllAttributesAndRelationshipsClass);
+                const relatedSet = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
+                instance.class2s = relatedSet;
+                await relatedSet.save();
+                await instance.save();
+
+                relatedSet.add(new Instance(CompareClass2));
+                await relatedSet.save();
+                await instance.save();
+
+                const found = await AllAttributesAndRelationshipsClass.findById(instance._id);
+
+                if (!(await found.class2s).equals(relatedSet)) 
+                    throw new Error('Instance was not updated properly.');
+            });
+
+            it('Updating an instance to add two instances to a non-singular relationship.', async () => {
+                const instance = new Instance(AllAttributesAndRelationshipsClass);
+                const relatedSet = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
+                instance.class2s = relatedSet;
+                await relatedSet.save();
+                await instance.save();
+
+                relatedSet.addInstances([new Instance(CompareClass2), new Instance(CompareClass2)]);
+                await relatedSet.save();
+                await instance.save();
+
+                const found = await AllAttributesAndRelationshipsClass.findById(instance._id);
+
+                if (!(await found.class2s).equals(relatedSet)) 
+                    throw new Error('Instance was not updated properly.');
+            });
+
+            it('Updating an instance to remove two instances from a non-singular relationship.', async () => {
+                const instance = new Instance(AllAttributesAndRelationshipsClass);
+                const instancesToRemove = [new Instance(CompareClass2), new Instance(CompareClass2)];
+                const relatedSet = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2), ...instancesToRemove]);
+                instance.class2s = relatedSet;
+                await relatedSet.save();
+                await instance.save();
+
+                relatedSet.removeInstances(instancesToRemove);
+                await relatedSet.save();
+                await instance.save();
+
+                const found = await AllAttributesAndRelationshipsClass.findById(instance._id);
+
+                if (!(await found.class2s).equals(relatedSet)) 
+                    throw new Error('Instance was not updated properly.');
+            });
+
+            it('Updating an instance to remove two instances from a non-singular relationship.', async () => {
+                const instance = new Instance(AllAttributesAndRelationshipsClass);
+                const instancesToRemove = [new Instance(CompareClass2)];
+                const relatedSet = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2), ...instancesToRemove]);
+                instance.class2s = relatedSet;
+                await relatedSet.save();
+                await instance.save();
+
+                relatedSet.removeInstances(instancesToRemove);
+                await relatedSet.save();
+                await instance.save();
+
+                const found = await AllAttributesAndRelationshipsClass.findById(instance._id);
+
+                if (!(await found.class2s).equals(relatedSet)) 
+                    throw new Error('Instance was not updated properly.');
+            });
             
-            if (!instance.currentState.equals(instance.previousState))
-                throw new Error('instance.previousState was not updated to match current state.');
-        });
-
-        it('instance.save() works properly when updating an instance.', async () => {
-            const instance = new Instance(AllAttributesAndRelationshipsClass);
-            instance.assign({
-                string: 'String',
-                strings: ['String'],
-                date: new Date(),
-                boolean: true,
-                booleans: [true],
-                number: 1,
-                numbers: [1],
-                class1: new Instance(CompareClass1),
-                class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
-            });
-
-            await instance.save();
-
-            instance.assign({
-                string: 'String2',
-                strings: ['String2'],
-                date: new Date(),
-                dates: [new Date('1000-01-01')],
-                boolean: false,
-                booleans: [],
-                number: null,
-                numbers: undefined,
-                class1: new Instance(CompareClass1),
-                class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
-            });
-
-            await instance.save();
-
-            const found = await AllAttributesAndRelationshipsClass.findById(instance._id);
-
-            if (!found) 
-                throw new Error('instance.save() did not throw an error, but was not saved.');
-
-            if (instance.id !== found.id)
-                throw new Error('instance.save() did not throw an error, but the instance found is different than the instance saved.');
-
-            if (!instance.saved()) 
-                throw new Error('instance.save() did not set the saved property to true.');
-
-            if (!found.equals(instance))
-                throw new Error('instance.save() did not save all the properties of the instance.');
-            
-            if (!instance.currentState.equals(instance.previousState))
-                throw new Error('instance.previousState was not updated to match current state.');
-        });
-
-        it('instance.save() throws an error when instance is invalid. Instance not saved.', async () => {
-            const instance = new Instance(AllFieldsRequiredClass);
-            const expectedErrorMessage = 'Caught validation error when attempting to save Instance: ' + instance.id + ': Missing required property(s): "string"';
-            instance.assign({
-                strings: ['String'],
-                date: new Date(),
-                boolean: true,
-                booleans: [true],
-                number: 1,
-                numbers: [1],
-                class1: new Instance(CompareClass1),
-                class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
-            });
-
-            await testForErrorAsync('instance.save', expectedErrorMessage, async () => {
-                return instance.save();
-            });
-
-            const found = await AllFieldsRequiredClass.findById(instance._id);
-
-            if (found !== null)
-                throw new Error('instance was saved.');
-        });
-
-        it('instance.save() throws an error if instance has already been deleted. Instance not saved.', async () => {
-            const expectedErrorMessage = 'instance.save(): You cannot save an instance which has been deleted.';
-            const instance = new Instance(AllFieldsRequiredClass);
-            instance.assign({
-                string: 'String',
-                strings: ['String'],
-                date: new Date(),
-                boolean: true,
-                booleans: [true],
-                number: 1,
-                numbers: [1],
-                class1: new Instance(CompareClass1),
-                class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2)]),
-            });
-
-            await instance.save();
-            await instance.delete();
-
-            await testForErrorAsync('instance.save', expectedErrorMessage, async () => {
-                return instance.save();
-            });
         });
 
         describe('Saving Create Controlled Instances', () => {
@@ -3984,7 +4127,7 @@ describe('Instance Tests', () => {
 
     });
 
-    describe('ClassModel.walk()', () => {
+    describe('instance.walk()', () => {
 
         // Create instances for tests.
         {

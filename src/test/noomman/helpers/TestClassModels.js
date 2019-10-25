@@ -15,7 +15,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 {
                     name: 'name',
                     type: String,
-                    required: true,
                 },
                 {
                     name: 'numbers',
@@ -27,7 +26,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 {
                     name: 'class2',
                     toClass: 'CompareClass2',
-                    required: true,
                     singular: true,
                 },
             ],
@@ -39,7 +37,6 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
                 {
                     name: 'name',
                     type: String,
-                    required: true,
                 },
             ],
             relationships: [

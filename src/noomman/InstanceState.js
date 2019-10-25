@@ -128,6 +128,10 @@ class InstanceState {
     }
 
     equals(that) {
+        if (that == null) {
+            return false;
+        }
+
         this.sync();
         that.sync();
 
