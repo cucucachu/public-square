@@ -88,6 +88,12 @@ const testForErrorAsync = TestingFunctions.testForErrorAsync;
     var SubClassOfValidationDiscriminatedSuperClass = TestClassModels.SubClassOfValidationDiscriminatedSuperClass;
     var AsyncValidationClass = TestClassModels.AsyncValidationClass;
     var RelatedValidationClass = TestClassModels.RelatedValidationClass;
+
+    // Auditable Classes
+    
+    var AuditableSuperClass = TestClassModels.AuditableSuperClass;
+    var AuditableSubClass = TestClassModels.AuditableSubClass
+    var AuditableDiscriminatedSubClass = TestClassModels.AuditableDiscriminatedSubClass;
 }
 
 describe('Class Model Tests', () => {
@@ -122,6 +128,15 @@ describe('Class Model Tests', () => {
                     new ClassModel({
                         className: 'ValidationsClass1',
                         validations: {},
+                    });
+                });
+            });
+
+            it('If auditable is provided, it must be a boolean.', () => {
+                testForError('ClassModel.constructor()', 'If auditable is provided, it must be a boolean.', () => {
+                    new ClassModel({
+                        className: 'BadAuditableClass',
+                        auditable: 0,
                     });
                 });
             });
@@ -318,6 +333,16 @@ describe('Class Model Tests', () => {
                         superClasses: [SubClassOfDiscriminatedSuperClass]
                     });
 
+                });
+            });
+
+            it('A sub class of an auditable class cannot have auditable set to false.', () => {
+                testForError('ClassModel.constructor()', 'You cannot create a non-auditable sub class of an auditable super class.', () => {
+                    new ClassModel({
+                        className: 'BadAuditableSubClass',
+                        superClasses: [AuditableSuperClass],
+                        auditable: false,
+                    })
                 });
             });
     

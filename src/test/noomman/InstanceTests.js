@@ -78,6 +78,12 @@ const objectsEqual = TestingFunctions.objectsEqual;
     var SubClassOfValidationDiscriminatedSuperClass = TestClassModels.SubClassOfValidationDiscriminatedSuperClass;
     var AsyncValidationClass = TestClassModels.AsyncValidationClass;
     var RelatedValidationClass = TestClassModels.RelatedValidationClass;
+
+    // Auditable Classes
+    
+    var AuditableSuperClass = TestClassModels.AuditableSuperClass;
+    var AuditableSubClass = TestClassModels.AuditableSubClass
+    var AuditableDiscriminatedSubClass = TestClassModels.AuditableDiscriminatedSubClass;
 }
 
 describe('Instance Tests', () => {
@@ -150,6 +156,16 @@ describe('Instance Tests', () => {
                 });
             });
 
+            it('Instance.contructor(), document of an auditable Class Model is missing revision.', () => {
+                const document = {
+                    _id: database.ObjectId(),
+                }
+
+                testForError('Instance.contructor()', 'Instance.constructor(), document of an auditable ClassModel is missing revision.', () => {
+                    new Instance(AuditableSuperClass, document);
+                });
+            });
+
         });
 
         describe('Instance Constructor Sets Given Properties.', () => {
@@ -210,6 +226,32 @@ describe('Instance Tests', () => {
     
                     if (instance._id !== documentOfDiscriminatedSubClassOfSuperClass._id)
                         throw new Error('_id property not set.');
+                });
+
+                it('Revision property is set for auditable ClassModels.', () => {
+                    const instance = new Instance(AuditableSuperClass);
+
+                    if (instance.revision !== 0)
+                        throw new Error('Revision was not set for instance.');
+                });
+
+                it('Revision property is set from document for auditable ClassModels.', () => {
+                    const document = {
+                        _id: database.ObjectId(),
+                        revision: 2,
+                    };
+                    const instance = new Instance(AuditableSuperClass, document);
+
+                    if (instance.revision !== 2)
+                        throw new Error('Revision was not set for instance.');
+                });
+
+                it('Revision property is undefined for instances of non-auditable ClassModel', () => {
+                    const instance = new Instance(AllAttributesAndRelationshipsClass);
+
+                    if (instance.revision !== undefined) {
+                        throw new Error('Revision set for an instance of a non-auditable ClassModel.');
+                    }
                 });
 
             });

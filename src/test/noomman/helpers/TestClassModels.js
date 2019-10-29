@@ -1247,6 +1247,34 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
         });
     }
 
+    // Auditable Classes
+    {
+        var AuditableSuperClass = new ClassModel({
+            className: 'AuditableSuperClass',
+            auditable: true,
+            attributes: [
+                {
+                    name: 'name',
+                    type: String,
+                },
+                {
+                    name: 'updatedAt',
+                    type: Date,
+                },
+            ],
+        });
+
+        var AuditableSubClass = new ClassModel({
+            className: 'AuditableSubClass',
+            superClasses: [AuditableSuperClass],
+        });
+
+        var AuditableDiscriminatedSubClass = new ClassModel({
+            className: 'AuditableDiscriminatedSubClass',
+            superClasses: [AuditableSuperClass],
+            useSuperClassCollection: true,
+        });
+    }
 }
 
 module.exports = {
@@ -1312,4 +1340,7 @@ module.exports = {
     SubClassOfValidationDiscriminatedSuperClass,
     AsyncValidationClass,
     RelatedValidationClass,
+    AuditableSuperClass,
+    AuditableSubClass,
+    AuditableDiscriminatedSubClass,
 }

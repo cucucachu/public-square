@@ -23,6 +23,7 @@ class ClassModel {
         this.useSuperClassCollection = schema.useSuperClassCollection;
         this.superClasses = schema.superClasses ? schema.superClasses : [];
         this.collection = schema.useSuperClassCollection ? schema.superClasses[0].collection : schema.className.toLowerCase();
+        this.auditable = schema.auditable === true;
 
         if (!schema.useSuperClassCollection) {
             const lastLetter = schema.className.substr(-1).toLowerCase();
@@ -85,6 +86,8 @@ class ClassModel {
                 this.updateControlMethods = this.updateControlMethods.concat(superClass.updateControlMethods);
                 this.deleteControlMethods = this.deleteControlMethods.concat(superClass.deleteControlMethods);
                 this.validations = this.validations.concat(superClass.validations);
+                this.auditable = superClass.auditable ? true : this.auditable;
+
                 superClass.subClasses.push(this);
             }
         }
@@ -113,6 +116,11 @@ class ClassModel {
             throw new Error('If useSuperClassCollection is true, a single super class must be provided.');
         }
 
+        if (schema.auditable !== undefined && typeof(schema.auditable) !== 'boolean') {
+            throw new Error('If auditable is provided, it must be a boolean.');
+        }
+
+
         if (schema.useSuperClassCollection && schema.abstract)
             throw new Error('If useSuperClassCollection is true, abstract cannot be true.');
 
@@ -132,6 +140,10 @@ class ClassModel {
 
                 if (superClass.useSuperClassCollection) {
                     throw new Error('You cannot create a sub class of a class which has useSuperClassCollection set to true.');
+                }
+
+                if (schema.auditable === false && superClass.auditable === true) {
+                    throw new Error('You cannot create a non-auditable sub class of an auditable super class.');
                 }
             }
         }

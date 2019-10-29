@@ -23,12 +23,14 @@ class Instance {
         if (document) {
             this._id = document._id;
             this.__t = document.__t;
+            this.revision = document.revision;
             this.previousState = new InstanceState(classModel, document);
             this.currentState = new InstanceState(classModel, document);
         }
         else {
             this._id = db.ObjectId();
             this.__t = classModel.useSuperClassCollection ? classModel.className : undefined;
+            this.revision = classModel.auditable ? 0 : undefined;
             this.previousState = null;
             this.currentState = new InstanceState(classModel);
         }
@@ -132,6 +134,9 @@ class Instance {
         if (document && !('_id' in document))
             throw new Error('Instance.constructor(), given document does not have an ObjectId.');
 
+        if (document && classModel.auditable && document.revision === undefined) {
+            throw new Error('Instance.constructor(), document of an auditable ClassModel is missing revision.');
+        }
     }
 
     saved() {
