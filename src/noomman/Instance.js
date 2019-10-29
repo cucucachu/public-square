@@ -30,7 +30,7 @@ class Instance {
         else {
             this._id = db.ObjectId();
             this.__t = classModel.useSuperClassCollection ? classModel.className : undefined;
-            this.revision = classModel.auditable ? 0 : undefined;
+            this.revision = classModel.auditable ? -1 : undefined;
             this.previousState = null;
             this.currentState = new InstanceState(classModel);
         }
@@ -378,10 +378,13 @@ class Instance {
         }
         else {
             await this.classModel.updateControlCheckInstance(this, ...controlMethodParameters);
+            if (this.classModel.auditable) {
+                await this.saveAuditEntry();
+            }
             await this.classModel.update(this);
-            //await this.classModel.overwrite(this.toDocument());
         }
 
+        this.revision = this.revision !== undefined ? this.revision + 1 : undefined;
         this.previousState = new InstanceState(this.classModel, this.currentState.toDocument());
 
         return this;
@@ -398,10 +401,40 @@ class Instance {
             await this.classModel.insertOne(this.toDocument());
         }
         else {
+            if (this.classModel.auditable) {
+                await this.saveAuditEntry();
+            }
             await this.classModel.update(this);
         }
+
+        this.revision = this.revision !== undefined ? this.revision + 1 : undefined;
         this.previousState = new InstanceState(this.classModel, this.currentState.toDocument());
         return this;
+    }
+
+    async saveAuditEntry() {
+        if (this.classModel.auditable === false) 
+            throw new Error('instance.saveAuditEntry() called on an Instance of a non-auditable ClassModel.');
+
+        if (this.currentState.equals(this.previousState)) 
+            throw new Error('instance.saveAuditEntry() called on an Instance with no changes.');
+        
+        if (this.saved() === false)
+            throw new Error('instance.saveAuditEntry() called on an new Instance.');
+
+        const auditEntry = {
+            _id: db.ObjectId(),
+            revision: this.revision,
+            forInstance: this._id,
+            changes: this.rollbackDiff(),
+        }
+
+        for (const key of Object.keys(auditEntry.changes)) {
+            auditEntry.changes[key.slice(1)] = auditEntry.changes[key];
+            delete auditEntry.changes[key];
+        }
+
+        return db.insertOne('audit_' + this.classModel.collection, auditEntry);
     }
 
     async delete(...deleteControlMethodParameters) {
@@ -422,7 +455,16 @@ class Instance {
     }
 
     diff() {
-        return this.currentState.diff(this.previousState);
+        const changes = this.currentState.diff(this.previousState);
+        
+        if (this.classModel.auditable) {
+            if (!changes.$set) {
+                changes.$set = {};
+            }
+            changes.$set.revision = this.revision + 1;
+        }
+
+        return changes;
     }
 
     rollbackDiff() {
@@ -435,6 +477,10 @@ class Instance {
 
         if (this.__t) {
             document.__t = this.__t;
+        }
+
+        if (this.revision) {
+            document.revision = this.revision + 1;
         }
 
         return document;
