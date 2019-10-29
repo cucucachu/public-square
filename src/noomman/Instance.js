@@ -429,11 +429,6 @@ class Instance {
             changes: this.rollbackDiff(),
         }
 
-        for (const key of Object.keys(auditEntry.changes)) {
-            auditEntry.changes[key.slice(1)] = auditEntry.changes[key];
-            delete auditEntry.changes[key];
-        }
-
         return db.insertOne('audit_' + this.classModel.collection, auditEntry);
     }
 
@@ -468,7 +463,43 @@ class Instance {
     }
 
     rollbackDiff() {
-        return this.previousState.diff(this.currentState);
+        const changes = this.previousState.diff(this.currentState);
+        
+        if (changes.$set) {
+            changes.set = changes.$set;
+            delete changes.$set;
+        }
+        
+        if (changes.$unset) {
+            changes.unset = changes.$unset;
+            delete changes.$unset;
+        }
+        
+        if (changes.$addToSet) {
+            changes.addToSet = changes.$addToSet;
+            delete changes.$addToSet;
+
+            for (const key of changes.addToSet) {
+                if (changes.addToSet[key].$each) {
+                    changes.addToSet[key].each = changes.addToSet[key].$each;
+                    delete changes.addToSet[key].$each;
+                }
+            }
+        }
+        
+        if (changes.$pull) {
+            changes.pull = changes.$pull;
+            delete changes.$pull;
+
+            for (const key of changes.pull) {
+                if (changes.addToSet[key].$in) {
+                    changes.addToSet[key].in = changes.addToSet[key].$in;
+                    delete changes.addToSet[key].$in;
+                }
+            }
+        }
+
+        return changes;
     }
 
     toDocument() {

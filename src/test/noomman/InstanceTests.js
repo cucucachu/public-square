@@ -3688,8 +3688,8 @@ describe('Instance Tests', () => {
             await AllAttributesAndRelationshipsClass.clear();
             await CompareClass1.clear();
             await CompareClass2.clear();
-            await AuditableSuperClass.clear();
-            await database.clearCollection('audit_' + AuditableSuperClass.collection);
+            // await AuditableSuperClass.clear();
+            // await database.clearCollection('audit_' + AuditableSuperClass.collection);
         });
 
         describe('Saving New Instances', () => {
@@ -4137,97 +4137,295 @@ describe('Instance Tests', () => {
         });
 
         describe('Saving Auditable Instances', () => {
+            
+            describe('No Inheritance', () => {
 
-            it('No audit entry saved when a new instance is saved for the first time.', async () => {
-                const instance = new Instance(AuditableSuperClass);
-                instance.assign({
-                    name: 'newAuditableInstance',
-                    updatedAt: new Date('1000-01-01'),
+                it('No audit entry saved when a new instance is saved for the first time.', async () => {
+                    const instance = new Instance(AuditableSuperClass);
+                    instance.assign({
+                        name: 'newAuditableInstance',
+                        updatedAt: new Date('1000-01-01'),
+                    });
+                    await instance.save();
+    
+                    const auditEntry = await database.findOne('audit_' + AuditableSuperClass.collection, {
+                        forInstance: instance._id,
+                    });
+    
+                    if (auditEntry) {
+                        throw new Error('Audit entry was saved.');
+                    }
                 });
-                await instance.save();
-
-                const auditEntry = await database.findOne('audit_' + AuditableSuperClass.collection, {
-                    forInstance: instance._id,
+    
+                it('Audit Entry saved when instance is saved for the second time.', async () => {
+                    const instance = new Instance(AuditableSuperClass);
+                    instance.assign({
+                        name: 'newAuditableInstance',
+                        updatedAt: new Date('1000-01-01'),
+                    });
+                    await instance.save();
+    
+                    instance.updatedAt = new Date();
+                    await instance.save();
+    
+                    const auditEntry = await database.findOne('audit_' + AuditableSuperClass.collection, {
+                        forInstance: instance._id,
+                    });
+    
+                    if (!auditEntry) {
+                        throw new Error('Audit entry was not saved.');
+                    }
+                    if (!auditEntry.changes || !auditEntry.changes.set || !moment(auditEntry.changes.set.updatedAt).isSame(new Date('1000-01-01'))) {
+                        throw new Error('Audit entry changes were not saved.');
+                    }
+                });
+    
+                it('Audit entries save for each revision of an instance.', async () => {
+                    const instance = new Instance(AuditableSuperClass);
+                    instance.assign({
+                        name: 'newAuditableInstance',
+                        updatedAt: new Date('1000-01-01'),
+                    });
+                    await instance.save();
+    
+                    instance.updatedAt = new Date('2000-01-01');
+                    await instance.save();
+    
+                    instance.updatedAt = new Date();
+                    await instance.save();
+    
+                    const auditEntries = await database.find('audit_' + AuditableSuperClass.collection, {
+                        forInstance: instance._id,
+                    });
+    
+                    if (!auditEntries.length) {
+                        throw new Error('Audit entries were not saved.');
+                    }
+    
+                    const firstAuditEntry = auditEntries.filter(entry => entry.revision == 0)[0];
+                    const secondAuditEntry = auditEntries.filter(entry => entry.revision == 1)[0];
+    
+                    if (!moment(firstAuditEntry.changes.set.updatedAt).isSame(new Date('1000-01-01'))) {
+                        throw new Error('First audit entry is incorrect.');
+                    }
+    
+                    if (!moment(secondAuditEntry.changes.set.updatedAt).isSame(new Date('2000-01-01'))) {
+                        throw new Error('First audit entry is incorrect.');
+                    }
+                });
+    
+                it('Revision is incremented on instance on save.', async () => {
+                    const instance = new Instance(AuditableSuperClass);
+                    instance.assign({
+                        name: 'newAuditableInstance',
+                        updatedAt: new Date('1000-01-01'),
+                    });
+                    await instance.save();
+    
+                    instance.updatedAt = new Date();
+                    await instance.save();
+    
+                    const foundInstance = await AuditableSuperClass.findById(instance._id);
+    
+                    if (foundInstance.revision !== 1) {
+                        throw new Error('Revision number is incorrect.');
+                    }
+    
                 });
 
-                if (auditEntry) {
-                    throw new Error('Audit entry was saved.');
-                }
             });
+            
+            describe('Auditable Sub Class', () => {
 
-            it('Audit Entry saved when instance is saved for the second time.', async () => {
-                const instance = new Instance(AuditableSuperClass);
-                instance.assign({
-                    name: 'newAuditableInstance',
-                    updatedAt: new Date('1000-01-01'),
+                it('No audit entry saved when a new instance is saved for the first time.', async () => {
+                    const instance = new Instance(AuditableSubClass);
+                    instance.assign({
+                        name: 'newAuditableInstance',
+                        updatedAt: new Date('1000-01-01'),
+                    });
+                    await instance.save();
+    
+                    const auditEntry = await database.findOne('audit_' + AuditableSubClass.collection, {
+                        forInstance: instance._id,
+                    });
+    
+                    if (auditEntry) {
+                        throw new Error('Audit entry was saved.');
+                    }
                 });
-                await instance.save();
-
-                instance.updatedAt = new Date();
-                await instance.save();
-
-                const auditEntry = await database.findOne('audit_' + AuditableSuperClass.collection, {
-                    forInstance: instance._id,
+    
+                it('Audit Entry saved when instance is saved for the second time.', async () => {
+                    const instance = new Instance(AuditableSubClass);
+                    instance.assign({
+                        name: 'newAuditableInstance',
+                        updatedAt: new Date('1000-01-01'),
+                    });
+                    await instance.save();
+    
+                    instance.updatedAt = new Date();
+                    await instance.save();
+    
+                    const auditEntry = await database.findOne('audit_' + AuditableSubClass.collection, {
+                        forInstance: instance._id,
+                    });
+    
+                    if (!auditEntry) {
+                        throw new Error('Audit entry was not saved.');
+                    }
+                    if (!auditEntry.changes || !auditEntry.changes.set || !moment(auditEntry.changes.set.updatedAt).isSame(new Date('1000-01-01'))) {
+                        throw new Error('Audit entry changes were not saved.');
+                    }
+                });
+    
+                it('Audit entries save for each revision of an instance.', async () => {
+                    const instance = new Instance(AuditableSubClass);
+                    instance.assign({
+                        name: 'newAuditableInstance',
+                        updatedAt: new Date('1000-01-01'),
+                    });
+                    await instance.save();
+    
+                    instance.updatedAt = new Date('2000-01-01');
+                    await instance.save();
+    
+                    instance.updatedAt = new Date();
+                    await instance.save();
+    
+                    const auditEntries = await database.find('audit_' + AuditableSubClass.collection, {
+                        forInstance: instance._id,
+                    });
+    
+                    if (!auditEntries.length) {
+                        throw new Error('Audit entries were not saved.');
+                    }
+    
+                    const firstAuditEntry = auditEntries.filter(entry => entry.revision == 0)[0];
+                    const secondAuditEntry = auditEntries.filter(entry => entry.revision == 1)[0];
+    
+                    if (!moment(firstAuditEntry.changes.set.updatedAt).isSame(new Date('1000-01-01'))) {
+                        throw new Error('First audit entry is incorrect.');
+                    }
+    
+                    if (!moment(secondAuditEntry.changes.set.updatedAt).isSame(new Date('2000-01-01'))) {
+                        throw new Error('First audit entry is incorrect.');
+                    }
+                });
+    
+                it('Revision is incremented on instance on save.', async () => {
+                    const instance = new Instance(AuditableSubClass);
+                    instance.assign({
+                        name: 'newAuditableInstance',
+                        updatedAt: new Date('1000-01-01'),
+                    });
+                    await instance.save();
+    
+                    instance.updatedAt = new Date();
+                    await instance.save();
+    
+                    const foundInstance = await AuditableSubClass.findById(instance._id);
+    
+                    if (foundInstance.revision !== 1) {
+                        throw new Error('Revision number is incorrect.');
+                    }
+    
                 });
 
-                if (!auditEntry) {
-                    throw new Error('Audit entry was not saved.');
-                }
-                if (!auditEntry.changes || !auditEntry.changes.set || !moment(auditEntry.changes.set.updatedAt).isSame(new Date('1000-01-01'))) {
-                    throw new Error('Audit entry changes were not saved.');
-                }
             });
+            
+            describe('Auditable Discriminated Sub Class', () => {
 
-            it('Audit entries save for each revision of an instance.', async () => {
-                const instance = new Instance(AuditableSuperClass);
-                instance.assign({
-                    name: 'newAuditableInstance',
-                    updatedAt: new Date('1000-01-01'),
+                it('No audit entry saved when a new instance is saved for the first time.', async () => {
+                    const instance = new Instance(AuditableDiscriminatedSubClass);
+                    instance.assign({
+                        name: 'newAuditableInstance',
+                        updatedAt: new Date('1000-01-01'),
+                    });
+                    await instance.save();
+    
+                    const auditEntry = await database.findOne('audit_' + AuditableDiscriminatedSubClass.collection, {
+                        forInstance: instance._id,
+                    });
+    
+                    if (auditEntry) {
+                        throw new Error('Audit entry was saved.');
+                    }
                 });
-                await instance.save();
-
-                instance.updatedAt = new Date('2000-01-01');
-                await instance.save();
-
-                instance.updatedAt = new Date();
-                await instance.save();
-
-                const auditEntries = await database.find('audit_' + AuditableSuperClass.collection, {
-                    forInstance: instance._id,
+    
+                it('Audit Entry saved when instance is saved for the second time.', async () => {
+                    const instance = new Instance(AuditableDiscriminatedSubClass);
+                    instance.assign({
+                        name: 'newAuditableInstance',
+                        updatedAt: new Date('1000-01-01'),
+                    });
+                    await instance.save();
+    
+                    instance.updatedAt = new Date();
+                    await instance.save();
+    
+                    const auditEntry = await database.findOne('audit_' + AuditableDiscriminatedSubClass.collection, {
+                        forInstance: instance._id,
+                    });
+    
+                    if (!auditEntry) {
+                        throw new Error('Audit entry was not saved.');
+                    }
+                    if (!auditEntry.changes || !auditEntry.changes.set || !moment(auditEntry.changes.set.updatedAt).isSame(new Date('1000-01-01'))) {
+                        throw new Error('Audit entry changes were not saved.');
+                    }
                 });
-
-                if (!auditEntries.length) {
-                    throw new Error('Audit entries were not saved.');
-                }
-
-                const firstAuditEntry = auditEntries.filter(entry => entry.revision == 0)[0];
-                const secondAuditEntry = auditEntries.filter(entry => entry.revision == 1)[0];
-
-                if (!moment(firstAuditEntry.changes.set.updatedAt).isSame(new Date('1000-01-01'))) {
-                    throw new Error('First audit entry is incorrect.');
-                }
-
-                if (!moment(secondAuditEntry.changes.set.updatedAt).isSame(new Date('2000-01-01'))) {
-                    throw new Error('First audit entry is incorrect.');
-                }
-            });
-
-            it('Revision is incremented on instance on save.', async () => {
-                const instance = new Instance(AuditableSuperClass);
-                instance.assign({
-                    name: 'newAuditableInstance',
-                    updatedAt: new Date('1000-01-01'),
+    
+                it('Audit entries save for each revision of an instance.', async () => {
+                    const instance = new Instance(AuditableDiscriminatedSubClass);
+                    instance.assign({
+                        name: 'newAuditableInstance',
+                        updatedAt: new Date('1000-01-01'),
+                    });
+                    await instance.save();
+    
+                    instance.updatedAt = new Date('2000-01-01');
+                    await instance.save();
+    
+                    instance.updatedAt = new Date();
+                    await instance.save();
+    
+                    const auditEntries = await database.find('audit_' + AuditableDiscriminatedSubClass.collection, {
+                        forInstance: instance._id,
+                    });
+    
+                    if (!auditEntries.length) {
+                        throw new Error('Audit entries were not saved.');
+                    }
+    
+                    const firstAuditEntry = auditEntries.filter(entry => entry.revision == 0)[0];
+                    const secondAuditEntry = auditEntries.filter(entry => entry.revision == 1)[0];
+    
+                    if (!moment(firstAuditEntry.changes.set.updatedAt).isSame(new Date('1000-01-01'))) {
+                        throw new Error('First audit entry is incorrect.');
+                    }
+    
+                    if (!moment(secondAuditEntry.changes.set.updatedAt).isSame(new Date('2000-01-01'))) {
+                        throw new Error('First audit entry is incorrect.');
+                    }
                 });
-                await instance.save();
-
-                instance.updatedAt = new Date();
-                await instance.save();
-
-                const foundInstance = await AuditableSuperClass.findById(instance._id);
-
-                if (foundInstance.revision !== 1) {
-                    throw new Error('Revision number is incorrect.');
-                }
+    
+                it('Revision is incremented on instance on save.', async () => {
+                    const instance = new Instance(AuditableDiscriminatedSubClass);
+                    instance.assign({
+                        name: 'newAuditableInstance',
+                        updatedAt: new Date('1000-01-01'),
+                    });
+                    await instance.save();
+    
+                    instance.updatedAt = new Date();
+                    await instance.save();
+    
+                    const foundInstance = await AuditableDiscriminatedSubClass.findById(instance._id);
+    
+                    if (foundInstance.revision !== 1) {
+                        throw new Error('Revision number is incorrect.');
+                    }
+    
+                });
 
             });
 
