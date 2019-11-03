@@ -1251,6 +1251,7 @@ const ClassModel = require('../../../dist/noomman/ClassModel');
     {
         var AuditableSuperClass = new ClassModel({
             className: 'AuditableSuperClass',
+            superClasses: [AllAttributesAndRelationshipsClass],
             auditable: true,
             attributes: [
                 {

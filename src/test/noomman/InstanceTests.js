@@ -5,6 +5,7 @@ const moment = require('moment');
 const database = require('../../dist/noomman/database');
 const Instance = require('../../dist/noomman/Instance');
 const InstanceSet = require('../../dist/noomman/InstanceSet');
+const InstanceState = require('../../dist/noomman/InstanceState');
 const TestClassModels = require('./helpers/TestClassModels');
 const TestingFunctions = require('./helpers/TestingFunctions');
 const testForError = TestingFunctions.testForError;
@@ -3623,6 +3624,131 @@ describe('Instance Tests', () => {
             if (!auditEntry.changes || !auditEntry.changes.set || !moment(auditEntry.changes.set.updatedAt).isSame(new Date('1000-01-01'))) {
                 throw new Error('Audit entry changes were not saved.');
             }
+        });
+
+    });
+
+    describe.only('instance.applyChanges()', () => {
+
+        describe.only('$set', () => {
+
+            it('Setting a singular attribute.', () => {
+                const instance = new Instance(AuditableSuperClass);
+                const date = new Date();
+                instance.applyChanges({
+                    $set: {
+                        name:  'name',
+                        number: 1,
+                        boolean: false,
+                        string: 'hello',
+                        date: date,
+                    },
+                });
+
+                if (instance.name !== 'name' || instance.number !== 1 || 
+                        instance.boolean !== false || instance.string !== 'hello' || 
+                        instance.date !== date) {
+                    throw new Error('Not all fields were set.');
+                }
+
+            });
+
+            it('Setting a non-singular attribute.', () => {
+                const instance = new Instance(AuditableSuperClass);
+                const dates = [new Date(), new Date()];
+                instance.applyChanges({
+                    $set: {
+                        name: 'name',
+                        numbers: [0, 2, 1],
+                        booleans: [],
+                        strings: ['hello', 'goodbye', ''],
+                        dates: dates,
+                    },
+                });
+
+                if (!arraysEqual(instance.numbers, [0, 2, 1])) {
+                    throw new Error('Numbers was not set correctly.');
+                }
+
+                if (!arraysEqual(instance.booleans, [])) {
+                    throw new Error('Booleans was not set correctly.');
+                }
+
+                if (!arraysEqual(instance.strings, ['hello', 'goodbye', ''])) {
+                    throw new Error('Strings was not set correctly.');
+                }
+
+                if (!arraysEqual(instance.dates, dates)) {
+                    throw new Error('Dates was not set correctly.');
+                }
+
+            });
+
+            it('Setting a singular relationship.', async () => {
+                const instance = new Instance(AuditableSuperClass);
+                const class1 = new Instance(CompareClass1);
+
+                instance.applyChanges({
+                    $set: {
+                        class1: class1._id,
+                    }
+                });
+
+                console.log(instance.currentState.class1);
+
+                if (await instance.currentState.class1 !== class1._id) {
+                    throw new Error('Relationship not set.');
+                }
+            });
+
+            it('Setting a non-singular relationship.', () => {
+
+            });
+
+        });
+
+        describe('$unset', () => {
+
+            it('Un-setting a singular attribute.', () => {
+
+            });
+
+            it('Un-setting a non-singular attribute.', () => {
+
+            });
+
+            it('Un-setting a singular relationship.', () => {
+
+            });
+
+            it('Un-setting a non-singular relationship.', () => {
+
+            });
+
+        });
+
+        describe('$addToSet', () => {
+
+            it('Adding one ObjectId to a non-singular relationship.', () => {
+
+            });
+
+            it('Adding multiple ObjectIds to a non-singular relationship.', () => {
+
+            });
+
+        });
+
+        describe('$pull', () => {
+
+            it('Removing one ObjectId from a non-singular relationship.', () => {
+
+            });
+
+            it('Removing multiple ObjectIds from a non-singular relationship.', () => {
+
+            });
+
         });
 
     });

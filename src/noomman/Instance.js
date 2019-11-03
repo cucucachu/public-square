@@ -139,19 +139,17 @@ class Instance {
         }
     }
 
+    toString() {
+        console.log('instance.toString()');
+        return this.currentState.toString();
+    }
+
     saved() {
         return this.previousState !== null;
     }
 
     deleted() {
         return this.currentState === null;
-    }
-
-    toString() {
-        return 'Instance of ' + this.classModel.className + '\n' + 
-        'saved:   ' + this.saved() + '\n' + 
-        'deleted: ' + this.deleted() + '\n' + 
-        'state:     ' + this.currentState
     }
 
     assign(object) {
@@ -515,6 +513,114 @@ class Instance {
         }
 
         return document;
+    }
+
+    applyChanges(changes) {
+        const attributeNames = this.classModel.attributes.map(attribute => attribute.name);
+        const relationshipNames = this.classModel.relationships.map(relationship => relationship.name);
+
+        if (changes.$set) {
+            for (const key in changes.$set) {
+                if (attributeNames.includes(key)) {
+                    this[key] = changes.$set[key];
+                }
+                else if (relationshipNames.includes(key)) {
+                    const relationshipDefinition = this.classModel.relationships.filter(relationship => relationship.name === key)[0];
+                    if (relationshipDefinition.singular) {
+                        this.currentState.setSingularRelationshipToId(key, changes.$set[key]);
+                    }
+                    else {
+                        this.currentState.setNonSingularRelationshipToIds(key, changes.$set[key]);
+                    }   
+                }
+                else {
+                    throw new Error('instance.applyChanges(): Attempt to set a value which is not an attribute or relationship. ' + key);
+                }
+            }
+        }
+
+        if (changes.$unset) {
+            for (const key in changes.$unset) {
+                if (attributeNames.includes(key) || relationshipNames.includes(key)){
+                    this[key] = null;
+                }
+                else {
+                    throw new Error('instance.applyChanges(): Attempt to unset a value which is not an attribute or relationship.');
+                }
+            }
+        }
+
+        if (changes.$addToSet) {
+            for (const key in changes.$addToSet) {
+                if (relationshipNames.includes(key)) {
+                    const relationshipDefinition = this.classModel.relationships.map(relationship => relationship.name).filter(key)[0];
+                    if (!relationshipDefinition.singular) {
+                        let idsSet = this[key];
+                        if (!Array.isArray(idsSet)) {
+                            idsSet = idsSet.getObjectIds();
+                        }
+                        idsSet = new Set(idsSet);
+
+                        if (typeof(changes.$addToSet[key]) === 'object') {
+                            for (const item of changes.$addToSet[key].$each) {
+                                idsSet.add(item);
+                            }
+                        }
+                        else {
+                            idsSet.add(changes.$addToSet[key]);
+                        }
+                        this.currentState.setNonSingularRelationshipToIds([...idsSet]);
+                    }
+                    else {
+                        throw new Error('instance.applyChanges(): Attempt to use $addToSet on a property which is not non-singular relationship.');
+                    }
+                }
+                else {
+                    throw new Error('instance.applyChanges(): Attempt to use $addToSet on a property which is not non-singular relationship.');
+                }
+            }
+        }
+
+        if (changes.$pull) {
+            for (const key in changes.$pull) {
+                if (relationshipNames.includes(key)) {
+                    const relationshipDefinition = this.classModel.relationships.map(relationship => relationship.name).filter(key)[0];
+                    if (!relationshipDefinition.singular) {
+                        let ids = this[key];
+                        if (!Array.isArray(ids)) {
+                            ids = ids.getObjectIds();
+                        }
+                        let idsSet = new Set(ids);
+
+                        if (typeof(changes.$pull[key]) === 'object') {
+                            for (const item of changes.$pull[key].$in) {
+                                for (const id of ids) {
+                                    if (id.equals(item)) {
+                                        idsSet.delete(id);
+                                    }
+                                }
+                            }
+                        }
+                        else {
+                            for (const id of ids) {
+                                if (id.equals(changes.$pull[key])) {
+                                    idsSet.delete(id);
+                                }
+                            }
+                        }
+                        this.currentState.setNonSingularRelationshipToIds([...idsSet]);
+                    }
+                    else {
+                        throw new Error('instance.applyChanges(): Attempt to use $pull on a property which is not non-singular relationship.');
+                    }
+                }
+                else {
+                    throw new Error('instance.applyChanges(): Attempt to use $pull on a property which is not non-singular relationship.');
+                }
+            }
+        }
+
+
     }
 
     equals(that) {

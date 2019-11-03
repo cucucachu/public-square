@@ -26,6 +26,7 @@ function close() {
 	client = null;
 }
 
+
 function ObjectId() {
 	return new mongo.ObjectId();
 }
