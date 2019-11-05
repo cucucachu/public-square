@@ -401,7 +401,7 @@ class InstanceState {
         this.instanceReferences[relationship].instance = null;
     }
 
-    setNonSingularRelationshipToIds(ids) {
+    setNonSingularRelationshipToIds(relationship, ids) {
         this.instanceSetReferences[relationship]._ids = ids;
         this.instanceSetReferences[relationship].instanceSet = null;
     }

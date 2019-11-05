@@ -553,15 +553,15 @@ class Instance {
         if (changes.$addToSet) {
             for (const key in changes.$addToSet) {
                 if (relationshipNames.includes(key)) {
-                    const relationshipDefinition = this.classModel.relationships.map(relationship => relationship.name).filter(key)[0];
+                    const relationshipDefinition = this.classModel.relationships.filter(relationship => relationship.name === key)[0];
                     if (!relationshipDefinition.singular) {
-                        let idsSet = this[key];
+                        let idsSet = this['_' + key];
                         if (!Array.isArray(idsSet)) {
                             idsSet = idsSet.getObjectIds();
                         }
                         idsSet = new Set(idsSet);
 
-                        if (typeof(changes.$addToSet[key]) === 'object') {
+                        if (changes.$addToSet[key].$each !== undefined) {
                             for (const item of changes.$addToSet[key].$each) {
                                 idsSet.add(item);
                             }
@@ -569,7 +569,8 @@ class Instance {
                         else {
                             idsSet.add(changes.$addToSet[key]);
                         }
-                        this.currentState.setNonSingularRelationshipToIds([...idsSet]);
+
+                        this.currentState.setNonSingularRelationshipToIds(key, [...idsSet]);
                     }
                     else {
                         throw new Error('instance.applyChanges(): Attempt to use $addToSet on a property which is not non-singular relationship.');
@@ -584,15 +585,15 @@ class Instance {
         if (changes.$pull) {
             for (const key in changes.$pull) {
                 if (relationshipNames.includes(key)) {
-                    const relationshipDefinition = this.classModel.relationships.map(relationship => relationship.name).filter(key)[0];
+                    const relationshipDefinition = this.classModel.relationships.filter(relationship => relationship.name === key)[0];
                     if (!relationshipDefinition.singular) {
-                        let ids = this[key];
+                        let ids = this['_' + key];
                         if (!Array.isArray(ids)) {
                             ids = ids.getObjectIds();
                         }
                         let idsSet = new Set(ids);
 
-                        if (typeof(changes.$pull[key]) === 'object') {
+                        if (changes.$pull[key].$in !== undefined) {
                             for (const item of changes.$pull[key].$in) {
                                 for (const id of ids) {
                                     if (id.equals(item)) {
@@ -608,7 +609,7 @@ class Instance {
                                 }
                             }
                         }
-                        this.currentState.setNonSingularRelationshipToIds([...idsSet]);
+                        this.currentState.setNonSingularRelationshipToIds(key, [...idsSet]);
                     }
                     else {
                         throw new Error('instance.applyChanges(): Attempt to use $pull on a property which is not non-singular relationship.');

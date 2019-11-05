@@ -3630,7 +3630,7 @@ describe('Instance Tests', () => {
 
     describe.only('instance.applyChanges()', () => {
 
-        describe.only('$set', () => {
+        describe('$set', () => {
 
             it('Setting a singular attribute.', () => {
                 const instance = new Instance(AuditableSuperClass);
@@ -3694,14 +3694,24 @@ describe('Instance Tests', () => {
                     }
                 });
 
-                console.log(instance.currentState.class1);
-
-                if (await instance.currentState.class1 !== class1._id) {
+                if (instance.currentState.class1 !== class1._id) {
                     throw new Error('Relationship not set.');
                 }
             });
 
             it('Setting a non-singular relationship.', () => {
+                const instance = new Instance(AuditableSuperClass);
+                const class2s = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
+
+                instance.applyChanges({
+                    $set: {
+                        class2s: class2s.getObjectIds(),
+                    }
+                });
+
+                if (!arraysEqual(instance.currentState.class2s, class2s.getObjectIds())) {
+                    throw new Error('Relationship not set.');
+                }
 
             });
 
@@ -3710,18 +3720,68 @@ describe('Instance Tests', () => {
         describe('$unset', () => {
 
             it('Un-setting a singular attribute.', () => {
+                const instance = new Instance(AuditableSuperClass);
+                instance.boolean = true;
 
+                instance.applyChanges({
+                    $unset: {
+                        boolean: true,
+                    }
+                });
+
+                if (instance.boolean !== null) {
+                    throw new Error('Attribute not unset.');
+                }
             });
 
             it('Un-setting a non-singular attribute.', () => {
+                const instance = new Instance(AuditableSuperClass);
+                instance.booleans = [true, false, null];
+
+                instance.applyChanges({
+                    $unset: {
+                        booleans: [true, false, null],
+                    }
+                });
+
+                if (!Array.isArray(instance.booleans) || instance.booleans.length !== 0) {
+                    throw new Error('Attribute not unset.');
+                }
 
             });
 
-            it('Un-setting a singular relationship.', () => {
+            it('Un-setting a singular relationship.', async () => {
+                const instance = new Instance(AuditableSuperClass);
+                const class1 = new Instance(CompareClass1);
 
+                instance.class1 = class1;
+
+                instance.applyChanges({
+                    $unset: {
+                        class1,
+                    }
+                });
+
+                if ((await instance.class1) !== null || instance.currentState.class1 != null) {
+                    throw new Error('Relationship not unset.');
+                }
             });
 
-            it('Un-setting a non-singular relationship.', () => {
+            it('Un-setting a non-singular relationship.', async () => {
+                const instance = new Instance(AuditableSuperClass);
+                const class2s = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
+
+                instance.class2s = class2s;
+
+                instance.applyChanges({
+                    $unset: {
+                        class2s,
+                    }
+                });
+
+                if (!(await instance.class2s).equals(new InstanceSet(CompareClass2))) {
+                    throw new Error('Relationship not unset.');
+                }
 
             });
 
@@ -3729,23 +3789,99 @@ describe('Instance Tests', () => {
 
         describe('$addToSet', () => {
 
-            it('Adding one ObjectId to a non-singular relationship.', () => {
+            it('Adding one ObjectId to a non-singular relationship.', async () => {
+                const instance = new Instance(AuditableSuperClass);
+                const class2sOriginal = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
+                const instanceToAdd = new Instance(CompareClass2);
+                const class2sUpdated = new InstanceSet(CompareClass2, class2sOriginal);
+                class2sUpdated.add(instanceToAdd);
 
+                instance.class2s = class2sOriginal;
+
+                instance.applyChanges({
+                    $addToSet: {
+                        class2s: instanceToAdd._id,
+                    }
+                });
+
+                if (!arraysEqual(instance._class2s, class2sUpdated.getObjectIds())) {
+                    throw new Error('Instance not added to related set.');
+                }
             });
 
             it('Adding multiple ObjectIds to a non-singular relationship.', () => {
+                const instance = new Instance(AuditableSuperClass);
+                const class2sOriginal = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
+                const instancesToAdd = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
+                const class2sUpdated = new InstanceSet(CompareClass2, class2sOriginal);
+                class2sUpdated.addInstances(instancesToAdd);
+
+                instance.class2s = class2sOriginal;
+
+                instance.applyChanges({
+                    $addToSet: {
+                        class2s: {
+                            $each: instancesToAdd.getObjectIds(),
+                        },
+                    }
+                });
+
+                if (!arraysEqual(instance._class2s, class2sUpdated.getObjectIds())) {
+                    throw new Error('Instance not added to related set.');
+                }
 
             });
 
         });
 
-        describe('$pull', () => {
+        describe.only('$pull', () => {
 
             it('Removing one ObjectId from a non-singular relationship.', () => {
+                const instance = new Instance(AuditableSuperClass);
+                const instanceToRemove = new Instance(CompareClass2);
+                const class2sOriginal = new InstanceSet(CompareClass2, [instanceToRemove, new Instance(CompareClass2)]);
+                const class2sUpdated = new InstanceSet(CompareClass2, class2sOriginal);
+                class2sUpdated.remove(instanceToRemove);
 
+                instance.class2s = class2sOriginal;
+
+                instance.applyChanges({
+                    $pull: {
+                        class2s: instanceToRemove._id,
+                    }
+                });
+
+                if (!arraysEqual(instance._class2s, class2sUpdated.getObjectIds())) {
+                    throw new Error('Instance not added to related set.');
+                }
             });
 
             it('Removing multiple ObjectIds from a non-singular relationship.', () => {
+                const instance = new Instance(AuditableSuperClass);
+                const instancesToRemove = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
+                const class2sOriginal = new InstanceSet(CompareClass2, [new Instance(CompareClass2)]);
+                class2sOriginal.addInstances(instancesToRemove);
+                const class2sUpdated = new InstanceSet(CompareClass2, class2sOriginal);
+                class2sUpdated.removeInstances(instancesToRemove);
+
+                instance.class2s = class2sOriginal;
+
+                console.log(class2sOriginal.getObjectIds());
+                console.log(class2sUpdated.getObjectIds());
+
+                instance.applyChanges({
+                    $pull: {
+                        class2s: {
+                            $in: instancesToRemove.getObjectIds(),
+                        },
+                    }
+                });
+
+                console.log(instance._class2s);
+
+                if (!arraysEqual(instance._class2s, class2sUpdated.getObjectIds())) {
+                    throw new Error('Instance not added to related set.');
+                }
 
             });
 
