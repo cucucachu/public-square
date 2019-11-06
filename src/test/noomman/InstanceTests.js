@@ -6,6 +6,7 @@ const database = require('../../dist/noomman/database');
 const Instance = require('../../dist/noomman/Instance');
 const InstanceSet = require('../../dist/noomman/InstanceSet');
 const InstanceState = require('../../dist/noomman/InstanceState');
+const SuperSet = require('../../dist/noomman/SuperSet');
 const TestClassModels = require('./helpers/TestClassModels');
 const TestingFunctions = require('./helpers/TestingFunctions');
 const testForError = TestingFunctions.testForError;
@@ -4071,6 +4072,742 @@ describe('Instance Tests', () => {
 
             });
 
+        });
+
+    });
+
+    describe('instance.revertToRevision()', () => {
+
+        after(async () => {
+            await AllAttributesAndRelationshipsClass.clear();
+            await AuditableSuperClass.clear();
+            await database.clearCollection('audit_' + AuditableSuperClass.collection);
+        });
+
+        describe('Validations', () => {
+
+            it('Calling revertToRevision() on an instance of a non-auditable class throws an error.', async () => {
+                const expectedErrorMessage = 'instance.revertToRevision() called on an instance of a non-auditable class model.';
+                const instance = new Instance(AllAttributesAndRelationshipsClass);
+                instance.assign({
+                    boolean: true,
+                });
+                await instance.save();
+    
+                instance.number = 1;
+                await instance.save();
+    
+                await testForErrorAsync('instance.revertToRevision()', expectedErrorMessage, async () => {
+                    return instance.revertToRevision(0);
+                });
+            });
+
+        });
+
+        describe('One Revision', () => {
+
+            describe('Singular Attributes', () => {
+
+                it('Reverting an instance after replacing values.', async() => {
+                    const instance = new Instance(AuditableSuperClass);
+                    instance.assign({
+                        boolean: false,
+                        number: 0,
+                        string: 'a',
+                        date: new Date('2000-01-01'),
+                    });
+                    await instance.save();
+                    instance.assign({
+                        boolean: true,
+                        number: 1,
+                        string: 'b',
+                        date: new Date('2000-01-02'),
+                    });
+                    await instance.save();
+
+                    await instance.revertToRevision(0);
+
+                    if (instance.boolean !== false || instance.number !== 0 || instance.string !== 'a' || !moment(new Date('2000-01-01')).isSame(instance.date)) {
+                        throw new Error('Instance was not reverted.');
+                    }
+                });
+
+                it('Reverting an instance after unsetting values.', async() => {
+                    const instance = new Instance(AuditableSuperClass);
+                    instance.assign({
+                        boolean: false,
+                        number: 0,
+                        string: 'a',
+                        date: new Date('2000-01-01'),
+                    });
+                    await instance.save();
+                    instance.assign({
+                        boolean: null,
+                        number: null,
+                        string: undefined,
+                    });
+                    delete instance.date;
+                    await instance.save();
+
+                    await instance.revertToRevision(0);
+
+                    if (instance.boolean !== false || instance.number !== 0 || instance.string !== 'a' || !moment(new Date('2000-01-01')).isSame(instance.date)) {
+                        throw new Error('Instance was not reverted.');
+                    }
+                });
+
+                it('Reverting an instance after setting values.', async() => {
+                    const instance = new Instance(AuditableSuperClass);
+                    await instance.save();
+                    instance.assign({
+                        boolean: false,
+                        number: 0,
+                        string: 'a',
+                        date: new Date('2000-01-01'),
+                    });
+                    await instance.save();
+                    await instance.revertToRevision(0);
+
+                    if (instance.boolean !== null || instance.number !== null || instance.string !== null || instance.date !== null) {
+                        throw new Error('Instance was not reverted.');
+                    }
+                });
+
+                it('Reverting an instance after replacing values. Instance pulled from database.', async() => {
+                    const instance = new Instance(AuditableSuperClass);
+                    instance.assign({
+                        boolean: false,
+                        number: 0,
+                        string: 'a',
+                        date: new Date('2000-01-01'),
+                    });
+                    await instance.save();
+                    instance.assign({
+                        boolean: true,
+                        number: 1,
+                        string: 'b',
+                        date: new Date('2000-01-02'),
+                    });
+                    await instance.save();
+
+                    const instanceFromDatabase = await AuditableSuperClass.findById(instance._id);
+
+                    await instanceFromDatabase.revertToRevision(0);
+
+                    if (instanceFromDatabase.boolean !== false 
+                        || instanceFromDatabase.number !== 0 
+                        || instanceFromDatabase.string !== 'a' 
+                        || !moment(new Date('2000-01-01')).isSame(instanceFromDatabase.date)) {
+                        throw new Error('Instance was not reverted.');
+                    }
+                });
+    
+            });
+
+            describe('List Attributes', () => {
+
+                it('Reverting an instance after replacing values.', async() => {
+                    const instance = new Instance(AuditableSuperClass);
+                    instance.assign({
+                        booleans: [false, true],
+                        numbers: [0, 1],
+                        strings: ['a', 'b', 'c'],
+                        dates: [new Date('2000-01-01')],
+                    });
+                    await instance.save();
+                    instance.assign({
+                        booleans: [true, false],
+                        numbers: [0, 1, 2],
+                        strings: ['b', 'c'],
+                        dates: [new Date('2000-01-01'), new Date('2000-01-02')],
+                    });
+                    await instance.save();
+
+                    await instance.revertToRevision(0);
+
+                    if (!arraysEqual(instance.booleans, [false, true]) 
+                        || !arraysEqual(instance.numbers, [0, 1]) 
+                        || !arraysEqual(instance.strings, ['a', 'b', 'c']) 
+                        || !arraysEqual(instance.dates, [new Date('2000-01-01')])) {
+                        throw new Error('Instance was not reverted.');
+                    }
+                });
+
+                it('Reverting an instance after setting values.', async() => {
+                    const instance = new Instance(AuditableSuperClass);
+                    await instance.save();
+                    instance.assign({
+                        booleans: [true, false],
+                        numbers: [0, 1, 2],
+                        strings: ['b', 'c'],
+                        dates: [new Date('2000-01-01'), new Date('2000-01-02')],
+                    });
+                    await instance.save();
+
+                    await instance.revertToRevision(0);
+
+                    if (!arraysEqual(instance.booleans, []) 
+                        || !arraysEqual(instance.numbers, []) 
+                        || !arraysEqual(instance.strings, []) 
+                        || !arraysEqual(instance.dates, [])) {
+                        throw new Error('Instance was not reverted.');
+                    }
+                });
+
+                it('Reverting an instance after unsetting values.', async() => {
+                    const instance = new Instance(AuditableSuperClass);
+                    instance.assign({
+                        booleans: [true, false],
+                        numbers: [0, 1, 2],
+                        strings: ['b', 'c'],
+                        dates: [new Date('2000-01-01'), new Date('2000-01-02')],
+                    });
+                    await instance.save();
+                    instance.assign({
+                        booleans: null,
+                        numbers: [],
+                        strings: undefined,
+                    });
+                    delete instance.dates;
+                    await instance.save();
+
+                    await instance.revertToRevision(0);
+
+                    if (!arraysEqual(instance.booleans, [true, false]) 
+                        || !arraysEqual(instance.numbers, [0, 1, 2]) 
+                        || !arraysEqual(instance.strings, ['b', 'c']) 
+                        || !arraysEqual(instance.dates, [new Date('2000-01-01'), new Date('2000-01-02')])) {
+                        throw new Error('Instance was not reverted.');
+                    }
+                });
+    
+            });
+
+            describe('Singular Relationships', () => {
+
+                it('Reverting an instance after replacing values.', async() => {
+                    const instance = new Instance(AuditableSuperClass);
+                    const class1 = new Instance(CompareClass1);
+                    instance.assign({
+                        class1: class1,
+                    });
+                    await instance.save();
+                    instance.assign({
+                        class1: new Instance(CompareClass1),
+                    });
+                    await instance.save();
+
+                    await instance.revertToRevision(0);
+
+                    if (!instance._class1.equals(class1._id)) {
+                        throw new Error('Instance was not reverted.');
+                    }
+                });
+
+                it('Reverting an instance after setting values.', async() => {
+                    const instance = new Instance(AuditableSuperClass);
+                    await instance.save();
+                    instance.assign({
+                        class1: new Instance(CompareClass1),
+                    });
+                    await instance.save();
+
+                    await instance.revertToRevision(0);
+
+                    if (!instance._class1 == null) {
+                        throw new Error('Instance was not reverted.');
+                    }
+                });
+
+                it('Reverting an instance after unsetting values.', async() => {
+                    const instance = new Instance(AuditableSuperClass);
+                    const class1 = new Instance(CompareClass1);
+                    instance.assign({
+                        class1: class1,
+                    });
+                    await instance.save();
+                    instance.assign({
+                        class1: null,
+                    });
+                    await instance.save();
+
+                    await instance.revertToRevision(0);
+
+                    if (!instance._class1.equals(class1._id)) {
+                        throw new Error('Instance was not reverted.');
+                    }
+                });
+    
+            });
+
+            describe('Non-Singular Relationships', () => {
+
+                it('Reverting an instance after replacing relationship values.', async() => {
+                    const instance = new Instance(AuditableSuperClass);
+                    const class2s = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
+                    instance.assign({
+                        class2s: class2s,
+                    });
+                    await instance.save();
+                    instance.assign({
+                        class2s: new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]),
+                    });
+                    await instance.save();
+
+                    await instance.revertToRevision(0);
+
+                    if (!arraysEqual(instance._class2s, class2s.getObjectIds())) {
+                        throw new Error('Instance was not reverted.');
+                    }
+                });
+
+                it('Reverting an instance after setting relationship.', async() => {
+                    const instance = new Instance(AuditableSuperClass);
+                    const class2s = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
+
+                    await instance.save();
+                    instance.assign({
+                        class2s: class2s,
+                    });
+                    await instance.save();
+
+                    await instance.revertToRevision(0);
+
+                    if (!arraysEqual(instance._class2s, [])) {
+                        throw new Error('Instance was not reverted.');
+                    }
+                });
+
+                it('Reverting an instance after unsetting relationship.', async() => {
+                    const instance = new Instance(AuditableSuperClass);
+                    const class2s = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
+                    instance.assign({
+                        class2s: class2s,
+                    });
+                    await instance.save();
+                    instance.assign({
+                        class2s: null,
+                    });
+                    await instance.save();
+
+                    await instance.revertToRevision(0);
+
+                    if (!arraysEqual(instance._class2s, class2s.getObjectIds())) {
+                        throw new Error('Instance was not reverted.');
+                    }
+                });
+
+                it('Reverting an instance after adding an instance to relationship.', async() => {
+                    const instance = new Instance(AuditableSuperClass);
+                    const class2s = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
+                    const class2sAfter = new InstanceSet(CompareClass2, class2s);
+                    class2sAfter.add(new Instance(CompareClass2));
+
+                    instance.assign({
+                        class2s: class2s,
+                    });
+                    await instance.save();
+
+                    instance.assign({
+                        class2s: class2sAfter,
+                    });
+                    await instance.save();
+
+                    await instance.revertToRevision(0);
+                
+                    if (!arraysEqual(instance._class2s, class2s.getObjectIds())) {
+                        throw new Error('Instance was not reverted.');
+                    }
+                });
+
+                it('Reverting an instance after adding two instances to relationship.', async() => {
+                    const instance = new Instance(AuditableSuperClass);
+                    const class2s = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
+                    const class2sAfter = new InstanceSet(CompareClass2, class2s);
+                    class2sAfter.addInstances([new Instance(CompareClass2), new Instance(CompareClass2)]);
+
+                    instance.assign({
+                        class2s: class2s,
+                    });
+                    await instance.save();
+
+                    instance.assign({
+                        class2s: class2sAfter,
+                    });
+                    await instance.save();
+
+                    await instance.revertToRevision(0);
+                
+                    if (!arraysEqual(instance._class2s, class2s.getObjectIds())) {
+                        throw new Error('Instance was not reverted.');
+                    }
+                });
+
+                it('Reverting an instance after removing an instance from relationship.', async() => {
+                    const instance = new Instance(AuditableSuperClass);
+                    const class2s = new InstanceSet(CompareClass2, [
+                        new Instance(CompareClass2),
+                        new Instance(CompareClass2),
+                        new Instance(CompareClass2),
+                        new Instance(CompareClass2)
+                    ]);
+                    const class2sAfter = new InstanceSet(CompareClass2, class2s);
+                    class2sAfter.removeInstances([[...class2s][0]]);
+
+                    instance.assign({
+                        class2s: class2s,
+                    });
+                    await instance.save();
+
+                    instance.assign({
+                        class2s: class2sAfter,
+                    });
+                    await instance.save();
+
+                    await instance.revertToRevision(0);
+
+                    const relationshipSet = new SuperSet(instance._class2s.map(x => x.toString()));
+                    const expectedSet = new SuperSet(class2s.getInstanceIds());
+                
+                    if (!relationshipSet.equals(expectedSet)) {
+                        throw new Error('Instance was not reverted.');
+                    }
+                });
+
+                it('Reverting an instance after removing two instances from relationship.', async() => {
+                    const instance = new Instance(AuditableSuperClass);
+                    const class2s = new InstanceSet(CompareClass2, [
+                        new Instance(CompareClass2),
+                        new Instance(CompareClass2),
+                        new Instance(CompareClass2),
+                        new Instance(CompareClass2)
+                    ]);
+                    const class2sAfter = new InstanceSet(CompareClass2, class2s);
+                    class2sAfter.removeInstances([[...class2s][0], [...class2s][1]]);
+
+                    instance.assign({
+                        class2s: class2s,
+                    });
+                    await instance.save();
+
+                    instance.assign({
+                        class2s: class2sAfter,
+                    });
+                    await instance.save();
+
+                    await instance.revertToRevision(0);
+
+                    const relationshipSet = new SuperSet(instance._class2s.map(x => x.toString()));
+                    const expectedSet = new SuperSet(class2s.getInstanceIds());
+                
+                    if (!relationshipSet.equals(expectedSet)) {
+                        throw new Error('Instance was not reverted.');
+                    }
+                });
+    
+            });
+            
+        });
+
+        describe('Multiple Revisions', () => {
+
+            describe('Singular Attributes', () => {
+
+                it('Reverting an instance to original after two revisions.', async() => {
+                    const instance = new Instance(AuditableSuperClass);
+                    instance.assign({
+                        boolean: false,
+                        number: 0,
+                        string: 'a',
+                        date: new Date('2000-01-01'),
+                    });
+                    await instance.save();
+
+                    instance.assign({
+                        boolean: null,
+                        number: null,
+                        string: 'b',
+                        date: new Date('2000-01-02'),
+                    });
+                    await instance.save();
+
+                    instance.assign({
+                        boolean: true,
+                        number: 1,
+                        string: 'c',
+                        date: new Date('2000-01-03'),
+                    });
+                    await instance.save();
+
+                    await instance.revertToRevision(0);
+
+                    if (instance.boolean !== false || instance.number !== 0 || instance.string !== 'a' || !moment(new Date('2000-01-01')).isSame(instance.date)) {
+                        throw new Error('Instance was not reverted.');
+                    }
+                });
+
+                it('Reverting an instance 2 revisions after three revisions.', async() => {
+                    const instance = new Instance(AuditableSuperClass);
+                    instance.assign({
+                        boolean: false,
+                        number: 0,
+                        string: 'a',
+                        date: new Date('2000-01-01'),
+                    });
+                    await instance.save();
+
+                    instance.assign({
+                        boolean: null,
+                        number: null,
+                        string: 'b',
+                        date: new Date('2000-01-02'),
+                    });
+                    await instance.save();
+
+                    instance.assign({
+                        boolean: true,
+                        number: 1,
+                        string: 'c',
+                        date: new Date('2000-01-03'),
+                    });
+                    await instance.save();
+
+                    instance.assign({
+                        boolean: true,
+                        number: 3,
+                        string: 'd',
+                        date: new Date('2000-01-04'),
+                    });
+                    await instance.save();
+
+                    await instance.revertToRevision(1);
+
+                    if (instance.boolean !== null || instance.number !== null || instance.string !== 'b' || !moment(new Date('2000-01-02')).isSame(instance.date)) {
+                        throw new Error('Instance was not reverted.');
+                    }
+                });
+
+            });
+
+            describe('List Attributes', () => {
+    
+                it('Reverting an instance to original after two revisions.', async() => {
+                    const instance = new Instance(AuditableSuperClass);
+                    instance.assign({
+                        booleans: [false, true],
+                        numbers: [0, 1],
+                        strings: ['a', 'b', 'c'],
+                        dates: [new Date('2000-01-01')],
+                    });
+                    await instance.save();
+                    
+                    instance.assign({
+                        booleans: null,
+                        numbers: [0, 1, 2, 3, 4],
+                        strings: null,
+                        dates: [new Date('2000-01-05'), new Date('2000-01-07')],
+                    });
+                    await instance.save();
+                    
+                    instance.assign({
+                        booleans: [true, false],
+                        numbers: [0, 1, 2],
+                        strings: ['b', 'c'],
+                        dates: [new Date('2000-01-01'), new Date('2000-01-02')],
+                    });
+                    await instance.save();
+
+                    await instance.revertToRevision(0);
+
+                    if (!arraysEqual(instance.booleans, [false, true]) 
+                        || !arraysEqual(instance.numbers, [0, 1]) 
+                        || !arraysEqual(instance.strings, ['a', 'b', 'c']) 
+                        || !arraysEqual(instance.dates, [new Date('2000-01-01')])) {
+                        throw new Error('Instance was not reverted.');
+                    }
+                });
+    
+                it('Reverting an instance two revisions after three revisions.', async() => {
+                    const instance = new Instance(AuditableSuperClass);
+                    instance.assign({
+                        booleans: [false, true],
+                        numbers: [0, 1],
+                        strings: ['a', 'b', 'c'],
+                        dates: [new Date('2000-01-01')],
+                    });
+                    await instance.save();
+                    
+                    instance.assign({
+                        booleans: null,
+                        numbers: [0, 1, 2, 3, 4],
+                        strings: null,
+                        dates: [new Date('2000-01-05'), new Date('2000-01-07')],
+                    });
+                    await instance.save();
+                    
+                    instance.assign({
+                        booleans: [true, false],
+                        numbers: [0, 1, 2],
+                        strings: ['b', 'c'],
+                        dates: [new Date('2000-01-01'), new Date('2000-01-02')],
+                    });
+                    await instance.save();
+                    
+                    instance.assign({
+                        booleans: [true, false, true],
+                        numbers: [],
+                        strings: ['b', 'c', 'd', 'e'],
+                        dates: [new Date('2000-01-02')],
+                    });
+                    await instance.save();
+
+                    await instance.revertToRevision(1);
+
+                    if (!arraysEqual(instance.booleans, []) 
+                        || !arraysEqual(instance.numbers, [0, 1, 2, 3, 4]) 
+                        || !arraysEqual(instance.strings, []) 
+                        || !arraysEqual(instance.dates, [new Date('2000-01-05'), new Date('2000-01-07')])) {
+                        throw new Error('Instance was not reverted.');
+                    }
+                });
+
+            });
+
+            describe('Singular Relationships', () => {
+    
+                it('Reverting an instance to original after two revisions.', async() => {
+                    const instance = new Instance(AuditableSuperClass);
+                    const class1 = new Instance(CompareClass1);
+                    instance.assign({
+                        class1: class1,
+                    });
+                    await instance.save();
+                    
+                    instance.assign({
+                        class1: new Instance(CompareClass1),
+                    });
+                    await instance.save();
+                    
+                    instance.assign({
+                        class1: new Instance(CompareClass1),
+                    });
+                    await instance.save();
+
+                    await instance.revertToRevision(0);
+
+                    if (!instance._class1.equals(class1._id)) {
+                        throw new Error('Instance was not reverted.');
+                    }
+                });
+    
+                it('Reverting an instance two revisions after three revisions.', async() => {
+                    const instance = new Instance(AuditableSuperClass);
+                    const class1 = new Instance(CompareClass1);
+                    instance.assign({
+                        class1: new Instance(CompareClass1),
+                    });
+                    await instance.save();
+
+                    instance.assign({
+                        class1: class1,
+                    });
+                    await instance.save();
+                    
+                    instance.assign({
+                        class1: new Instance(CompareClass1),
+                    });
+                    await instance.save();
+                    
+                    instance.assign({
+                        class1: new Instance(CompareClass1),
+                    });
+                    await instance.save();
+
+                    await instance.revertToRevision(1);
+
+                    if (!instance._class1.equals(class1._id)) {
+                        throw new Error('Instance was not reverted.');
+                    }
+                });
+
+            });
+
+            describe('Non-Singular Relationships', () => {
+    
+                it('Reverting an instance to original after two revisions.', async() => {
+                    const instance = new Instance(AuditableSuperClass);
+                    const class2s = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
+                    const class2s2 = new InstanceSet(CompareClass2, class2s);
+                    class2s2.addInstances([new Instance(CompareClass2), new Instance(CompareClass2)]);
+                    const class2s3 = new InstanceSet(CompareClass2, class2s2);
+                    class2s3.removeInstances([[...class2s][0]]);
+
+                    instance.assign({
+                        class2s: class2s,
+                    });
+                    await instance.save();
+
+                    instance.assign({
+                        class2s: class2s2,
+                    });
+                    await instance.save();
+
+                    instance.assign({
+                        class2s: class2s3,
+                    });
+                    await instance.save();
+
+                    await instance.revertToRevision(0);
+                
+                    const relationshipSet = new SuperSet(instance._class2s.map(x => x.toString()));
+                    const expectedSet = new SuperSet(class2s.getInstanceIds());
+                
+                    if (!relationshipSet.equals(expectedSet)) {
+                        throw new Error('Instance was not reverted.');
+                    }
+                });
+    
+                it('Reverting an instance to original after two revisions.', async() => {
+                    const instance = new Instance(AuditableSuperClass);
+                    const class2s = new InstanceSet(CompareClass2, [new Instance(CompareClass2), new Instance(CompareClass2)]);
+                    const class2s2 = new InstanceSet(CompareClass2, class2s);
+                    class2s2.addInstances([new Instance(CompareClass2), new Instance(CompareClass2)]);
+                    const class2s3 = new InstanceSet(CompareClass2, class2s2);
+                    class2s3.removeInstances([[...class2s][0]]);
+                    const class2s4 = new InstanceSet(CompareClass2);
+
+                    instance.assign({
+                        class2s: class2s,
+                    });
+                    await instance.save();
+
+                    instance.assign({
+                        class2s: class2s2,
+                    });
+                    await instance.save();
+
+                    instance.assign({
+                        class2s: class2s3,
+                    });
+                    await instance.save();
+
+                    instance.assign({
+                        class2s: class2s4,
+                    });
+                    await instance.save();
+
+                    await instance.revertToRevision(1);
+                
+                    const relationshipSet = new SuperSet(instance._class2s.map(x => x.toString()));
+                    const expectedSet = new SuperSet(class2s2.getInstanceIds());
+                
+                    if (!relationshipSet.equals(expectedSet)) {
+                        throw new Error('Instance was not reverted.');
+                    }
+                });
+
+            });
+            
         });
 
     });

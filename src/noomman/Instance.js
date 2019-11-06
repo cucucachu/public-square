@@ -140,7 +140,6 @@ class Instance {
     }
 
     toString() {
-        console.log('instance.toString()');
         return this.currentState.toString();
     }
 
@@ -462,7 +461,6 @@ class Instance {
 
     rollbackDiff() {
         const changes = this.previousState.diff(this.currentState);
-        
         if (changes.$set) {
             changes.set = changes.$set;
             delete changes.$set;
@@ -477,7 +475,7 @@ class Instance {
             changes.addToSet = changes.$addToSet;
             delete changes.$addToSet;
 
-            for (const key of changes.addToSet) {
+            for (const key in changes.addToSet) {
                 if (changes.addToSet[key].$each) {
                     changes.addToSet[key].each = changes.addToSet[key].$each;
                     delete changes.addToSet[key].$each;
@@ -488,11 +486,10 @@ class Instance {
         if (changes.$pull) {
             changes.pull = changes.$pull;
             delete changes.$pull;
-
-            for (const key of changes.pull) {
-                if (changes.addToSet[key].$in) {
-                    changes.addToSet[key].in = changes.addToSet[key].$in;
-                    delete changes.addToSet[key].$in;
+            for (const key in changes.pull) {
+                if (changes.pull[key].$in) {
+                    changes.pull[key].in = changes.pull[key].$in;
+                    delete changes.pull[key].$in;
                 }
             }
         }
@@ -594,8 +591,6 @@ class Instance {
 
 
     }
-
-
 
     applyChanges(changes) {
         this.validateChanges(changes);
@@ -704,8 +699,51 @@ class Instance {
                 }
             }
         }
+    }
 
+    static hydrateAuditEntry(changes) {
+        const hydrated = {};
 
+        for (const operator of Object.keys(changes)) {
+            hydrated['$' + operator] = changes[operator];
+
+            if (operator === 'addToSet') {
+                for (const property of Object.keys(changes[operator])) {
+                    if (changes[operator][property].each !== undefined) {
+                        hydrated['$' + operator][property].$each = hydrated['$' + operator][property].each;
+                        delete hydrated['$' + operator][property].each;
+                    }
+                }
+            }
+
+            if (operator === 'pull') {
+                for (const property of Object.keys(changes[operator])) {
+                    if (changes[operator][property].in !== undefined) {
+                        hydrated['$' + operator][property].$in = hydrated['$' + operator][property].in;
+                        delete hydrated['$' + operator][property].in;
+                    }
+                }
+            }
+        }
+
+        return hydrated;
+    }
+
+    async revertToRevision(revisionNumber) {
+        if (!this.classModel.auditable) {
+            throw new Error('instance.revertToRevision() called on an instance of a non-auditable class model.');
+        }
+
+        if (this.revision <= 0 || typeof(revisionNumber) !== 'number' || revisionNumber >= this.revision) {
+            return; 
+        }
+
+        const previousRevisions = await db.find('audit_' + this.classModel.collection, { forInstance: this._id });
+
+        for (let i = this.revision - 1; i >= revisionNumber; i--) {
+            const changes = Instance.hydrateAuditEntry(previousRevisions.filter(revision => revision.revision === i)[0].changes);
+            this.applyChanges(changes);
+        }
     }
 
     equals(that) {
