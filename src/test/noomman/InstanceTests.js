@@ -3628,7 +3628,198 @@ describe('Instance Tests', () => {
 
     });
 
-    describe.only('instance.applyChanges()', () => {
+    describe('instance.applyChanges()', () => {
+
+        describe('instance.validateChanges()', () => {
+
+            it('Invalid Operator', () => {
+                const expectedErrorMessage = 'Invalid update operator: $notAnOperator.';
+                const instance = new Instance(AuditableSuperClass);
+                const changes = {
+                    $notAnOperator: {
+                        boolean: true,
+                    },
+                };
+
+                testForError('instance.validateChanges()', expectedErrorMessage, () => {
+                    instance.validateChanges(changes);
+                });
+
+            });
+
+            it('Operator set to something other than an object.', () => {
+                const expectedErrorMessage = 'Operator set to something other than an object.';
+                const instance = new Instance(AuditableSuperClass);
+                const changes = {
+                    $set: true,
+                };
+
+                testForError('instance.validateChanges()', expectedErrorMessage, () => {
+                    instance.validateChanges(changes);
+                });
+
+            });
+
+            it('Operator with empty object.', () => {
+                const expectedErrorMessage = 'Operator with empty object.';
+                const instance = new Instance(AuditableSuperClass);
+                const changes = {
+                    $unset: {},
+                };
+
+                testForError('instance.validateChanges()', expectedErrorMessage, () => {
+                    instance.validateChanges(changes);
+                });
+
+            });
+
+            it('Cannot perform multiple operations on the same property.', () => {
+                const expectedErrorMessage = 'Cannot perform multiple operations an the same attribute or relationship.';
+                const instance = new Instance(AuditableSuperClass);
+                const changes = {
+                    $set: {
+                        boolean: true,
+                    },
+                    $unset: {
+                        boolean: true,
+                    }
+                };
+
+                testForError('instance.validateChanges()', expectedErrorMessage, () => {
+                    instance.validateChanges(changes);
+                });
+
+            });
+
+            it('Property is not an attribute or relationship.', () => {
+                const expectedErrorMessage = 'Attempt to update a property which is not an attribute or relationship.';
+                const instance = new Instance(AuditableSuperClass);
+                const changes = {
+                    $set: {
+                        hello: true,
+                    }
+                };
+
+                testForError('instance.validateChanges()', expectedErrorMessage, () => {
+                    instance.validateChanges(changes);
+                });
+
+            });
+
+            it('Using $addToSet or $pull on a property which is not a non-singular relationship.', () => {
+                const expectedErrorMessage = 'Attempt to use $addToSet,$pull, on an attribute or singular relationship.';
+                const instance = new Instance(AuditableSuperClass);
+                const changes = {
+                    $addToSet: {
+                        class1: new Instance(CompareClass2)._id,
+                    }
+                };
+
+                testForError('instance.validateChanges()', expectedErrorMessage, () => {
+                    instance.validateChanges(changes);
+                });
+
+            });
+
+            it('Adding an array using $addToSet without using $each.', () => {
+                const expectedErrorMessage = 'Attempt to add an array using $addToSet without using \'$each\'.';
+                const instance = new Instance(AuditableSuperClass);
+                const changes = {
+                    $addToSet: {
+                        class2s: [new Instance(CompareClass2)._id, new Instance(CompareClass2)._id]
+                    }
+                };
+
+                testForError('instance.validateChanges()', expectedErrorMessage, () => {
+                    instance.validateChanges(changes);
+                });
+
+            });
+
+            it('Using $pull to remove an array without $in.', () => {
+                const expectedErrorMessage = 'Attempt to remove an array using $pull without using \'$in\'.';
+                const instance = new Instance(AuditableSuperClass);
+                const changes = {
+                    $pull: {
+                        class2s: [new Instance(CompareClass2)._id, new Instance(CompareClass2)._id]
+                    }
+                };
+
+                testForError('instance.validateChanges()', expectedErrorMessage, () => {
+                    instance.validateChanges(changes);
+                });
+
+            });
+
+            it('Using $each with $pull', () => {
+                const expectedErrorMessage = 'Attempt to use \'$each\' with a $pull operator. Use \'$in\' instead.';
+                const instance = new Instance(AuditableSuperClass);
+                const changes = {
+                    $pull: {
+                        class2s: {
+                            $each: [new Instance(CompareClass2)._id, new Instance(CompareClass2)._id],
+                        },
+                    }
+                };
+
+                testForError('instance.validateChanges()', expectedErrorMessage, () => {
+                    instance.validateChanges(changes);
+                });
+
+            });
+
+            it('Using $addToSet and $each without an array.', () => {
+                const expectedErrorMessage = 'Attempt to use $addToSet and $each without an Array value.';
+                const instance = new Instance(AuditableSuperClass);
+                const changes = {
+                    $addToSet: {
+                        class2s: {
+                            $each: new Instance(CompareClass2)._id,
+                        },
+                    },
+                };
+
+                testForError('instance.validateChanges()', expectedErrorMessage, () => {
+                    instance.validateChanges(changes);
+                });
+
+            });
+
+            it('Using $in with $addToSet', () => {
+                const expectedErrorMessage = 'Attempt to use \'$in\' with a $addToSet operator. Use \'$each\' instead.';
+                const instance = new Instance(AuditableSuperClass);
+                const changes = {
+                    $addToSet: {
+                        class2s: {
+                            $in: [new Instance(CompareClass2)._id, new Instance(CompareClass2)._id],
+                        },
+                    }
+                };
+
+                testForError('instance.validateChanges()', expectedErrorMessage, () => {
+                    instance.validateChanges(changes);
+                });
+
+            });
+
+            it('Using $pull and $in without an array.', () => {
+                const expectedErrorMessage = 'Attempt to use $pull and $in without an Array value.';
+                const instance = new Instance(AuditableSuperClass);
+                const changes = {
+                    $pull: {
+                        class2s: {
+                            $in: new Instance(CompareClass2)._id,
+                        },
+                    },
+                };
+
+                testForError('instance.validateChanges()', expectedErrorMessage, () => {
+                    instance.validateChanges(changes);
+                });
+
+            });
+
+        });
 
         describe('$set', () => {
 
@@ -3834,7 +4025,7 @@ describe('Instance Tests', () => {
 
         });
 
-        describe.only('$pull', () => {
+        describe('$pull', () => {
 
             it('Removing one ObjectId from a non-singular relationship.', () => {
                 const instance = new Instance(AuditableSuperClass);
@@ -3866,9 +4057,6 @@ describe('Instance Tests', () => {
 
                 instance.class2s = class2sOriginal;
 
-                console.log(class2sOriginal.getObjectIds());
-                console.log(class2sUpdated.getObjectIds());
-
                 instance.applyChanges({
                     $pull: {
                         class2s: {
@@ -3876,8 +4064,6 @@ describe('Instance Tests', () => {
                         },
                     }
                 });
-
-                console.log(instance._class2s);
 
                 if (!arraysEqual(instance._class2s, class2sUpdated.getObjectIds())) {
                     throw new Error('Instance not added to related set.');

@@ -515,7 +515,91 @@ class Instance {
         return document;
     }
 
+    validateChanges(changes) {
+        if (!changes || typeof(changes) !== 'object') {
+            throw new Error('Changes must be an object.');
+        }
+        const operators = Object.keys(changes);
+        const nonSingularRelationshipOperators = ['$addToSet', '$pull'];
+        const attributeNames = this.classModel.attributes.map(attribute => attribute.name);
+        const relationshipNames = this.classModel.relationships.map(relationship => relationship.name);
+        const nonSingularRelationshipNames = this.classModel.relationships.filter(relationship => !relationship.singular).map(relationship => relationship.name);
+        const propertiesSeen = [];
+
+        for (const operator of operators) {
+            if (!['$set', '$unset', '$addToSet', '$pull'].includes(operator)) {
+                throw new Error('Invalid update operator: ' + operator + '.');
+            }
+
+            if (typeof(changes[operator]) !== 'object') {
+                throw new Error('Operator set to something other than an object.');
+            }
+
+            const properties = Object.keys(changes[operator]);
+
+            if (properties.length === 0) {
+                throw new Error('Operator with empty object.');
+            }
+
+            for (const property of properties) {
+                const isAttribute = attributeNames.includes(property);
+                const isRelationship = relationshipNames.includes(property);
+                const isNonSingularRelationship = nonSingularRelationshipNames.includes(property);
+
+                if(propertiesSeen.includes(property)) {
+                    throw new Error('Cannot perform multiple operations an the same attribute or relationship.');
+                }
+                propertiesSeen.push(property);
+
+                if (!isAttribute && !isRelationship) {
+                    throw new Error('Attempt to update a property which is not an attribute or relationship.');
+                }
+
+                if (nonSingularRelationshipOperators.includes(operator)) {
+                    if (!isNonSingularRelationship) {
+                        throw new Error('Attempt to use ' + nonSingularRelationshipOperators + ', on an attribute or singular relationship.');
+                    }
+
+                    if (Array.isArray(changes[operator][property])) {
+                        if (operator === '$addToSet') {
+                            throw new Error('Attempt to add an array using $addToSet without using \'$each\'.');
+                        }
+                        if (operator === '$pull') {
+                            throw new Error('Attempt to remove an array using $pull without using \'$in\'.');
+                        }
+                    }
+
+                    if (changes[operator][property].$each !== undefined) {
+                        if (operator === '$pull') {
+                            throw new Error('Attempt to use \'$each\' with a $pull operator. Use \'$in\' instead.');
+                        }
+
+                        if (!Array.isArray(changes[operator][property].$each)) {
+                            throw new Error('Attempt to use $addToSet and $each without an Array value.');
+                        }
+                    }
+
+                    if (changes[operator][property].$in) {
+                        if (operator === '$addToSet') {
+                            throw new Error('Attempt to use \'$in\' with a $addToSet operator. Use \'$each\' instead.');
+                        }
+
+                        if (!Array.isArray(changes[operator][property].$in)) {
+                            throw new Error('Attempt to use $pull and $in without an Array value.');
+                        }
+                    }
+                }
+            }
+        }
+
+
+    }
+
+
+
     applyChanges(changes) {
+        this.validateChanges(changes);
+
         const attributeNames = this.classModel.attributes.map(attribute => attribute.name);
         const relationshipNames = this.classModel.relationships.map(relationship => relationship.name);
 
