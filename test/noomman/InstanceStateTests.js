@@ -1,9 +1,7 @@
-require("@babel/polyfill");
-
-const database = require('../../dist/noomman/database');
-const InstanceState = require('../../dist/noomman/InstanceState');
-const Instance = require('../../dist/noomman/Instance');
-const InstanceSet = require('../../dist/noomman/InstanceSet');
+const database = require('../../src/noomman/database');
+const InstanceState = require('../../src/noomman/InstanceState');
+const Instance = require('../../src/noomman/Instance');
+const InstanceSet = require('../../src/noomman/InstanceSet');
 const TestClassModels = require('./helpers/TestClassModels');
 const TestingFunctions = require('./helpers/TestingFunctions');
 const testForError = TestingFunctions.testForError;

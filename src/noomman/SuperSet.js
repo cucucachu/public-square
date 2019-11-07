@@ -1,5 +1,3 @@
-require('@babel/polyfill');
-
 class SuperSet extends Set {
     constructor(iterable) {
         super(iterable);

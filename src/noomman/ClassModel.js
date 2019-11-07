@@ -1,7 +1,6 @@
 /*
   Description: Defines an application class model.
 */
-require('@babel/polyfill');
 
 var db = require('./database');
 const InstanceSet = require('./InstanceSet');

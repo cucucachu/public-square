@@ -1,5 +1,3 @@
-require('@babel/polyfill');
-
 class Relationship {
 
     constructor(relationshipSchema) {

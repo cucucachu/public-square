@@ -1,7 +1,4 @@
-require("@babel/polyfill");
-
-const Relationship = require('../../dist/noomman/Relationship');
-
+const Relationship = require('../../src/noomman/Relationship');
 const TestingFunctions = require('./helpers/TestingFunctions');
 const testForError = TestingFunctions.testForError;
 

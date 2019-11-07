@@ -1,11 +1,7 @@
-require("@babel/polyfill");
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
-
-const ClassModel = require('../../dist/noomman/ClassModel');
-const InstanceSet = require('../../dist/noomman/InstanceSet');
-const Instance = require('../../dist/noomman/Instance');
-const database = require('../../dist/noomman/database');
+const ClassModel = require('../../src/noomman/ClassModel');
+const InstanceSet = require('../../src/noomman/InstanceSet');
+const Instance = require('../../src/noomman/Instance');
+const database = require('../../src/noomman/database');
 const TestClassModels = require('./helpers/TestClassModels');
 const TestingFunctions = require('./helpers/TestingFunctions');
 const testForError = TestingFunctions.testForError;

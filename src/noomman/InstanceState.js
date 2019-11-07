@@ -1,4 +1,3 @@
-require('@babel/polyfill');
 const moment = require('moment');
 
 const InstanceReference = require('./InstanceReference');

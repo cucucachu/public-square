@@ -1,5 +1,4 @@
-require("@babel/polyfill");
-const SuperSet = require('../../dist/noomman/SuperSet');
+const SuperSet = require('../../src/noomman/SuperSet');
 
 describe('SuperSet Tests', () => {
 

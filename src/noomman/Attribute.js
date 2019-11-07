@@ -1,5 +1,3 @@
-require('@babel/polyfill');
-
 class Attribute {
 
     constructor(attributeSchema) {

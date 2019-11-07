@@ -1,6 +1,4 @@
-require("@babel/polyfill");
-
-const Attribute = require('../../dist/noomman/Attribute');
+const Attribute = require('../../src/noomman/Attribute');
 
 const TestingFunctions = require('./helpers/TestingFunctions');
 const testForError = TestingFunctions.testForError;

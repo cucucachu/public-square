@@ -1,5 +1,3 @@
-require('@babel/polyfill');
-
 const SuperSet = require('./SuperSet');
 
 class InstanceSetReference {

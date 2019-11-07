@@ -1,5 +1,3 @@
-require('@babel/polyfill');
-
 const Instance = require('./Instance');
 const SuperSet = require('./SuperSet');
 

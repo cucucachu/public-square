@@ -1,4 +1,3 @@
-
 const moment = require('moment');
 
 function testForError(functionName, expectedErrorMessage, functionToCall) {

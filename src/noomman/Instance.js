@@ -1,4 +1,3 @@
-require('@babel/polyfill');
 const db = require('./database');
 
 const InstanceState = require('./InstanceState');

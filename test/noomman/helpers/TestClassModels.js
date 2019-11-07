@@ -1,8 +1,4 @@
-require("@babel/polyfill");
-
-const ClassModel = require('../../../dist/noomman/ClassModel');
-
-
+const ClassModel = require('../../../src/noomman/ClassModel');
 
 // Create Class Models that will be used across tests.
 {
