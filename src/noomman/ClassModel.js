@@ -235,6 +235,37 @@ class ClassModel {
         return true;
     }
 
+    cardinalityOfRelationship(relationshipName) {
+        const relationship = this.relationships.filter(r => r.name === relationshipName)[0];
+
+        const cardinality = {
+            from: null,
+            to: null,
+        };
+
+            
+        if (relationship.singular) {
+            cardinality.to = '1';
+        }
+        else {
+            cardinality.to = 'many';
+        }
+            
+        if (relationship.mirrorRelationship !== undefined) {
+            const mirrorRelationship = AllClassModels[relationship.toClass].relationships.filter(x => x.name === relationship.mirrorRelationship)[0];
+
+
+            if (mirrorRelationship.singular) {
+                cardinality.from = '1';
+            }
+            else {
+                cardinality.from = 'many';
+            }
+        }
+
+        return cardinality;
+    }
+
     discriminated() {
         for (const subClass of this.subClasses) {
             if (subClass.useSuperClassCollection)

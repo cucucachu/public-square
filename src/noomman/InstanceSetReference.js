@@ -82,7 +82,7 @@ class InstanceSetReference {
             }
         }
         else {
-            const diffObject = {}
+            const diffObject = {};
             const thisSet = new SuperSet(this._ids);
             const thatSet = new SuperSet(that._ids);
 

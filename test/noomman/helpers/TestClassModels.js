@@ -669,6 +669,78 @@ const ClassModel = require('../../../src/noomman/ClassModel');
             superClasses: [NonSingularRelationshipClass] 
         });
 
+        var TwoWayRelationshipClass1 = new ClassModel({
+            className: 'TwoWayRelationshipClass1',
+            attributes: [
+                {
+                    name: 'name',
+                    type: String,
+                },
+            ],
+            relationships: [
+                {
+                    name: 'oneToOne',
+                    toClass: 'TwoWayRelationshipClass2',
+                    singular: true,
+                    mirrorRelationship: 'oneToOne',
+                },
+                {
+                    name: 'oneToMany',
+                    toClass: 'TwoWayRelationshipClass2',
+                    singular: false,
+                    mirrorRelationship: 'manyToOne',
+                },
+                {
+                    name: 'manyToOne',
+                    toClass: 'TwoWayRelationshipClass2',
+                    singular: true,
+                    mirrorRelationship: 'oneToMany',
+                },
+                {
+                    name: 'manyToMany',
+                    toClass: 'TwoWayRelationshipClass2',
+                    singular: false,
+                    mirrorRelationship: 'manyToMany',
+                },
+            ],
+        });
+
+        var TwoWayRelationshipClass2 = new ClassModel({
+            className: 'TwoWayRelationshipClass2',
+            attributes: [
+                {
+                    name: 'name',
+                    type: String,
+                },
+            ],
+            relationships: [
+                {
+                    name: 'oneToOne',
+                    toClass: 'TwoWayRelationshipClass1',
+                    singular: true,
+                    mirrorRelationship: 'oneToOne',
+                },
+                {
+                    name: 'oneToMany',
+                    toClass: 'TwoWayRelationshipClass1',
+                    singular: false,
+                    mirrorRelationship: 'manyToOne',
+                },
+                {
+                    name: 'manyToOne',
+                    toClass: 'TwoWayRelationshipClass1',
+                    singular: true,
+                    mirrorRelationship: 'oneToMany',
+                },
+                {
+                    name: 'manyToMany',
+                    toClass: 'TwoWayRelationshipClass1',
+                    singular: false,
+                    mirrorRelationship: 'manyToMany',
+                },
+            ],
+        });
+
     }
 
     // CreateControlled Classes
@@ -1305,6 +1377,8 @@ module.exports = {
     NonSingularRelationshipClass,
     SubClassOfSingularRelationshipClass,
     SubClassOfNonSingularRelationshipClass,
+    TwoWayRelationshipClass1,
+    TwoWayRelationshipClass2,
     CreateControlledSuperClass, 
     CreateControlledSubClassOfCreateControlledSuperClass,
     CreateControlledDiscriminatedSuperClass,

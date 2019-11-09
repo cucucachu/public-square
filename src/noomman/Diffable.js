@@ -58,8 +58,85 @@ class Diffable {
         return changes;
     }
 
-    relatedDiffs() {
+    static mirrorOperator(operator, cardinality) {
+        if (operator === '$set') {
+            if (cardinality.from === '1') {
+                return '$set';
+            }
+            return '$addToSet';
+        }
+        else if (operator === '$unset') {
+            if (cardinality.from === '1') {
+                return '$unset';
+            }
+            return '$pull';
+        }
+        else if (operator === '$addToSet') {
+            if (cardinality.from === '1') {
+                return '$set';
+            }
+            return '$addToSet';
+        }
+        else if (operator === '$pull') {
+            if (cardinality.from === '1') {
+                return '$unset';
+            }
+            return '$pull';
+        }
+    }
 
+    static valueForOperator(diff, operator, relationshipName) {
+        let value = diff[operator][relationshipName];
+
+        if (value === undefined) {
+            return undefined;
+        }
+                        
+        if (operator === '$addToSet' && value.$each !== undefined) {
+            value = value.$each;
+        }
+        if (operator === '$pull' && value.$in !== undefined) {
+            value = value.$in;
+        }
+
+        if (!Array.isArray(value)) {
+            value = [value];
+        }
+
+        return value;
+    };
+
+    relatedDiffs(diff) {
+        const relatedDiffObject = {};
+        const twoWayRelationships = this.classModel.relationships.filter(relationship => relationship.mirrorRelationship !== undefined);
+
+        if (twoWayRelationships.length !== 0) {
+            diff = diff === undefined ? this.diff() : diff;
+            const operators = Object.keys(diff);
+
+            for (const relationship of twoWayRelationships) {
+                const cardinality = this.classModel.cardinalityOfRelationship(relationship.name);
+
+                for (const operator of operators) {
+                    const value = Diffable.valueForOperator(diff, operator, relationship.name);
+
+                    if (value !== undefined) {
+                        relatedDiffObject[relationship.name] = relatedDiffObject[relationship.name] !== undefined ? relatedDiffObject[relationship.name] : {};
+                        let mirrorOperator = Diffable.mirrorOperator(operator, cardinality);
+
+                        for (const relatedInstance of value) {
+                            relatedDiffObject[relationship.name][relatedInstance.toString()] = {
+                                [mirrorOperator]: {
+                                    [relationship.mirrorRelationship]: this._id,
+                                }
+                            };
+                        }
+                    }
+                }
+            }
+        }
+
+        return relatedDiffObject;
     }
 
     applyChanges(changes) {

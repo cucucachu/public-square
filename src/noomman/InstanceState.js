@@ -259,7 +259,10 @@ class InstanceState {
 
     diff(that) {
         this.sync();
-        that.sync();
+
+        if (that !== null) {
+            that.sync();
+        }
 
         const diffObject = {};
         const $set = {};

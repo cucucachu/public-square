@@ -41,6 +41,8 @@ const testForErrorAsync = TestingFunctions.testForErrorAsync;
     var NonSingularRelationshipClass = TestClassModels.NonSingularRelationshipClass;
     var SubClassOfSingularRelationshipClass = TestClassModels.SubClassOfSingularRelationshipClass;
     var SubClassOfNonSingularRelationshipClass = TestClassModels.SubClassOfNonSingularRelationshipClass;
+    var TwoWayRelationshipClass1 = TestClassModels.TwoWayRelationshipClass1;
+    var TwoWayRelationshipClass2 = TestClassModels.TwoWayRelationshipClass2;
 
     // CreateControlled Classes
     var CreateControlledSuperClass = TestClassModels.CreateControlledSuperClass;
@@ -3245,6 +3247,52 @@ describe('Class Model Tests', () => {
                     throw new Error('Class does not have the correct number of validations.');
             });
 
+        });
+
+    });
+
+    describe('ClassModel.cardinalityOfRelationship()', () => {
+
+        it('null to one.', () => {
+            const cardinality = SingularRelationshipClass.cardinalityOfRelationship('singularRelationship');
+
+            if (cardinality.from !== null || cardinality.to !== '1')
+                throw new Error('incorrect cardinallity: ' + JSON.stringify(cardinality));
+        });
+
+        it('null to many.', () => {
+            const cardinality = NonSingularRelationshipClass.cardinalityOfRelationship('nonSingularRelationship');
+
+            if (cardinality.from !== null || cardinality.to !== 'many')
+                throw new Error('incorrect cardinallity: ' + JSON.stringify(cardinality));
+        });
+
+        it('one to one.', () => {
+            const cardinality = TwoWayRelationshipClass1.cardinalityOfRelationship('oneToOne');
+
+            if (cardinality.from !== '1' || cardinality.to !== '1')
+                throw new Error('incorrect cardinallity: ' + JSON.stringify(cardinality));
+        });
+
+        it('one to many.', () => {
+            const cardinality = TwoWayRelationshipClass1.cardinalityOfRelationship('oneToMany');
+
+            if (cardinality.from !== '1' || cardinality.to !== 'many')
+                throw new Error('incorrect cardinallity: ' + JSON.stringify(cardinality));            
+        });
+
+        it('many to one.', () => {
+            const cardinality = TwoWayRelationshipClass1.cardinalityOfRelationship('manyToOne');
+
+            if (cardinality.from !== 'many' || cardinality.to !== '1')
+                throw new Error('incorrect cardinallity: ' + JSON.stringify(cardinality));       
+        });
+
+        it('many to many.', () => {
+            const cardinality = TwoWayRelationshipClass1.cardinalityOfRelationship('manyToMany');
+
+            if (cardinality.from !== 'many' || cardinality.to !== 'many')
+                throw new Error('incorrect cardinallity: ' + JSON.stringify(cardinality));       
         });
 
     });

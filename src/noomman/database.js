@@ -13,7 +13,7 @@ async function connect() {
 		throw new Error('Attempt to connect to database twice.');
 	}
 	
-	client = new MongoClient(mongo_uri);
+	client = new MongoClient(mongo_uri, { useNewUrlParser: true });
 
 	await client.connect();
 	db = client.db('test');
