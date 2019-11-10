@@ -152,6 +152,32 @@ class Diffable {
         return relatedDiffObject;
     }
 
+    reducedRelatedDiffs(diff) {
+        const reduced = {};
+
+        diff = diff === undefined ? this.relatedDiffs() : diff;
+
+        for (const relationship of Object.keys(diff)) {
+            for (const id of Object.keys(diff[relationship])) {
+                if (reduced[id] === undefined) {
+                    reduced[id] = {};
+                }
+
+                for (const operator of Object.keys(diff[relationship][id])) {
+                    if (reduced[id][operator] === undefined) {
+                        reduced[id][operator] = {};
+                    }
+                    
+                    for (const mirrorRelationship of Object.keys(diff[relationship][id][operator])) {
+                        reduced[id][operator][mirrorRelationship] = diff[relationship][id][operator][mirrorRelationship];
+                    }
+                }
+            }
+        }
+
+        return reduced;
+    }
+
     applyChanges(changes) {
         this.validateChanges(changes);
 

@@ -1438,6 +1438,262 @@ describe('Diffable Tests', () => {
 
     });
 
+    describe('instance.reducedRelatedDiffs()', () => {
+
+        describe('Nothing To Combine', () => {
+
+            it('Explicit diff given. Nothing to combine.', () => {
+                const mirrorOperation = '$set';
+                const relationship = 'oneToOne';
+                const mirrorRelationship = 'oneToOne';
+
+                const instance = new Instance(TwoWayRelationshipClass1);
+                const relatedInstance = new Instance(TwoWayRelationshipClass2);
+
+                const relatedDiff = {
+                    [relationship]: {
+                        [relatedInstance.id]: {
+                            [mirrorOperation]: {
+                                [mirrorRelationship]: instance._id,
+                            }
+                        }
+                    }
+                }
+
+                const reduced = instance.reducedRelatedDiffs(relatedDiff);
+
+                if (!reduced[relatedInstance.id][mirrorOperation][mirrorRelationship].equals(instance._id)) {
+                    throw new Error('Reduced diff incorrect.');
+                }
+            });
+
+            it('Explicit diff given. Nothing to combine. Two relationships', () => {
+                const mirrorOperation = '$set';
+                const relationship1 = 'oneToOne';
+                const mirrorRelationship1 = 'oneToOne';
+                const relationship2 = 'manyToOne';
+                const mirrorRelationship2 = 'oneToMany';
+
+                const instance = new Instance(TwoWayRelationshipClass1);
+                const relatedInstance1 = new Instance(TwoWayRelationshipClass2);
+                const relatedInstance2 = new Instance(TwoWayRelationshipClass2);
+
+                const relatedDiff = {
+                    [relationship1]: {
+                        [relatedInstance1.id]: {
+                            [mirrorOperation]: {
+                                [mirrorRelationship1]: instance._id,
+                            }
+                        }
+                    },
+                    [relationship2]: {
+                        [relatedInstance2.id]: {
+                            [mirrorOperation]: {
+                                [mirrorRelationship2]: instance._id,
+                            }
+                        }
+                    }
+                }
+
+                const reduced = instance.reducedRelatedDiffs(relatedDiff);
+
+                if (!reduced[relatedInstance1.id][mirrorOperation][mirrorRelationship1].equals(instance._id)) {
+                    throw new Error('Reduced diff incorrect.');
+                }
+
+                if (!reduced[relatedInstance2.id][mirrorOperation][mirrorRelationship2].equals(instance._id)) {
+                    throw new Error('Reduced diff incorrect.');
+                }
+            });
+            
+            it('Implicit reducedRelatedDiff()', () => {
+                const relationship = 'oneToMany';
+                const mirrorRelationship = 'manyToOne';
+                const mirrorOperation1 = '$unset';
+                const mirrorOperation2 = '$set';
+
+                const relatedInstance1 = new Instance(TwoWayRelationshipClass2);
+                const relatedInstance2 = new Instance(TwoWayRelationshipClass2);
+                const relatedInstance3 = new Instance(TwoWayRelationshipClass2);
+                const relatedInstance4 = new Instance(TwoWayRelationshipClass2);
+                const relatedInstance5 = new Instance(TwoWayRelationshipClass2);
+                const relatedInstances = new InstanceSet(TwoWayRelationshipClass2, [relatedInstance3, relatedInstance4, relatedInstance5]);
+
+                const document = {
+                    _id: database.ObjectId(),
+                    [relationship]: [relatedInstance1._id, relatedInstance2._id, relatedInstance3._id],
+                }
+                const instance = new Instance(TwoWayRelationshipClass1, document);
+                instance[relationship] = relatedInstances;
+
+                const reduced = instance.reducedRelatedDiffs();
+
+                if (!reduced[relatedInstance1.id][mirrorOperation1][mirrorRelationship].equals(instance._id)){
+                    throw new Error('Related Diff is incorrect.');
+                }
+
+                if (!reduced[relatedInstance2.id][mirrorOperation1][mirrorRelationship].equals(instance._id)){
+                    throw new Error('Related Diff is incorrect.');
+                }
+
+                if (!reduced[relatedInstance4.id][mirrorOperation2][mirrorRelationship].equals(instance._id)){
+                    throw new Error('Related Diff is incorrect.');
+                }
+
+                if (!reduced[relatedInstance5.id][mirrorOperation2][mirrorRelationship].equals(instance._id)){
+                    throw new Error('Related Diff is incorrect.');
+                }
+            });
+
+        });
+
+        describe('Combining Diffs', () => {
+
+            it('Explicit diff given. Combining two relationships with same operator.', () => {
+                const mirrorOperation = '$set';
+                const relationship1 = 'oneToOne';
+                const mirrorRelationship1 = 'oneToOne';
+                const relationship2 = 'manyToOne';
+                const mirrorRelationship2 = 'oneToMany';
+
+                const instance = new Instance(TwoWayRelationshipClass1);
+                const relatedInstance1 = new Instance(TwoWayRelationshipClass2);
+
+                const relatedDiff = {
+                    [relationship1]: {
+                        [relatedInstance1.id]: {
+                            [mirrorOperation]: {
+                                [mirrorRelationship1]: instance._id,
+                            }
+                        }
+                    },
+                    [relationship2]: {
+                        [relatedInstance1.id]: {
+                            [mirrorOperation]: {
+                                [mirrorRelationship2]: instance._id,
+                            }
+                        }
+                    }
+                }
+
+                const reduced = instance.reducedRelatedDiffs(relatedDiff);
+
+                if (!reduced[relatedInstance1.id][mirrorOperation][mirrorRelationship1].equals(instance._id)) {
+                    throw new Error('Reduced diff incorrect.');
+                }
+
+                if (!reduced[relatedInstance1.id][mirrorOperation][mirrorRelationship2].equals(instance._id)) {
+                    throw new Error('Reduced diff incorrect.');
+                }
+            });
+
+            it('Explicit diff given. Combining two operations.', () => {
+                const mirrorOperation1 = '$set';
+                const mirrorOperation2 = '$addToSet';
+                const relationship1 = 'oneToOne';
+                const mirrorRelationship1 = 'oneToOne';
+                const relationship2 = 'oneToMany';
+                const mirrorRelationship2 = 'manyToOne';
+
+                const instance = new Instance(TwoWayRelationshipClass1);
+                const relatedInstance1 = new Instance(TwoWayRelationshipClass2);
+
+                const relatedDiff = {
+                    [relationship1]: {
+                        [relatedInstance1.id]: {
+                            [mirrorOperation1]: {
+                                [mirrorRelationship1]: instance._id,
+                            }
+                        }
+                    },
+                    [relationship2]: {
+                        [relatedInstance1.id]: {
+                            [mirrorOperation2]: {
+                                [mirrorRelationship2]: instance._id,
+                            }
+                        }
+                    }
+                }
+
+                const reduced = instance.reducedRelatedDiffs(relatedDiff);
+
+                if (!reduced[relatedInstance1.id][mirrorOperation1][mirrorRelationship1].equals(instance._id)) {
+                    throw new Error('Reduced diff incorrect.');
+                }
+
+                if (!reduced[relatedInstance1.id][mirrorOperation2][mirrorRelationship2].equals(instance._id)) {
+                    throw new Error('Reduced diff incorrect.');
+                }
+            });
+
+            it('Implicit reducedRelatedDiff(). Combining two relationships with same operator.', () => {
+                const relationship1 = 'manyToMany';
+                const mirrorRelationship1 = 'manyToMany';
+                const mirrorOperation1 = '$addToSet';
+                const relationship2 = 'manyToOne';
+                const mirrorRelationship2 = 'oneToMany';
+                const mirrorOperation2 = '$addToSet';
+
+                const relatedInstance1 = new Instance(TwoWayRelationshipClass2);
+                const relatedInstance2 = new Instance(TwoWayRelationshipClass2);
+                const relatedInstances = new InstanceSet(TwoWayRelationshipClass2, [relatedInstance1, relatedInstance2]);
+
+                const instance = new Instance(TwoWayRelationshipClass1);
+                instance[relationship1] = relatedInstances;
+                instance[relationship2] = relatedInstance2;
+
+                const reduced = instance.reducedRelatedDiffs();
+
+                if (!reduced[relatedInstance1.id][mirrorOperation1][mirrorRelationship1].equals(instance._id)){
+                    throw new Error('Related Diff is incorrect.');
+                }
+
+                if (!reduced[relatedInstance2.id][mirrorOperation1][mirrorRelationship1].equals(instance._id)){
+                    throw new Error('Related Diff is incorrect.');
+                }
+
+                if (!reduced[relatedInstance2.id][mirrorOperation2][mirrorRelationship2].equals(instance._id)){
+                    throw new Error('Related Diff is incorrect.');
+                }
+            });
+
+            it('Implicit reducedRelatedDiff(). Combining two operators for one related instance.', () => {
+                const relationship1 = 'oneToMany';
+                const mirrorRelationship1 = 'manyToOne';
+                const mirrorOperation1 = '$set';
+                const relationship2 = 'manyToOne';
+                const mirrorRelationship2 = 'oneToMany';
+                const mirrorOperation2 = '$addToSet';
+
+                const relatedInstance1 = new Instance(TwoWayRelationshipClass2);
+                const relatedInstance2 = new Instance(TwoWayRelationshipClass2);
+                const relatedInstances = new InstanceSet(TwoWayRelationshipClass2, [relatedInstance1, relatedInstance2]);
+
+                const instance = new Instance(TwoWayRelationshipClass1);
+                instance[relationship1] = relatedInstances;
+                instance[relationship2] = relatedInstance2;
+
+                const reduced = instance.reducedRelatedDiffs();
+
+                console.log(JSON.stringify(reduced, null, 2));
+
+                if (!reduced[relatedInstance1.id][mirrorOperation1][mirrorRelationship1].equals(instance._id)){
+                    throw new Error('Related Diff is incorrect.');
+                }
+
+                if (!reduced[relatedInstance2.id][mirrorOperation1][mirrorRelationship1].equals(instance._id)){
+                    throw new Error('Related Diff is incorrect.');
+                }
+
+                if (!reduced[relatedInstance2.id][mirrorOperation2][mirrorRelationship2].equals(instance._id)){
+                    throw new Error('Related Diff is incorrect.');
+                }
+            });
+
+        });
+
+    });
+
     describe('instance.saveAuditEntry()', () => {
 
         after(async () => {
