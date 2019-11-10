@@ -1675,8 +1675,6 @@ describe('Diffable Tests', () => {
 
                 const reduced = instance.reducedRelatedDiffs();
 
-                console.log(JSON.stringify(reduced, null, 2));
-
                 if (!reduced[relatedInstance1.id][mirrorOperation1][mirrorRelationship1].equals(instance._id)){
                     throw new Error('Related Diff is incorrect.');
                 }

@@ -168,7 +168,7 @@ class Instance extends Diffable{
      * @return Promise which when resolved returns the related instance if relationship is singular, or an Array of the related 
      *           instances if the relationship is non-singular.
      */ 
-    async walk(relationshipName) {
+    async walk(relationshipName, usePreviousState=false) {
         if (!relationshipName)
             throw new Error('instance.walk() called with insufficient arguments. Should be walk(relationshipName, <optional>filter).');
         
@@ -185,33 +185,57 @@ class Instance extends Diffable{
         const relationshipDefinition = this.classModel.relationships.filter(relationship => relationship.name ===relationshipName)[0];
         const relatedClass = this.classModel.getRelatedClassModel(relationshipName);
 
+        const relationshipCurrentValue = usePreviousState ? this.previousState[relationshipName] : this['_' + relationshipName];
+        let walkResult;
+
         // If relationship is to a singular instance, use findOne()
         if (relationshipDefinition.singular) {
-            if (this['_' + relationshipName] == null) {
-                return null;
+            if (relationshipCurrentValue == null) {
+                walkResult = null;
             }
             else {
-                if (!(this['_' + relationshipName] instanceof Instance))
-                    this[relationshipName] = await relatedClass.pureFindById(this['_' + relationshipName]);
-
-                return this['_' + relationshipName];
+                if (!usePreviousState) {
+                    if (!(relationshipCurrentValue instanceof Instance))
+                        this[relationshipName] = await relatedClass.pureFindById(relationshipCurrentValue);
+    
+                        walkResult = this['_' + relationshipName];
+                }
+                else {
+                    if (!(relationshipCurrentValue instanceof Instance))
+                        this.previousState[relationshipName] = await relatedClass.pureFindById(relationshipCurrentValue);
+    
+                    walkResult = this.previousState[relationshipName];
+                }
             }
         }
         // If nonsingular, use find()
         else {
-            if (this['_' + relationshipName] == null || (Array.isArray(this['_' + relationshipName]) && this['_' + relationshipName].length == 0)) {
-                return this.classModel.emptyInstanceSet();
+            if (relationshipCurrentValue == null || (Array.isArray(relationshipCurrentValue) && relationshipCurrentValue.length == 0)) {
+                walkResult = this.classModel.emptyInstanceSet();
             }
             else {
-                if (Array.isArray(this['_' + relationshipName])) {
-                    this[relationshipName] = await relatedClass.pureFind({
-                        _id: {$in: this['_' + relationshipName]}
-                    });
+                if (!usePreviousState) {
+                    if (Array.isArray(relationshipCurrentValue)) {
+                        this[relationshipName] = await relatedClass.pureFind({
+                            _id: {$in: relationshipCurrentValue}
+                        });
+                    }
+                    
+                    walkResult = this['_' + relationshipName];
                 }
-                
-                return this['_' + relationshipName];
+                else {
+                    if (Array.isArray(relationshipCurrentValue)) {
+                        this.previousState[relationshipName] = await relatedClass.pureFind({
+                            _id: {$in: relationshipCurrentValue}
+                        });
+                    }
+                    
+                    walkResult = this.previousState[relationshipName];
+                }
             }
         }
+
+        return walkResult;
     }
     
     async readControlFilter(...readControlMethodParameters) {
@@ -372,10 +396,20 @@ class Instance extends Diffable{
 
         if (!this.saved()) {
             await this.classModel.createControlCheckInstance(this, ...controlMethodParameters);
+            
+            if (Object.keys(this.relatedDiffs()).length !== 0) {
+                await this.classModel.updateRelatedInstancesForInstance(this);
+            }
+
             await this.classModel.insertOne(this.toDocument());
         }
         else {
             await this.classModel.updateControlCheckInstance(this, ...controlMethodParameters);
+
+            if (Object.keys(this.relatedDiffs()).length !== 0) {
+                await this.classModel.updateRelatedInstancesForInstance(this);
+            }
+
             if (this.classModel.auditable) {
                 await this.saveAuditEntry();
             }

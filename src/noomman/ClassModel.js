@@ -24,6 +24,10 @@ class ClassModel {
         this.collection = schema.useSuperClassCollection ? schema.superClasses[0].collection : schema.className.toLowerCase();
         this.auditable = schema.auditable === true;
 
+        if (this.superClasses.length === 0 && this.className !== 'NoommanClassModel') {
+            this.superClasses.push(NoommanClassModel);
+        }
+
         if (!schema.useSuperClassCollection) {
             const lastLetter = schema.className.substr(-1).toLowerCase();
             this.collection = schema.className.toLowerCase();
@@ -177,7 +181,7 @@ class ClassModel {
             return true;
         
         for (const subClass of this.subClasses) {
-            if (subClass.isInstanceOfThisClass(instanceSet))
+            if (subClass.isInstanceSetOfThisClass(instanceSet))
                 return true;
         }
 
@@ -333,6 +337,16 @@ class ClassModel {
         return (this.subClasses && this.subClasses.length)
     }
 
+    allSuperClasses() {
+        const superClasses = this.superClasses;
+
+        for (const superClass of this.superClasses) {
+            superClasses.concat(superClass.allSuperClasses())
+        }
+
+        return superClasses;
+    }
+
     emptyInstanceSet() {
         return new InstanceSet(this);
     }
@@ -474,6 +488,46 @@ class ClassModel {
         return this.pureFindOne({_id: id});
     }
 
+    async updateRelatedInstancesForInstance(instance) {
+        const relatedDiff = instance.relatedDiffs();
+        const reducedRelatedDiff = instance.reducedRelatedDiffs(relatedDiff);
+        const instanceSet = new InstanceSet(NoommanClassModel);
+
+        // Retrieve all related instances and collect them in an instanceSet.
+        for (const relationshipName of Object.keys(relatedDiff)) {
+            const relationship = this.relationships.filter(r => r.name === relationshipName)[0];
+            const relatedInstances = await instance.walk(relationshipName);
+            const previousRelatedInstances = await instance.walk(relationshipName, true);
+
+            if (relationship.singular) {
+                if (relatedInstances !== null) {
+                    instanceSet.add(relatedInstances);
+                }
+                if (previousRelatedInstances !== null) {
+                    instanceSet.add(previousRelatedInstances);
+                }
+            }
+            else {
+                if (relatedInstances.length > 0) {
+                    instanceSet.addInstances(relatedInstances);
+                }
+                if (previousRelatedInstances.length > 0) {
+                    instanceSet.addInstances(previousRelatedInstances);
+                }
+            }
+
+        }
+
+        // Apply changes to related instances
+        for (const id of Object.keys(reducedRelatedDiff)) {
+            const relatedInstance = instanceSet.getInstanceWithId(id);
+            relatedInstance.applyChanges(reducedRelatedDiff[id]);
+        }
+
+        return instanceSet.save();
+
+    }
+
     // Crud Control Methods
 
     async evaluateCrudControlMethods(instanceSet, controlMethods, ...methodParameters) {
@@ -606,5 +660,10 @@ class ClassModel {
         }        
     }
 }
+
+const NoommanClassModel = new ClassModel({
+    className: 'NoommanClassModel',
+    abstract: true,
+});
 
 module.exports = ClassModel;

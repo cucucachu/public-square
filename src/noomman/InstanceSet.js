@@ -1,5 +1,6 @@
 const Instance = require('./Instance');
 const SuperSet = require('./SuperSet');
+const database = require('./database');
 
 class InstanceSet extends SuperSet {
 
@@ -96,7 +97,23 @@ class InstanceSet extends SuperSet {
         return false;
     }
 
+    hasInstanceWithId(id) {
+        if (typeof(id) === 'string') {
+            id = database.ObjectId(id);
+        }
+
+        for (const instance of this) {
+            if (instance._id.equals(id))
+                return true;
+        }
+        return false;
+    }
+
     getInstanceWithId(id) {
+        if (typeof(id) === 'string') {
+            id = database.ObjectId(id);
+        }
+
         for (const instance of this) {
             if (instance._id.equals(id))
                 return instance;

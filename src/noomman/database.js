@@ -27,7 +27,11 @@ function close() {
 }
 
 
-function ObjectId() {
+function ObjectId(hexString) {
+	if (hexString) {
+		return ObjectIdFromHexString(hexString);
+	}
+
 	return new mongo.ObjectId();
 }
 
