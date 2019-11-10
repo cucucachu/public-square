@@ -102,6 +102,53 @@ class InstanceSetReference {
         }
     }
 
+    splitDiff(that) {
+        if (that === null) {
+            if (!this.isEmpty()) {
+                return {
+                    $set: this._ids,
+                }
+            }
+            else {
+                return {};
+            }
+        }
+
+        this.sync();
+        that.sync();
+
+        if (this.equals(that)) {
+            return {};
+        }
+        else if (!this.isEmpty() && that.isEmpty()) {
+            return {
+                $set: this._ids,
+            }
+        }
+        else if (this.isEmpty() && !that.isEmpty()) {
+            return {
+                $unset: that._ids,
+            }
+        }
+        else {
+            const diffObject = {};
+            const thisSet = new SuperSet(this._ids);
+            const thatSet = new SuperSet(that._ids);
+
+            const toInsert = [...thisSet.difference(thatSet)];
+            const toRemove = [...thatSet.difference(thisSet)];
+
+            if (toInsert.length) {
+                diffObject.$addToSet = toInsert;
+            }
+            if (toRemove.length) {
+                diffObject.$pull = toRemove;
+            }
+            return diffObject;            
+        }
+        
+    }
+
 }
 
 module.exports = InstanceSetReference;

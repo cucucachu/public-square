@@ -398,6 +398,148 @@ class InstanceState {
         return diffObject;
     }
 
+    diffWithSplit(that) {
+        this.sync();
+
+        if (that !== null) {
+            that.sync();
+        }
+
+        const diffObject = {};
+        const $set = {};
+        const $unset = {};
+        const $addToSet = {};
+        const $pull = {};
+
+        for (const attributeDefinition of this.classModel.attributes) {
+            const thisAttribute = this.attributes[attributeDefinition.name];
+            const thatAttribute = that !== null ? that.attributes[attributeDefinition.name] : null;
+            let thisEmpty = thisAttribute === null;
+            let thatEmpty = thatAttribute === null;
+
+            
+            if (attributeDefinition.list) {
+                thisEmpty = thisEmpty || thisAttribute.length === 0;
+                thatEmpty = thatEmpty || thatAttribute.length === 0;
+            }
+
+            if (thisEmpty && thatEmpty) {
+                continue;
+            }
+            else if (thisEmpty && !thatEmpty) {
+                $unset[attributeDefinition.name] = thatAttribute;
+            }
+            else if (!thisEmpty && thatEmpty) {
+                $set[attributeDefinition.name] = thisAttribute;
+            }
+            else if (!thisEmpty && !thatEmpty) {
+                if (!attributeDefinition.list) {
+                    if (attributeDefinition.type === Date) {
+                        if (!moment(thisAttribute).isSame(thatAttribute)) {
+                            $set[attributeDefinition.name] = thisAttribute;
+                        }
+                    }
+                    else {
+                        if (thisAttribute !== thatAttribute) {
+                            $set[attributeDefinition.name] = thisAttribute;
+                        }
+                    }
+                }
+                else {
+                    if (thisAttribute.length !== thatAttribute.length) {
+                        $set[attributeDefinition.name] = thisAttribute;
+                    }
+                    else {
+                        for (const index in thisAttribute) {
+                            if (thisAttribute[index] === null && thatAttribute[index] === null) {
+                                continue;
+                            }
+                            else if (thisAttribute[index] !== null && thatAttribute[index] === null || thisAttribute[index] === null && thatAttribute[index] !== null) {
+                                $set[attributeDefinition.name] = thisAttribute;
+                                break;
+                            }
+                            else {
+                                if (attributeDefinition.type === Date) {
+                                    if (!moment(thisAttribute[index]).isSame(thatAttribute[index])) {
+                                        $set[attributeDefinition.name] = thisAttribute;
+                                        break;
+                                    }
+                                }
+                                else {
+                                    if (thisAttribute[index] !== thatAttribute[index]) {
+                                        $set[attributeDefinition.name] = thisAttribute;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        for (const relationshipDefinition of this.classModel.relationships) {
+            let thisRelationship, thatRelationship;
+            let relationshipDiff;
+            if (relationshipDefinition.singular) {
+                thisRelationship = this.instanceReferences[relationshipDefinition.name];
+                thatRelationship = that !== null ? that.instanceReferences[relationshipDefinition.name] : null;
+                relationshipDiff = thisRelationship.diff(thatRelationship);
+            }
+            else { 
+                thisRelationship = this.instanceSetReferences[relationshipDefinition.name];
+                thatRelationship = that !== null ? that.instanceSetReferences[relationshipDefinition.name] : null;
+                relationshipDiff = thisRelationship.splitDiff(thatRelationship);
+            }
+
+            if (relationshipDiff.$set) {
+                $set[relationshipDefinition.name] = relationshipDiff.$set;
+            }
+            if (relationshipDiff.$unset) {
+                $unset[relationshipDefinition.name] = relationshipDiff.$unset;
+            }
+            if (relationshipDiff.$addToSet) {
+                if (relationshipDiff.$addToSet.length > 1) {
+                    $addToSet[relationshipDefinition.name] = {
+                        $each: relationshipDiff.$addToSet,
+                    };
+                }
+                else {
+                    $addToSet[relationshipDefinition.name] = relationshipDiff.$addToSet[0];
+                }
+            }
+            if (relationshipDiff.$pull) {
+                if (relationshipDiff.$pull.length > 1) {
+                    $pull[relationshipDefinition.name] = {
+                        $in: relationshipDiff.$pull,
+                    };
+                }
+                else {
+                    $pull[relationshipDefinition.name] = relationshipDiff.$pull[0];
+                }
+            }
+        }
+
+
+        if (Object.keys($set).length) {
+            diffObject.$set = $set;
+        }
+
+        if (Object.keys($unset).length) {
+            diffObject.$unset = $unset;
+        }
+
+        if (Object.keys($addToSet).length) {
+            diffObject.$addToSet = $addToSet;
+        }
+
+        if (Object.keys($pull).length) {
+            diffObject.$pull = $pull;
+        }
+
+        return diffObject;
+    }
+
     setSingularRelationshipToId(relationship, id) {
         this.instanceReferences[relationship]._id = id;
         this.instanceReferences[relationship].instance = null;

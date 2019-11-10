@@ -652,7 +652,7 @@ describe('Diffable Tests', () => {
 
     });
 
-    describe('instance.relatedDiffs', () => {
+    describe('instance.relatedDiffs()', () => {
 
         describe('$set', () => {
 
@@ -678,7 +678,7 @@ describe('Diffable Tests', () => {
 
             describe('One to Many', () => {
 
-                it('Setting a one to many relationship.', () => {
+                it('Setting a one to many relationship, previously no value.', () => {
                     const relationship = 'oneToMany';
                     const mirrorRelationship = 'manyToOne';
                     const mirrorOperation = '$set';
@@ -696,6 +696,183 @@ describe('Diffable Tests', () => {
                     }
 
                     if (!relatedDiffs[relationship][relatedInstance2.id][mirrorOperation][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+                });
+
+                it('Setting a one to many relationship, adding one instance and removing another.', () => {
+                    const relationship = 'oneToMany';
+                    const mirrorRelationship = 'manyToOne';
+                    const mirrorOperation1 = '$unset';
+                    const mirrorOperation2 = '$set';
+
+                    const relatedInstance1 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance2 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance3 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstances = new InstanceSet(TwoWayRelationshipClass2, [relatedInstance2, relatedInstance3]);
+
+                    const document = {
+                        _id: database.ObjectId(),
+                        [relationship]: [relatedInstance1._id, relatedInstance2._id],
+                    }
+                    const instance = new Instance(TwoWayRelationshipClass1, document);
+                    instance[relationship] = relatedInstances;
+
+                    const relatedDiffs = instance.relatedDiffs();
+
+                    if (!relatedDiffs[relationship][relatedInstance1.id][mirrorOperation1][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+
+                    if (!relatedDiffs[relationship][relatedInstance3.id][mirrorOperation2][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+                });
+
+                it('Setting a one to many relationship, replacing one instance with another.', () => {
+                    const relationship = 'oneToMany';
+                    const mirrorRelationship = 'manyToOne';
+                    const mirrorOperation1 = '$unset';
+                    const mirrorOperation2 = '$set';
+
+                    const relatedInstance1 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance3 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstances = new InstanceSet(TwoWayRelationshipClass2, [relatedInstance3]);
+
+                    const document = {
+                        _id: database.ObjectId(),
+                        [relationship]: [relatedInstance1._id],
+                    }
+                    const instance = new Instance(TwoWayRelationshipClass1, document);
+                    instance[relationship] = relatedInstances;
+
+                    const relatedDiffs = instance.relatedDiffs();
+
+                    if (!relatedDiffs[relationship][relatedInstance1.id][mirrorOperation1][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+
+                    if (!relatedDiffs[relationship][relatedInstance3.id][mirrorOperation2][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+                });
+
+                it('Setting a one to many relationship, replacing 2 instances with 2 instances.', () => {
+                    const relationship = 'oneToMany';
+                    const mirrorRelationship = 'manyToOne';
+                    const mirrorOperation1 = '$unset';
+                    const mirrorOperation2 = '$set';
+
+                    const relatedInstance1 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance2 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance4 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance5 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstances = new InstanceSet(TwoWayRelationshipClass2, [relatedInstance4, relatedInstance5]);
+
+                    const document = {
+                        _id: database.ObjectId(),
+                        [relationship]: [relatedInstance1._id, relatedInstance2._id],
+                    }
+                    const instance = new Instance(TwoWayRelationshipClass1, document);
+                    instance[relationship] = relatedInstances;
+
+                    const relatedDiffs = instance.relatedDiffs();
+
+                    if (!relatedDiffs[relationship][relatedInstance1.id][mirrorOperation1][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+
+                    if (!relatedDiffs[relationship][relatedInstance2.id][mirrorOperation1][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+
+                    if (!relatedDiffs[relationship][relatedInstance4.id][mirrorOperation2][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+
+                    if (!relatedDiffs[relationship][relatedInstance5.id][mirrorOperation2][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+                });
+
+                it('Setting a one to many relationship, replacing 2 instances with 3 instances.', () => {
+                    const relationship = 'oneToMany';
+                    const mirrorRelationship = 'manyToOne';
+                    const mirrorOperation1 = '$unset';
+                    const mirrorOperation2 = '$set';
+
+                    const relatedInstance1 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance2 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance3 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance4 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance5 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstances = new InstanceSet(TwoWayRelationshipClass2, [relatedInstance3, relatedInstance4, relatedInstance5]);
+
+                    const document = {
+                        _id: database.ObjectId(),
+                        [relationship]: [relatedInstance1._id, relatedInstance2._id],
+                    }
+                    const instance = new Instance(TwoWayRelationshipClass1, document);
+                    instance[relationship] = relatedInstances;
+
+                    const relatedDiffs = instance.relatedDiffs();
+
+                    if (!relatedDiffs[relationship][relatedInstance1.id][mirrorOperation1][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+
+                    if (!relatedDiffs[relationship][relatedInstance2.id][mirrorOperation1][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+
+                    if (!relatedDiffs[relationship][relatedInstance3.id][mirrorOperation2][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+
+                    if (!relatedDiffs[relationship][relatedInstance4.id][mirrorOperation2][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+
+                    if (!relatedDiffs[relationship][relatedInstance5.id][mirrorOperation2][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+                });
+
+                it('Setting a one to many relationship, adding two instances and removing two instances.', () => {
+                    const relationship = 'oneToMany';
+                    const mirrorRelationship = 'manyToOne';
+                    const mirrorOperation1 = '$unset';
+                    const mirrorOperation2 = '$set';
+
+                    const relatedInstance1 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance2 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance3 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance4 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance5 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstances = new InstanceSet(TwoWayRelationshipClass2, [relatedInstance3, relatedInstance4, relatedInstance5]);
+
+                    const document = {
+                        _id: database.ObjectId(),
+                        [relationship]: [relatedInstance1._id, relatedInstance2._id, relatedInstance3._id],
+                    }
+                    const instance = new Instance(TwoWayRelationshipClass1, document);
+                    instance[relationship] = relatedInstances;
+
+                    const relatedDiffs = instance.relatedDiffs();
+
+                    if (!relatedDiffs[relationship][relatedInstance1.id][mirrorOperation1][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+
+                    if (!relatedDiffs[relationship][relatedInstance2.id][mirrorOperation1][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+
+                    if (!relatedDiffs[relationship][relatedInstance4.id][mirrorOperation2][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+
+                    if (!relatedDiffs[relationship][relatedInstance5.id][mirrorOperation2][mirrorRelationship].equals(instance._id)){
                         throw new Error('Related Diff is incorrect.');
                     }
                 });
@@ -724,7 +901,7 @@ describe('Diffable Tests', () => {
 
             describe('Many to Many', () => {
 
-                it('Setting a many to many relationship.', () => {
+                it('Setting a many to many relationship, no previous value.', () => {
                     const relationship = 'manyToMany';
                     const mirrorRelationship = 'manyToMany';
                     const mirrorOperation = '$addToSet';
@@ -742,6 +919,183 @@ describe('Diffable Tests', () => {
                     }
 
                     if (!relatedDiffs[relationship][relatedInstance2.id][mirrorOperation][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+                });
+
+                it('Setting a many to many relationship, replacing a 1 instance with 1 instance.', () => {
+                    const relationship = 'manyToMany';
+                    const mirrorRelationship = 'manyToMany';
+                    const mirrorOperation1 = '$pull';
+                    const mirrorOperation2 = '$addToSet';
+
+                    const relatedInstance1 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance5 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstances = new InstanceSet(TwoWayRelationshipClass2, [relatedInstance5]);
+
+                    const document = {
+                        _id: database.ObjectId(),
+                        [relationship]: [relatedInstance1._id],
+                    }
+                    const instance = new Instance(TwoWayRelationshipClass1, document);
+                    instance[relationship] = relatedInstances;
+
+                    const relatedDiffs = instance.relatedDiffs();
+
+                    if (!relatedDiffs[relationship][relatedInstance1.id][mirrorOperation1][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+
+                    if (!relatedDiffs[relationship][relatedInstance5.id][mirrorOperation2][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+                });
+
+                it('Setting a many to many relationship, replacing a 2 instances with 2 instances.', () => {
+                    const relationship = 'manyToMany';
+                    const mirrorRelationship = 'manyToMany';
+                    const mirrorOperation1 = '$pull';
+                    const mirrorOperation2 = '$addToSet';
+
+                    const relatedInstance1 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance2 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance4 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance5 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstances = new InstanceSet(TwoWayRelationshipClass2, [relatedInstance4, relatedInstance5]);
+
+                    const document = {
+                        _id: database.ObjectId(),
+                        [relationship]: [relatedInstance1._id, relatedInstance2._id],
+                    }
+                    const instance = new Instance(TwoWayRelationshipClass1, document);
+                    instance[relationship] = relatedInstances;
+
+                    const relatedDiffs = instance.relatedDiffs();
+
+                    if (!relatedDiffs[relationship][relatedInstance1.id][mirrorOperation1][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+
+                    if (!relatedDiffs[relationship][relatedInstance2.id][mirrorOperation1][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+
+                    if (!relatedDiffs[relationship][relatedInstance4.id][mirrorOperation2][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+
+                    if (!relatedDiffs[relationship][relatedInstance5.id][mirrorOperation2][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+                });
+
+                it('Setting a many to many relationship, replacing a 3 instances with 2 instances.', () => {
+                    const relationship = 'manyToMany';
+                    const mirrorRelationship = 'manyToMany';
+                    const mirrorOperation1 = '$pull';
+                    const mirrorOperation2 = '$addToSet';
+
+                    const relatedInstance1 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance2 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance3 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance4 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance5 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstances = new InstanceSet(TwoWayRelationshipClass2, [relatedInstance4, relatedInstance5]);
+
+                    const document = {
+                        _id: database.ObjectId(),
+                        [relationship]: [relatedInstance1._id, relatedInstance2._id, relatedInstance3._id],
+                    }
+                    const instance = new Instance(TwoWayRelationshipClass1, document);
+                    instance[relationship] = relatedInstances;
+
+                    const relatedDiffs = instance.relatedDiffs();
+
+                    if (!relatedDiffs[relationship][relatedInstance1.id][mirrorOperation1][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+
+                    if (!relatedDiffs[relationship][relatedInstance2.id][mirrorOperation1][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+
+                    if (!relatedDiffs[relationship][relatedInstance3.id][mirrorOperation1][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+
+                    if (!relatedDiffs[relationship][relatedInstance4.id][mirrorOperation2][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+
+                    if (!relatedDiffs[relationship][relatedInstance5.id][mirrorOperation2][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+                });
+
+                it('Setting a many to many relationship, adding one instance, removing one instance.', () => {
+                    const relationship = 'manyToMany';
+                    const mirrorRelationship = 'manyToMany';
+                    const mirrorOperation1 = '$pull';
+                    const mirrorOperation2 = '$addToSet';
+
+                    const relatedInstance1 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance3 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance5 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstances = new InstanceSet(TwoWayRelationshipClass2, [relatedInstance3, relatedInstance5]);
+
+                    const document = {
+                        _id: database.ObjectId(),
+                        [relationship]: [relatedInstance1._id, relatedInstance3._id],
+                    }
+                    const instance = new Instance(TwoWayRelationshipClass1, document);
+                    instance[relationship] = relatedInstances;
+
+                    const relatedDiffs = instance.relatedDiffs();
+
+                    if (!relatedDiffs[relationship][relatedInstance1.id][mirrorOperation1][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+
+                    if (!relatedDiffs[relationship][relatedInstance5.id][mirrorOperation2][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+                });
+                
+                it('Setting a many to many relationship, , adding two instances, removing two instances.', () => {
+                    const relationship = 'manyToMany';
+                    const mirrorRelationship = 'manyToMany';
+                    const mirrorOperation1 = '$pull';
+                    const mirrorOperation2 = '$addToSet';
+
+                    const relatedInstance1 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance2 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance3 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance4 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance5 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstances = new InstanceSet(TwoWayRelationshipClass2, [relatedInstance3, relatedInstance4, relatedInstance5]);
+
+                    const document = {
+                        _id: database.ObjectId(),
+                        [relationship]: [relatedInstance1._id, relatedInstance2._id, relatedInstance3._id],
+                    }
+                    const instance = new Instance(TwoWayRelationshipClass1, document);
+                    instance[relationship] = relatedInstances;
+
+                    const relatedDiffs = instance.relatedDiffs();
+
+                    if (!relatedDiffs[relationship][relatedInstance1.id][mirrorOperation1][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+
+                    if (!relatedDiffs[relationship][relatedInstance2.id][mirrorOperation1][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+
+                    if (!relatedDiffs[relationship][relatedInstance4.id][mirrorOperation2][mirrorRelationship].equals(instance._id)){
+                        throw new Error('Related Diff is incorrect.');
+                    }
+
+                    if (!relatedDiffs[relationship][relatedInstance5.id][mirrorOperation2][mirrorRelationship].equals(instance._id)){
                         throw new Error('Related Diff is incorrect.');
                     }
                 });

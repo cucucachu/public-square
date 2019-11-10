@@ -20,6 +20,19 @@ class Diffable {
         return changes;
     }
 
+    diffWithSplit() {
+        const changes = this.currentState.diffWithSplit(this.previousState);
+        
+        if (this.classModel.auditable) {
+            if (!changes.$set) {
+                changes.$set = {};
+            }
+            changes.$set.revision = this.revision + 1;
+        }
+
+        return changes;
+    }
+
     rollbackDiff() {
         const changes = this.previousState.diff(this.currentState);
         if (changes.$set) {
@@ -111,7 +124,7 @@ class Diffable {
         const twoWayRelationships = this.classModel.relationships.filter(relationship => relationship.mirrorRelationship !== undefined);
 
         if (twoWayRelationships.length !== 0) {
-            diff = diff === undefined ? this.diff() : diff;
+            diff = diff === undefined ? this.diffWithSplit() : diff;
             const operators = Object.keys(diff);
 
             for (const relationship of twoWayRelationships) {
