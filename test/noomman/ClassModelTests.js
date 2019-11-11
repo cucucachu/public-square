@@ -392,6 +392,27 @@ describe('Class Model Tests', () => {
             });
 
         });
+
+        describe('All ClassModels Inherit from NoommanClassModel', () => {
+
+            it('Class Model with no super classes has NoommanClassModel as only super class.', () => {
+                const testClassModel = new ClassModel({
+                    className: 'testClassModelForNoommanClassModelInheritance',
+                });
+
+                if (testClassModel.superClasses.length !== 1)
+                    throw new Error('Class Model did not inherit from NoommanClassModel.');
+            });
+
+            it('Sub Classes of other classes still have NoommanClassModel as a superClass.', () => {
+                const superClasses = SubClassOfAbstractSubClassOfSuperClass.allSuperClasses().map(c => c.className);
+
+                if (!superClasses.includes('NoommanClassModel')) {
+                    throw new Error('Class Model did not inherit from NoommanClassModel.');
+                }
+            });
+
+        });
         
     });
 
@@ -3293,6 +3314,34 @@ describe('Class Model Tests', () => {
 
             if (cardinality.from !== 'many' || cardinality.to !== 'many')
                 throw new Error('incorrect cardinallity: ' + JSON.stringify(cardinality));       
+        });
+
+    });
+
+    describe('ClassModel.allSuperClasses()', () => {
+
+        it('All super classes returns all super classes for class model. Discriminated Sub Class', () => {
+            const superClasses = SubClassOfDiscriminatedSubClassOfSuperClass.allSuperClasses().map(c => c.className);
+
+            if (superClasses.length !== 3) {
+                throw new Error('Incorrect number of super classes.');
+            }
+
+            if (!superClasses.includes('NoommanClassModel')) {
+                throw new Error('Class Model did not inherit from NoommanClassModel.');
+            }
+        });
+
+        it('All super classes returns all super classes for class model. Class with multiple direct parent classes.', () => {
+            const superClasses = SubClassOfMultipleSuperClasses.allSuperClasses().map(c => c.className);
+
+            if (superClasses.length !== 3) {
+                throw new Error('Incorrect number of super classes.');
+            }
+
+            if (!superClasses.includes('NoommanClassModel')) {
+                throw new Error('Class Model did not inherit from NoommanClassModel.');
+            }
         });
 
     });

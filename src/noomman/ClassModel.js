@@ -7,6 +7,7 @@ const InstanceSet = require('./InstanceSet');
 const Instance = require('./Instance');
 const Attribute = require('./Attribute');
 const Relationship = require('./Relationship');
+const SuperSet = require('./SuperSet');
 
 const AllClassModels = [];
 
@@ -338,13 +339,13 @@ class ClassModel {
     }
 
     allSuperClasses() {
-        const superClasses = this.superClasses;
+        const superClasses = new SuperSet(this.superClasses);
 
         for (const superClass of this.superClasses) {
-            superClasses.concat(superClass.allSuperClasses())
+            superClasses.addFromIterable(superClass.allSuperClasses())
         }
 
-        return superClasses;
+        return [...superClasses];
     }
 
     emptyInstanceSet() {

@@ -3910,6 +3910,34 @@ describe('Instance Tests', () => {
 
         });
 
+        describe('Saving Instances with Two-Way Relationships', () => {
+
+            describe('Instance and Related Instance(s) Are New', () => {
+
+                describe('One to One Relationship', () => {
+
+                });
+
+                describe('One to Many Relationship', () => {
+
+                });
+
+                describe('Many to One Relationship', () => {
+
+                });
+
+                describe('Many to Many Relationship', () => {
+
+                });
+
+            });
+
+            describe('Updating Instances', () => {
+
+            });
+
+        });
+
     });
 
     describe('instance.delete()', () => {
