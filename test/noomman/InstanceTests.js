@@ -4320,6 +4320,47 @@ describe('Instance Tests', () => {
 
         });
 
+        describe('Walking Previous Value of Relationship', () => {
+            
+            it('Walking a singular relationship after value changed.', async () => {
+                const instance = new Instance(SingularRelationshipClass);
+                const relatedInstancePrev = new Instance(NonSingularRelationshipClass);
+
+                instance.singularRelationship = relatedInstancePrev;
+
+                await relatedInstancePrev.save();
+                await instance.save();
+
+                instance.singularRelationship = new Instance(NonSingularRelationshipClass);
+
+                const walkResult = await instance.walk('singularRelationship', true);
+
+                if (!walkResult.equals(relatedInstancePrev)) {
+                    throw new Error('Walk previous returned the wrong instance.');
+                }
+            });
+            
+            it('Walking a non-singular relationship after value changed.', async () => {
+                const instance = new Instance(NonSingularRelationshipClass);
+                const relatedInstancesPrevious = new InstanceSet(SingularRelationshipClass, [new Instance(SingularRelationshipClass), new Instance(SingularRelationshipClass)]);
+
+                instance.nonSingularRelationship = relatedInstancesPrevious;
+
+                await relatedInstancesPrevious.save();
+                await instance.save();
+
+                instance.nonSingularRelationship = new InstanceSet(SingularRelationshipClass, [new Instance(SingularRelationshipClass)]);
+
+                const walkResult = await instance.walk('nonSingularRelationship', true);
+
+                if (!walkResult.equals(relatedInstancesPrevious)) {
+                    throw new Error('Walk previous returned the wrong instance.');
+                }
+            });
+
+
+        })
+
     });
 
     describe('instance.isInstanceOf()', () => {

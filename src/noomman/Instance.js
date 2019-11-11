@@ -11,7 +11,7 @@ const InstanceState = require('./InstanceState');
  * Provides save and delete methods to save and delete the underlying document.
  * Passes property set and get calls to properties listed in the related ClassModel schema to the underlying document.
  */
-class Instance extends Diffable{
+class Instance extends Diffable {
 
     // Constructs an instance of Instance. 
     // Should only be called by ClassModel methods, not in outside code.
