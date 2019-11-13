@@ -55,6 +55,8 @@ const objectsEqual = TestingFunctions.objectsEqual;
     var NonSingularRelationshipClass = TestClassModels.NonSingularRelationshipClass;
     var SubClassOfSingularRelationshipClass = TestClassModels.SubClassOfSingularRelationshipClass;
     var SubClassOfNonSingularRelationshipClass = TestClassModels.SubClassOfNonSingularRelationshipClass;
+    var TwoWayRelationshipClass1 = TestClassModels.TwoWayRelationshipClass1;
+    var TwoWayRelationshipClass2 = TestClassModels.TwoWayRelationshipClass2;
 
     // Update Controlled Classes
     var UpdateControlledSuperClass = TestClassModels.UpdateControlledSuperClass;
@@ -3167,8 +3169,10 @@ describe('Instance Tests', () => {
             await AllAttributesAndRelationshipsClass.clear();
             await CompareClass1.clear();
             await CompareClass2.clear();
-            // await AuditableSuperClass.clear();
-            // await database.clearCollection('audit_' + AuditableSuperClass.collection);
+            await AuditableSuperClass.clear();
+            await database.clearCollection('audit_' + AuditableSuperClass.collection);
+            await TwoWayRelationshipClass1.clear();
+            await TwoWayRelationshipClass2.clear();
         });
 
         describe('Saving New Instances', () => {
@@ -3912,27 +3916,178 @@ describe('Instance Tests', () => {
 
         describe('Saving Instances with Two-Way Relationships', () => {
 
-            describe('Instance and Related Instance(s) Are New', () => {
+            describe('One to One Relationship', () => {
 
-                describe('One to One Relationship', () => {
+                describe('Instance and Related Instance(s) Are New', () => {
 
+                    it('Creating one instance and one related instance.', async () => {
+                        const relationship = 'oneToOne';
+                        const mirrorRelationship = 'oneToOne';
+
+                        const instance = new Instance(TwoWayRelationshipClass1);
+                        const relatedInstance = new Instance(TwoWayRelationshipClass2);
+
+                        instance[relationship] = relatedInstance;
+
+                        await instance.save();
+
+                        const foundRelatedInstance = await TwoWayRelationshipClass2.findById(relatedInstance._id);
+
+                        if (foundRelatedInstance === null) {
+                            throw new Error('Related Instance was not saved.');
+                        }
+
+                        if (!((await foundRelatedInstance[mirrorRelationship]).equals(instance))) {
+                            throw new Error('Reverse relationship not set.');
+                        }
+                    });
+    
+                });
+    
+                describe('Instance Exists but Related Instance(s) do not.', () => {
+
+                    it('Creating one instance and one related instance.', async () => {
+                        const relationship = 'oneToOne';
+                        const mirrorRelationship = 'oneToOne';
+
+                        const instance = new Instance(TwoWayRelationshipClass1);
+                        const relatedInstance = new Instance(TwoWayRelationshipClass2);
+
+                        await instance.save();
+
+                        instance[relationship] = relatedInstance;
+
+                        await instance.save();
+
+                        const foundRelatedInstance = await TwoWayRelationshipClass2.findById(relatedInstance._id);
+
+                        if (foundRelatedInstance === null) {
+                            throw new Error('Related Instance was not saved.');
+                        }
+
+                        if (!((await foundRelatedInstance[mirrorRelationship]).equals(instance))) {
+                            throw new Error('Reverse relationship not set.');
+                        }
+                    });
+    
                 });
 
-                describe('One to Many Relationship', () => {
+                describe('Instance is New, Related Instance(s) Exist(s)', () => {
 
+                    it('Creating one instance and one related instance.', async () => {
+                        const relationship = 'oneToOne';
+                        const mirrorRelationship = 'oneToOne';
+
+                        const instance = new Instance(TwoWayRelationshipClass1);
+                        const relatedInstance = new Instance(TwoWayRelationshipClass2);
+
+                        await relatedInstance.save();
+
+                        instance[relationship] = relatedInstance;
+
+                        await instance.save();
+
+                        const foundRelatedInstance = await TwoWayRelationshipClass2.findById(relatedInstance._id);
+
+                        if (foundRelatedInstance === null) {
+                            throw new Error('Related Instance was not saved.');
+                        }
+
+                        if (!((await foundRelatedInstance[mirrorRelationship]).equals(instance))) {
+                            throw new Error('Reverse relationship not set.');
+                        }
+                    });
+    
                 });
+    
+                describe('Instance and Related Instances Already Exist', () => {
 
-                describe('Many to One Relationship', () => {
+                    it('Creating one instance and one related instance.', async () => {
+                        const relationship = 'oneToOne';
+                        const mirrorRelationship = 'oneToOne';
 
-                });
+                        const instance = new Instance(TwoWayRelationshipClass1);
+                        const relatedInstance = new Instance(TwoWayRelationshipClass2);
 
-                describe('Many to Many Relationship', () => {
+                        await instance.save();
+                        await relatedInstance.save();
 
+                        instance[relationship] = relatedInstance;
+
+                        await instance.save();
+
+                        const foundRelatedInstance = await TwoWayRelationshipClass2.findById(relatedInstance._id);
+
+                        if (foundRelatedInstance === null) {
+                            throw new Error('Related Instance was not saved.');
+                        }
+
+                        if (!((await foundRelatedInstance[mirrorRelationship]).equals(instance))) {
+                            throw new Error('Reverse relationship not set.');
+                        }
+                    });
+    
                 });
 
             });
 
-            describe('Updating Instances', () => {
+            describe('One to Many Relationship', () => {
+
+                describe('Instance and Related Instance(s) Are New', () => {
+    
+                });
+    
+                describe('Instance Exists but Related Instance(s) do not.', () => {
+    
+                });
+
+                describe('Instance is New, Related Instance(s) Exist(s)', () => {
+    
+                });
+    
+                describe('Instance and Related Instances Already Exist', () => {
+    
+                });
+
+            });
+
+            describe('Many to One Relationship', () => {
+
+                describe('Instance and Related Instance(s) Are New', () => {
+    
+                });
+    
+                describe('Instance Exists but Related Instance(s) do not.', () => {
+    
+                });
+
+                describe('Instance is New, Related Instance(s) Exist(s)', () => {
+    
+                });
+    
+                describe('Instance and Related Instances Already Exist', () => {
+    
+                });
+
+            });
+
+            describe('Many to Many Relationship', () => {
+
+                describe('Instance and Related Instance(s) Are New', () => {
+    
+                });
+    
+                describe('Instance Exists but Related Instance(s) do not.', () => {
+    
+                });
+
+                describe('Instance is New, Related Instance(s) Exist(s)', () => {
+    
+                });
+    
+                describe('Instance and Related Instances Already Exist', () => {
+    
+                });
 
             });
 

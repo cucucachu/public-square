@@ -421,6 +421,8 @@ describe('Class Model Tests', () => {
         after(async () => {
             await SuperClass.clear();
             await DiscriminatedSuperClass.clear();
+            await TwoWayRelationshipClass1.clear();
+            await TwoWayRelationshipClass2.clear();
         });
 
         describe('ClassModel.insertOne()', () => {
@@ -568,6 +570,534 @@ describe('Class Model Tests', () => {
                     throw new Error('Document was not updated.');
                 }
             });
+
+        });
+
+        describe('ClassModel.updateRelatedInstancesForInstance()', () => {
+
+            describe('One to One Relationship', () => {
+
+                describe('Instance and Related Instance(s) Are New', () => {
+
+                    it('Creating one instance and one related instance.', async () => {
+                        const relationship = 'oneToOne';
+                        const mirrorRelationship = 'oneToOne';
+
+                        const instance = new Instance(TwoWayRelationshipClass1);
+                        const relatedInstance = new Instance(TwoWayRelationshipClass2);
+
+                        instance[relationship] = relatedInstance;
+
+                        await TwoWayRelationshipClass1.updateRelatedInstancesForInstance(instance);
+
+                        const foundRelatedInstance = await TwoWayRelationshipClass2.findById(relatedInstance._id);
+
+                        if (foundRelatedInstance === null) {
+                            throw new Error('Related Instance was not saved.');
+                        }
+
+                        if (!((foundRelatedInstance.currentState[mirrorRelationship]).equals(instance._id))) {
+                            throw new Error('Reverse relationship not set.');
+                        }
+                    });
+    
+                });
+    
+                describe('Instance Exists but Related Instance(s) do not.', () => {
+
+                    it('Creating one instance and one related instance.', async () => {
+                        const relationship = 'oneToOne';
+                        const mirrorRelationship = 'oneToOne';
+
+                        const instance = new Instance(TwoWayRelationshipClass1);
+                        const relatedInstance = new Instance(TwoWayRelationshipClass2);
+
+                        await instance.save();
+
+                        instance[relationship] = relatedInstance;
+
+                        await TwoWayRelationshipClass1.updateRelatedInstancesForInstance(instance);
+
+                        const foundRelatedInstance = await TwoWayRelationshipClass2.findById(relatedInstance._id);
+
+                        if (foundRelatedInstance === null) {
+                            throw new Error('Related Instance was not saved.');
+                        }
+
+                        if (!((await foundRelatedInstance[mirrorRelationship])._id.equals(instance._id))) {
+                            throw new Error('Reverse relationship not set.');
+                        }
+                    });
+    
+                });
+
+                describe('Instance is New, Related Instance(s) Exist(s)', () => {
+
+                    it('Creating one instance and one related instance.', async () => {
+                        const relationship = 'oneToOne';
+                        const mirrorRelationship = 'oneToOne';
+
+                        const instance = new Instance(TwoWayRelationshipClass1);
+                        const relatedInstance = new Instance(TwoWayRelationshipClass2);
+
+                        await relatedInstance.save();
+
+                        instance[relationship] = relatedInstance;
+
+                        await TwoWayRelationshipClass1.updateRelatedInstancesForInstance(instance);
+
+                        const foundRelatedInstance = await TwoWayRelationshipClass2.findById(relatedInstance._id);
+
+                        if (foundRelatedInstance === null) {
+                            throw new Error('Related Instance was not saved.');
+                        }
+
+                        if (!(foundRelatedInstance.currentState[mirrorRelationship].equals(instance._id))) {
+                            throw new Error('Reverse relationship not set.');
+                        }
+                    });
+    
+                });
+    
+                describe('Instance and Related Instances Already Exist', () => {
+
+                    it('Creating one instance and one related instance.', async () => {
+                        const relationship = 'oneToOne';
+                        const mirrorRelationship = 'oneToOne';
+
+                        const instance = new Instance(TwoWayRelationshipClass1);
+                        const relatedInstance = new Instance(TwoWayRelationshipClass2);
+
+                        await instance.save();
+                        await relatedInstance.save();
+
+                        instance[relationship] = relatedInstance;
+
+                        await TwoWayRelationshipClass1.updateRelatedInstancesForInstance(instance);
+
+                        const foundRelatedInstance = await TwoWayRelationshipClass2.findById(relatedInstance._id);
+
+                        if (foundRelatedInstance === null) {
+                            throw new Error('Related Instance was not saved.');
+                        }
+
+                        if (!((await foundRelatedInstance[mirrorRelationship])._id.equals(instance._id))) {
+                            throw new Error('Reverse relationship not set.');
+                        }
+                    });
+    
+                });
+
+            });
+
+            describe('One to Many Relationship', () => {
+
+                describe('Instance and Related Instance(s) Are New', () => {
+
+                    it('Creating one instance and two related instances.', async () => {
+                        const relationship = 'oneToMany';
+                        const mirrorRelationship = 'manyToOne';
+
+                        const instance = new Instance(TwoWayRelationshipClass1);
+                        const relatedInstances = new InstanceSet(TwoWayRelationshipClass2, [new Instance(TwoWayRelationshipClass2), new Instance(TwoWayRelationshipClass2)]);
+
+                        instance[relationship] = relatedInstances;
+
+                        await TwoWayRelationshipClass1.updateRelatedInstancesForInstance(instance);
+
+                        const foundRelatedInstances = await TwoWayRelationshipClass2.find({
+                            _id: {
+                                $in: relatedInstances.getObjectIds(),
+                            }
+                        });
+
+                        if (foundRelatedInstances.isEmpty()) {
+                            throw new Error('Related Instance was not saved.');
+                        }
+
+                        for (const foundRelatedInstance of foundRelatedInstances) {
+                            if (!((foundRelatedInstance.currentState[mirrorRelationship]).equals(instance._id))) {
+                                throw new Error('Reverse relationship not set.');
+                            }
+                        }
+                    });
+    
+                });
+    
+                describe('Instance Exists but Related Instance(s) do not.', () => {
+
+                    it('Creating one instance and two related instances.', async () => {
+                        const relationship = 'oneToMany';
+                        const mirrorRelationship = 'manyToOne';
+
+                        const instance = new Instance(TwoWayRelationshipClass1);
+                        const relatedInstances = new InstanceSet(TwoWayRelationshipClass2, [new Instance(TwoWayRelationshipClass2), new Instance(TwoWayRelationshipClass2)]);
+
+                        await instance.save();
+
+                        instance[relationship] = relatedInstances;
+
+                        await TwoWayRelationshipClass1.updateRelatedInstancesForInstance(instance);
+
+                        const foundRelatedInstances = await TwoWayRelationshipClass2.find({
+                            _id: {
+                                $in: relatedInstances.getObjectIds(),
+                            }
+                        });
+
+                        if (foundRelatedInstances.isEmpty()) {
+                            throw new Error('Related Instance was not saved.');
+                        }
+
+                        for (const foundRelatedInstance of foundRelatedInstances) {
+                            if (!((foundRelatedInstance.currentState[mirrorRelationship]).equals(instance._id))) {
+                                throw new Error('Reverse relationship not set.');
+                            }
+                        }
+                    });
+    
+                });
+
+                describe('Instance is New, Related Instance(s) Exist(s)', () => {
+
+                    it('Creating one instance and two related instances.', async () => {
+                        const relationship = 'oneToMany';
+                        const mirrorRelationship = 'manyToOne';
+
+                        const instance = new Instance(TwoWayRelationshipClass1);
+                        const relatedInstances = new InstanceSet(TwoWayRelationshipClass2, [new Instance(TwoWayRelationshipClass2), new Instance(TwoWayRelationshipClass2)]);
+
+                        await relatedInstances.save();
+
+                        instance[relationship] = relatedInstances;
+
+                        await TwoWayRelationshipClass1.updateRelatedInstancesForInstance(instance);
+
+                        const foundRelatedInstances = await TwoWayRelationshipClass2.find({
+                            _id: {
+                                $in: relatedInstances.getObjectIds(),
+                            }
+                        });
+
+                        if (foundRelatedInstances.isEmpty()) {
+                            throw new Error('Related Instance was not saved.');
+                        }
+
+                        for (const foundRelatedInstance of foundRelatedInstances) {
+                            if (!((foundRelatedInstance.currentState[mirrorRelationship]).equals(instance._id))) {
+                                throw new Error('Reverse relationship not set.');
+                            }
+                        }
+                    });
+    
+                });
+    
+                describe('Instance and Related Instances Already Exist', () => {
+
+                    it('Creating one instance and two related instances.', async () => {
+                        const relationship = 'oneToMany';
+                        const mirrorRelationship = 'manyToOne';
+
+                        const instance = new Instance(TwoWayRelationshipClass1);
+                        const relatedInstances = new InstanceSet(TwoWayRelationshipClass2, [new Instance(TwoWayRelationshipClass2), new Instance(TwoWayRelationshipClass2)]);
+
+                        await instance.save();
+                        await relatedInstances.save();
+
+                        instance[relationship] = relatedInstances;
+
+                        await TwoWayRelationshipClass1.updateRelatedInstancesForInstance(instance);
+
+                        const foundRelatedInstances = await TwoWayRelationshipClass2.find({
+                            _id: {
+                                $in: relatedInstances.getObjectIds(),
+                            }
+                        });
+
+                        if (foundRelatedInstances.isEmpty()) {
+                            throw new Error('Related Instance was not saved.');
+                        }
+
+                        for (const foundRelatedInstance of foundRelatedInstances) {
+                            if (!((foundRelatedInstance.currentState[mirrorRelationship]).equals(instance._id))) {
+                                throw new Error('Reverse relationship not set.');
+                            }
+                        }
+                    });
+    
+                });
+
+            });
+
+            describe('Many to One Relationship', () => {
+
+                describe('Instance and Related Instance(s) Are New', () => {
+
+                    it('Creating one instance and two related instances.', async () => {
+                        const relationship = 'manyToOne';
+                        const mirrorRelationship = 'oneToMany';
+
+                        const instance = new Instance(TwoWayRelationshipClass1);
+                        const relatedInstance = new Instance(TwoWayRelationshipClass2);
+
+                        instance[relationship] = relatedInstance;
+
+                        await TwoWayRelationshipClass1.updateRelatedInstancesForInstance(instance);
+
+                        const foundRelatedInstances = await TwoWayRelationshipClass2.find({
+                            _id: relatedInstance._id,
+                        });
+
+                        if (foundRelatedInstances.isEmpty()) {
+                            throw new Error('Related Instance was not saved.');
+                        }
+
+                        for (const foundRelatedInstance of foundRelatedInstances) {
+                            if (!((foundRelatedInstance.currentState[mirrorRelationship])[0].equals(instance._id))) {
+                                throw new Error('Reverse relationship not set.');
+                            }
+                        }
+                    });
+    
+                });
+    
+                describe('Instance Exists but Related Instance(s) do not.', () => {
+
+                    it('Creating one instance and two related instances.', async () => {
+                        const relationship = 'manyToOne';
+                        const mirrorRelationship = 'oneToMany';
+
+                        const instance = new Instance(TwoWayRelationshipClass1);
+                        const relatedInstance = new Instance(TwoWayRelationshipClass2);
+
+                        await instance.save();
+
+                        instance[relationship] = relatedInstance;
+
+                        await TwoWayRelationshipClass1.updateRelatedInstancesForInstance(instance);
+
+                        const foundRelatedInstances = await TwoWayRelationshipClass2.find({
+                            _id: relatedInstance._id,
+                        });
+
+                        if (foundRelatedInstances.isEmpty()) {
+                            throw new Error('Related Instance was not saved.');
+                        }
+
+                        for (const foundRelatedInstance of foundRelatedInstances) {
+                            if (!((foundRelatedInstance.currentState[mirrorRelationship])[0].equals(instance._id))) {
+                                throw new Error('Reverse relationship not set.');
+                            }
+                        }
+                    });
+    
+                });
+
+                describe('Instance is New, Related Instance(s) Exist(s)', () => {
+
+                    it('Creating one instance and two related instances.', async () => {
+                        const relationship = 'manyToOne';
+                        const mirrorRelationship = 'oneToMany';
+
+                        const instance = new Instance(TwoWayRelationshipClass1);
+                        const relatedInstance = new Instance(TwoWayRelationshipClass2);
+
+                        await relatedInstance.save();
+
+                        instance[relationship] = relatedInstance;
+
+                        await TwoWayRelationshipClass1.updateRelatedInstancesForInstance(instance);
+
+                        const foundRelatedInstances = await TwoWayRelationshipClass2.find({
+                            _id: relatedInstance._id,
+                        });
+
+                        if (foundRelatedInstances.isEmpty()) {
+                            throw new Error('Related Instance was not saved.');
+                        }
+
+                        for (const foundRelatedInstance of foundRelatedInstances) {
+                            if (!((foundRelatedInstance.currentState[mirrorRelationship])[0].equals(instance._id))) {
+                                throw new Error('Reverse relationship not set.');
+                            }
+                        }
+                    });
+    
+                });
+    
+                describe('Instance and Related Instances Already Exist', () => {
+
+                    it('Creating one instance and two related instances.', async () => {
+                        const relationship = 'manyToOne';
+                        const mirrorRelationship = 'oneToMany';
+
+                        const instance = new Instance(TwoWayRelationshipClass1);
+                        const relatedInstance = new Instance(TwoWayRelationshipClass2);
+
+                        await instance.save();
+                        await relatedInstance.save();
+
+                        instance[relationship] = relatedInstance;
+
+                        await TwoWayRelationshipClass1.updateRelatedInstancesForInstance(instance);
+
+                        const foundRelatedInstances = await TwoWayRelationshipClass2.find({
+                            _id: relatedInstance._id,
+                        });
+
+                        if (foundRelatedInstances.isEmpty()) {
+                            throw new Error('Related Instance was not saved.');
+                        }
+
+                        for (const foundRelatedInstance of foundRelatedInstances) {
+                            if (!((foundRelatedInstance.currentState[mirrorRelationship])[0].equals(instance._id))) {
+                                throw new Error('Reverse relationship not set.');
+                            }
+                        }
+                    });
+    
+                });
+
+            });
+
+            describe('Many to Many Relationship', () => {
+
+                describe('Instance and Related Instance(s) Are New', () => {
+
+                    it('Creating one instance and two related instances.', async () => {
+                        const relationship = 'manyToMany';
+                        const mirrorRelationship = 'manyToMany';
+
+                        const instance = new Instance(TwoWayRelationshipClass1);
+                        const relatedInstances = new InstanceSet(TwoWayRelationshipClass2, [new Instance(TwoWayRelationshipClass2), new Instance(TwoWayRelationshipClass2)]);
+
+                        instance[relationship] = relatedInstances;
+
+                        await TwoWayRelationshipClass1.updateRelatedInstancesForInstance(instance);
+
+                        const foundRelatedInstances = await TwoWayRelationshipClass2.find({
+                            _id: {
+                                $in: relatedInstances.getObjectIds(),
+                            }
+                        });
+
+                        if (foundRelatedInstances.isEmpty()) {
+                            throw new Error('Related Instance was not saved.');
+                        }
+
+                        for (const foundRelatedInstance of foundRelatedInstances) {
+                            if (!((foundRelatedInstance.currentState[mirrorRelationship])[0].equals(instance._id))) {
+                                throw new Error('Reverse relationship not set.');
+                            }
+                        }
+                    });
+    
+                });
+    
+                describe('Instance Exists but Related Instance(s) do not.', () => {
+
+                    it('Creating one instance and two related instances.', async () => {
+                        const relationship = 'manyToMany';
+                        const mirrorRelationship = 'manyToMany';
+
+                        const instance = new Instance(TwoWayRelationshipClass1);
+                        const relatedInstances = new InstanceSet(TwoWayRelationshipClass2, [new Instance(TwoWayRelationshipClass2), new Instance(TwoWayRelationshipClass2)]);
+
+                        await instance.save();
+
+                        instance[relationship] = relatedInstances;
+
+                        await TwoWayRelationshipClass1.updateRelatedInstancesForInstance(instance);
+
+                        const foundRelatedInstances = await TwoWayRelationshipClass2.find({
+                            _id: {
+                                $in: relatedInstances.getObjectIds(),
+                            }
+                        });
+
+                        if (foundRelatedInstances.isEmpty()) {
+                            throw new Error('Related Instance was not saved.');
+                        }
+
+                        for (const foundRelatedInstance of foundRelatedInstances) {
+                            if (!((foundRelatedInstance.currentState[mirrorRelationship])[0].equals(instance._id))) {
+                                throw new Error('Reverse relationship not set.');
+                            }
+                        }
+                    });
+    
+                });
+
+                describe('Instance is New, Related Instance(s) Exist(s)', () => {
+
+                    it('Creating one instance and two related instances.', async () => {
+                        const relationship = 'manyToMany';
+                        const mirrorRelationship = 'manyToMany';
+
+                        const instance = new Instance(TwoWayRelationshipClass1);
+                        const relatedInstances = new InstanceSet(TwoWayRelationshipClass2, [new Instance(TwoWayRelationshipClass2), new Instance(TwoWayRelationshipClass2)]);
+
+                        await relatedInstances.save();
+
+                        instance[relationship] = relatedInstances;
+
+                        await TwoWayRelationshipClass1.updateRelatedInstancesForInstance(instance);
+
+                        const foundRelatedInstances = await TwoWayRelationshipClass2.find({
+                            _id: {
+                                $in: relatedInstances.getObjectIds(),
+                            }
+                        });
+
+                        if (foundRelatedInstances.isEmpty()) {
+                            throw new Error('Related Instance was not saved.');
+                        }
+
+                        for (const foundRelatedInstance of foundRelatedInstances) {
+                            if (!((foundRelatedInstance.currentState[mirrorRelationship])[0].equals(instance._id))) {
+                                throw new Error('Reverse relationship not set.');
+                            }
+                        }
+                    });
+    
+                });
+    
+                describe('Instance and Related Instances Already Exist', () => {
+
+                    it('Creating one instance and two related instances.', async () => {
+                        const relationship = 'manyToMany';
+                        const mirrorRelationship = 'manyToMany';
+
+                        const instance = new Instance(TwoWayRelationshipClass1);
+                        const relatedInstances = new InstanceSet(TwoWayRelationshipClass2, [new Instance(TwoWayRelationshipClass2), new Instance(TwoWayRelationshipClass2)]);
+
+                        await instance.save();
+                        await relatedInstances.save();
+
+                        instance[relationship] = relatedInstances;
+
+                        await TwoWayRelationshipClass1.updateRelatedInstancesForInstance(instance);
+
+                        const foundRelatedInstances = await TwoWayRelationshipClass2.find({
+                            _id: {
+                                $in: relatedInstances.getObjectIds(),
+                            }
+                        });
+
+                        if (foundRelatedInstances.isEmpty()) {
+                            throw new Error('Related Instance was not saved.');
+                        }
+
+                        for (const foundRelatedInstance of foundRelatedInstances) {
+                            if (!((foundRelatedInstance.currentState[mirrorRelationship])[0].equals(instance._id))) {
+                                throw new Error('Reverse relationship not set.');
+                            }
+                        }
+                    });
+    
+                });
+
+            });            
 
         });
 
@@ -3341,6 +3871,64 @@ describe('Class Model Tests', () => {
 
             if (!superClasses.includes('NoommanClassModel')) {
                 throw new Error('Class Model did not inherit from NoommanClassModel.');
+            }
+        });
+
+    });
+
+    describe('ClassModel.isInstanceOfThisClass', () => {
+
+        it('All instances are instance of Class NoommanClassModel', () => {
+            const instance = new Instance(SubClassOfSubClassOfSuperClass);
+            const result = ClassModel.getClassModel('NoommanClassModel').isInstanceOfThisClass(instance);
+
+            if (result !== true) {
+                throw new Error('Returned false.');
+            }
+        });
+
+        it('Returns true for instance of class model.', () => {
+            const instance = new Instance(SubClassOfSubClassOfSuperClass);
+            const result = SubClassOfSubClassOfSuperClass.isInstanceOfThisClass(instance);
+
+            if (result !== true) {
+                throw new Error('Returned false.');
+            }
+        });
+
+        it('Returns true for instance of sub class of class model.', () => {
+            const instance = new Instance(SubClassOfSubClassOfSuperClass);
+            const result = SubClassOfSuperClass.isInstanceOfThisClass(instance);
+
+            if (result !== true) {
+                throw new Error('Returned false.');
+            }
+        });
+
+        it('Returns true for instance of discriminated sub class of class model.', () => {
+            const instance = new Instance(DiscriminatedSubClassOfSuperClass);
+            const result = SuperClass.isInstanceOfThisClass(instance);
+
+            if (result !== true) {
+                throw new Error('Returned false.');
+            }
+        });
+
+        it('Returns false for super class instances of sub class model.', () => {
+            const instance = new Instance(SubClassOfSuperClass);
+            const result = SubClassOfSubClassOfSuperClass.isInstanceOfThisClass(instance);
+
+            if (result !== false) {
+                throw new Error('Returned true.');
+            }
+        });
+
+        it('Returns false for unrelated class models', () => {
+            const instance = new Instance(SubClassOfSuperClass);
+            const result = CompareClass1.isInstanceOfThisClass(instance);
+
+            if (result !== false) {
+                throw new Error('Returned true.');
             }
         });
 

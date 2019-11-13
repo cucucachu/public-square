@@ -168,29 +168,23 @@ class ClassModel {
     isInstanceOfThisClass(instance) {
         if (instance.classModel === this)
             return true;
-        
-        for (const subClass of this.subClasses) {
-            if (subClass.isInstanceOfThisClass(instance))
-                return true;
-        }
 
-        return false;
+        return instance.classModel.allSuperClasses().map(c => c.className).includes(this.className);
     }
 
     isInstanceSetOfThisClass(instanceSet) {
         if (instanceSet.classModel === this)
             return true;
-        
-        for (const subClass of this.subClasses) {
-            if (subClass.isInstanceSetOfThisClass(instanceSet))
-                return true;
-        }
 
-        return false;
+        return instanceSet.classModel.allSuperClasses().map(c => c.className).includes(this.className);
     }
 
     getRelatedClassModel(relationshipName) {
         return AllClassModels[this.relationships.filter(relationship => relationship.name === relationshipName)[0].toClass];
+    }
+
+    static getClassModel(className) {
+        return AllClassModels[className];
     }
 
     validateAttribute(attributeName, value) {
@@ -509,10 +503,10 @@ class ClassModel {
                 }
             }
             else {
-                if (relatedInstances.length > 0) {
+                if (relatedInstances instanceof InstanceSet && !relatedInstances.isEmpty()) {
                     instanceSet.addInstances(relatedInstances);
                 }
-                if (previousRelatedInstances.length > 0) {
+                if (previousRelatedInstances instanceof InstanceSet && !previousRelatedInstances.isEmpty()) {
                     instanceSet.addInstances(previousRelatedInstances);
                 }
             }
@@ -524,7 +518,7 @@ class ClassModel {
             const relatedInstance = instanceSet.getInstanceWithId(id);
             relatedInstance.applyChanges(reducedRelatedDiff[id]);
         }
-
+        
         return instanceSet.save();
 
     }

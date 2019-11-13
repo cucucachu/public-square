@@ -185,6 +185,15 @@ class Instance extends Diffable {
         const relationshipDefinition = this.classModel.relationships.filter(relationship => relationship.name ===relationshipName)[0];
         const relatedClass = this.classModel.getRelatedClassModel(relationshipName);
 
+        if (usePreviousState && this.previousState === null) {
+            if (relationshipDefinition.singular) {
+                return null;
+            }
+            else {
+                return [];
+            }
+        }
+
         const relationshipCurrentValue = usePreviousState ? this.previousState[relationshipName] : this['_' + relationshipName];
         let walkResult;
 
