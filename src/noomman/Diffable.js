@@ -178,7 +178,118 @@ class Diffable {
         return reduced;
     }
 
+    static combineMultipleReducedDiffs(reducedDiffs) {
+        const combined = {};
+
+        for (const reducedDiff of reducedDiffs) {
+            for (const relationship of Object.keys(reducedDiff)) {
+                for (const id of Object.keys(reducedDiff[relationship])) {
+                    if (combined[id] === undefined) {
+                        combined[id] = {};
+                    }
+    
+                    for (const operator of Object.keys(reducedDiff[relationship][id])) {
+                        if (combined[id][operator] === undefined) {
+                            combined[id][operator] = {};
+                        }
+                        
+                        for (const mirrorRelationship of Object.keys(reducedDiff[relationship][id][operator])) {
+                            if (combined[id][operator][mirrorRelationship] === undefined) {
+                                combined[id][operator][mirrorRelationship] = reducedDiff[relationship][id][operator][mirrorRelationship];
+                            }
+                            else {
+                                if (operator === '$addToSet') {
+                                    const currentValue = combined[id][operator][mirrorRelationship];
+                                    if (combined[id][operator][mirrorRelationship].$each === undefined) {
+                                        delete combined[id][operator][mirrorRelationship];
+                                        combined[id][operator][mirrorRelationship] = {
+                                            $each: [currentValue, reducedDiff[relationship][id][operator][mirrorRelationship]]
+                                        }
+                                    }
+                                    else {
+                                        combined[id][operator][mirrorRelationship].$each.push(reducedDiff[relationship][id][operator][mirrorRelationship]);
+                                    }
+                                }
+                                if (operator === '$pull') {
+                                    const currentValue = combined[id][operator][mirrorRelationship];
+                                    if (combined[id][operator][mirrorRelationship].$in === undefined) {
+                                        delete combined[id][operator][mirrorRelationship];
+                                        combined[id][operator][mirrorRelationship] = {
+                                            $in: [currentValue, reducedDiff[relationship][id][operator][mirrorRelationship]]
+                                        }
+                                    }
+                                    else {
+                                        combined[id][operator][mirrorRelationship].$in.push(reducedDiff[relationship][id][operator][mirrorRelationship]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return combined;
+    }
+
+    combineSetOperations(diff) {
+        const combined = {};
+
+        // Combine any relationships in both $pull and $addToSet operators into a single $set operation
+        if (diff.$addToSet && diff.$pull) {
+            for (const addToSetProperty of Object.keys(diff.$addToSet)) {
+                for (const pullProperty of Object.keys(diff.$pull)) {
+                    if (addToSetProperty === pullProperty) {
+                        const relationship = addToSetProperty;
+
+                        let currentValue = this['_' + relationship];
+                        if (!Array.isArray(currentValue)) {
+                            currentValue = currentValue.getObjectIds();
+                        }
+                        currentValue = new Set(currentValue.map(id => id.toHexString()));
+
+                        for (const pullValue of Diffable.valueForOperator(diff, '$pull', relationship)) {
+                            currentValue.delete(pullValue.toHexString());
+                        }
+
+                        for (const addValue of Diffable.valueForOperator(diff, '$addToSet', relationship)) {
+                            currentValue.add(addValue.toHexString());
+                        }
+                        if (combined.$set === undefined) {
+                            combined.$set = {};
+                        }
+
+                        combined.$set[relationship] = [...currentValue].map(id => database.ObjectId(id));
+                        delete diff.$addToSet[relationship];
+                        delete diff.$pull[relationship];
+                    }
+                }
+            }
+        }
+
+        // Copy over the rest of the operations and relationships.
+        for (const operator of Object.keys(diff)) {
+            if (combined[operator] === undefined) {
+                combined[operator] = {};
+            }
+            for (const property of Object.keys(diff[operator])) {
+                combined[operator][property] = diff[operator][property];
+            }
+        }
+
+        // Remove $addToSet and $pull if they are empty.
+        if (combined.$addToSet && Object.keys(combined.$addToSet).length === 0) {
+            delete combined.$addToSet;
+        }
+        if (combined.$pull && Object.keys(combined.$pull).length === 0) {
+            delete combined.$pull;
+        }
+
+        return combined;
+    }
+
     applyChanges(changes) {
+        changes = this.combineSetOperations(changes);
         this.validateChanges(changes);
 
         const attributeNames = this.classModel.attributes.map(attribute => attribute.name);

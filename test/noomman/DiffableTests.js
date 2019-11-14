@@ -10,6 +10,7 @@ const TestClassModels = require('./helpers/TestClassModels');
 const TestingFunctions = require('./helpers/TestingFunctions');
 const testForError = TestingFunctions.testForError;
 const arraysEqual = TestingFunctions.arraysEqual;
+const objectsEqual = TestingFunctions.objectsEqual;
 const testForErrorAsync = TestingFunctions.testForErrorAsync;
 
 // Load Necessarry TestClassModels
@@ -648,6 +649,148 @@ describe('Diffable Tests', () => {
                 }
             });
 
+        });
+
+    });
+
+    describe('instance.combineSetOperations()', () => {
+        
+        it('If no set operations, diff is unchanged.', () => {
+            const instance = new Instance(TwoWayRelationshipClass1);
+            const diff = {
+                $set: {
+                    oneToOne: database.ObjectId(),
+                },
+                $unset: {
+                    manyToOne: database.ObjectId(),
+                },
+                $addToSet: {
+                    oneToMany: database.ObjectId(),
+                },
+                $pull: {
+                    oneToOne:{
+                        $in: [database.ObjectId(), database.ObjectId()],
+                    }
+                },
+            };
+
+            const combined = instance.combineSetOperations(diff);
+            
+            if (!objectsEqual(diff, combined)) {
+                throw new Error('Diff was changed.');
+            }
+        });
+        
+        it('AddToSet and Pull combined into a set operation, no other set operations.', () => {
+            const relatedInstance1 = new Instance(TwoWayRelationshipClass2);
+            const relatedInstance2 = new Instance(TwoWayRelationshipClass2);
+            const relatedInstance3 = new Instance(TwoWayRelationshipClass2);
+
+            const document = {
+                _id: database.ObjectId(),
+                oneToMany: [relatedInstance1._id]
+            }
+            
+            const instance = new Instance(TwoWayRelationshipClass1, document);
+
+            const diff = {
+                $addToSet: {
+                    oneToMany:{
+                        $each: [relatedInstance2._id, relatedInstance3._id],
+                    }
+                },
+                $pull: {
+                    oneToMany: relatedInstance1._id,
+                },
+            };
+
+            const combined = instance.combineSetOperations(diff);
+
+            if (!combined.$set.oneToMany[0].equals(relatedInstance2._id)) {
+                throw new Error('Operations not combined correctly.');
+            }
+            if (!combined.$set.oneToMany[1].equals(relatedInstance3._id)) {
+                throw new Error('Operations not combined correctly.');
+            }
+            if (combined.$addToSet !== undefined || combined.$pull !== undefined) {
+                throw new Error('Combined still contains $addToSet or $pull.');
+            }
+        });
+        
+        it('Combination works if ObjectIds are same ID but diferent objects.', () => {
+            const relatedInstance1 = new Instance(TwoWayRelationshipClass2);
+            const relatedInstance2 = new Instance(TwoWayRelationshipClass2);
+            const relatedInstance3 = new Instance(TwoWayRelationshipClass2);
+
+            const document = {
+                _id: database.ObjectId(),
+                oneToMany: [database.ObjectId(relatedInstance1._id.toHexString())]
+            }
+            
+            const instance = new Instance(TwoWayRelationshipClass1, document);
+
+            const diff = {
+                $addToSet: {
+                    oneToMany:{
+                        $each: [relatedInstance2._id, relatedInstance3._id],
+                    }
+                },
+                $pull: {
+                    oneToMany: relatedInstance1._id,
+                },
+            };
+
+            const combined = instance.combineSetOperations(diff);
+
+            if (!combined.$set.oneToMany[0].equals(relatedInstance2._id)) {
+                throw new Error('Operations not combined correctly.');
+            }
+            if (!combined.$set.oneToMany[1].equals(relatedInstance3._id)) {
+                throw new Error('Operations not combined correctly.');
+            }
+            if (combined.$addToSet !== undefined || combined.$pull !== undefined) {
+                throw new Error('Combined still contains $addToSet or $pull.');
+            }
+        });
+        
+        it('Combining pulling 2 instances and adding one. With Previous value', () => {
+            const relatedInstance1 = new Instance(TwoWayRelationshipClass2);
+            const relatedInstance2 = new Instance(TwoWayRelationshipClass2);
+            const relatedInstance3 = new Instance(TwoWayRelationshipClass2);
+            const relatedInstance4 = new Instance(TwoWayRelationshipClass2);
+
+            const document = {
+                _id: database.ObjectId(),
+                oneToMany: [relatedInstance1._id, relatedInstance2._id],
+            }
+            
+            const instance = new Instance(TwoWayRelationshipClass1, document);
+
+            const diff = {
+                $addToSet: {
+                    oneToMany:{
+                        $each: [relatedInstance3._id, relatedInstance4._id],
+                    }
+                },
+                $pull: {
+                    oneToMany: relatedInstance1._id,
+                },
+            };
+
+            const combined = instance.combineSetOperations(diff);
+
+            if (!combined.$set.oneToMany[0].equals(relatedInstance2._id)) {
+                throw new Error('Operations not combined correctly.');
+            }
+            if (!combined.$set.oneToMany[1].equals(relatedInstance3._id)) {
+                throw new Error('Operations not combined correctly.');
+            }
+            if (!combined.$set.oneToMany[2].equals(relatedInstance4._id)) {
+                throw new Error('Operations not combined correctly.');
+            }
+            if (combined.$addToSet !== undefined || combined.$pull !== undefined) {
+                throw new Error('Combined still contains $addToSet or $pull.');
+            }
         });
 
     });
@@ -1686,6 +1829,358 @@ describe('Diffable Tests', () => {
                 if (!reduced[relatedInstance2.id][mirrorOperation2][mirrorRelationship2].equals(instance._id)){
                     throw new Error('Related Diff is incorrect.');
                 }
+            });
+
+        });
+
+    });
+
+    describe('Diffable.combineMultipleReducedDiffs()', () => {
+
+        describe('Many to One Relationships', () => {
+
+            describe('$addToSet', () => {
+
+                it('Two diffs setting many to one relationship to same instance.', () => {
+                    const relationship = 'manyToOne';
+                    const mirrorRelationship = 'oneToMany';
+                    const operator = '$addToSet';
+                    const spreadOperator = '$each';
+                    const instance1 = new Instance(TwoWayRelationshipClass1);
+                    const instance2 = new Instance(TwoWayRelationshipClass1);
+                    const relatedInstance = new Instance(TwoWayRelationshipClass2);
+    
+                    instance1[relationship] = relatedInstance;
+                    instance2[relationship] = relatedInstance;
+    
+                    const diff1 = instance1.relatedDiffs();
+                    const diff2 = instance2.relatedDiffs();
+                    const combinedDiff = Diffable.combineMultipleReducedDiffs([diff1, diff2]);
+    
+                    if (!combinedDiff[relatedInstance.id][operator][mirrorRelationship][spreadOperator][0].equals(instance1._id)) {
+                        throw new Error('Combined diff is not correct.');
+                    }
+                    if (!combinedDiff[relatedInstance.id][operator][mirrorRelationship][spreadOperator][1].equals(instance2._id)) {
+                        throw new Error('Combined diff is not correct.');
+                    }
+                });
+    
+                it('One diff setting many to one relationship to same instance.', () => {
+                    const relationship = 'manyToOne';
+                    const mirrorRelationship = 'oneToMany';
+                    const operator = '$addToSet';
+                    const spreadOperator = '$each';
+                    const instance1 = new Instance(TwoWayRelationshipClass1);
+                    const relatedInstance = new Instance(TwoWayRelationshipClass2);
+    
+                    instance1[relationship] = relatedInstance;
+    
+                    const diff1 = instance1.relatedDiffs();
+                    const combinedDiff = Diffable.combineMultipleReducedDiffs([diff1]);
+    
+                    if (!combinedDiff[relatedInstance.id][operator][mirrorRelationship].equals(instance1._id)) {
+                        throw new Error('Combined diff is not correct.');
+                    }
+                });
+    
+                it('Three diffs setting many to one relationship to same instance.', () => {
+                    const relationship = 'manyToOne';
+                    const mirrorRelationship = 'oneToMany';
+                    const operator = '$addToSet';
+                    const spreadOperator = '$each';
+                    const instance1 = new Instance(TwoWayRelationshipClass1);
+                    const instance2 = new Instance(TwoWayRelationshipClass1);
+                    const instance3 = new Instance(TwoWayRelationshipClass1);
+                    const relatedInstance = new Instance(TwoWayRelationshipClass2);
+    
+                    instance1[relationship] = relatedInstance;
+                    instance2[relationship] = relatedInstance;
+                    instance3[relationship] = relatedInstance;
+    
+                    const diff1 = instance1.relatedDiffs();
+                    const diff2 = instance2.relatedDiffs();
+                    const diff3 = instance3.relatedDiffs();
+                    const combinedDiff = Diffable.combineMultipleReducedDiffs([diff1, diff2, diff3]);
+    
+                    if (!combinedDiff[relatedInstance.id][operator][mirrorRelationship][spreadOperator][0].equals(instance1._id)) {
+                        throw new Error('Combined diff is not correct.');
+                    }
+                    if (!combinedDiff[relatedInstance.id][operator][mirrorRelationship][spreadOperator][1].equals(instance2._id)) {
+                        throw new Error('Combined diff is not correct.');
+                    }
+                    if (!combinedDiff[relatedInstance.id][operator][mirrorRelationship][spreadOperator][2].equals(instance3._id)) {
+                        throw new Error('Combined diff is not correct.');
+                    }
+                });
+
+            });
+
+            describe('$pull', () => {
+
+                it('Two diffs unsetting many to one relationship from same instance.', () => {
+                    const relationship = 'manyToOne';
+                    const mirrorRelationship = 'oneToMany';
+                    const operator = '$pull';
+                    const spreadOperator = '$in';
+                    const relatedInstance = new Instance(TwoWayRelationshipClass2);
+
+                    const document1 = {
+                        _id : database.ObjectId(),
+                        [relationship]: relatedInstance._id,
+                    }
+                    const document2 = {
+                        _id : database.ObjectId(),
+                        [relationship]: relatedInstance._id,
+                    }
+
+                    const instance1 = new Instance(TwoWayRelationshipClass1, document1);
+                    const instance2 = new Instance(TwoWayRelationshipClass1, document2);
+    
+                    instance1[relationship] = null;
+                    instance2[relationship] = null;
+    
+                    const diff1 = instance1.relatedDiffs();
+                    const diff2 = instance2.relatedDiffs();
+                    const combinedDiff = Diffable.combineMultipleReducedDiffs([diff1, diff2]);
+    
+                    if (!combinedDiff[relatedInstance.id][operator][mirrorRelationship][spreadOperator][0].equals(instance1._id)) {
+                        throw new Error('Combined diff is not correct.');
+                    }
+                    if (!combinedDiff[relatedInstance.id][operator][mirrorRelationship][spreadOperator][1].equals(instance2._id)) {
+                        throw new Error('Combined diff is not correct.');
+                    }
+                });
+
+                it('One diff unsetting many to one relationship from instance.', () => {
+                    const relationship = 'manyToOne';
+                    const mirrorRelationship = 'oneToMany';
+                    const operator = '$pull';
+                    const relatedInstance = new Instance(TwoWayRelationshipClass2);
+
+                    const document1 = {
+                        _id : database.ObjectId(),
+                        [relationship]: relatedInstance._id,
+                    }
+
+                    const instance1 = new Instance(TwoWayRelationshipClass1, document1);
+    
+                    instance1[relationship] = null;
+    
+                    const diff1 = instance1.relatedDiffs();
+                    const combinedDiff = Diffable.combineMultipleReducedDiffs([diff1]);
+    
+                    if (!combinedDiff[relatedInstance.id][operator][mirrorRelationship].equals(instance1._id)) {
+                        throw new Error('Combined diff is not correct.');
+                    }
+                });
+
+            });
+
+        });
+
+        describe('Many to Many Relationships', () => {
+
+            describe('$addToSet', () => {
+
+                it('Two diffs setting many to many relationship to same instance set.', () => {
+                    const relationship = 'manyToMany';
+                    const mirrorRelationship = 'manyToMany';
+                    const operator = '$addToSet';
+                    const spreadOperator = '$each';
+                    const instance1 = new Instance(TwoWayRelationshipClass1);
+                    const instance2 = new Instance(TwoWayRelationshipClass1);
+                    const relatedInstance1 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance2 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstances = new InstanceSet(TwoWayRelationshipClass2, [relatedInstance1, relatedInstance2]);
+    
+                    instance1[relationship] = relatedInstances;
+                    instance2[relationship] = relatedInstances;
+    
+                    const diff1 = instance1.relatedDiffs();
+                    const diff2 = instance2.relatedDiffs();
+                    const combinedDiff = Diffable.combineMultipleReducedDiffs([diff1, diff2]);
+    
+                    if (!combinedDiff[relatedInstance1.id][operator][mirrorRelationship][spreadOperator][0].equals(instance1._id)) {
+                        throw new Error('Combined diff is not correct.');
+                    }
+                    if (!combinedDiff[relatedInstance1.id][operator][mirrorRelationship][spreadOperator][1].equals(instance2._id)) {
+                        throw new Error('Combined diff is not correct.');
+                    }
+                    if (!combinedDiff[relatedInstance2.id][operator][mirrorRelationship][spreadOperator][0].equals(instance1._id)) {
+                        throw new Error('Combined diff is not correct.');
+                    }
+                    if (!combinedDiff[relatedInstance2.id][operator][mirrorRelationship][spreadOperator][1].equals(instance2._id)) {
+                        throw new Error('Combined diff is not correct.');
+                    }
+                });
+    
+                it('Two diffs setting many to many relationship to overlapping instance sets.', () => {
+                    const relationship = 'manyToMany';
+                    const mirrorRelationship = 'manyToMany';
+                    const operator = '$addToSet';
+                    const spreadOperator = '$each';
+                    const instance1 = new Instance(TwoWayRelationshipClass1);
+                    const instance2 = new Instance(TwoWayRelationshipClass1);
+                    const relatedInstance1 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance2 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance3 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstances1 = new InstanceSet(TwoWayRelationshipClass2, [relatedInstance1, relatedInstance2]);
+                    const relatedInstances2 = new InstanceSet(TwoWayRelationshipClass2, [relatedInstance2, relatedInstance3]);
+    
+                    instance1[relationship] = relatedInstances1;
+                    instance2[relationship] = relatedInstances2;
+    
+                    const diff1 = instance1.relatedDiffs();
+                    const diff2 = instance2.relatedDiffs();
+                    const combinedDiff = Diffable.combineMultipleReducedDiffs([diff1, diff2]);
+    
+                    if (!combinedDiff[relatedInstance1.id][operator][mirrorRelationship].equals(instance1._id)) {
+                        throw new Error('Combined diff is not correct.');
+                    }
+                    if (!combinedDiff[relatedInstance2.id][operator][mirrorRelationship][spreadOperator][0].equals(instance1._id)) {
+                        throw new Error('Combined diff is not correct.');
+                    }
+                    if (!combinedDiff[relatedInstance2.id][operator][mirrorRelationship][spreadOperator][1].equals(instance2._id)) {
+                        throw new Error('Combined diff is not correct.');
+                    }
+                    if (!combinedDiff[relatedInstance3.id][operator][mirrorRelationship].equals(instance2._id)) {
+                        throw new Error('Combined diff is not correct.');
+                    }
+                });
+
+            });
+
+            describe('$pull', () => {
+
+                it('Two diffs setting many to many relationship to same instance set.', () => {
+                    const relationship = 'manyToMany';
+                    const mirrorRelationship = 'manyToMany';
+                    const operator = '$pull';
+                    const spreadOperator = '$in';
+                    
+                    const relatedInstance1 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance2 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstances = new InstanceSet(TwoWayRelationshipClass2, [relatedInstance1, relatedInstance2]);
+
+                    const document1 = {
+                        _id: database.ObjectId(),
+                        [relationship]: relatedInstances.getObjectIds(),
+                    }
+                    const document2 = {
+                        _id: database.ObjectId(),
+                        [relationship]: relatedInstances.getObjectIds(),
+                    }
+
+                    const instance1 = new Instance(TwoWayRelationshipClass1, document1);
+                    const instance2 = new Instance(TwoWayRelationshipClass1, document2);
+    
+                    instance1[relationship] = null;
+                    instance2[relationship] = null;
+    
+                    const diff1 = instance1.relatedDiffs();
+                    const diff2 = instance2.relatedDiffs();
+                    const combinedDiff = Diffable.combineMultipleReducedDiffs([diff1, diff2]);
+    
+                    if (!combinedDiff[relatedInstance1.id][operator][mirrorRelationship][spreadOperator][0].equals(instance1._id)) {
+                        throw new Error('Combined diff is not correct.');
+                    }
+                    if (!combinedDiff[relatedInstance1.id][operator][mirrorRelationship][spreadOperator][1].equals(instance2._id)) {
+                        throw new Error('Combined diff is not correct.');
+                    }
+                    if (!combinedDiff[relatedInstance2.id][operator][mirrorRelationship][spreadOperator][0].equals(instance1._id)) {
+                        throw new Error('Combined diff is not correct.');
+                    }
+                    if (!combinedDiff[relatedInstance2.id][operator][mirrorRelationship][spreadOperator][1].equals(instance2._id)) {
+                        throw new Error('Combined diff is not correct.');
+                    }
+                });
+    
+                it('Two diffs unsetting many to many relationship with overlapping instance sets.', () => {
+                    const relationship = 'manyToMany';
+                    const mirrorRelationship = 'manyToMany';
+                    const operator = '$pull';
+                    const spreadOperator = '$in';
+
+                    const relatedInstance1 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance2 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance3 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstances1 = new InstanceSet(TwoWayRelationshipClass2, [relatedInstance1, relatedInstance2]);
+                    const relatedInstances2 = new InstanceSet(TwoWayRelationshipClass2, [relatedInstance2, relatedInstance3]);
+                    
+                    const document1 = {
+                        _id: database.ObjectId(),
+                        [relationship]: relatedInstances1.getObjectIds(),
+                    }
+                    const document2 = {
+                        _id: database.ObjectId(),
+                        [relationship]: relatedInstances2.getObjectIds(),
+                    }
+                    const instance1 = new Instance(TwoWayRelationshipClass1, document1);
+                    const instance2 = new Instance(TwoWayRelationshipClass1, document2);
+                    instance1[relationship] = null;
+                    instance2[relationship] = null;
+    
+                    const diff1 = instance1.relatedDiffs();
+                    const diff2 = instance2.relatedDiffs();
+                    const combinedDiff = Diffable.combineMultipleReducedDiffs([diff1, diff2]);
+    
+                    if (!combinedDiff[relatedInstance1.id][operator][mirrorRelationship].equals(instance1._id)) {
+                        throw new Error('Combined diff is not correct.');
+                    }
+                    if (!combinedDiff[relatedInstance2.id][operator][mirrorRelationship][spreadOperator][0].equals(instance1._id)) {
+                        throw new Error('Combined diff is not correct.');
+                    }
+                    if (!combinedDiff[relatedInstance2.id][operator][mirrorRelationship][spreadOperator][1].equals(instance2._id)) {
+                        throw new Error('Combined diff is not correct.');
+                    }
+                    if (!combinedDiff[relatedInstance3.id][operator][mirrorRelationship].equals(instance2._id)) {
+                        throw new Error('Combined diff is not correct.');
+                    }
+                });
+    
+                it('Two diffs, one replacing, one pulling.', () => {
+                    const relationship = 'manyToMany';
+                    const mirrorRelationship = 'manyToMany';
+                    const operator = '$pull';
+                    const spreadOperator = '$in';
+
+                    const relatedInstance1 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance2 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstance3 = new Instance(TwoWayRelationshipClass2);
+                    const relatedInstances1 = new InstanceSet(TwoWayRelationshipClass2, [relatedInstance1, relatedInstance2]);
+                    const relatedInstances2 = new InstanceSet(TwoWayRelationshipClass2, [relatedInstance2, relatedInstance3]);
+                    
+                    const document1 = {
+                        _id: database.ObjectId(),
+                        [relationship]: relatedInstances1.getObjectIds(),
+                    }
+                    const document2 = {
+                        _id: database.ObjectId(),
+                        [relationship]: relatedInstances2.getObjectIds(),
+                    }
+                    const instance1 = new Instance(TwoWayRelationshipClass1, document1);
+                    const instance2 = new Instance(TwoWayRelationshipClass1, document2);
+                    instance1[relationship] = new InstanceSet(TwoWayRelationshipClass2, [relatedInstance3]);
+                    instance2[relationship] = new InstanceSet(TwoWayRelationshipClass2, [relatedInstance2]);;
+    
+                    const diff1 = instance1.relatedDiffs();
+                    const diff2 = instance2.relatedDiffs();
+                    const combinedDiff = Diffable.combineMultipleReducedDiffs([diff1, diff2]);
+    
+                    if (!combinedDiff[relatedInstance1.id][operator][mirrorRelationship].equals(instance1._id)) {
+                        throw new Error('Combined diff is not correct.');
+                    }
+                    if (!combinedDiff[relatedInstance2.id][operator][mirrorRelationship].equals(instance1._id)) {
+                        throw new Error('Combined diff is not correct.');
+                    }
+                    if (!combinedDiff[relatedInstance3.id][operator][mirrorRelationship].equals(instance2._id)) {
+                        throw new Error('Combined diff is not correct.');
+                    }
+                    if (!combinedDiff[relatedInstance3.id].$addToSet[mirrorRelationship].equals(instance1._id)) {
+                        throw new Error('Combined diff is not correct.');
+                    }
+                });
+
             });
 
         });

@@ -7,6 +7,7 @@ const InstanceSet = require('./InstanceSet');
 const Instance = require('./Instance');
 const Attribute = require('./Attribute');
 const Relationship = require('./Relationship');
+const Diffable = require('./Diffable');
 const SuperSet = require('./SuperSet');
 
 const AllClassModels = [];
@@ -518,9 +519,52 @@ class ClassModel {
             const relatedInstance = instanceSet.getInstanceWithId(id);
             relatedInstance.applyChanges(reducedRelatedDiff[id]);
         }
-        
-        return instanceSet.save();
 
+        return instanceSet.saveWithoutRelatedUpdates();
+    }
+
+    async updateRelatedInstancesForInstanceSet(instanceSet) {
+        const relationshipsNeedingUpdate = new SuperSet();
+        const reducedRelatedDiffs = [];
+
+        for (const instance of instanceSet) {
+            const diff = instance.relatedDiffs();
+            const relationshipsToUpdateForInstance = Object.keys(diff);
+            for (const relationshipName of relationshipsToUpdateForInstance) {
+                relationshipsNeedingUpdate.add(relationshipName);
+            }
+            if (relationshipsToUpdateForInstance.length) {
+                reducedRelatedDiffs.push(instance.reducedRelatedDiff(diff));
+            }
+        }
+
+        if (relationshipsNeedingUpdate.isEmpty()) {
+            return;
+        }
+
+        const combinedDiff = Diffable.combineMultipleReducedDiffs(reducedRelatedDiffs);
+        const relatedInstances = new InstanceSet(NoommanClassModel);
+
+        // Retrieve all related instances and collect them in an instanceSet.
+        for (const relationshipName of relationshipsNeedingUpdate) {
+            const relatedInstances = await instanceSet.walk(relationshipName);
+            const previousRelatedInstances = await instanceSet.walk(relationshipName, true);
+
+            if (relatedInstances instanceof InstanceSet && !relatedInstances.isEmpty()) {
+                relatedInstances.addInstances(relatedInstances);
+            }
+            if (previousRelatedInstances instanceof InstanceSet && !previousRelatedInstances.isEmpty()) {
+                relatedInstances.addInstances(previousRelatedInstances);
+            }
+        }
+
+        // Apply changes to related instances
+        for (const id of Object.keys(combinedDiff)) {
+            const relatedInstance = relatedInstances.getInstanceWithId(id);
+            relatedInstance.applyChanges(combinedDiff[id]);
+        }
+
+        return relatedInstances.saveWithoutRelatedUpdates();
     }
 
     // Crud Control Methods
