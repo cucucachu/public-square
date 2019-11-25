@@ -57,6 +57,8 @@ const objectsEqual = TestingFunctions.objectsEqual;
     var SubClassOfNonSingularRelationshipClass = TestClassModels.SubClassOfNonSingularRelationshipClass;
     var TwoWayRelationshipClass1 = TestClassModels.TwoWayRelationshipClass1;
     var TwoWayRelationshipClass2 = TestClassModels.TwoWayRelationshipClass2;
+    var ClassOwnsOtherClass = TestClassModels.ClassOwnsOtherClass;
+    var ClassOwnedByOtherClass = TestClassModels.ClassOwnedByOtherClass;
 
     // Update Controlled Classes
     var UpdateControlledSuperClass = TestClassModels.UpdateControlledSuperClass;
@@ -4568,6 +4570,71 @@ describe('Instance Tests', () => {
     
                 if (instanceFound === null) 
                     throw new Error('.delete() threw an error, but the instance was deleted anyway.')
+            });
+
+        });
+
+        describe('Deleting Instances with Owns Relationships', () => {
+
+            it('Deleting an instance which owns a single other instance through a singular relationship.', async () => {
+                const instance = new Instance(ClassOwnsOtherClass);
+                const relatedInstance = new Instance(ClassOwnedByOtherClass);
+
+                instance.singular = relatedInstance;
+
+                await instance.save();
+                await relatedInstance.save();
+
+                await instance.delete();
+                const foundInstance = await ClassOwnedByOtherClass.findById(relatedInstance._id);
+
+                if (foundInstance !== null) {
+                    throw new Error('Related owned instance was not deleted.')
+                }
+
+            });
+
+            it('Deleting an instance which owns a single other instance through a non-singular relationship.', async () => {
+                const instance = new Instance(ClassOwnsOtherClass);
+                const relatedInstance = new Instance(ClassOwnedByOtherClass);
+
+                instance.nonSingular = new InstanceSet(ClassOwnedByOtherClass, [relatedInstance]);
+
+                await instance.save();
+                await relatedInstance.save();
+
+                await instance.delete();
+                const foundInstance = await ClassOwnedByOtherClass.findById(relatedInstance._id);
+
+                if (foundInstance !== null) {
+                    throw new Error('Related owned instance was not deleted.')
+                }
+
+            });
+
+            it('Deleting an instance which owns a multiple other instances through a non-singular relationship.', async () => {
+                const instance = new Instance(ClassOwnsOtherClass);
+                const relatedInstance1 = new Instance(ClassOwnedByOtherClass);
+                const relatedInstance2 = new Instance(ClassOwnedByOtherClass);
+
+                instance.nonSingular = new InstanceSet(ClassOwnedByOtherClass, [relatedInstance1, relatedInstance2]);
+
+                await instance.save();
+                await relatedInstance1.save();
+                await relatedInstance2.save();
+
+                await instance.delete();
+                const foundInstance1 = await ClassOwnedByOtherClass.findById(relatedInstance1._id);
+                const foundInstance2 = await ClassOwnedByOtherClass.findById(relatedInstance2._id);
+
+                if (foundInstance1 !== null) {
+                    throw new Error('Related owned instance was not deleted.')
+                }
+
+                if (foundInstance2 !== null) {
+                    throw new Error('Related owned instance was not deleted.')
+                }
+
             });
 
         });

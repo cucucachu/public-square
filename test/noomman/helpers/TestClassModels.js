@@ -741,6 +741,40 @@ const ClassModel = require('../../../src/noomman/ClassModel');
             ],
         });
 
+        var ClassOwnsOtherClass = new ClassModel({
+            className: 'ClassOwnsOtherClass',
+            attributes: [
+                {
+                    name: 'name',
+                    type: String,
+                },
+            ],
+            relationships: [
+                {
+                    name: 'singular',
+                    toClass: 'ClassOwnedByOtherClass',
+                    singular: true,
+                    owns: true,
+                },
+                {
+                    name: 'nonSingular',
+                    toClass: 'ClassOwnedByOtherClass',
+                    singular: false,
+                    owns: true,
+                },
+            ],
+        });
+
+        var ClassOwnedByOtherClass = new ClassModel({
+            className: 'ClassOwnedByOtherClass',
+            attributes: [
+                {
+                    name: 'name',
+                    type: String,
+                },
+            ]
+        });
+
     }
 
     // CreateControlled Classes
@@ -1379,6 +1413,8 @@ module.exports = {
     SubClassOfNonSingularRelationshipClass,
     TwoWayRelationshipClass1,
     TwoWayRelationshipClass2,
+    ClassOwnsOtherClass,
+    ClassOwnedByOtherClass,
     CreateControlledSuperClass, 
     CreateControlledSubClassOfCreateControlledSuperClass,
     CreateControlledDiscriminatedSuperClass,

@@ -459,11 +459,36 @@ class Instance extends Diffable {
 
         await this.classModel.deleteControlCheckInstance(this, ...deleteControlMethodParameters)
 
+        await this.deleteOwnedInstances();
+
         await this.classModel.delete(this);
 
         this.currentState = null;
 
         return true;
+    }
+
+    async deleteOwnedInstances(...deleteControlMethodParameters) {
+        const ownsRelationships = this.classModel.relationships.filter(r => r.owns === true);
+        const deletePromises = [];
+
+        for (const relationship of ownsRelationships) {
+            const related = await this[relationship.name];
+
+            if (relationship.singular && related === null) {
+                continue;
+            }
+            if (!relationship.singular && related.isEmpty()) {
+                continue;
+            }
+            deletePromises.push(related.delete(...deleteControlMethodParameters));
+        }
+
+        if (deletePromises.length === 0) {
+            return [];
+        }
+
+        return Promise.all(deletePromises);
     }
 
     isInstanceOf(classModel) {
