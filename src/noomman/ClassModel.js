@@ -527,14 +527,18 @@ class ClassModel {
         const relationshipsNeedingUpdate = new SuperSet();
         const reducedRelatedDiffs = [];
 
+        if (!(instanceSet instanceof InstanceSet) || instanceSet.isEmpty()) {
+            return;
+        }
+
         for (const instance of instanceSet) {
-            const diff = instance.relatedDiffs();
-            const relationshipsToUpdateForInstance = Object.keys(diff);
+            const relatedDiff = instance.relatedDiffs();
+            const relationshipsToUpdateForInstance = Object.keys(relatedDiff);
             for (const relationshipName of relationshipsToUpdateForInstance) {
                 relationshipsNeedingUpdate.add(relationshipName);
             }
             if (relationshipsToUpdateForInstance.length) {
-                reducedRelatedDiffs.push(instance.reducedRelatedDiff(diff));
+                reducedRelatedDiffs.push(relatedDiff);
             }
         }
 
@@ -543,7 +547,7 @@ class ClassModel {
         }
 
         const combinedDiff = Diffable.combineMultipleReducedDiffs(reducedRelatedDiffs);
-        const relatedInstances = new InstanceSet(NoommanClassModel);
+        const allRelatedInstances = new InstanceSet(NoommanClassModel);
 
         // Retrieve all related instances and collect them in an instanceSet.
         for (const relationshipName of relationshipsNeedingUpdate) {
@@ -551,20 +555,20 @@ class ClassModel {
             const previousRelatedInstances = await instanceSet.walk(relationshipName, true);
 
             if (relatedInstances instanceof InstanceSet && !relatedInstances.isEmpty()) {
-                relatedInstances.addInstances(relatedInstances);
+                allRelatedInstances.addInstances(relatedInstances);
             }
             if (previousRelatedInstances instanceof InstanceSet && !previousRelatedInstances.isEmpty()) {
-                relatedInstances.addInstances(previousRelatedInstances);
+                allRelatedInstances.addInstances(previousRelatedInstances);
             }
         }
 
         // Apply changes to related instances
         for (const id of Object.keys(combinedDiff)) {
-            const relatedInstance = relatedInstances.getInstanceWithId(id);
+            const relatedInstance = allRelatedInstances.getInstanceWithId(id);
             relatedInstance.applyChanges(combinedDiff[id]);
         }
 
-        return relatedInstances.saveWithoutRelatedUpdates();
+        return allRelatedInstances.saveWithoutRelatedUpdates();
     }
 
     // Crud Control Methods

@@ -1856,6 +1856,8 @@ describe('Diffable Tests', () => {
                     const diff1 = instance1.relatedDiffs();
                     const diff2 = instance2.relatedDiffs();
                     const combinedDiff = Diffable.combineMultipleReducedDiffs([diff1, diff2]);
+
+                    console.log(JSON.stringify(combinedDiff, null, 2));
     
                     if (!combinedDiff[relatedInstance.id][operator][mirrorRelationship][spreadOperator][0].equals(instance1._id)) {
                         throw new Error('Combined diff is not correct.');
