@@ -4462,6 +4462,12 @@ describe('Instance Tests', () => {
             await AllFieldsRequiredClass.clear();
             await DeleteControlledSuperClass.clear();
             await DeleteControlledClassDeleteControlledByParameters.clear();
+            await TwoWayRelationshipClass1.clear();
+            await TwoWayRelationshipClass2.clear();
+            await AuditableSuperClass.clear();
+            await ClassOwnsOtherClass.clear();
+            await ClassOwnedByOtherClass.clear();
+            await database.clearCollection('audit_' + AuditableSuperClass.collection, {});
         });
 
         it('Instance can be deleted as expected.', async () => {
@@ -4570,6 +4576,216 @@ describe('Instance Tests', () => {
     
                 if (instanceFound === null) 
                     throw new Error('.delete() threw an error, but the instance was deleted anyway.')
+            });
+
+        });
+
+        describe('Deleting an Instance of an Auditable Class', () => {
+
+            it('Deleting an instance of an auditable class adds an audit entry before deleting.', async () => {
+                const instance = new Instance(AuditableSuperClass);
+
+                instance.name = 'deletedAuditableInstance';
+
+                await instance.save();
+                await instance.delete();
+
+                const auditEntries = await database.find('audit_' + AuditableSuperClass.collection, {
+                    forInstance: instance._id,
+                });
+
+                if (auditEntries.length != 1) {
+                    throw new Error('Audit entries not created.');
+                }
+
+                if (auditEntries[0].changes.set.name !== 'deletedAuditableInstance') {
+                    throw new Error('Audit entry does not have correct changes.');
+                }
+            });
+
+        });
+
+        describe('Deleting Instances with Two Way Relationships', () => {
+
+            it('Deleting Instance with a one to one relationships unsets relationship on related instance.', async () => {
+                const relationship = 'oneToOne';
+                const mirrorRelationship = 'oneToOne';
+                const instance = new Instance(TwoWayRelationshipClass1);
+                const relatedInstance = new Instance(TwoWayRelationshipClass2);
+
+                instance[relationship] = relatedInstance;
+
+                await instance.save();
+
+                await instance.delete();
+
+                const foundInstance = await TwoWayRelationshipClass2.findById(relatedInstance._id);
+
+                if (foundInstance.currentState[mirrorRelationship] !== null) {
+                    throw new Error('Instance was not removed from related instance relationship.');
+                }
+                if (await foundInstance[mirrorRelationship] !== null) {
+                    throw new Error('Instance was not removed from related instance relationship.');
+                }
+            });
+
+            it('Deleting Instance with a one to many relationships unsets relationship on related instances.', async () => {
+                const relationship = 'oneToMany';
+                const mirrorRelationship = 'manyToOne';
+                const instance = new Instance(TwoWayRelationshipClass1);
+                const relatedInstance1 = new Instance(TwoWayRelationshipClass2);
+                const relatedInstance2 = new Instance(TwoWayRelationshipClass2);
+                const relatedInstanceSet = new InstanceSet(TwoWayRelationshipClass2, [relatedInstance1, relatedInstance2]);
+
+                instance[relationship] = relatedInstanceSet;
+
+                await instance.save();
+
+                await instance.delete();
+
+                const foundInstance1 = await TwoWayRelationshipClass2.findById(relatedInstance1._id);
+                const foundInstance2 = await TwoWayRelationshipClass2.findById(relatedInstance2._id);
+                
+                if (foundInstance1.currentState[mirrorRelationship] !== null) {
+                    throw new Error('Instance was not removed from related instance relationship.');
+                }
+                
+                if (foundInstance2.currentState[mirrorRelationship] !== null) {
+                    throw new Error('Instance was not removed from related instance relationship.');
+                }
+
+                if (await foundInstance1[mirrorRelationship] !== null) {
+                    throw new Error('Instance was not removed from related instance relationship.');
+                }
+
+                if (await foundInstance2[mirrorRelationship] !== null) {
+                    throw new Error('Instance was not removed from related instance relationship.');
+                }
+            });
+
+            it('Deleting Instance with a many to one relationship removes instance from relationship on related instance.', async () => {
+                const relationship = 'manyToOne';
+                const mirrorRelationship = 'oneToMany';
+                const instance1 = new Instance(TwoWayRelationshipClass1);
+                const instance2 = new Instance(TwoWayRelationshipClass1);
+                const relatedInstance = new Instance(TwoWayRelationshipClass2);
+
+                instance1[relationship] = relatedInstance;
+                instance2[relationship] = relatedInstance;
+
+                await instance1.save();
+                await instance2.save();
+
+                await instance1.delete();
+
+                const foundInstance = await TwoWayRelationshipClass2.findById(relatedInstance._id);
+
+                if (foundInstance.currentState[mirrorRelationship].length !== 1) {
+                    throw new Error('Instance was not removed from related instance relationship.');
+                }
+
+                const relatedInstanceRelationshipValue = await foundInstance[mirrorRelationship];
+
+                if (relatedInstanceRelationshipValue.hasInstanceWithId(instance1._id)) {
+                    throw new Error('Instance was not removed from related instance relationship.');
+                }
+
+                if (!relatedInstanceRelationshipValue.hasInstanceWithId(instance2._id)) {
+                    throw new Error('Mirror relationship not set properly.');
+                }
+            });
+
+            it('Deleting Instance with a many to many relationship removes instance from relationship on related instances.', async () => {
+                const relationship = 'manyToMany';
+                const mirrorRelationship = 'manyToMany';
+                const instance1 = new Instance(TwoWayRelationshipClass1);
+                const instance2 = new Instance(TwoWayRelationshipClass1);
+                const relatedInstance1 = new Instance(TwoWayRelationshipClass2);
+                const relatedInstance2 = new Instance(TwoWayRelationshipClass2);
+                const relatedInstanceSet = new InstanceSet(TwoWayRelationshipClass2, [relatedInstance1, relatedInstance2]);
+
+                instance1[relationship] = relatedInstanceSet;
+                instance2[relationship] = relatedInstanceSet;
+
+                await instance1.save();
+                await instance2.save();
+
+                await instance1.delete();
+
+                const foundInstance1 = await TwoWayRelationshipClass2.findById(relatedInstance1._id);
+                const foundInstance2 = await TwoWayRelationshipClass2.findById(relatedInstance2._id);
+
+                if (foundInstance1.currentState[mirrorRelationship].length !== 1) {
+                    throw new Error('Instance was not removed from related instance relationship.');
+                }
+
+                if (foundInstance2.currentState[mirrorRelationship].length !== 1) {
+                    throw new Error('Instance was not removed from related instance relationship.');
+                }
+
+                const relatedInstanceRelationshipValue1 = await foundInstance1[mirrorRelationship];
+                const relatedInstanceRelationshipValue2 = await foundInstance2[mirrorRelationship];
+
+                if (relatedInstanceRelationshipValue1.hasInstanceWithId(instance1._id)) {
+                    throw new Error('Instance was not removed from related instance relationship.');
+                }
+
+                if (!relatedInstanceRelationshipValue1.hasInstanceWithId(instance2._id)) {
+                    throw new Error('Mirror relationship not set properly.');
+                }
+
+                if (relatedInstanceRelationshipValue2.hasInstanceWithId(instance1._id)) {
+                    throw new Error('Instance was not removed from related instance relationship.');
+                }
+
+                if (!relatedInstanceRelationshipValue2.hasInstanceWithId(instance2._id)) {
+                    throw new Error('Mirror relationship not set properly.');
+                }
+            });
+
+            it('Deleting instance with multiple relationships to the same related instance updates relationships properly', async () => {
+                const instance1 = new Instance(TwoWayRelationshipClass1);
+                const instance2 = new Instance(TwoWayRelationshipClass1);
+                const relatedInstance1 = new Instance(TwoWayRelationshipClass2);
+                const relatedInstance2 = new Instance(TwoWayRelationshipClass2);
+                const relatedInstanceSet = new InstanceSet(TwoWayRelationshipClass2, [relatedInstance1, relatedInstance2]);
+
+                instance1['oneToOne'] = relatedInstance1;
+                instance1['manyToMany'] = relatedInstanceSet;
+                instance2['manyToMany'] = relatedInstanceSet;
+
+                await instance1.save();
+                await instance2.save();
+
+                await instance1.delete();
+
+                const foundInstance1 = await TwoWayRelationshipClass2.findById(relatedInstance1._id);
+                const foundInstance2 = await TwoWayRelationshipClass2.findById(relatedInstance2._id);
+
+                const oneToOneMirror = await foundInstance1['oneToOne'];
+                const manyToManyMirror1 = await foundInstance1['manyToMany'];
+                const manyToManyMirror2 = await foundInstance2['manyToMany'];
+
+                if (await oneToOneMirror !== null) {
+                    throw new Error('Instance was not removed from related instance relationship.');
+                }
+
+                if (manyToManyMirror1.hasInstanceWithId(instance1._id)) {
+                    throw new Error('Instance not removed from mirror relationship.');
+                }
+
+                if (!manyToManyMirror1.hasInstanceWithId(instance2._id)) {
+                    throw new Error('Reverse relationship is missing an instance.');
+                }
+
+                if (manyToManyMirror2.hasInstanceWithId(instance1._id)) {
+                    throw new Error('Instance not removed from mirror relationship.');
+                }
+
+                if (!manyToManyMirror2.hasInstanceWithId(instance2._id)) {
+                    throw new Error('Reverse relationship is missing an instance.');
+                }
+
             });
 
         });

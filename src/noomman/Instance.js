@@ -461,6 +461,23 @@ class Instance extends Diffable {
 
         await this.deleteOwnedInstances();
 
+        for (const relationship of this.classModel.relationships.filter(r => r.mirrorRelationship !== undefined)) {
+            this[relationship.name] = null;
+        }
+
+        await this.classModel.updateRelatedInstancesForInstance(this);
+
+        if (this.classModel.auditable) {
+            for (const attribute of this.classModel.attributes) {
+                delete this[attribute.name];
+            }
+            for (const relationship of this.classModel.relationships) {
+                delete this[relationship.name];
+            }
+
+            await this.saveAuditEntry();
+        }
+
         await this.classModel.delete(this);
 
         this.currentState = null;
