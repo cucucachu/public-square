@@ -84,7 +84,6 @@ const objectsEqual = TestingFunctions.objectsEqual;
     var RelatedValidationClass = TestClassModels.RelatedValidationClass;
 
     // Auditable Classes
-    
     var AuditableSuperClass = TestClassModels.AuditableSuperClass;
     var AuditableSubClass = TestClassModels.AuditableSubClass
     var AuditableDiscriminatedSubClass = TestClassModels.AuditableDiscriminatedSubClass;

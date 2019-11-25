@@ -376,29 +376,13 @@ class InstanceSet extends SuperSet {
 
         await this.classModel.deleteControlCheck(this, ...deleteControlMethodParameters);
 
-        await this.deleteRecursive();
-    }
+        const deletePromises = [];
 
-    async deleteRecursive() {
-        let deletePromises = [];
-        const instancesOfThisCollection = this.filterForInstancesInThisCollection();
-
-        if (!instancesOfThisCollection.isEmpty()) {
-            deletePromises.push(this.classModel.deleteMany(instancesOfThisCollection));
-            instancesOfThisCollection.forEach(instance => instance.currentState = null);
+        for (const instance of this) {
+            deletePromises.push(instance.delete(...deleteControlMethodParameters));
         }
 
-        if (this.classModel.isSuperClass()) {
-            const subClassesWithDifferenctCollections = this.classModel.subClasses.filter(subClass => !subClass.useSuperClassCollection);
-
-            for (const subClass of subClassesWithDifferenctCollections) {
-                const instancesOfSubClass = this.filterForClassModel(subClass);
-                deletePromises.push(instancesOfSubClass.deleteRecursive());
-            }
-        }
-        
-        if (deletePromises.length)
-            return Promise.all(deletePromises);
+        return Promise.all(deletePromises);
     }
 
     getInstanceIds() {
