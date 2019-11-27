@@ -98,10 +98,11 @@ describe('Class Model Tests', () => {
 
     before(async () => {
         await database.connect();
+        ClassModel.finalize();
     });
 
-    after(() => {
-        database.close();
+    after(async () => {
+        await database.close();
     });
 
     describe('Class Model Constructor', () => {
@@ -343,6 +344,28 @@ describe('Class Model Tests', () => {
                     })
                 });
             });
+
+            it('A sub class inherits indices from its parents.', () => {
+                const IndexSuperClass = new ClassModel({
+                    className: 'IndexSuperClass',
+                    indices: ['name'],
+                    attributes: [
+                        {
+                            name: 'name',
+                            type: String,
+                        }
+                    ]
+                });
+
+                const IndexSubClass = new ClassModel({
+                    className: 'IndexSubClass',
+                    superClasses: [IndexSuperClass],
+                });
+
+                if (!IndexSubClass.indices.includes('name')) {
+                    throw new Error('Sub class did not inherit the index.');
+                }
+            });
     
             it.skip('An abstract, non-discriminated class should have no collection.', () => {
                 if (AbstractSuperClass.collection);
@@ -414,6 +437,182 @@ describe('Class Model Tests', () => {
 
         });
         
+    });
+
+    describe('Class Model Finalize Methods', () => {
+
+        describe('ClassModel.index()', () => {
+
+            it('If you define a classModel with an index and then call index(), the index is added to the collection.', async () => {
+                const IndexClass1 = new ClassModel({
+                    className: 'IndexClass1',
+                    indices: ['name'],
+                    attributes: [
+                        {
+                            name: 'name',
+                            type: String,
+                        }
+                    ]
+                });
+
+                const result = await IndexClass1.index();
+                if (result[0] !== 'name_1') {
+                    throw new Error('Index was not applied.');
+                }
+
+            });
+
+            it('If a classModel is a discriminated sub-class, then it will have a __t index after index() is called.', async () => {
+                const IndexDiscriminatedClass = new ClassModel({
+                    className: 'IndexDiscriminatedClass',
+                    superClasses: [DiscriminatedSuperClass],
+                    useSuperClassCollection: true,
+                });
+
+                const result = await IndexDiscriminatedClass.index();
+
+                if (result[0] !== '__t_1') {
+                    throw new Error('Index was not applied.');
+                }
+            });
+
+        });
+
+        describe('ClassModel.validateRelationships()', () => {
+
+            it('Two way relationship is to a class that doesn\'t exist.', () => {
+                const expectedErrorMessage = 'Relationship BadTwoWayClass1.badRelationship is a reference to a Class Model that does not exist: NonExistantClass.'
+                const BadTwoWayClass1 = new ClassModel({
+                    className: 'BadTwoWayClass1',
+                    relationships: [
+                        {
+                            name: 'badRelationship',
+                            toClass: 'NonExistantClass',
+                            mirrorRelationship: 'badRelationship',
+                            singular: true,
+                        }
+                    ]
+                });
+
+                testForError('ClassModel.validateRelationships()', expectedErrorMessage, () => {
+                    BadTwoWayClass1.validateRelationships();
+                });
+            });
+
+            it('Two way relationship is missing mirror relationship on other ClassModel.', () => {
+                const expectedErrorMessage = 'Invalid two-way relationship. BadTwoWayClass2.badRelationship is missing mirror relationship BadTwoWayClass3.badRelationship.';
+                const BadTwoWayClass2 = new ClassModel({
+                    className: 'BadTwoWayClass2',
+                    relationships: [
+                        {
+                            name: 'badRelationship',
+                            toClass: 'BadTwoWayClass3',
+                            mirrorRelationship: 'badRelationship',
+                            singular: true,
+                        }
+                    ]
+                });
+                const BadTwoWayClass3 = new ClassModel({
+                    className: 'BadTwoWayClass3',
+                });
+
+                testForError('ClassModel.validateRelationships()', expectedErrorMessage, () => {
+                    BadTwoWayClass2.validateRelationships();
+                });
+            });
+
+            it('Two way relationship is has mirror relationship with incorrect toCLass.', () => {
+                const expectedErrorMessage = 'Invalid two-way relationship. BadTwoWayClass4.badRelationship. Mirror relationship BadTwoWayClass5.badRelationship has incorrect toClass: BadTwoWayClassZ.';
+                const BadTwoWayClass4 = new ClassModel({
+                    className: 'BadTwoWayClass4',
+                    relationships: [
+                        {
+                            name: 'badRelationship',
+                            toClass: 'BadTwoWayClass5',
+                            mirrorRelationship: 'badRelationship',
+                            singular: true,
+                        }
+                    ]
+                });
+                const BadTwoWayClass5 = new ClassModel({
+                    className: 'BadTwoWayClass5',
+                    relationships: [
+                        {
+                            name: 'badRelationship',
+                            toClass: 'BadTwoWayClassZ',
+                            mirrorRelationship: 'badRelationship',
+                            singular: true,
+                        }
+                    ]
+                });
+
+                testForError('ClassModel.validateRelationships()', expectedErrorMessage, () => {
+                    BadTwoWayClass4.validateRelationships();
+                });
+
+            });
+
+            it('Two way relationship is has mirror relationship that references the wrong mirror relationship.', () => {
+                const expectedErrorMessage = 'Invalid two-way relationship. BadTwoWayClass6.badRelationship. Mirror relationship BadTwoWayClass7.badRelationship has incorrect mirrorRelationship: badRelationships.';
+                const BadTwoWayClass6 = new ClassModel({
+                    className: 'BadTwoWayClass6',
+                    relationships: [
+                        {
+                            name: 'badRelationship',
+                            toClass: 'BadTwoWayClass7',
+                            mirrorRelationship: 'badRelationship',
+                            singular: true,
+                        }
+                    ]
+                });
+                const BadTwoWayClass7 = new ClassModel({
+                    className: 'BadTwoWayClass7',
+                    relationships: [
+                        {
+                            name: 'badRelationship',
+                            toClass: 'BadTwoWayClass6',
+                            mirrorRelationship: 'badRelationships',
+                            singular: true,
+                        }
+                    ]
+                });
+
+                testForError('ClassModel.validateRelationships()', expectedErrorMessage, () => {
+                    BadTwoWayClass6.validateRelationships();
+                });
+
+            });
+
+            it('Happy Path.', () => {
+                const GoodTwoWayClass1 = new ClassModel({
+                    className: 'GoodTwoWayClass1',
+                    relationships: [
+                        {
+                            name: 'goodRelationship',
+                            toClass: 'GoodTwoWayClass2',
+                            mirrorRelationship: 'goodRelationship',
+                            singular: true,
+                        }
+                    ]
+                });
+                const GoodTwoWayClass2 = new ClassModel({
+                    className: 'GoodTwoWayClass2',
+                    relationships: [
+                        {
+                            name: 'goodRelationship',
+                            toClass: 'GoodTwoWayClass1',
+                            mirrorRelationship: 'goodRelationship',
+                            singular: true,
+                        }
+                    ]
+                });
+
+                GoodTwoWayClass1.validateRelationships();
+                GoodTwoWayClass2.validateRelationships();
+            });
+
+        });
+
     });
 
     describe('Class Model Save and Update Methods', () => {

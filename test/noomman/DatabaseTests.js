@@ -11,7 +11,7 @@ describe('Database Tests', () => {
 
         it('database.connect() connects to the database without error.', async () => {
             await database.connect();
-            database.close();
+            await database.close();
         });
 
         it('Error thrown when attempting to connect to db twice without calling close.', async () => {
@@ -22,7 +22,20 @@ describe('Database Tests', () => {
                 await database.connect();
             });
 
-            database.close();
+            await database.close();
+        });
+
+    });
+
+    describe('index()', () => {
+
+        it('Adding an index to a collection.', async () => {
+            await database.connect();
+            const result = await database.index('testCollection', '__t');
+            await database.close();
+            if (result !== '__t_1') {
+                throw new Error('Collection was not indexed correctly.');
+            }
         });
 
     });
@@ -43,7 +56,7 @@ describe('Database Tests', () => {
 
         after(async () => {
             await database.clearCollection(collection);
-            database.close();
+            await database.close();
         });
 
         describe('database.insertOne()', () => {

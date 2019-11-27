@@ -23,6 +23,7 @@ class ClassModel {
         this.abstract = schema.abstract;
         this.useSuperClassCollection = schema.useSuperClassCollection;
         this.superClasses = schema.superClasses ? schema.superClasses : [];
+        this.indices = schema.indices ? schema.indices : [];
         this.collection = schema.useSuperClassCollection ? schema.superClasses[0].collection : schema.className.toLowerCase();
         this.auditable = schema.auditable === true;
 
@@ -86,6 +87,7 @@ class ClassModel {
             for (const superClass of schema.superClasses) {
                 this.attributes = this.attributes.concat(superClass.attributes);
                 this.relationships = this.relationships.concat(superClass.relationships);
+                this.indices = this.indices.concat(superClass.indices);
                 this.createControlMethods = this.createControlMethods.concat(superClass.createControlMethods);
                 this.readControlMethods = this.readControlMethods.concat(superClass.readControlMethods);
                 this.updateControlMethods = this.updateControlMethods.concat(superClass.updateControlMethods);
@@ -125,6 +127,9 @@ class ClassModel {
             throw new Error('If auditable is provided, it must be a boolean.');
         }
 
+        if (schema.indices !== undefined && !Array.isArray(schema.indices)) {
+            throw new Error('If indices are procived, indices must be an array.');
+        }
 
         if (schema.useSuperClassCollection && schema.abstract)
             throw new Error('If useSuperClassCollection is true, abstract cannot be true.');
@@ -159,6 +164,69 @@ class ClassModel {
         if (schema.validations && !Array.isArray(schema.validations))
             throw new Error('If validations are provided, it must be an Array.');
 
+    }
+
+    async index() {
+        const indicesApplied = [];
+
+        for (const index of this.indices) {
+            indicesApplied.push(await db.index(this.collection, index));
+        }
+
+        if (this.useSuperClassCollection) {
+            indicesApplied.push(await db.index(this.collection, '__t'));
+        }
+
+        return indicesApplied;
+    }
+
+    validateRelationships() {
+        for (const relationship of this.relationships) {
+            const toClass = AllClassModels[relationship.toClass];
+            if (toClass === undefined) {
+                throw new Error(
+                    'Relationship ' + this.className + '.' + relationship.name + 
+                    ' is a reference to a Class Model that does not exist: ' + relationship.toClass + '.'
+                );
+            }
+
+            if (relationship.mirrorRelationship !== undefined) {
+                let mirrorRelationship = toClass.relationships.filter(r => r.name === relationship.mirrorRelationship);
+                if (mirrorRelationship.length === 0) {
+                    throw new Error('Invalid two-way relationship. ' + 
+                        this.className + '.' + relationship.name + ' is missing mirror relationship ' + 
+                        toClass.className + '.' + relationship.mirrorRelationship + '.'
+                    );
+                }
+                mirrorRelationship = mirrorRelationship[0];
+
+                if (mirrorRelationship.toClass !== this.className) {
+                    throw new Error('Invalid two-way relationship. ' + 
+                        this.className + '.' + relationship.name + '. Mirror relationship ' + 
+                        toClass.className + '.' + relationship.mirrorRelationship + 
+                        ' has incorrect toClass: ' + mirrorRelationship.toClass + '.'
+                    );
+                }
+
+                if (mirrorRelationship.mirrorRelationship !== relationship.name) {
+                    throw new Error('Invalid two-way relationship. ' + 
+                        this.className + '.' + relationship.name + '. Mirror relationship ' + 
+                        toClass.className + '.' + relationship.mirrorRelationship + 
+                        ' has incorrect mirrorRelationship: ' + mirrorRelationship.mirrorRelationship + '.'
+                    );
+                }
+            }
+        }
+    }
+
+    // Runs validations and indexing, run after ALL class models have been created.
+    static async finalize() {
+        for (const classModel of AllClassModels) { 
+            classModel.validateRelationships();
+        }
+        for (const classModel of AllClassModels) {
+            await classModel.index();
+        }
     }
 
     // to String

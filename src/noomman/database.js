@@ -8,8 +8,7 @@ let client = null;
 let db = null;
 
 async function connect() {
-
-	if (db || client) {
+	if (connected()) {
 		throw new Error('Attempt to connect to database twice.');
 	}
 	
@@ -20,12 +19,22 @@ async function connect() {
 	return db;
 }
 
-function close() {
-	client.close();
+async function close() {
+	await client.close();
 	db = null;
 	client = null;
 }
 
+function connected() {
+	return db !== null && client !== null;
+}
+
+async function index(collection, field) {
+	if (!connected()) {
+		throw new Error('database.index() called before database.connect()')
+	}
+	return db.collection(collection).createIndex(field);
+}
 
 function ObjectId(hexString) {
 	if (hexString) {
@@ -116,6 +125,8 @@ function collection(name) {
 module.exports = {
 	connect,
 	close,
+	connected,
+	index,
 	ObjectId,
 	ObjectIdFromHexString,
 	collection,

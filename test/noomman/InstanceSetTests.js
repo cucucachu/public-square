@@ -81,8 +81,8 @@ describe('InstanceSet Tests', () => {
         await database.connect();
     });
 
-    after(() => {
-        database.close();
+    after(async () => {
+        await database.close();
     });
 
 

@@ -115,8 +115,8 @@ describe('Instance Tests', () => {
         await database.connect();
     });
 
-    after(() => {
-        database.close();
+    after(async () => {
+        await database.close();
     });
 
     describe('Instance.constructor Tests', () => {

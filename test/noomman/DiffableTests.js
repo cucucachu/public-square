@@ -38,8 +38,8 @@ describe('Diffable Tests', () => {
         await database.connect();
     });
 
-    after(() => {
-        database.close();
+    after(async () => {
+        await database.close();
     });
 
     describe('Constructor Tests', () => {
