@@ -374,7 +374,7 @@ describe('Class Model Tests', () => {
 
         describe('Static and Non Static Methods', () => {
 
-            describe.only('Static and Non-Static Method Validations', () => {
+            describe('Static and Non-Static Method Validations', () => {
 
                 it('staticMethods must be an object if provided.', () => {
                     expectedErrorMessage = 'If staticMethods is provided, it must be an object.';
@@ -463,7 +463,7 @@ describe('Class Model Tests', () => {
                             },
                         },
                     }); 
-                })
+                });
                 
             });
 
@@ -2538,7 +2538,6 @@ describe('Class Model Tests', () => {
                     const filter = {
                         name: 'instanceOfSubClassOfSuperClass'
                     }
-
 
                     const instanceFound = await classToCallFindOneOn.findOne(filter);
 
@@ -5079,6 +5078,90 @@ describe('Class Model Tests', () => {
                     throw new Error('Class does not have the correct number of validations.');
             });
 
+        });
+
+    });
+
+    describe('Class Model Custom Static Methods', () => {
+
+        it('Can call a basic custom static method.', () => {
+            const StaticMethodClass1 = new ClassModel({
+                className: 'StaticMethodClass1',
+                staticMethods: {
+                    sayHello: () => 'hello',
+                }
+            });
+
+            if (StaticMethodClass1.sayHello() !== 'hello') {
+                throw new Error('Static method did not work correctly');
+            }
+        });
+
+        it('Can call a custom static method which uses this.', () => {
+            const StaticMethodClass2 = new ClassModel({
+                className: 'StaticMethodClass2',
+                staticMethods: {
+                    sayClassName: function() {
+                        return this.className;
+                    },
+                }
+            });
+
+            if (StaticMethodClass2.sayClassName() !== 'StaticMethodClass2') {
+                throw new Error('Static method did not work correctly');
+            }
+        });
+
+        it('Can call a custom static method which uses this to call another function.', () => {
+            const StaticMethodClass3 = new ClassModel({
+                className: 'StaticMethodClass3',
+                staticMethods: {
+                    sayClassName: function() {
+                        return this.toString();
+                    },
+                }
+            });
+
+            if (StaticMethodClass3.sayClassName() !== 'StaticMethodClass3\n') {
+                throw new Error('Static method did not work correctly');
+            }
+        });
+
+        it('Can call a custom static method which uses this to call another function with parameters.', () => {
+            const StaticMethodClass4 = new ClassModel({
+                className: 'StaticMethodClass4',
+                staticMethods: {
+                    isInstanceOfThisClassCustom: function(instance) {
+                        return this.isInstanceOfThisClass(instance);
+                    },
+                }
+            });
+
+            const instance = new Instance(StaticMethodClass4);
+
+            if (StaticMethodClass4.isInstanceOfThisClassCustom(instance) !== true) {
+                throw new Error('Static method did not work correctly');
+            }
+        });
+
+        it('Can call a custom static method which uses this to call another async function with parameters.', async () => {
+            const StaticMethodClass5 = new ClassModel({
+                className: 'StaticMethodClass4',
+                staticMethods: {
+                    findByIdCustom: async function(id) {
+                        return this.findById(id);
+                    },
+                }
+            });
+
+            const instance = new Instance(StaticMethodClass5);
+            await instance.save();
+            const foundInstance = await StaticMethodClass5.findByIdCustom(instance._id);
+            
+
+            if (!instance.equals(foundInstance)) {
+                throw new Error('Static method did not work correctly');
+            }
         });
 
     });

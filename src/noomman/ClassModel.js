@@ -102,6 +102,14 @@ class ClassModel {
             }
         }
 
+        for (const staticMethod of Object.keys(this.staticMethods)) {
+            this[staticMethod] = this.staticMethods[staticMethod];
+        }
+
+        for (const nonStaticMethod of Object.keys(this.nonStaticMethods)) {
+            this[nonStaticMethod] = this.nonStaticMethods[nonStaticMethod];
+        }
+
         AllClassModels[this.className] = this;
     }
 
