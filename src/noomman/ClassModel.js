@@ -147,6 +147,10 @@ class ClassModel {
                 if (typeof(schema.staticMethods[staticMethod]) !== 'function') {
                     throw new Error('Each property of staticMethods object must be a function.');
                 }
+
+                if (Object.getOwnPropertyNames(ClassModel.prototype).includes(staticMethod)) {
+                    throw new Error('Attempt to add a static method with the same name as a built in Noomman method: ' + staticMethod + '.');
+                }
             }
         }
 
@@ -155,9 +159,13 @@ class ClassModel {
                 throw new Error('If nonStaticMethods is provided, it must be an object.');
             }
 
-            for (const nonStatic in schema.nonStaticMethods) {
-                if (typeof(schema.nonStaticMethods[nonStatic]) !== 'function') {
+            for (const nonStaticMethod in schema.nonStaticMethods) {
+                if (typeof(schema.nonStaticMethods[nonStaticMethod]) !== 'function') {
                     throw new Error('Each property of nonStaticMethods object must be a function.');
+                }
+
+                if (Object.getOwnPropertyNames(Instance.prototype).includes(nonStaticMethod)) {
+                    throw new Error('Attempt to add a non-static method with the same name as a built in Noomman method: ' + nonStaticMethod + '.');
                 }
             }
         }

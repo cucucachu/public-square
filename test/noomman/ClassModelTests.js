@@ -399,6 +399,18 @@ describe('Class Model Tests', () => {
                     });
                 });
 
+                it('Attempting to overwrite a built in Noomman static method.', () => {
+                    expectedErrorMessage = 'Attempt to add a static method with the same name as a built in Noomman method: find.';
+                    testForError('ClassModel.constructor()', expectedErrorMessage, () => {
+                       new ClassModel({
+                           className: 'BadStaticsClass3',
+                           staticMethods: {
+                               find: () => true,
+                           },
+                       }); 
+                    });
+                });
+
                 it('nonStaticMethods must be an object if provided.', () => {
                     expectedErrorMessage = 'If nonStaticMethods is provided, it must be an object.';
                     testForError('ClassModel.constructor()', expectedErrorMessage, () => {
@@ -421,6 +433,18 @@ describe('Class Model Tests', () => {
                        }); 
                     });
 
+                });
+
+                it('Attempting to overwrite a built in Instance non-static method.', () => {
+                    expectedErrorMessage = 'Attempt to add a non-static method with the same name as a built in Noomman method: save.';
+                    testForError('ClassModel.constructor()', expectedErrorMessage, () => {
+                       new ClassModel({
+                           className: 'BadNonStaticsClass3',
+                           nonStaticMethods: {
+                               save: () => true,
+                           },
+                       }); 
+                    });
                 });
 
                 it('Happy Path', () => {
