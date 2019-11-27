@@ -26,6 +26,8 @@ class ClassModel {
         this.indices = schema.indices ? schema.indices : [];
         this.collection = schema.useSuperClassCollection ? schema.superClasses[0].collection : schema.className.toLowerCase();
         this.auditable = schema.auditable === true;
+        this.staticMethods = schema.staticMethods ? schema.staticMethods : {};
+        this.nonStaticMethods = schema.nonStaticMethods ? schema.nonStaticMethods : {};
 
         if (this.superClasses.length === 0 && this.className !== 'NoommanClassModel') {
             this.superClasses.push(NoommanClassModel);
@@ -94,7 +96,8 @@ class ClassModel {
                 this.deleteControlMethods = this.deleteControlMethods.concat(superClass.deleteControlMethods);
                 this.validations = this.validations.concat(superClass.validations);
                 this.auditable = superClass.auditable ? true : this.auditable;
-
+                this.inheritStaticMethods(superClass);
+                this.inheritNonStaticMethods(superClass);
                 superClass.subClasses.push(this);
             }
         }
@@ -128,11 +131,36 @@ class ClassModel {
         }
 
         if (schema.indices !== undefined && !Array.isArray(schema.indices)) {
-            throw new Error('If indices are procived, indices must be an array.');
+            throw new Error('If indices are provided, indices must be an array.');
         }
 
-        if (schema.useSuperClassCollection && schema.abstract)
-            throw new Error('If useSuperClassCollection is true, abstract cannot be true.');
+        if (schema.useSuperClassCollection && schema.abstract) {
+            throw new Error('If useSuperClassCollection is true, abstract cannot be true.')
+        }
+
+        if (schema.staticMethods !== undefined) {
+            if (typeof(schema.staticMethods) !== 'object') {
+                throw new Error('If staticMethods is provided, it must be an object.');
+            }
+
+            for (const staticMethod in schema.staticMethods) {
+                if (typeof(schema.staticMethods[staticMethod]) !== 'function') {
+                    throw new Error('Each property of staticMethods object must be a function.');
+                }
+            }
+        }
+
+        if (schema.nonStaticMethods !== undefined) {
+            if (typeof(nonStaticMethods) !== 'object') {
+                throw new Error('If nonStaticMethods is provided, it must be an object.');
+            }
+
+            for (const nonStatic in schema.nonStaticMethods) {
+                if (typeof(schema.nonStaticMethods[nonStatic]) !== 'function') {
+                    throw new Error('Each property of nonStaticMethods object must be a function.');
+                }
+            }
+        }
 
         if (schema.superClasses) {
             for (const superClass of schema.superClasses) {
@@ -156,7 +184,7 @@ class ClassModel {
                     throw new Error('You cannot create a non-auditable sub class of an auditable super class.');
                 }
             }
-        }
+        } 
 
         if (schema.useSuperClassCollection && schema.abstract) 
             throw new Error('If useSuperClassCollection is true, the class cannot be abstract.');
@@ -215,6 +243,22 @@ class ClassModel {
                         ' has incorrect mirrorRelationship: ' + mirrorRelationship.mirrorRelationship + '.'
                     );
                 }
+            }
+        }
+    }
+
+    inheritStaticMethods(fromClass) {
+        for (const staticMethod of Object.keys(fromClass.staticMethods)) {
+            if (!Object.keys(this.staticMethods).includes(staticMethod)) {
+                this.staticMethods[staticMethod] = fromClass.staticMethods[staticMethod];
+            }
+        }
+    }
+
+    inheritNonStaticMethods(fromClass) {
+        for (const nonStaticMethod of Object.keys(fromClass.nonStaticMethods)) {
+            if (!Object.keys(this.nonStaticMethods).includes(nonStaticMethod)) {
+                this.nonStaticMethods[nonStaticMethod] = fromClass.nonStaticMethods[nonStaticMethod];
             }
         }
     }
