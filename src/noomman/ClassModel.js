@@ -151,7 +151,7 @@ class ClassModel {
         }
 
         if (schema.nonStaticMethods !== undefined) {
-            if (typeof(nonStaticMethods) !== 'object') {
+            if (typeof(schema.nonStaticMethods) !== 'object') {
                 throw new Error('If nonStaticMethods is provided, it must be an object.');
             }
 

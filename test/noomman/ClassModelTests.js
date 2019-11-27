@@ -114,8 +114,6 @@ describe('Class Model Tests', () => {
                     new ClassModel({});
                 });
             });
-
-
         });
 
         describe('Validation Requirements', () => {
@@ -370,6 +368,83 @@ describe('Class Model Tests', () => {
             it.skip('An abstract, non-discriminated class should have no collection.', () => {
                 if (AbstractSuperClass.collection);
                     throw new Error('An abstract class should not have a collection.');
+            });
+
+        });
+
+        describe('Static and Non Static Methods', () => {
+
+            describe.only('Static and Non-Static Method Validations', () => {
+
+                it('staticMethods must be an object if provided.', () => {
+                    expectedErrorMessage = 'If staticMethods is provided, it must be an object.';
+                    testForError('ClassModel.constructor()', expectedErrorMessage, () => {
+                       new ClassModel({
+                           className: 'BadStaticsClass1',
+                           staticMethods: true,
+                       }); 
+                    });
+                });
+
+                it('All properties of staticMethods must be functions if provided.', () => {
+                    expectedErrorMessage = 'Each property of staticMethods object must be a function.';
+                    testForError('ClassModel.constructor()', expectedErrorMessage, () => {
+                       new ClassModel({
+                           className: 'BadStaticsClass2',
+                           staticMethods: {
+                               method1: () => true,
+                               method2: true,
+                           },
+                       }); 
+                    });
+                });
+
+                it('nonStaticMethods must be an object if provided.', () => {
+                    expectedErrorMessage = 'If nonStaticMethods is provided, it must be an object.';
+                    testForError('ClassModel.constructor()', expectedErrorMessage, () => {
+                       new ClassModel({
+                           className: 'BadNonStaticsClass1',
+                           nonStaticMethods: true,
+                       }); 
+                    });
+                });
+
+                it('All properties of nonStaticMethods must be functions if provided.', () => {
+                    expectedErrorMessage = 'Each property of nonStaticMethods object must be a function.';
+                    testForError('ClassModel.constructor()', expectedErrorMessage, () => {
+                       new ClassModel({
+                           className: 'BadNonStaticsClass2',
+                           nonStaticMethods: {
+                               method1: () => true,
+                               method2: true,
+                           },
+                       }); 
+                    });
+
+                });
+
+                it('Happy Path', () => {
+                    new ClassModel({
+                        className: 'GoodMethodsClass1',
+                        staticMethods: {
+                            method1: () => true,
+                            method2: async function(number) {
+                                return number;
+                            },
+                        },
+                        nonStaticMethods: {
+                            method1: () => true,
+                            method2: async function() {
+                                return this.number;
+                            },
+                        },
+                    }); 
+                })
+                
+            });
+
+            describe('Method Inheritance', () => {
+
             });
 
         });
