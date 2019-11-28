@@ -61,6 +61,7 @@ class ClassModel {
         this.readControlMethods = [];
         this.updateControlMethods = [];
         this.deleteControlMethods = [];
+        this.sensitiveControlMethods = [];
 
         if (schema.crudControls) {
             if (schema.crudControls.createControl) {
@@ -74,6 +75,9 @@ class ClassModel {
             }
             if (schema.crudControls.deleteControl) {
                 this.deleteControlMethods.push(schema.crudControls.deleteControl);
+            }
+            if (schema.crudControls.sensitiveControl) {
+                this.sensitiveControlMethods.push(schema.crudControls.sensitiveControl);
             }
         }
 
@@ -94,6 +98,7 @@ class ClassModel {
                 this.readControlMethods = this.readControlMethods.concat(superClass.readControlMethods);
                 this.updateControlMethods = this.updateControlMethods.concat(superClass.updateControlMethods);
                 this.deleteControlMethods = this.deleteControlMethods.concat(superClass.deleteControlMethods);
+                this.sensitiveControlMethods = this.sensitiveControlMethods.concat(superClass.sensitiveControlMethods);
                 this.validations = this.validations.concat(superClass.validations);
                 this.auditable = superClass.auditable ? true : this.auditable;
                 this.inheritStaticMethods(superClass);
@@ -144,6 +149,50 @@ class ClassModel {
 
         if (schema.useSuperClassCollection && schema.abstract) {
             throw new Error('If useSuperClassCollection is true, abstract cannot be true.')
+        }
+
+        if (schema.crudControls) {
+            if (schema.crudControls.readControl && typeof(schema.crudControls.readControl) !== 'function') {
+                throw new Error('If a readControl method is provided, it must be a function.');
+            }
+            if (schema.crudControls.createControl && typeof(schema.crudControls.createControl) !== 'function') {
+                throw new Error('If a createControl method is provided, it must be a function.');
+            }
+            if (schema.crudControls.updateControl && typeof(schema.crudControls.updateControl) !== 'function') {
+                throw new Error('If a updateControl method is provided, it must be a function.');
+            }
+            if (schema.crudControls.deleteControl && typeof(schema.crudControls.deleteControl) !== 'function') {
+                throw new Error('If a deleteControl method is provided, it must be a function.');
+            }
+            if (schema.crudControls.sensitiveControl && typeof(schema.crudControls.sensitiveControl) !== 'function') {
+                throw new Error('If a sensitiveControl method is provided, it must be a function.');
+            }
+        }
+
+        if (schema.attributes) {
+            let sensitiveAttributes = false;
+            for (const attribute of schema.attributes) {
+                if (attribute.sensitive === true) {
+                    sensitiveAttributes = true;
+                    break;
+                }
+            }
+
+            if (sensitiveAttributes) {
+                if (!schema.crudControls || !schema.crudControls.sensitiveControl) {
+                    throw new Error('At least one attribute is marked sensitive, but no sensitiveControl method is provided.');
+                }
+            }
+            else {
+                if (schema.crudControls && schema.crudControls.sensitiveControl) {
+                    throw new Error('A sensitiveControl method was provided, but no attributes are marked sensitive.');
+                }
+            }
+        }
+        else {
+            if (schema.crudControls && schema.crudControls.sensitiveControl) {
+                throw new Error('A sensitiveControl method was provided, but no attributes are marked sensitive.');
+            }
         }
 
         if (schema.staticMethods !== undefined) {
@@ -812,6 +861,25 @@ class ClassModel {
     async deleteControlCheckInstance(instance, ...deleteControlMethodParameters) {
         const instanceSet = new InstanceSet(instance.classModel, [instance]);
         return this.deleteControlCheck(instanceSet, ...deleteControlMethodParameters);
+    }
+
+    async sensitiveControlFilter(instanceSet, ...sensitiveControlMethodParameters) {
+        if (!(instanceSet instanceof InstanceSet))
+            throw new Error('Incorrect parameters. ' + this.className + '.sensitiveControlFilter(InstanceSet instanceSet, ...sensitiveControlMethodParameters)');
+        
+        // If InstanceSet is empty or not sensitive controlled, just return a copy of it.
+        if (!instanceSet.size || this.sensitiveControlMethods.length === 0)
+            return new InstanceSet(this, instanceSet);
+
+        const rejectedInstances = await this.evaluateCrudControlMethods(instanceSet, 'sensitiveControlMethods', ...sensitiveControlMethodParameters);
+
+        return rejectedInstances;
+    }
+
+    async sensitiveControlFilterInstance(instance, ...sensitiveControlMethodParameters) {
+        const instanceSet = new InstanceSet(this, [instance]);
+        const rejectedInstances = await this.sensitiveControlFilter(instanceSet, ...sensitiveControlMethodParameters);
+        return rejectedInstances.size > 0 ? instance : null;
     }
 
     async deleteMany(instances) {

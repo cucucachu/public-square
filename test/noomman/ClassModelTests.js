@@ -119,6 +119,98 @@ describe('Class Model Tests', () => {
             });
         });
 
+        describe('CRUD Functions Validations', () => {
+
+            it('createControl must be a function if provided.', () => {
+                const expectedErrorMessage = 'If a createControl method is provided, it must be a function.';
+                testForError('ClassModel.constructor()', expectedErrorMessage, () => {
+                    new ClassModel({
+                        className: 'BadCreateControlMethod',
+                        crudControls: {
+                            createControl: true,
+                        }
+                    });
+                });
+            });
+
+            it('readControl must be a function if provided.', () => {
+                const expectedErrorMessage = 'If a readControl method is provided, it must be a function.';
+                testForError('ClassModel.constructor()', expectedErrorMessage, () => {
+                    new ClassModel({
+                        className: 'BadReadControlMethod',
+                        crudControls: {
+                            readControl: true,
+                        }
+                    });
+                });
+            });
+
+            it('updateControl must be a function if provided.', () => {
+                const expectedErrorMessage = 'If a updateControl method is provided, it must be a function.';
+                testForError('ClassModel.constructor()', expectedErrorMessage, () => {
+                    new ClassModel({
+                        className: 'BadUpdateControlMethod',
+                        crudControls: {
+                            updateControl: true,
+                        }
+                    });
+                });
+            });
+
+            it('deleteControl must be a function if provided.', () => {
+                const expectedErrorMessage = 'If a deleteControl method is provided, it must be a function.';
+                testForError('ClassModel.constructor()', expectedErrorMessage, () => {
+                    new ClassModel({
+                        className: 'BadDeleteControlMethod',
+                        crudControls: {
+                            deleteControl: true,
+                        }
+                    });
+                });
+            });
+
+            it('sensitiveControl must be a function if provided.', () => {
+                const expectedErrorMessage = 'If a sensitiveControl method is provided, it must be a function.';
+                testForError('ClassModel.constructor()', expectedErrorMessage, () => {
+                    new ClassModel({
+                        className: 'BadSensitiveControlMethod',
+                        crudControls: {
+                            sensitiveControl: true,
+                        }
+                    });
+                });
+            });
+
+            it('If at least one attribute is marked sensitive, a sensitiveControl method must be provided.', () => {
+                const expectedErrorMessage = 'At least one attribute is marked sensitive, but no sensitiveControl method is provided.';
+                testForError('ClassModel.constructor()', expectedErrorMessage, () => {
+                    new ClassModel({
+                        className: 'NoSensitiveControlMethod',
+                        attributes: [
+                            {
+                                name: 'Social',
+                                type: String,
+                                sensitive: true,
+                            }
+                        ]
+                    });
+                });
+            });
+
+            it('If a sensitiveControl method is provided, at least one attribute must be marked sensitive.', () => {
+                const expectedErrorMessage = 'A sensitiveControl method was provided, but no attributes are marked sensitive.';
+                testForError('ClassModel.constructor()', expectedErrorMessage, () => {
+                    new ClassModel({
+                        className: 'NoSensitiveAttributes',
+                        crudControls: {
+                            sensitiveControl: () => true,
+                        }
+                    });
+                });
+            });
+
+        });
+
         describe('Validation Requirements', () => {
 
             it('If validations are provied, it must be an Array.', () => {
