@@ -385,6 +385,12 @@ class InstanceSet extends SuperSet {
         return Promise.all(deletePromises);
     }
 
+    stripSensitiveAttributes() {
+        for (const instance of this) {
+            instance.stripSensitiveAttributes();
+        }
+    }
+
     getInstanceIds() {
         return this.map(instance => instance.id);
     }

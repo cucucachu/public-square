@@ -119,7 +119,18 @@ class ClassModel {
     }
 
     constructorValidations(schema) {
-        
+        ClassModel.paramterShapeConstructorValidations(schema);
+
+        ClassModel.crudControlsConstructorValidations(schema);
+
+        ClassModel.sensitiveAttributesContructorValidations(schema);
+
+        ClassModel.customMethodsContructorValidations(schema);
+
+        ClassModel.inheritanceConstructorValidations(schema);
+    }
+
+    static paramterShapeConstructorValidations(schema) {        
         if (!schema.className)
             throw new Error('className is required.');
 
@@ -147,10 +158,11 @@ class ClassModel {
             throw new Error('If indices are provided, indices must be an array.');
         }
 
-        if (schema.useSuperClassCollection && schema.abstract) {
-            throw new Error('If useSuperClassCollection is true, abstract cannot be true.')
-        }
+        if (schema.validations && !Array.isArray(schema.validations))
+            throw new Error('If validations are provided, it must be an Array.');
+    }
 
+    static crudControlsConstructorValidations(schema) {
         if (schema.crudControls) {
             if (schema.crudControls.readControl && typeof(schema.crudControls.readControl) !== 'function') {
                 throw new Error('If a readControl method is provided, it must be a function.');
@@ -168,10 +180,24 @@ class ClassModel {
                 throw new Error('If a sensitiveControl method is provided, it must be a function.');
             }
         }
+    }
+
+    static sensitiveAttributesContructorValidations(schema) {
+        let allAttributes = [];
+
+        if (schema.superClasses) {
+            for (const superClass of schema.superClasses) {
+                allAttributes = allAttributes.concat(superClass.attributes);
+            }
+        }
 
         if (schema.attributes) {
+            allAttributes = allAttributes.concat(schema.attributes)
+        }
+
+        if (allAttributes.length) {        
             let sensitiveAttributes = false;
-            for (const attribute of schema.attributes) {
+            for (const attribute of allAttributes) {
                 if (attribute.sensitive === true) {
                     sensitiveAttributes = true;
                     break;
@@ -195,6 +221,9 @@ class ClassModel {
             }
         }
 
+    }
+
+    static customMethodsContructorValidations(schema) {
         if (schema.staticMethods !== undefined) {
             if (typeof(schema.staticMethods) !== 'object') {
                 throw new Error('If staticMethods is provided, it must be an object.');
@@ -226,6 +255,12 @@ class ClassModel {
                 }
             }
         }
+    }
+
+    static inheritanceConstructorValidations(schema) {
+        if (schema.useSuperClassCollection && schema.abstract) {
+            throw new Error('If useSuperClassCollection is true, abstract cannot be true.')
+        }
 
         if (schema.superClasses) {
             for (const superClass of schema.superClasses) {
@@ -253,10 +288,6 @@ class ClassModel {
 
         if (schema.useSuperClassCollection && schema.abstract) 
             throw new Error('If useSuperClassCollection is true, the class cannot be abstract.');
-
-        if (schema.validations && !Array.isArray(schema.validations))
-            throw new Error('If validations are provided, it must be an Array.');
-
     }
 
     async index() {
@@ -559,9 +590,13 @@ class ClassModel {
      * Rest Parameter readControlMethodParameters - Optional parameters used by this ClassModels read control method. 
      * Returns a promise, which will resolve with the instance with the given query filter if it can be found, otherwise null.
      */
-    async find(queryFilter, readControlMethodParameters) {
+    async find(queryFilter, readControlMethodParameters, sensitiveControlMethodParameters) {
         const unfiltered = await this.pureFind(queryFilter);
-        return this.readControlFilter(unfiltered, readControlMethodParameters);
+        const filtered = await this.readControlFilter(unfiltered, readControlMethodParameters);
+        const sensitiveInstances = await this.sensitiveControlFilter(filtered, sensitiveControlMethodParameters);
+        sensitiveInstances.stripSensitiveAttributes();
+
+        return filtered;
     }
 
     async pureFind(queryFilter) {
@@ -607,9 +642,23 @@ class ClassModel {
      * Rest Parameter readControlMethodParameters - Optional parameters used by this ClassModels read control method. 
      * Returns a promise, which will resolve with the instance with the given query filter if it can be found, otherwise null.
      */
-    async findOne(queryFilter, readControlMethodParameters) {
+    async findOne(queryFilter, readControlMethodParameters, sensitiveControlMethodParameters) {
         const unfiltered = await this.pureFindOne(queryFilter);
-        return unfiltered === null ? null : this.readControlFilterInstance(unfiltered, readControlMethodParameters);
+        if (unfiltered === null) {
+            return null;
+        }
+
+        const filtered = await this.readControlFilterInstance(unfiltered, readControlMethodParameters);
+        if (filtered === null) {
+            return null;
+        }
+
+        const needToStrip = await this.sensitiveControlFilterInstance(filtered, sensitiveControlMethodParameters);
+        if (needToStrip !== null) {
+            filtered.stripSensitiveAttributes();
+        }
+
+        return filtered;
     }
 
 

@@ -156,6 +156,20 @@ class Instance extends Diffable {
         return this.currentState === null;
     }
 
+    stripSensitiveAttributes() {
+        const sensitiveAttributes = this.classModel.attributes.filter(a => a.sensitive === true);
+
+        if (sensitiveAttributes.length === 0) {
+            return;
+        }
+
+        for (const attribute of sensitiveAttributes) {
+            delete this[attribute.name];
+        }
+
+        this.stripped = true;
+    }
+
     assign(object) {
         const documentProperties = this.classModel.attributes.concat(this.classModel.relationships).map(property => property.name);
         for (const key in object) {
@@ -393,9 +407,14 @@ class Instance extends Diffable {
     // Update and Delete Methods Methods
 
     async save(createControlMethodParameters, updateControlMethodParameters) {
-        if (this.deleted()) 
+        if (this.deleted()) {
             throw new Error('instance.save(): You cannot save an instance which has been deleted.');
+        }
         
+        if (this.stripped) {
+            throw new Error('instance.save(): You cannot save an instance which has been stripped of sensitive attribues.');
+        }
+
         try {
             await this.validate();
         }
@@ -436,8 +455,13 @@ class Instance extends Diffable {
     }
 
     async saveWithoutValidation() {
-        if (this.deleted()) 
+        if (this.deleted()) {
             throw new Error('instance.save(): You cannot save an instance which has been deleted.');
+        }
+
+        if (this.stripped) {
+            throw new Error('instance.save(): You cannot save an instance which has been stripped of sensitive attribues.');
+        }
 
         if (this.currentState.equals(this.previousState))
             return this;

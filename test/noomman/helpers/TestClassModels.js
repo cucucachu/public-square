@@ -1241,6 +1241,134 @@ const ClassModel = require('../../../src/noomman/ClassModel');
         });
     }
 
+    // SensitiveControlled Classes
+    {
+        // A class which is sensitiveControlled by another instance. If that instance has a boolean attribute 'allowed' set to 
+        // true, then the instance of this class can be viewed. 
+        var SensitiveControlledSuperClass = new ClassModel({
+            className: 'SensitiveControlledSuperClass',
+            attributes: [
+                {
+                    name: 'name',
+                    type: String,
+                },
+                {
+                    name: 'SSN',
+                    type: String,
+                    sensitive: true,
+                },
+            ],
+            relationships: [
+                {
+                    name: 'sensitiveControlledBy',
+                    toClass: 'ClassControlsSensitiveControlledSuperClass',
+                    singular: true,
+                    required: true,
+                },
+            ],
+            crudControls: {
+                sensitiveControl: async function() {
+                    return (await this.sensitiveControlledBy).allowed;
+                },
+            }
+        });
+
+        // A class which is sensitiveControlled by it's own boolean attribute. If the boolean is set to true, and it passes the 
+        // its super class'es sensitive filter, then the instance will be returned by sensitive filter.
+        var SensitiveControlledSubClassOfSensitiveControlledSuperClass = new ClassModel({
+            className: 'SensitiveControlledSubClassOfSensitiveControlledSuperClass',
+            superClasses: [SensitiveControlledSuperClass],
+            attributes: [
+                {
+                    name: 'boolean',
+                    type: Boolean,
+                },
+            ],
+            crudControls: {
+                sensitiveControl: function() {
+                    return this.boolean;
+                },
+            },
+        });
+
+        // A class which is sensitiveControlled by it's own string attribute. If the string matches 'sensitiveControlled', and it passes all
+        // it's super classes sensitivefilters, than an instance of this class will be returned by sensitiveFilter().
+        var SensitiveControlledDiscriminatedSuperClass = new ClassModel({
+            className: 'SensitiveControlledDiscriminatedSuperClass',
+            superClasses: [SensitiveControlledSubClassOfSensitiveControlledSuperClass],
+            attributes: [
+                {
+                    name: 'string',
+                    type: String,
+                },
+            ],
+            crudControls: {
+                sensitiveControl: function() {
+                    return this.string == 'sensitiveControlled';
+                }
+            },
+        });
+
+        // A class which is sensitiveControlled by it's own number attribute. If the number is greater than 0, and it passes all
+        // it's super classes sensitivefilters, than an instance of this class will be returned by sensitiveFilter().
+        var SensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClass = new ClassModel({
+            className: 'SensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClass',
+            superClasses: [SensitiveControlledDiscriminatedSuperClass],
+            useSuperClassCollection: true,
+            attributes: [
+                {
+                    name: 'number',
+                    type: Number,
+                },
+                {
+                    name: 'DOB',
+                    type: Date,
+                    sensitive: true,
+                }
+            ],
+            crudControls: {
+                sensitiveControl: function() {
+                    return this.number > 0;
+                }
+            }
+        });
+
+        // A class which is used to secure another class. If an instance of this class has its 'allowed' attribute
+        // set to true, than instances of SensitiveControlledSuperClass related to this instance will pass the sensitiveFilter.
+        var ClassControlsSensitiveControlledSuperClass = new ClassModel({
+            className: 'ClassControlsSensitiveControlledSuperClass',
+            attributes: [
+                {
+                    name: 'allowed',
+                    type: Boolean,
+                },
+            ],
+        });
+
+        // A class which is sensitiveControlled by parameters passed into the sensitiveFilter method. If the two numbers add up to a 
+        // positive number, and the boolean is true, than the instance will pass the sensitive filter. 
+        var SensitiveControlledClassSensitiveControlledByParameters = new ClassModel({
+            className: 'SensitiveControlledClassSensitiveControlledByParameters',
+            attributes: [
+                {
+                    name: 'SSN',
+                    type: String,
+                    sensitive: true,
+                },
+                {
+                    name: 'DOB',
+                    type: Date,
+                    sensitive: true,
+                }
+            ],
+            crudControls: {
+                sensitiveControl: (parameters) => {
+                    return (parameters.numberA + parameters.numberB > 0) && parameters.boolean;
+                },
+            },
+        });
+    }
+
     // Validation Classes
     {
 
@@ -1498,6 +1626,12 @@ module.exports = {
     DeleteControlledSubClassOfDeleteControlledSuperClass,
     DeleteControlledDiscriminatedSuperClass,
     DeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClass,
+    SensitiveControlledSuperClass,
+    SensitiveControlledSubClassOfSensitiveControlledSuperClass,
+    SensitiveControlledDiscriminatedSuperClass,
+    SensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClass,
+    ClassControlsSensitiveControlledSuperClass,
+    SensitiveControlledClassSensitiveControlledByParameters,
     ClassControlsDeleteControlledSuperClass,
     DeleteControlledClassDeleteControlledByParameters,
     ValidationSuperClass,

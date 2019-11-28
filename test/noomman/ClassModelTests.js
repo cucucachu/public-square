@@ -59,8 +59,6 @@ const testForErrorAsync = TestingFunctions.testForErrorAsync;
     var ReadControlledSubClassOfReadControlledDiscriminatedSuperClass = TestClassModels.ReadControlledSubClassOfReadControlledDiscriminatedSuperClass;
     var ClassControlsReadControlledSuperClass = TestClassModels.ClassControlsReadControlledSuperClass;
     var ReadControlledClassReadControlledByParameters = TestClassModels.ReadControlledClassReadControlledByParameters;
-    var SingularRelationshipToReadControlledClassReadControlledByParameters = TestClassModels.SingularRelationshipToReadControlledClassReadControlledByParameters;
-    var NonSingularRelationshipToReadControlledClassReadControlledByParameters = TestClassModels.NonSingularRelationshipToReadControlledClassReadControlledByParameters;
 
     // UpdateControlled Classes
     var UpdateControlledSuperClass = TestClassModels.UpdateControlledSuperClass;
@@ -77,6 +75,14 @@ const testForErrorAsync = TestingFunctions.testForErrorAsync;
     var DeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClass = TestClassModels.DeleteControlledSubClassOfDeleteControlledDiscriminatedSuperClass;
     var ClassControlsDeleteControlledSuperClass = TestClassModels.ClassControlsDeleteControlledSuperClass;
     var DeleteControlledClassDeleteControlledByParameters = TestClassModels.DeleteControlledClassDeleteControlledByParameters;
+
+    // SensitiveControlled Classes
+    var SensitiveControlledSuperClass = TestClassModels.SensitiveControlledSuperClass;
+    var SensitiveControlledSubClassOfSensitiveControlledSuperClass = TestClassModels.SensitiveControlledSubClassOfSensitiveControlledSuperClass;
+    var SensitiveControlledDiscriminatedSuperClass = TestClassModels.SensitiveControlledDiscriminatedSuperClass;
+    var SensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClass = TestClassModels.SensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClass;
+    var ClassControlsSensitiveControlledSuperClass = TestClassModels.ClassControlsSensitiveControlledSuperClass;
+    var SensitiveControlledClassSensitiveControlledByParameters = TestClassModels.SensitiveControlledClassSensitiveControlledByParameters;
 
     // Validation Classes
     
@@ -3574,7 +3580,7 @@ describe('Class Model Tests', () => {
         describe('ClassModel.readControlFilter()', () => {
     
             // Set up readControlled Instances
-            // For each class, create on instance which will pass all access control filters, and one each that will fail due to one of the access control methods
+            // For each class, create on instance which will pass all read control filters, and one each that will fail due to one of the read control methods
             {
                 // ClassControlsReadControlledSuperClass Instances
                 var instanceOfClassControlsReadControlledSuperClassAllowed = new Instance(ClassControlsReadControlledSuperClass);
@@ -3748,11 +3754,11 @@ describe('Class Model Tests', () => {
             
             });
     
-            describe('Test filtering out instances that don\'t pass access control check.', () => {
+            describe('Test filtering out instances that don\'t pass read control check.', () => {
     
                 describe('ReadControlledSuperClass.readControlFilter()', () => {
     
-                    it('Access Control Filter called on Class with only direct instances of Class.', async () => {
+                    it('Read Control Filter called on Class with only direct instances of Class.', async () => {
                         const classModel = ReadControlledSuperClass;
                         const instanceSet = new InstanceSet(classModel, [
                             instanceOfReadControlledSuperClassPasses,
@@ -3768,7 +3774,7 @@ describe('Class Model Tests', () => {
                             throw new Error('classModel.readControlFilter() did not return the expected InstanceSet.');
                     });
     
-                    it('Access Control Filter called on Class with instances of class and sub class.', async () => {
+                    it('Read Control Filter called on Class with instances of class and sub class.', async () => {
                         const classModel = ReadControlledSuperClass;
                         const instanceSet = new InstanceSet(classModel, [
                             instanceOfReadControlledSuperClassPasses,
@@ -3788,7 +3794,7 @@ describe('Class Model Tests', () => {
                             throw new Error('classModel.readControlFilter() did not return the expected InstanceSet.');
                     });
     
-                    it('Access Control Filter called on Class with instances of class and 2 layers of sub classes.', async () => {
+                    it('Read Control Filter called on Class with instances of class and 2 layers of sub classes.', async () => {
                         const classModel = ReadControlledSuperClass;
                         const instanceSet = new InstanceSet(classModel, [
                             instanceOfReadControlledSuperClassPasses,
@@ -3813,7 +3819,7 @@ describe('Class Model Tests', () => {
                             throw new Error('classModel.readControlFilter() did not return the expected InstanceSet.');
                     });
     
-                    it('Access Control Filter called on Class with instances of 3 layers of sub classes.', async () => {
+                    it('Read Control Filter called on Class with instances of 3 layers of sub classes.', async () => {
                         const classModel = ReadControlledSuperClass;
                         const instanceSet = new InstanceSet(classModel, [
                             instanceOfReadControlledSuperClassPasses,
@@ -3848,7 +3854,7 @@ describe('Class Model Tests', () => {
     
                 describe('ReadControlledSubClassOfReadControlledSuperClass.readControlFilter()', () => {
     
-                    it('Access Control Filter called on Class with only direct instances of Class.', async () => {
+                    it('Read Control Filter called on Class with only direct instances of Class.', async () => {
                         const classModel = ReadControlledSubClassOfReadControlledSuperClass;
                         const instanceSet = new InstanceSet(classModel, [
                             instanceOfReadControlledSubClassOfReadControlledSuperClassPasses,
@@ -3865,7 +3871,7 @@ describe('Class Model Tests', () => {
                             throw new Error('classModel.readControlFilter() did not return the expected InstanceSet.');
                     });
     
-                    it('Access Control Filter called on Class with instances of class and 1 layers of sub classes.', async () => {
+                    it('Read Control Filter called on Class with instances of class and 1 layers of sub classes.', async () => {
                         const classModel = ReadControlledSubClassOfReadControlledSuperClass;
                         const instanceSet = new InstanceSet(classModel, [
                             instanceOfReadControlledSubClassOfReadControlledSuperClassPasses,
@@ -3887,7 +3893,7 @@ describe('Class Model Tests', () => {
                             throw new Error('classModel.readControlFilter() did not return the expected InstanceSet.');
                     });
     
-                    it('Access Control Filter called on Class with instances of 2 layers of sub classes.', async () => {
+                    it('Read Control Filter called on Class with instances of 2 layers of sub classes.', async () => {
                         const classModel = ReadControlledSubClassOfReadControlledSuperClass;
                         const instanceSet = new InstanceSet(classModel, [
                             instanceOfReadControlledSubClassOfReadControlledSuperClassPasses,
@@ -3919,7 +3925,7 @@ describe('Class Model Tests', () => {
     
                 describe('ReadControlledDiscriminatedSuperClass.readControlFilter()', () => {
     
-                    it('Access Control Filter called on Class with only direct instances of Class.', async () => {
+                    it('Read Control Filter called on Class with only direct instances of Class.', async () => {
                         const classModel = ReadControlledDiscriminatedSuperClass;
                         const instanceSet = new InstanceSet(classModel, [
                             instanceOfReadControlledDiscriminatedSuperClassPasses,
@@ -3937,7 +3943,7 @@ describe('Class Model Tests', () => {
                             throw new Error('classModel.readControlFilter() did not return the expected InstanceSet.');
                     });
     
-                    it('Access Control Filter called on Class with instances of 1 layers of sub classes.', async () => {
+                    it('Read Control Filter called on Class with instances of 1 layers of sub classes.', async () => {
                         const classModel = ReadControlledDiscriminatedSuperClass;
                         const instanceSet = new InstanceSet(classModel, [
                             instanceOfReadControlledDiscriminatedSuperClassPasses,
@@ -3965,7 +3971,7 @@ describe('Class Model Tests', () => {
     
                 describe('ReadControlledSubClassOfReadControlledDiscriminatedSuperClass.readControlFilter()', () => {
     
-                    it('Access Control Filter called on Class with only direct instances of Class.', async () => {
+                    it('Read Control Filter called on Class with only direct instances of Class.', async () => {
                         const classModel = ReadControlledSubClassOfReadControlledDiscriminatedSuperClass;
                         const instanceSet = new InstanceSet(classModel, [
                             instanceOfReadControlledSubClassOfReadControlledDiscriminatedSuperClassPasses,
@@ -3988,7 +3994,7 @@ describe('Class Model Tests', () => {
     
                 describe('ReadControlledClassReadControlledByParameters.readControlFilter()', () => {
     
-                    it('Instance passes access control check', async () => {
+                    it('Instance passes read control check', async () => {
                         const classModel = ReadControlledClassReadControlledByParameters;
                         const instanceSet = new InstanceSet(classModel, [
                             instanceOfReadControlledClassReadControlledByParameters,
@@ -4008,7 +4014,7 @@ describe('Class Model Tests', () => {
                             throw new Error('classModel.readControlFilter() did not return the expected InstanceSet.');
                     });
     
-                    it('Instance fails access control check because of Numbers.', async () => {
+                    it('Instance fails read control check because of Numbers.', async () => {
                         const classModel = ReadControlledClassReadControlledByParameters;
                         const instanceSet = new InstanceSet(classModel, [
                             instanceOfReadControlledClassReadControlledByParameters,
@@ -4026,7 +4032,7 @@ describe('Class Model Tests', () => {
                             throw new Error('classModel.readControlFilter() did not return the expected InstanceSet.');
                     });
     
-                    it('Instance fails access control check because of Boolean.', async () => {
+                    it('Instance fails read control check because of Boolean.', async () => {
                         const classModel = ReadControlledClassReadControlledByParameters;
                         const instanceSet = new InstanceSet(classModel, [
                             instanceOfReadControlledClassReadControlledByParameters,
@@ -4048,11 +4054,11 @@ describe('Class Model Tests', () => {
     
             });
     
-            describe('Test find methods for access filtering.', () => {
+            describe('Test find methods for read filtering.', () => {
     
-                describe('Test findById() with access filtering', () => {
+                describe('Test findById() with read filtering', () => {
     
-                    it('Call findById() on an instance of an access controlled class. Instance passes filter.', async () => {
+                    it('Call findById() on an instance of an read controlled class. Instance passes filter.', async () => {
                         const classToCallFindByIdOn = ReadControlledSuperClass;
                         const instanceToFind = instanceOfReadControlledSuperClassPasses;
                         const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
@@ -4068,7 +4074,7 @@ describe('Class Model Tests', () => {
                             );
                     });
     
-                    it('Call findById() on an instance of an access controlled class, from super class. Instance passes filter.', async () => {
+                    it('Call findById() on an instance of an read controlled class, from super class. Instance passes filter.', async () => {
                         const classToCallFindByIdOn = ReadControlledSuperClass;
                         const instanceToFind = instanceOfReadControlledSubClassOfReadControlledSuperClassPasses;
                         const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
@@ -4085,7 +4091,7 @@ describe('Class Model Tests', () => {
     
                     });
     
-                    it('Call findById() on an instance of an access controlled class. Instance does not pass filter.', async () => {
+                    it('Call findById() on an instance of an read controlled class. Instance does not pass filter.', async () => {
                         const classToCallFindByIdOn = ReadControlledSuperClass;
                         const instanceToFind = instanceOfReadControlledSuperClassFailsRelationship;
                         const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
@@ -4094,7 +4100,7 @@ describe('Class Model Tests', () => {
                             throw new Error('findById() returned an instance.');
                     });
     
-                    it('Call findById() on an instance of an access controlled class, from super class. Instance does not pass filter based on super access control method.', async () => {
+                    it('Call findById() on an instance of an read controlled class, from super class. Instance does not pass filter based on super read control method.', async () => {
                         const classToCallFindByIdOn = ReadControlledSuperClass;
                         const instanceToFind = instanceOfReadControlledSubClassOfReadControlledSuperClassFailsRelationship;
                         const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
@@ -4104,7 +4110,7 @@ describe('Class Model Tests', () => {
     
                     });
     
-                    it('Call findById() on an instance of an access controlled class, from super class. Instance does not pass filter based on it\'s own access control method.', async () => {
+                    it('Call findById() on an instance of an read controlled class, from super class. Instance does not pass filter based on it\'s own read control method.', async () => {
                         const classToCallFindByIdOn = ReadControlledSuperClass;
                         const instanceToFind = instanceOfReadControlledSubClassOfReadControlledSuperClassFailsBoolean;
                         const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
@@ -4116,9 +4122,9 @@ describe('Class Model Tests', () => {
     
                 });
     
-                describe('Test findOne() with access filtering', () => {
+                describe('Test findOne() with read filtering', () => {
     
-                    it('Call findOne() on an instance of an access controlled class. instance passes filter.', async () => {
+                    it('Call findOne() on an instance of an read controlled class. instance passes filter.', async () => {
                         const classToCallFindByIdOn = ReadControlledSuperClass;
                         const instanceToFind = instanceOfReadControlledSuperClassPasses;
     
@@ -4139,7 +4145,7 @@ describe('Class Model Tests', () => {
                             );
                     });
     
-                    it('Call findOne() on an instance of an access controlled class, from super class. Instance passes filter.', async () => {
+                    it('Call findOne() on an instance of an read controlled class, from super class. Instance passes filter.', async () => {
                         const classToCallFindByIdOn = ReadControlledSuperClass;
                         const instanceToFind = instanceOfReadControlledSubClassOfReadControlledSuperClassPasses;
     
@@ -4160,7 +4166,7 @@ describe('Class Model Tests', () => {
                             );
                     });
     
-                    it('Call findOne() on an instance of an access controlled class. Instance does not pass filter.', async () => {
+                    it('Call findOne() on an instance of an read controlled class. Instance does not pass filter.', async () => {
                         const classToCallFindByIdOn = ReadControlledSuperClass;
     
                         const filter = {
@@ -4174,7 +4180,7 @@ describe('Class Model Tests', () => {
     
                     });
     
-                    it('Call findOne() on an instance of an access controlled class, from super class. Instance does not pass filter based on super access control method.', async () => {
+                    it('Call findOne() on an instance of an read controlled class, from super class. Instance does not pass filter based on super read control method.', async () => {
                         const classToCallFindByIdOn = ReadControlledSuperClass;
     
                         const filter = {
@@ -4188,7 +4194,7 @@ describe('Class Model Tests', () => {
     
                     });
     
-                    it('Call findOne() on an instance of an access controlled class, from super class. Instance does not pass filter based on it\'s own access control method.', async () => {
+                    it('Call findOne() on an instance of an read controlled class, from super class. Instance does not pass filter based on it\'s own read control method.', async () => {
                         const classToCallFindByIdOn = ReadControlledSuperClass;
     
                         const filter = {
@@ -4204,9 +4210,9 @@ describe('Class Model Tests', () => {
     
                 });
     
-                describe('Test find() with access filtering', () => {
+                describe('Test find() with read filtering', () => {
     
-                    it('Call find() on access controlled super class with a passing and not passing instance of each sub class.', async () => {
+                    it('Call find() on read controlled super class with a passing and not passing instance of each sub class.', async () => {
                         const instanceNames = [
                             'instanceOfReadControlledSuperClassPasses',
                             'instanceOfReadControlledSuperClassFailsRelationship',
@@ -5201,6 +5207,812 @@ describe('Class Model Tests', () => {
                         await testForErrorAsync('ClassModel.deleteControlCheck', expectedErrorMessage, async () => {
                             return  DeleteControlledClassDeleteControlledByParameters.deleteControlCheck(instanceSet, parameters);
                         });
+                    });
+    
+                });
+    
+            });
+    
+        });
+    
+        describe('ClassModel.sensitiveControlFilter()', () => {
+    
+            // Set up sensitiveControlled Instances
+            // For each class, create on instance which will pass all sensitive control filters, and one each that will fail due to one of the sensitive control methods
+            {
+                // ClassControlsSensitiveControlledSuperClass Instances
+                var instanceOfClassControlsSensitiveControlledSuperClassAllowed = new Instance(ClassControlsSensitiveControlledSuperClass);
+                instanceOfClassControlsSensitiveControlledSuperClassAllowed.assign({
+                    allowed: true,
+                });
+                
+                var instanceOfClassControlsSensitiveControlledSuperClassNotAllowed = new Instance(ClassControlsSensitiveControlledSuperClass);
+                instanceOfClassControlsSensitiveControlledSuperClassNotAllowed.assign({
+                    allowed: false,
+                });
+    
+                // SensitiveControlledSuperClass Instances
+                var instanceOfSensitiveControlledSuperClassPasses = new Instance(SensitiveControlledSuperClass);
+                instanceOfSensitiveControlledSuperClassPasses.assign({
+                    name: 'instanceOfSensitiveControlledSuperClassPasses',
+                    SSN: '123456789',
+                    sensitiveControlledBy: instanceOfClassControlsSensitiveControlledSuperClassAllowed,
+                });
+    
+                var instanceOfSensitiveControlledSuperClassFailsRelationship = new Instance(SensitiveControlledSuperClass);
+                instanceOfSensitiveControlledSuperClassFailsRelationship.assign({
+                    name: 'instanceOfSensitiveControlledSuperClassFailsRelationship',
+                    SSN: '123456789',
+                    sensitiveControlledBy: instanceOfClassControlsSensitiveControlledSuperClassNotAllowed,
+                });
+    
+                // SensitiveControlledSubClassOfSensitiveControlledSuperClass Instances
+                var instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassPasses = new Instance(SensitiveControlledSubClassOfSensitiveControlledSuperClass);
+                instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassPasses.assign({
+                    name: 'instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassPasses',
+                    SSN: '123456789',
+                    sensitiveControlledBy: instanceOfClassControlsSensitiveControlledSuperClassAllowed,
+                    boolean: true,
+                });
+    
+                var instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsRelationship = new Instance(SensitiveControlledSubClassOfSensitiveControlledSuperClass);
+                instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsRelationship.assign({
+                    name: 'instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsRelationship',
+                    SSN: '123456789',
+                    sensitiveControlledBy: instanceOfClassControlsSensitiveControlledSuperClassNotAllowed,
+                    boolean: true,
+                });
+    
+                var instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsBoolean = new Instance(SensitiveControlledSubClassOfSensitiveControlledSuperClass);
+                instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsBoolean.assign({
+                    name: 'instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsBoolean',
+                    SSN: '123456789',
+                    sensitiveControlledBy: instanceOfClassControlsSensitiveControlledSuperClassAllowed,
+                    boolean: false,
+                });
+    
+                // SensitiveControlledDiscriminatedSuperClass Instances
+                var instanceOfSensitiveControlledDiscriminatedSuperClassPasses = new Instance(SensitiveControlledDiscriminatedSuperClass);
+                instanceOfSensitiveControlledDiscriminatedSuperClassPasses.assign({
+                    name: 'instanceOfSensitiveControlledDiscriminatedSuperClassPasses',
+                    SSN: '123456789',
+                    sensitiveControlledBy: instanceOfClassControlsSensitiveControlledSuperClassAllowed,
+                    boolean: true,
+                    string: 'sensitiveControlled',
+                });
+    
+                var instanceOfSensitiveControlledDiscriminatedSuperClassFailsRelationship = new Instance(SensitiveControlledDiscriminatedSuperClass);
+                instanceOfSensitiveControlledDiscriminatedSuperClassFailsRelationship.assign({
+                    name: 'instanceOfSensitiveControlledDiscriminatedSuperClassFailsRelationship',
+                    SSN: '123456789',
+                    sensitiveControlledBy: instanceOfClassControlsSensitiveControlledSuperClassNotAllowed,
+                    boolean: true,
+                    string: 'sensitiveControlled',
+                });
+    
+                var instanceOfSensitiveControlledDiscriminatedSuperClassFailsString = new Instance(SensitiveControlledDiscriminatedSuperClass);
+                instanceOfSensitiveControlledDiscriminatedSuperClassFailsString.assign({
+                    name: 'instanceOfSensitiveControlledDiscriminatedSuperClassFailsString',
+                    SSN: '123456789',
+                    sensitiveControlledBy: instanceOfClassControlsSensitiveControlledSuperClassAllowed,
+                    boolean: true,
+                    string: 'not sensitiveControlled',
+                });
+    
+                var instanceOfSensitiveControlledDiscriminatedSuperClassFailsBoolean = new Instance(SensitiveControlledDiscriminatedSuperClass);
+                instanceOfSensitiveControlledDiscriminatedSuperClassFailsBoolean.assign({
+                    name: 'instanceOfSensitiveControlledDiscriminatedSuperClassFailsBoolean',
+                    SSN: '123456789',
+                    sensitiveControlledBy: instanceOfClassControlsSensitiveControlledSuperClassAllowed,
+                    boolean: false,
+                    string: 'sensitiveControlled',
+                });
+    
+                // SensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClass Instances
+                var instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassPasses = new Instance(SensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClass);
+                instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassPasses.assign({
+                    name: 'instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassPasses',
+                    SSN: '123456789',
+                    DOB: new Date('2000-01-01'),
+                    sensitiveControlledBy: instanceOfClassControlsSensitiveControlledSuperClassAllowed,
+                    boolean: true,
+                    string: 'sensitiveControlled',
+                    number: 1,
+                });
+    
+                var instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsRelationship = new Instance(SensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClass);
+                instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsRelationship.assign({
+                    name: 'instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsRelationship',
+                    SSN: '123456789',
+                    DOB: new Date('2000-01-01'),
+                    sensitiveControlledBy: instanceOfClassControlsSensitiveControlledSuperClassNotAllowed,
+                    boolean: true,
+                    string: 'sensitiveControlled',
+                    number: 1,
+                });
+    
+                var instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsBoolean = new Instance(SensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClass);
+                instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsBoolean.assign({
+                    name: 'instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsBoolean',
+                    SSN: '123456789',
+                    DOB: new Date('2000-01-01'),
+                    sensitiveControlledBy: instanceOfClassControlsSensitiveControlledSuperClassAllowed,
+                    boolean: false,
+                    string: 'sensitiveControlled',
+                    number: 1,
+                });
+    
+                var instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsString = new Instance(SensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClass);
+                instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsString.assign({
+                    name: 'instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsString',
+                    SSN: '123456789',
+                    DOB: new Date('2000-01-01'),
+                    sensitiveControlledBy: instanceOfClassControlsSensitiveControlledSuperClassAllowed,
+                    boolean: true,
+                    string: 'not sensitiveControlled',
+                    number: 1,
+                });
+    
+                var instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsNumber = new Instance(SensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClass);
+                instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsNumber.assign({
+                    name: 'instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsNumber',
+                    SSN: '123456789',
+                    DOB: new Date('2000-01-01'),
+                    sensitiveControlledBy: instanceOfClassControlsSensitiveControlledSuperClassAllowed,
+                    boolean: true,
+                    string: 'sensitiveControlled',
+                    number: -1,
+                });
+    
+                // SensitiveControlledClassSensitiveControlledByParameters Instances
+                var instanceOfSensitiveControlledClassSensitiveControlledByParameters = new Instance(SensitiveControlledClassSensitiveControlledByParameters);
+                instanceOfSensitiveControlledClassSensitiveControlledByParameters.assign({
+                    SSN: '123456789',
+                    DOB: new Date('2000-01-01'),
+                });
+    
+            }
+    
+            // Save all SecurityFilter Test Instances
+            before(async () => {
+                await Promise.all([
+                    instanceOfClassControlsSensitiveControlledSuperClassAllowed.save(),
+                    instanceOfClassControlsSensitiveControlledSuperClassNotAllowed.save(),
+                    instanceOfSensitiveControlledSuperClassPasses.save(),
+                    instanceOfSensitiveControlledSuperClassFailsRelationship.save(),
+                    instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassPasses.save(),
+                    instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsRelationship.save(),
+                    instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsBoolean.save(),
+                    instanceOfSensitiveControlledDiscriminatedSuperClassPasses.save(),
+                    instanceOfSensitiveControlledDiscriminatedSuperClassFailsRelationship.save(),
+                    instanceOfSensitiveControlledDiscriminatedSuperClassFailsString.save(),
+                    instanceOfSensitiveControlledDiscriminatedSuperClassFailsBoolean.save(),
+                    instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassPasses.save(),
+                    instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsRelationship.save(),
+                    instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsBoolean.save(),
+                    instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsString.save(),
+                    instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsNumber.save(),
+                ]);
+            });
+    
+            after(async () => {
+                await ClassControlsSensitiveControlledSuperClass.clear();
+                await SensitiveControlledSuperClass.clear();
+                await SensitiveControlledSubClassOfSensitiveControlledSuperClass.clear();
+                await SensitiveControlledDiscriminatedSuperClass.clear();
+                await SensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClass.clear();
+                await SensitiveControlledClassSensitiveControlledByParameters.clear();
+            });
+    
+            describe('Tests for invalid arguments.', () => {
+    
+                it('First argument must be an InstanceSet.', async () => {
+                    let expectedErrorMessage = 'Incorrect parameters. ' + SensitiveControlledSuperClass.className + '.sensitiveControlFilter(InstanceSet instanceSet, sensitiveControlMethodParameters)';
+                    await testForErrorAsync('ClassModel.sensitiveControlFilter()', expectedErrorMessage, async () => {
+                        return SensitiveControlledSuperClass.sensitiveControlFilter();
+                    });
+                });
+    
+                it('First argument must be an InstanceSet.', async () => {
+                    let expectedErrorMessage = 'Incorrect parameters. ' + SensitiveControlledSuperClass.className + '.sensitiveControlFilter(InstanceSet instanceSet, sensitiveControlMethodParameters)';
+                    await testForErrorAsync('ClassModel.sensitiveControlFilter()', expectedErrorMessage, async () => {
+                        return SensitiveControlledSuperClass.sensitiveControlFilter({ some: 'object' });
+                    });
+                });
+    
+            });
+    
+            describe('Sensitive Control Methods Are Inherited', () => {
+                
+                it('A class with no supers has only it\'s own sensitive control method.', () => {
+                    if (SensitiveControlledSuperClass.sensitiveControlMethods.length === 0)
+                        throw new Error('Class is missing it\'s own sensitive control method.');
+    
+                    if (SensitiveControlledSuperClass.sensitiveControlMethods.length > 1)
+                        throw new Error('Class has more than one sensitive control method.');
+                });
+    
+                it('A sub class has both it\'s own sensitive control method, and the super class\' sensitive control method.', () => {
+                    if (SensitiveControlledSubClassOfSensitiveControlledSuperClass.sensitiveControlMethods.length < 2)
+                        throw new Error('Class is missing a sensitive control method.');
+                    
+                    if (SensitiveControlledSubClassOfSensitiveControlledSuperClass.sensitiveControlMethods.length != 2)
+                        throw new Error('Class is has the wrong number of sensitive control methods.');
+                });
+    
+                it('A discriminated sub class has all the sensitive control methods it should.', () => {
+                    if (SensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClass.sensitiveControlMethods.length != 4)
+                        throw new Error('Class is has the wrong number of sensitive control methods.');
+                });
+            
+            });
+    
+            describe('Test instances that fail sensitive control check are returned.', () => {
+    
+                describe('SensitiveControlledSuperClass.sensitiveControlFilter()', () => {
+    
+                    it('Sensitive Control Check called on Class with only direct instances of Class.', async () => {
+                        const classModel = SensitiveControlledSuperClass;
+                        const instanceSet = new InstanceSet(classModel, [
+                            instanceOfSensitiveControlledSuperClassPasses,
+                            instanceOfSensitiveControlledSuperClassFailsRelationship
+                        ]);
+                        const expectedInstanceSet = new InstanceSet(classModel, [
+                            instanceOfSensitiveControlledSuperClassFailsRelationship
+                        ]);
+    
+                        const filteredInstanceSet = await classModel.sensitiveControlFilter(instanceSet);
+                        
+                        if (!expectedInstanceSet.equals(filteredInstanceSet))
+                            throw new Error('classModel.sensitiveControlFilter() did not return the expected InstanceSet.');
+                    });
+    
+                    it('Sensitive Control Check called on Class with instances of class and sub class.', async () => {
+                        const classModel = SensitiveControlledSuperClass;
+                        const instanceSet = new InstanceSet(classModel, [
+                            instanceOfSensitiveControlledSuperClassPasses,
+                            instanceOfSensitiveControlledSuperClassFailsRelationship,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassPasses,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsRelationship
+                        ]);
+                        const expectedInstanceSet = new InstanceSet(classModel, [
+                            instanceOfSensitiveControlledSuperClassFailsRelationship,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsRelationship,
+                        ]);
+    
+                        const filteredInstanceSet = await classModel.sensitiveControlFilter(instanceSet);
+                        
+                        if (!expectedInstanceSet.equals(filteredInstanceSet))
+                            throw new Error('classModel.sensitiveControlFilter() did not return the expected InstanceSet.');
+                    });
+    
+                    it('Sensitive Control Check called on Class with instances of class and 2 layers of sub classes.', async () => {
+                        const classModel = SensitiveControlledSuperClass;
+                        const instanceSet = new InstanceSet(classModel, [
+                            instanceOfSensitiveControlledSuperClassPasses,
+                            instanceOfSensitiveControlledSuperClassFailsRelationship,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassPasses,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsRelationship,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassPasses,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsString,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsRelationship
+                        ]);
+                        const expectedInstanceSet = new InstanceSet(classModel, [
+                            instanceOfSensitiveControlledSuperClassFailsRelationship,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsRelationship,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsString,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsRelationship,
+                        ]);
+    
+                        const filteredInstanceSet = await classModel.sensitiveControlFilter(instanceSet);
+                        
+                        if (!expectedInstanceSet.equals(filteredInstanceSet))
+                            throw new Error('classModel.sensitiveControlFilter() did not return the expected InstanceSet.');
+                    });
+    
+                    it('Sensitive Control Check called on Class with instances of 3 layers of sub classes.', async () => {
+                        const classModel = SensitiveControlledSuperClass;
+                        const instanceSet = new InstanceSet(classModel, [
+                            instanceOfSensitiveControlledSuperClassPasses,
+                            instanceOfSensitiveControlledSuperClassFailsRelationship,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassPasses,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsRelationship,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassPasses,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsString,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsRelationship,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassPasses,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsRelationship,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsString,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsNumber
+                        ]);
+                        const expectedInstanceSet = new InstanceSet(classModel, [
+                            instanceOfSensitiveControlledSuperClassFailsRelationship,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsRelationship,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsString,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsRelationship,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsRelationship,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsString,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsNumber
+                        ]);
+                        const filteredInstanceSet = await classModel.sensitiveControlFilter(instanceSet);
+    
+                        
+                        if (!expectedInstanceSet.equals(filteredInstanceSet))
+                            throw new Error('classModel.sensitiveControlFilter() did not return the expected InstanceSet.');
+                    });
+    
+                });
+    
+                describe('SensitiveControlledSubClassOfSensitiveControlledSuperClass.sensitiveControlFilter()', () => {
+    
+                    it('Sensitive Control Check called on Class with only direct instances of Class.', async () => {
+                        const classModel = SensitiveControlledSubClassOfSensitiveControlledSuperClass;
+                        const instanceSet = new InstanceSet(classModel, [
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassPasses,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsRelationship
+                        ]);
+                        const expectedInstanceSet = new InstanceSet(classModel, [
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsRelationship,
+                        ]);
+    
+                        const filteredInstanceSet = await classModel.sensitiveControlFilter(instanceSet);
+                        
+                        if (!expectedInstanceSet.equals(filteredInstanceSet))
+                            throw new Error('classModel.sensitiveControlFilter() did not return the expected InstanceSet.');
+                    });
+    
+                    it('Sensitive Control Check called on Class with instances of class and 1 layers of sub classes.', async () => {
+                        const classModel = SensitiveControlledSubClassOfSensitiveControlledSuperClass;
+                        const instanceSet = new InstanceSet(classModel, [
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassPasses,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsRelationship,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassPasses,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsString,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsRelationship
+                        ]);
+                        const expectedInstanceSet = new InstanceSet(classModel, [
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsRelationship,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsString,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsRelationship,
+                        ]);
+    
+                        const filteredInstanceSet = await classModel.sensitiveControlFilter(instanceSet);
+                        
+                        if (!expectedInstanceSet.equals(filteredInstanceSet))
+                            throw new Error('classModel.sensitiveControlFilter() did not return the expected InstanceSet.');
+                    });
+    
+                    it('Sensitive Control Check called on Class with instances of 2 layers of sub classes.', async () => {
+                        const classModel = SensitiveControlledSubClassOfSensitiveControlledSuperClass;
+                        const instanceSet = new InstanceSet(classModel, [
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassPasses,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsRelationship,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassPasses,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsString,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsRelationship,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassPasses,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsRelationship,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsString,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsNumber
+                        ]);
+                        const expectedInstanceSet = new InstanceSet(classModel, [
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsRelationship,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsString,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsRelationship,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsRelationship,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsString,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsNumber
+                        ]);
+    
+                        const filteredInstanceSet = await classModel.sensitiveControlFilter(instanceSet);
+                        
+                        if (!expectedInstanceSet.equals(filteredInstanceSet))
+                            throw new Error('classModel.sensitiveControlFilter() did not return the expected InstanceSet.');
+                    });
+    
+                });
+    
+                describe('SensitiveControlledDiscriminatedSuperClass.sensitiveControlFilter()', () => {
+    
+                    it('Sensitive Control Check called on Class with only direct instances of Class.', async () => {
+                        const classModel = SensitiveControlledDiscriminatedSuperClass;
+                        const instanceSet = new InstanceSet(classModel, [
+                            instanceOfSensitiveControlledDiscriminatedSuperClassPasses,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsString,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsRelationship
+                        ]);
+                        const expectedInstanceSet = new InstanceSet(classModel, [
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsString,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsRelationship,
+                        ]);
+    
+                        const filteredInstanceSet = await classModel.sensitiveControlFilter(instanceSet);
+                        
+                        if (!expectedInstanceSet.equals(filteredInstanceSet))
+                            throw new Error('classModel.sensitiveControlFilter() did not return the expected InstanceSet.');
+                    });
+    
+                    it('Sensitive Control Check called on Class with instances of 1 layers of sub classes.', async () => {
+                        const classModel = SensitiveControlledDiscriminatedSuperClass;
+                        const instanceSet = new InstanceSet(classModel, [
+                            instanceOfSensitiveControlledDiscriminatedSuperClassPasses,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsString,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsRelationship,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassPasses,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsRelationship,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsString,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsNumber
+                        ]);
+                        const expectedInstanceSet = new InstanceSet(classModel, [
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsString,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledDiscriminatedSuperClassFailsRelationship,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsRelationship,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsString,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsNumber,
+                        ]);
+    
+                        const filteredInstanceSet = await classModel.sensitiveControlFilter(instanceSet);
+                        
+                        if (!expectedInstanceSet.equals(filteredInstanceSet))
+                            throw new Error('classModel.sensitiveControlFilter() did not return the expected InstanceSet.');
+                    });
+    
+                });
+    
+                describe('SensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClass.sensitiveControlFilter()', () => {
+    
+                    it('Sensitive Control Check called on Class with only direct instances of Class.', async () => {
+                        const classModel = SensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClass;
+                        const instanceSet = new InstanceSet(classModel, [
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassPasses,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsRelationship,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsString,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsNumber
+                        ]);
+                        const expectedInstanceSet = new InstanceSet(classModel, [
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsRelationship,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsString,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsBoolean,
+                            instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsNumber,
+                        ]);
+    
+                        const filteredInstanceSet = await classModel.sensitiveControlFilter(instanceSet);
+                        
+                        if (!expectedInstanceSet.equals(filteredInstanceSet))
+                            throw new Error('classModel.sensitiveControlFilter() did not return the expected InstanceSet.');
+                    });
+    
+                });
+    
+                describe('SensitiveControlledClassSensitiveControlledByParameters.sensitiveControlFilter()', () => {
+    
+                    it('Instance passes sensitive control check and is not returned', async () => {
+                        const classModel = SensitiveControlledClassSensitiveControlledByParameters;
+                        const instanceSet = new InstanceSet(classModel, [
+                            instanceOfSensitiveControlledClassSensitiveControlledByParameters,
+                        ]);
+                        const expectedInstanceSet = new InstanceSet(classModel);
+                        const parameters = {
+                            numberA: 1,
+                            numberB: 1,
+                            boolean: true,
+                        }
+    
+                        const filteredInstanceSet = await classModel.sensitiveControlFilter(instanceSet, parameters);
+                        
+                        if (!expectedInstanceSet.equals(filteredInstanceSet))
+                            throw new Error('classModel.sensitiveControlFilter() did not return the expected InstanceSet.');
+                    });
+    
+                    it('Instance fails sensitive control check because of Numbers and is returned.', async () => {
+                        const classModel = SensitiveControlledClassSensitiveControlledByParameters;
+                        const instanceSet = new InstanceSet(classModel, [
+                            instanceOfSensitiveControlledClassSensitiveControlledByParameters,
+                        ]);
+                        const expectedInstanceSet = new InstanceSet(classModel, [
+                            instanceOfSensitiveControlledClassSensitiveControlledByParameters
+                        ]);
+                        const parameters = {
+                            numberA: -2,
+                            numberB: 1,
+                            boolean: true,
+                        }
+    
+                        const filteredInstanceSet = await classModel.sensitiveControlFilter(instanceSet, parameters);
+                        
+                        if (!expectedInstanceSet.equals(filteredInstanceSet))
+                            throw new Error('classModel.sensitiveControlFilter() did not return the expected InstanceSet.');
+                    });
+    
+                    it('Instance fails sensitive control check because of Boolean and is returned.', async () => {
+                        const classModel = SensitiveControlledClassSensitiveControlledByParameters;
+                        const instanceSet = new InstanceSet(classModel, [
+                            instanceOfSensitiveControlledClassSensitiveControlledByParameters,
+                        ]);
+                        const expectedInstanceSet = new InstanceSet(classModel, [
+                            instanceOfSensitiveControlledClassSensitiveControlledByParameters
+                        ]);
+                        const parameters = {
+                            numberA: 1,
+                            numberB: 1,
+                            boolean: false,
+                        }
+    
+                        const filteredInstanceSet = await classModel.sensitiveControlFilter(instanceSet, parameters);
+                        
+                        if (!expectedInstanceSet.equals(filteredInstanceSet))
+                            throw new Error('classModel.sensitiveControlFilter() did not return the expected InstanceSet.');
+                    });
+    
+                });
+    
+            });
+    
+            describe('Test find methods for stripping of sensitive attributes.', () => {
+    
+                describe('Test findById() with sensitive filtering', () => {
+    
+                    it('Call findById() on an instance of an sensitive controlled class. Instance passes and attributes are not stripped.', async () => {
+                        const classToCallFindByIdOn = SensitiveControlledSuperClass;
+                        const instanceToFind = instanceOfSensitiveControlledSuperClassPasses;
+                        const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
+    
+                        if (!instanceFound)
+                            throw new Error('findById() did not return an instance.');
+
+                        if (instanceFound.SSN !== '123456789') {
+                            throw new Error('Attribute was stripped when it shouldn\'t have been.');
+                        }
+                    });
+    
+                    it('Call findById() on an instance of an sensitive controlled class, from super class. Instance passes and attributes are not stripped.', async () => {
+                        const classToCallFindByIdOn = SensitiveControlledSuperClass;
+                        const instanceToFind = instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassPasses;
+                        const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
+    
+                        if (!instanceFound)
+                            throw new Error('findById() did not return an instance.');
+
+                        if (instanceFound.SSN !== '123456789') {
+                            throw new Error('Attribute was stripped when it shouldn\'t have been.');
+                        }
+    
+                    });
+    
+                    it('Call findById() on an instance of an sensitive controlled class. Instance fails and attribute stripped.', async () => {
+                        const classToCallFindByIdOn = SensitiveControlledSuperClass;
+                        const instanceToFind = instanceOfSensitiveControlledSuperClassFailsRelationship;
+                        const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
+    
+                        if (!instanceFound)
+                            throw new Error('findById() did not return an instance.');
+
+                        if (instanceFound.name === null) {
+                            throw new Error('A non-sensitive attribute was stripped.');
+                        }
+
+                        if (instanceFound.SSN !== null) {
+                            throw new Error('Attribute was not stripped when it should have been.');
+                        }
+                    });
+    
+                    it('Call findById() on an instance of an sensitive controlled class, from super class. Instance does not pass filter based on super sensitive control method. Attributes stripped.', async () => {
+                        const classToCallFindByIdOn = SensitiveControlledSuperClass;
+                        const instanceToFind = instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsRelationship;
+                        const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
+    
+                        if (!instanceFound) {
+                            throw new Error('findById() did not return an instance.');
+                        }
+
+                        if (instanceFound.name === null) {
+                            throw new Error('A non-sensitive attribute was stripped.');
+                        }
+
+                        if (instanceFound.SSN !== null) {
+                            throw new Error('Attribute was not stripped when it should have been.');
+                        }
+                    });
+    
+                    it('Call findById() on an instance of an sensitive controlled class, from super class. Instance does not pass filter based on it\'s own sensitive control method. Attributes stripped.', async () => {
+                        const classToCallFindByIdOn = SensitiveControlledSuperClass;
+                        const instanceToFind = instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsBoolean;
+                        const instanceFound = await classToCallFindByIdOn.findById(instanceToFind._id);
+    
+                        if (!instanceFound) {
+                            throw new Error('findById() did not return an instance.');
+                        }
+                        
+                        if (instanceFound.name === null) {
+                            throw new Error('A non-sensitive attribute was stripped.');
+                        }
+                        
+                        if (instanceFound.SSN !== null) {
+                            throw new Error('Attribute was not stripped when it should have been.');
+                        }
+                    });
+    
+                });
+    
+                describe('Test findOne() with sensitive filtering', () => {
+    
+                    it('Call findOne() on an instance of an sensitive controlled class. Instance passes filter. Attributes not stripped.', async () => {
+                        const classToCallFindByIdOn = SensitiveControlledSuperClass;
+                        const instanceToFind = instanceOfSensitiveControlledSuperClassPasses;
+    
+                        const filter = {
+                            name: 'instanceOfSensitiveControlledSuperClassPasses'
+                        }
+    
+                        const instanceFound = await classToCallFindByIdOn.findOne(filter);
+    
+                        if (!instanceFound) {
+                            throw new Error('findOne() did not return an instance.');
+                        }
+                        if (instanceFound.SSN !== '123456789') {
+                            throw new Error('Attribute was stripped when it should not have been.');
+                        }
+                    });
+    
+                    it('Call findOne() on an instance of an sensitive controlled class, from super class. Instance passes and attributes are not stripped.', async () => {
+                        const classToCallFindByIdOn = SensitiveControlledSuperClass;
+                        const instanceToFind = instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassPasses;
+    
+                        const filter = {
+                            name: 'instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassPasses'
+                        }
+    
+                        const instanceFound = await classToCallFindByIdOn.findOne(filter);
+    
+                        if (!instanceFound) {
+                            throw new Error('findOne() did not return an instance.');
+                        }
+                        if (instanceFound.SSN !== '123456789') {
+                            throw new Error('Attribute was stripped when it should not have been.');
+                        }
+                    });
+    
+                    it('Call findOne() on an instance of an sensitive controlled class. Instance does not pass filter and attributes are stripped.', async () => {
+                        const classToCallFindByIdOn = SensitiveControlledSuperClass;
+    
+                        const filter = {
+                            name: 'instanceOfSensitiveControlledSuperClassFailsRelationship'
+                        }
+    
+                        const instanceFound = await classToCallFindByIdOn.findOne(filter);
+    
+                        if (!instanceFound) {
+                            throw new Error('findOne() did not return an instance.');
+                        }
+                        if (instanceFound.SSN !== null) {
+                            throw new Error('Attribute was not stripped when it should have been.');
+                        }
+    
+                    });
+    
+                    it('Call findOne() on an instance of an sensitive controlled class, from super class. Instance does not pass filter based on super sensitive control method and attributes are stripped.', async () => {
+                        const classToCallFindByIdOn = SensitiveControlledSuperClass;
+    
+                        const filter = {
+                            name: 'instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsRelationship'
+                        }
+    
+                        const instanceFound = await classToCallFindByIdOn.findOne(filter);
+    
+                        if (!instanceFound) {
+                            throw new Error('findOne() did not return an instance.');
+                        }
+                        if (instanceFound.SSN !== null) {
+                            throw new Error('Attribute was not stripped when it should have been.');
+                        }
+    
+                    });
+    
+                    it('Call findOne() on an instance of an sensitive controlled class, from super class. Instance does not pass filter based on it\'s own sensitive control method and attributes are stripped.', async () => {
+                        const classToCallFindByIdOn = SensitiveControlledSuperClass;
+    
+                        const filter = {
+                            name: 'instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsBoolean'
+                        }
+    
+                        const instanceFound = await classToCallFindByIdOn.findOne(filter);
+    
+                        if (!instanceFound) {
+                            throw new Error('findOne() did not return an instance.');
+                        }
+                        if (instanceFound.SSN !== null) {
+                            throw new Error('Attribute was not stripped when it should have been.');
+                        }
+    
+                    });
+    
+                });
+    
+                describe('Test find() with sensitive filtering', () => {
+    
+                    it('Call find() on sensitive controlled super class with a passing and not passing instance of each sub class.', async () => {
+                        const instanceNames = [
+                            'instanceOfSensitiveControlledSuperClassPasses',
+                            'instanceOfSensitiveControlledSuperClassFailsRelationship',
+                            'instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassPasses',
+                            'instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsRelationship',
+                            'instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassFailsBoolean',
+                            'instanceOfSensitiveControlledDiscriminatedSuperClassPasses',
+                            'instanceOfSensitiveControlledDiscriminatedSuperClassFailsRelationship',
+                            'instanceOfSensitiveControlledDiscriminatedSuperClassFailsString',
+                            'instanceOfSensitiveControlledDiscriminatedSuperClassFailsBoolean',
+                            'instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassPasses',
+                            'instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsRelationship',
+                            'instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassFailsBoolean',
+                            'SensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClass',
+                            'SensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClass'
+                        ];
+    
+                        const instancesFound = await SensitiveControlledSuperClass.find({name: {$in: instanceNames}});
+                        
+                        if (instancesFound.getInstanceWithId(instanceOfSensitiveControlledSuperClassPasses._id).SSN !== '123456789') {
+                            throw new Error('An instance was stripped when it should not have been.');
+                        }
+                        
+                        if (instancesFound.getInstanceWithId(instanceOfSensitiveControlledSubClassOfSensitiveControlledSuperClassPasses._id).SSN !== '123456789') {
+                            throw new Error('An instance was stripped when it should not have been.');
+                        }
+                        
+                        if (instancesFound.getInstanceWithId(instanceOfSensitiveControlledDiscriminatedSuperClassPasses._id).SSN !== '123456789') {
+                            throw new Error('An instance was stripped when it should not have been.');
+                        }
+                        
+                        if (instancesFound.getInstanceWithId(instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassPasses._id).SSN !== '123456789') {
+                            throw new Error('An instance was stripped when it should not have been.');
+                        }
+                        
+                        if (instancesFound.getInstanceWithId(instanceOfSensitiveControlledSubClassOfSensitiveControlledDiscriminatedSuperClassPasses._id).DOB === null) {
+                            throw new Error('An instance was stripped when it should not have been.');
+                        }
+                        
+                        if (instancesFound.getInstanceWithId(instanceOfSensitiveControlledSuperClassFailsRelationship._id).SSN !== null) {
+                            throw new Error('An instance was not stripped when it should have been.');
+                        }
+                        
+                        if (instancesFound.getInstanceWithId(instanceOfSensitiveControlledDiscriminatedSuperClassFailsRelationship._id).SSN !== null) {
+                            throw new Error('An instance was not stripped when it should have been.');
+                        }
+                        
+                        if (instancesFound.getInstanceWithId(instanceOfSensitiveControlledDiscriminatedSuperClassFailsString._id).SSN !== null) {
+                            throw new Error('An instance was not stripped when it should have been.');
+                        }
+    
                     });
     
                 });
