@@ -251,8 +251,8 @@ class Instance extends Diffable {
         return walkResult;
     }
     
-    async readControlFilter(...readControlMethodParameters) {
-        return this.classModel.readControlFilterInstance(this, ...readControlMethodParameters);
+    async readControlFilter(readControlMethodParameters) {
+        return this.classModel.readControlFilterInstance(this, readControlMethodParameters);
     }
 
     // Validation Methods
@@ -392,7 +392,7 @@ class Instance extends Diffable {
 
     // Update and Delete Methods Methods
 
-    async save(...controlMethodParameters) {
+    async save(createControlMethodParameters, updateControlMethodParameters) {
         if (this.deleted()) 
             throw new Error('instance.save(): You cannot save an instance which has been deleted.');
         
@@ -408,7 +408,7 @@ class Instance extends Diffable {
         }
 
         if (!this.saved()) {
-            await this.classModel.createControlCheckInstance(this, ...controlMethodParameters);
+            await this.classModel.createControlCheckInstance(this, createControlMethodParameters);
             
             if (Object.keys(this.relatedDiffs()).length !== 0) {
                 await this.classModel.updateRelatedInstancesForInstance(this);
@@ -417,7 +417,7 @@ class Instance extends Diffable {
             await this.classModel.insertOne(this.toDocument());
         }
         else {
-            await this.classModel.updateControlCheckInstance(this, ...controlMethodParameters);
+            await this.classModel.updateControlCheckInstance(this, updateControlMethodParameters);
 
             if (Object.keys(this.relatedDiffs()).length !== 0) {
                 await this.classModel.updateRelatedInstancesForInstance(this);
@@ -457,11 +457,11 @@ class Instance extends Diffable {
         return this;
     }
 
-    async delete(...deleteControlMethodParameters) {
+    async delete(deleteControlMethodParameters) {
         if (!this.saved())
             throw new Error('instance.delete(): You cannot delete an instance which hasn\'t been saved yet');
 
-        await this.classModel.deleteControlCheckInstance(this, ...deleteControlMethodParameters)
+        await this.classModel.deleteControlCheckInstance(this, deleteControlMethodParameters)
 
         await this.deleteOwnedInstances();
 
@@ -489,7 +489,7 @@ class Instance extends Diffable {
         return true;
     }
 
-    async deleteOwnedInstances(...deleteControlMethodParameters) {
+    async deleteOwnedInstances(deleteControlMethodParameters) {
         const ownsRelationships = this.classModel.relationships.filter(r => r.owns === true);
         const deletePromises = [];
 
@@ -502,7 +502,7 @@ class Instance extends Diffable {
             if (!relationship.singular && related.isEmpty()) {
                 continue;
             }
-            deletePromises.push(related.delete(...deleteControlMethodParameters));
+            deletePromises.push(related.delete(deleteControlMethodParameters));
         }
 
         if (deletePromises.length === 0) {

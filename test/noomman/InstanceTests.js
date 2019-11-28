@@ -3481,9 +3481,13 @@ describe('Instance Tests', () => {
     
             it('instance.save() called on an instance of an create controlled class with createControlMethodParameters. Instance saved.', async () => {
                 const instance = new Instance(CreateControlledClassCreateControlledByParameters);
-                const createControlMethodParameters = [1, 1, true];
+                const parameters = {
+                    numberA: 1,
+                    numberB: 1,
+                    boolean: true,
+                };
                 
-                await instance.save(...createControlMethodParameters);
+                await instance.save(parameters);
                 const instanceSaved = CreateControlledClassCreateControlledByParameters.findById(instance._id);
                 
                 if (!instanceSaved)
@@ -3495,10 +3499,14 @@ describe('Instance Tests', () => {
             it('instance.save() called on an instance of an create controlled class with createControlMethodParameters. Save fails due to create control check.', async () => {
                 const instance = new Instance(CreateControlledClassCreateControlledByParameters);
                 const expectedErrorMessage = 'Illegal attempt to create instances: ' + instance.id;
-                const createControlMethodParameters = [-2, 1, true];
+                const parameters = {
+                    numberA: -2,
+                    numberB: 1,
+                    boolean: true,
+                };
     
                 await testForErrorAsync('InstanceSet.save()', expectedErrorMessage, async () => {
-                    return instance.save(...createControlMethodParameters);
+                    return instance.save(parameters);
                 })
                 
                 const instanceFound = await CreateControlledClassCreateControlledByParameters.findById(instance._id);
@@ -3550,13 +3558,17 @@ describe('Instance Tests', () => {
     
             it('instance.save() called on an instance of an update controlled class with updateControlMethodParameters. Instance saved.', async () => {
                 const instance = new Instance(UpdateControlledClassUpdateControlledByParameters);
-                const updateControlMethodParameters = [1, 1, true];
+                const parameters = {
+                    numberA: 1,
+                    numberB: 1,
+                    boolean: true,
+                };
                 
-                await instance.save(...updateControlMethodParameters);
+                await instance.save(null, parameters);
     
                 instance.name = 'updated';
     
-                await instance.save(...updateControlMethodParameters);
+                await instance.save(null, parameters);
     
                 const instanceSaved = await UpdateControlledClassUpdateControlledByParameters.findById(instance._id);
     
@@ -3569,13 +3581,17 @@ describe('Instance Tests', () => {
             it('instance.save() called on an instance of an update controlled class with updateControlMethodParameters. Save fails due to update control check.', async () => {
                 const instance = new Instance(UpdateControlledClassUpdateControlledByParameters);
                 const expectedErrorMessage = 'Illegal attempt to update instances: ' + instance.id;
-                const updateControlMethodParameters = [-2, 1, true];
+                const parameters = {
+                    numberA: -2,
+                    numberB: 1,
+                    boolean: true,
+                };
     
                 await instance.save();
                 instance.name = 'updated';
     
                 await testForErrorAsync('InstanceSet.save()', expectedErrorMessage, async () => {
-                    return instance.save(...updateControlMethodParameters);
+                    return instance.save(null, parameters);
                 });
                 
                 const instanceFound = await UpdateControlledClassUpdateControlledByParameters.findById(instance._id);
@@ -4552,10 +4568,14 @@ describe('Instance Tests', () => {
     
             it('instance.delete() called on an instance of an delete controlled class with deleteControlMethodParameters. Instance deleted.', async () => {
                 const instance = new Instance(DeleteControlledClassDeleteControlledByParameters);
-                const deleteControlMethodParameters = [1, 1, true];
+                const parameters = {
+                    numberA: 1, 
+                    numberB: 1,
+                    boolean: true,
+                }
                 
                 await instance.save();   
-                await instance.delete(...deleteControlMethodParameters);
+                await instance.delete(parameters);
     
                 const instanceFound = await DeleteControlledClassDeleteControlledByParameters.findById(instance._id);
 
@@ -4566,12 +4586,16 @@ describe('Instance Tests', () => {
             it('instance.delete() called on an instance of an delete controlled class with deleteControlMethodParameters. Delete fails due to delete control check.', async () => {
                 const instance = new Instance(DeleteControlledClassDeleteControlledByParameters);
                 const expectedErrorMessage = 'Illegal attempt to delete instances: ' + instance.id;
-                const deleteControlMethodParameters = [-2, 1, true];
+                const parameters = {
+                    numberA: -2, 
+                    numberB: 1,
+                    boolean: true,
+                }
     
                 await instance.save();
     
                 await testForErrorAsync('InstanceSet.delete()', expectedErrorMessage, async () => {
-                    return instance.delete(...deleteControlMethodParameters);
+                    return instance.delete(parameters);
                 });
                 
                 const instanceFound = await DeleteControlledClassDeleteControlledByParameters.findById(instance._id);

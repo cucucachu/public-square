@@ -878,8 +878,8 @@ const ClassModel = require('../../../src/noomman/ClassModel');
         var CreateControlledClassCreateControlledByParameters = new ClassModel({
             className: 'CreateControlledClassCreateControlledByParameters',
             crudControls: {
-                createControl: (numberA, numberB, boolean) => {
-                    return (numberA + numberB > 0) && boolean;
+                createControl: parameters => {
+                    return (parameters.numberA + parameters.numberB > 0) && parameters.boolean;
                 },
             },
         });
@@ -984,8 +984,8 @@ const ClassModel = require('../../../src/noomman/ClassModel');
         var ReadControlledClassReadControlledByParameters = new ClassModel({
             className: 'ReadControlledClassReadControlledByParameters',
             crudControls: {
-                readControl: (numberA, numberB, boolean) => {
-                    return (numberA + numberB > 0) && boolean;
+                readControl: (readControlMethodParameters) => {
+                    return (readControlMethodParameters.numberA + readControlMethodParameters.numberB > 0) && readControlMethodParameters.boolean;
                 },
             },
         });
@@ -1129,8 +1129,8 @@ const ClassModel = require('../../../src/noomman/ClassModel');
                 }
             ],
             crudControls: {
-                updateControl: (numberA, numberB, boolean) => {
-                    return (numberA + numberB > 0) && boolean;
+                updateControl: (updateControlMethodParameters) => {
+                    return (updateControlMethodParameters.numberA + updateControlMethodParameters.numberB > 0) && updateControlMethodParameters.boolean;
                 },
             },
         });
@@ -1234,8 +1234,8 @@ const ClassModel = require('../../../src/noomman/ClassModel');
         var DeleteControlledClassDeleteControlledByParameters = new ClassModel({
             className: 'DeleteControlledClassDeleteControlledByParameters',
             crudControls: {
-                deleteControl: (numberA, numberB, boolean) => {
-                    return (numberA + numberB > 0) && boolean;
+                deleteControl: parameters => {
+                    return (parameters.numberA + parameters.numberB > 0) && parameters.boolean;
                 },
             },
         });

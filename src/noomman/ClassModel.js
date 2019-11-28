@@ -559,9 +559,9 @@ class ClassModel {
      * Rest Parameter readControlMethodParameters - Optional parameters used by this ClassModels read control method. 
      * Returns a promise, which will resolve with the instance with the given query filter if it can be found, otherwise null.
      */
-    async find(queryFilter, ...readControlMethodParameters) {
+    async find(queryFilter, readControlMethodParameters) {
         const unfiltered = await this.pureFind(queryFilter);
-        return this.readControlFilter(unfiltered, ...readControlMethodParameters);
+        return this.readControlFilter(unfiltered, readControlMethodParameters);
     }
 
     async pureFind(queryFilter) {
@@ -584,7 +584,7 @@ class ClassModel {
                     return new Instance(AllClassModels[document.__t], document);
                 return new Instance(this, document);
             }));
-            //const instancesFoundInThisCollectionFiltered = await this.readControlFilter(instancesFoundInThisCollection, ...readControlMethodParameters)
+            //const instancesFoundInThisCollectionFiltered = await this.readControlFilter(instancesFoundInThisCollection, readControlMethodParameters)
             foundInstances.addInstances(instancesFoundInThisCollection);
         }
         
@@ -607,9 +607,9 @@ class ClassModel {
      * Rest Parameter readControlMethodParameters - Optional parameters used by this ClassModels read control method. 
      * Returns a promise, which will resolve with the instance with the given query filter if it can be found, otherwise null.
      */
-    async findOne(queryFilter, ...readControlMethodParameters) {
+    async findOne(queryFilter, readControlMethodParameters) {
         const unfiltered = await this.pureFindOne(queryFilter);
-        return unfiltered === null ? null : this.readControlFilterInstance(unfiltered, ...readControlMethodParameters);
+        return unfiltered === null ? null : this.readControlFilterInstance(unfiltered, readControlMethodParameters);
     }
 
 
@@ -653,8 +653,8 @@ class ClassModel {
      * Parameter id - the Object ID of the instance to find.
      * Returns a promise, which will resolve with the instance with the given id if it can be found, otherwise null.
      */
-    async findById(id, ...readControlMethodParameters) {
-        return this.findOne({_id: id}, ...readControlMethodParameters);
+    async findById(id, readControlMethodParameters) {
+        return this.findOne({_id: id}, readControlMethodParameters);
     }
 
     async pureFindById(id) {
@@ -785,22 +785,22 @@ class ClassModel {
 
     }
 
-    async createControlCheck(instanceSet, ...createControlMethodParameters) {
+    async createControlCheck(instanceSet, createControlMethodParameters) {
         if (!(instanceSet instanceof InstanceSet))
-            throw new Error('Incorrect parameters. ' + this.className + '.createControlCheck(InstanceSet instanceSet, ...createControlMethodParameters)');
+            throw new Error('Incorrect parameters. ' + this.className + '.createControlCheck(InstanceSet instanceSet, createControlMethodParameters)');
         
         if (instanceSet.isEmpty() || !this.createControlMethods.length)
             return;
 
-        const rejectedInstances = await this.evaluateCrudControlMethods(instanceSet, 'createControlMethods', ...createControlMethodParameters);
+        const rejectedInstances = await this.evaluateCrudControlMethods(instanceSet, 'createControlMethods', createControlMethodParameters);
 
         if (!rejectedInstances.isEmpty())
             throw new Error('Illegal attempt to create instances: ' + rejectedInstances.getInstanceIds());
     }
 
-    async createControlCheckInstance(instance, ...createControlMethodParameters) {
+    async createControlCheckInstance(instance, createControlMethodParameters) {
         const instanceSet = new InstanceSet(instance.classModel, [instance]);
-        return this.createControlCheck(instanceSet, ...createControlMethodParameters);
+        return this.createControlCheck(instanceSet, createControlMethodParameters);
     }
 
     /* Takes an array of instances of the Class Model and filters out any that do not pass this Class Model's read control method.
@@ -808,77 +808,77 @@ class ClassModel {
      * @return Promise(Array<Instance>): The given instances filtered for read control.
      */
 
-    async readControlFilter(instanceSet, ...readControlMethodParameters) {
+    async readControlFilter(instanceSet, readControlMethodParameters) {
         if (!(instanceSet instanceof InstanceSet))
-            throw new Error('Incorrect parameters. ' + this.className + '.readControlFilter(InstanceSet instanceSet, ...readControlMethodParameters)');
+            throw new Error('Incorrect parameters. ' + this.className + '.readControlFilter(InstanceSet instanceSet, readControlMethodParameters)');
         
         // If InstanceSet is empty or not read controlled, just return a copy of it.
         if (!instanceSet.size || this.readControlMethods.length === 0)
             return new InstanceSet(this, instanceSet);
 
-        const rejectedInstances = await this.evaluateCrudControlMethods(instanceSet, 'readControlMethods', ...readControlMethodParameters);
+        const rejectedInstances = await this.evaluateCrudControlMethods(instanceSet, 'readControlMethods', readControlMethodParameters);
 
         return instanceSet.difference(rejectedInstances);
     }
 
-    async readControlFilterInstance(instance, ...readControlMethodParameters) {
+    async readControlFilterInstance(instance, readControlMethodParameters) {
         const instanceSet = new InstanceSet(this, [instance]);
-        const filteredInstanceSet = await this.readControlFilter(instanceSet, ...readControlMethodParameters);
+        const filteredInstanceSet = await this.readControlFilter(instanceSet, readControlMethodParameters);
         return filteredInstanceSet.isEmpty() ? null : [...instanceSet][0];
     }
 
-    async updateControlCheck(instanceSet, ...updateControlParameters) {
+    async updateControlCheck(instanceSet, updateControlMethodParameters) {
         if (!(instanceSet instanceof InstanceSet))
-            throw new Error('Incorrect parameters. ' + this.className + '.updateControlCheck(InstanceSet instanceSet, ...updateControlMethodParameters)');
+            throw new Error('Incorrect parameters. ' + this.className + '.updateControlCheck(InstanceSet instanceSet, updateControlMethodParameters)');
 
         if (instanceSet.isEmpty() || !this.updateControlMethods.length)
             return;
 
-        const rejectedInstances = await this.evaluateCrudControlMethods(instanceSet, 'updateControlMethods', ...updateControlParameters);
+        const rejectedInstances = await this.evaluateCrudControlMethods(instanceSet, 'updateControlMethods', updateControlMethodParameters);
 
         if (!rejectedInstances.isEmpty())
             throw new Error('Illegal attempt to update instances: ' + rejectedInstances.getInstanceIds());
     }
 
-    async updateControlCheckInstance(instance, ...updateControlMethodParameters) {
+    async updateControlCheckInstance(instance, updateControlMethodParameters) {
         const instanceSet = new InstanceSet(instance.classModel, [instance]);
-        return this.updateControlCheck(instanceSet, ...updateControlMethodParameters);
+        return this.updateControlCheck(instanceSet, updateControlMethodParameters);
     }
 
-    async deleteControlCheck(instanceSet, ...deleteControlMethodParameters) {
+    async deleteControlCheck(instanceSet, deleteControlMethodParameters) {
         if (!(instanceSet instanceof InstanceSet))
-            throw new Error('Incorrect parameters. ' + this.className + '.deleteControlCheck(InstanceSet instanceSet, ...deleteControlMethodParameters)');
+            throw new Error('Incorrect parameters. ' + this.className + '.deleteControlCheck(InstanceSet instanceSet, deleteControlMethodParameters)');
 
         if (instanceSet.isEmpty() || !this.deleteControlMethods.length)
             return;
 
-        const rejectedInstances = await this.evaluateCrudControlMethods(instanceSet, 'deleteControlMethods', ...deleteControlMethodParameters);
+        const rejectedInstances = await this.evaluateCrudControlMethods(instanceSet, 'deleteControlMethods', deleteControlMethodParameters);
 
         if (!rejectedInstances.isEmpty())
             throw new Error('Illegal attempt to delete instances: ' + rejectedInstances.getInstanceIds());
     }
 
-    async deleteControlCheckInstance(instance, ...deleteControlMethodParameters) {
+    async deleteControlCheckInstance(instance, deleteControlMethodParameters) {
         const instanceSet = new InstanceSet(instance.classModel, [instance]);
-        return this.deleteControlCheck(instanceSet, ...deleteControlMethodParameters);
+        return this.deleteControlCheck(instanceSet, deleteControlMethodParameters);
     }
 
-    async sensitiveControlFilter(instanceSet, ...sensitiveControlMethodParameters) {
+    async sensitiveControlFilter(instanceSet, sensitiveControlMethodParameters) {
         if (!(instanceSet instanceof InstanceSet))
-            throw new Error('Incorrect parameters. ' + this.className + '.sensitiveControlFilter(InstanceSet instanceSet, ...sensitiveControlMethodParameters)');
+            throw new Error('Incorrect parameters. ' + this.className + '.sensitiveControlFilter(InstanceSet instanceSet, sensitiveControlMethodParameters)');
         
         // If InstanceSet is empty or not sensitive controlled, just return a copy of it.
         if (!instanceSet.size || this.sensitiveControlMethods.length === 0)
             return new InstanceSet(this, instanceSet);
 
-        const rejectedInstances = await this.evaluateCrudControlMethods(instanceSet, 'sensitiveControlMethods', ...sensitiveControlMethodParameters);
+        const rejectedInstances = await this.evaluateCrudControlMethods(instanceSet, 'sensitiveControlMethods', sensitiveControlMethodParameters);
 
         return rejectedInstances;
     }
 
-    async sensitiveControlFilterInstance(instance, ...sensitiveControlMethodParameters) {
+    async sensitiveControlFilterInstance(instance, sensitiveControlMethodParameters) {
         const instanceSet = new InstanceSet(this, [instance]);
-        const rejectedInstances = await this.sensitiveControlFilter(instanceSet, ...sensitiveControlMethodParameters);
+        const rejectedInstances = await this.sensitiveControlFilter(instanceSet, sensitiveControlMethodParameters);
         return rejectedInstances.size > 0 ? instance : null;
     }
 

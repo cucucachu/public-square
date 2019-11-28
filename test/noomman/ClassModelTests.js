@@ -3243,7 +3243,7 @@ describe('Class Model Tests', () => {
     
                 it('First Argument must be an InstanceSet', async () => {
                     let updatable;
-                    const expectedErrorMessage = 'Incorrect parameters. ' + CreateControlledSuperClass.className + '.createControlCheck(InstanceSet instanceSet, ...createControlMethodParameters)';
+                    const expectedErrorMessage = 'Incorrect parameters. ' + CreateControlledSuperClass.className + '.createControlCheck(InstanceSet instanceSet, createControlMethodParameters)';
                     const instanceSet = new InstanceSet(CreateControlledSuperClass, [instanceOfCreateControlledSuperClassPasses, instanceOfCreateControlledSuperClassPasses]);
     
                     try {
@@ -3523,7 +3523,12 @@ describe('Class Model Tests', () => {
     
                     it('Create Control Check passes', async () => {
                         const instanceSet = new InstanceSet(CreateControlledClassCreateControlledByParameters, [instanceOfCreateControlledClassCreateControlledByParameters]);
-                        await CreateControlledClassCreateControlledByParameters.createControlCheck(instanceSet, 1, 1, true);
+                        const parameters = {
+                            numberA: 1,
+                            numberB: 1,
+                            boolean: true,
+                        };
+                        await CreateControlledClassCreateControlledByParameters.createControlCheck(instanceSet, parameters);
                     });
     
                     it('Instance fails create control check because of Numbers.', async () => {
@@ -3532,9 +3537,14 @@ describe('Class Model Tests', () => {
                         ]);
                         const instancesExpectedToFail = new InstanceSet(CreateControlledClassCreateControlledByParameters, [instanceOfCreateControlledClassCreateControlledByParameters]);
                         const expectedErrorMessage = 'Illegal attempt to create instances: ' + instancesExpectedToFail.getInstanceIds();
+                        const parameters = {
+                            numberA: -2,
+                            numberB: 1,
+                            boolean: true,
+                        };
     
                         await testForErrorAsync('ClassModel.createControlCheck', expectedErrorMessage, async () => {
-                            return CreateControlledClassCreateControlledByParameters.createControlCheck(instanceSet, -2, 1, true);
+                            return CreateControlledClassCreateControlledByParameters.createControlCheck(instanceSet, parameters);
                         });
                     });
     
@@ -3544,9 +3554,14 @@ describe('Class Model Tests', () => {
                         ]);
                         const instancesExpectedToFail = new InstanceSet(CreateControlledClassCreateControlledByParameters, [instanceOfCreateControlledClassCreateControlledByParameters]);
                         const expectedErrorMessage = 'Illegal attempt to create instances: ' + instancesExpectedToFail.getInstanceIds();
+                        const parameters = {
+                            numberA: 1,
+                            numberB: 1,
+                            boolean: false,
+                        };
     
                         await testForErrorAsync('ClassModel.createControlCheck', expectedErrorMessage, async () => {
-                            return  CreateControlledClassCreateControlledByParameters.createControlCheck(instanceSet, 1, 1, false);
+                            return  CreateControlledClassCreateControlledByParameters.createControlCheck(instanceSet, parameters);
                         });
                     });
     
@@ -3693,17 +3708,17 @@ describe('Class Model Tests', () => {
             describe('Tests for invalid arguments.', () => {
     
                 it('First argument must be an InstanceSet.', async () => {
-                    let expectedErrorMessage = 'Incorrect parameters. ' + ReadControlledSuperClass.className + '.readControlFilter(InstanceSet instanceSet, ...readControlMethodParameters)';
+                    let expectedErrorMessage = 'Incorrect parameters. ' + ReadControlledSuperClass.className + '.readControlFilter(InstanceSet instanceSet, readControlMethodParameters)';
                     await testForErrorAsync('ClassModel.readControlFilter()', expectedErrorMessage, async () => {
                         return ReadControlledSuperClass.readControlFilter();
-                    })
+                    });
                 });
     
                 it('First argument must be an InstanceSet.', async () => {
-                    let expectedErrorMessage = 'Incorrect parameters. ' + ReadControlledSuperClass.className + '.readControlFilter(InstanceSet instanceSet, ...readControlMethodParameters)';
+                    let expectedErrorMessage = 'Incorrect parameters. ' + ReadControlledSuperClass.className + '.readControlFilter(InstanceSet instanceSet, readControlMethodParameters)';
                     await testForErrorAsync('ClassModel.readControlFilter()', expectedErrorMessage, async () => {
                         return ReadControlledSuperClass.readControlFilter({ some: 'object' });
-                    })
+                    });
                 });
     
             });
@@ -3981,9 +3996,13 @@ describe('Class Model Tests', () => {
                         const expectedInstanceSet = new InstanceSet(classModel, [
                             instanceOfReadControlledClassReadControlledByParameters
                         ]);
-                        const parameters = [1, 1, true];
+                        const parameters = {
+                            numberA: 1,
+                            numberB: 1,
+                            boolean: true,
+                        }
     
-                        const filteredInstanceSet = await classModel.readControlFilter(instanceSet, ...parameters);
+                        const filteredInstanceSet = await classModel.readControlFilter(instanceSet, parameters);
                         
                         if (!expectedInstanceSet.equals(filteredInstanceSet))
                             throw new Error('classModel.readControlFilter() did not return the expected InstanceSet.');
@@ -3995,9 +4014,13 @@ describe('Class Model Tests', () => {
                             instanceOfReadControlledClassReadControlledByParameters,
                         ]);
                         const expectedInstanceSet = new InstanceSet(classModel);
-                        const parameters = [-2, 1, true];
+                        const parameters = {
+                            numberA: -2,
+                            numberB: 1,
+                            boolean: true,
+                        }
     
-                        const filteredInstanceSet = await classModel.readControlFilter(instanceSet, ...parameters);
+                        const filteredInstanceSet = await classModel.readControlFilter(instanceSet, parameters);
                         
                         if (!expectedInstanceSet.equals(filteredInstanceSet))
                             throw new Error('classModel.readControlFilter() did not return the expected InstanceSet.');
@@ -4009,9 +4032,13 @@ describe('Class Model Tests', () => {
                             instanceOfReadControlledClassReadControlledByParameters,
                         ]);
                         const expectedInstanceSet = new InstanceSet(classModel);
-                        const parameters = [1, 1, false];
+                        const parameters = {
+                            numberA: 1,
+                            numberB: 1,
+                            boolean: false,
+                        }
     
-                        const filteredInstanceSet = await classModel.readControlFilter(instanceSet, ...parameters);
+                        const filteredInstanceSet = await classModel.readControlFilter(instanceSet, parameters);
                         
                         if (!expectedInstanceSet.equals(filteredInstanceSet))
                             throw new Error('classModel.readControlFilter() did not return the expected InstanceSet.');
@@ -4371,7 +4398,7 @@ describe('Class Model Tests', () => {
     
                 it('First Argument must be an InstanceSet', async () => {
                     let updatable;
-                    const expectedErrorMessage = 'Incorrect parameters. ' + UpdateControlledSuperClass.className + '.updateControlCheck(InstanceSet instanceSet, ...updateControlMethodParameters)';
+                    const expectedErrorMessage = 'Incorrect parameters. ' + UpdateControlledSuperClass.className + '.updateControlCheck(InstanceSet instanceSet, updateControlMethodParameters)';
                     const instanceSet = new InstanceSet(UpdateControlledSuperClass, [instanceOfUpdateControlledSuperClassPasses, instanceOfUpdateControlledSuperClassPasses]);
     
                     try {
@@ -4651,7 +4678,12 @@ describe('Class Model Tests', () => {
     
                     it('Update Control Check passes', async () => {
                         const instanceSet = new InstanceSet(UpdateControlledClassUpdateControlledByParameters, [instanceOfUpdateControlledClassUpdateControlledByParameters]);
-                        await UpdateControlledClassUpdateControlledByParameters.updateControlCheck(instanceSet, 1, 1, true);
+                        const parameters = {
+                            numberA: 1,
+                            numberB: 1,
+                            boolean: true,
+                        };
+                        await UpdateControlledClassUpdateControlledByParameters.updateControlCheck(instanceSet, parameters);
                     });
     
                     it('Instance fails update control check because of Numbers.', async () => {
@@ -4660,9 +4692,14 @@ describe('Class Model Tests', () => {
                         ]);
                         const instancesExpectedToFail = new InstanceSet(UpdateControlledClassUpdateControlledByParameters, [instanceOfUpdateControlledClassUpdateControlledByParameters]);
                         const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
+                        const parameters = {
+                            numberA: -2,
+                            numberB: 1,
+                            boolean: true,
+                        };
     
                         await testForErrorAsync('ClassModel.updateControlCheck', expectedErrorMessage, async () => {
-                            return UpdateControlledClassUpdateControlledByParameters.updateControlCheck(instanceSet, -2, 1, true);
+                            return UpdateControlledClassUpdateControlledByParameters.updateControlCheck(instanceSet, parameters);
                         });
                     });
     
@@ -4672,9 +4709,14 @@ describe('Class Model Tests', () => {
                         ]);
                         const instancesExpectedToFail = new InstanceSet(UpdateControlledClassUpdateControlledByParameters, [instanceOfUpdateControlledClassUpdateControlledByParameters]);
                         const expectedErrorMessage = 'Illegal attempt to update instances: ' + instancesExpectedToFail.getInstanceIds();
+                        const parameters = {
+                            numberA: 1,
+                            numberB: 1,
+                            boolean: false,
+                        };
     
                         await testForErrorAsync('ClassModel.updateControlCheck', expectedErrorMessage, async () => {
-                            return  UpdateControlledClassUpdateControlledByParameters.updateControlCheck(instanceSet, 1, 1, false);
+                            return  UpdateControlledClassUpdateControlledByParameters.updateControlCheck(instanceSet, parameters);
                         });
                     });
     
@@ -4839,7 +4881,7 @@ describe('Class Model Tests', () => {
     
                 it('First Argument must be an InstanceSet', async () => {
                     let updatable;
-                    const expectedErrorMessage = 'Incorrect parameters. ' + DeleteControlledSuperClass.className + '.deleteControlCheck(InstanceSet instanceSet, ...deleteControlMethodParameters)';
+                    const expectedErrorMessage = 'Incorrect parameters. ' + DeleteControlledSuperClass.className + '.deleteControlCheck(InstanceSet instanceSet, deleteControlMethodParameters)';
                     const instanceSet = new InstanceSet(DeleteControlledSuperClass, [instanceOfDeleteControlledSuperClassPasses, instanceOfDeleteControlledSuperClassPasses]);
     
                     try {
@@ -5119,7 +5161,12 @@ describe('Class Model Tests', () => {
     
                     it('Delete Control Check passes', async () => {
                         const instanceSet = new InstanceSet(DeleteControlledClassDeleteControlledByParameters, [instanceOfDeleteControlledClassDeleteControlledByParameters]);
-                        await DeleteControlledClassDeleteControlledByParameters.deleteControlCheck(instanceSet, 1, 1, true);
+                        const parameters = {
+                            numberA: 1, 
+                            numberB: 1,
+                            boolean: true,
+                        }
+                        await DeleteControlledClassDeleteControlledByParameters.deleteControlCheck(instanceSet, parameters);
                     });
     
                     it('Instance fails delete control check because of Numbers.', async () => {
@@ -5128,9 +5175,14 @@ describe('Class Model Tests', () => {
                         ]);
                         const instancesExpectedToFail = new InstanceSet(DeleteControlledClassDeleteControlledByParameters, [instanceOfDeleteControlledClassDeleteControlledByParameters]);
                         const expectedErrorMessage = 'Illegal attempt to delete instances: ' + instancesExpectedToFail.getInstanceIds();
+                        const parameters = {
+                            numberA: -2, 
+                            numberB: 1,
+                            boolean: true,
+                        }
     
                         await testForErrorAsync('ClassModel.deleteControlCheck', expectedErrorMessage, async () => {
-                            return DeleteControlledClassDeleteControlledByParameters.deleteControlCheck(instanceSet, -2, 1, true);
+                            return DeleteControlledClassDeleteControlledByParameters.deleteControlCheck(instanceSet, parameters);
                         });
                     });
     
@@ -5140,9 +5192,14 @@ describe('Class Model Tests', () => {
                         ]);
                         const instancesExpectedToFail = new InstanceSet(DeleteControlledClassDeleteControlledByParameters, [instanceOfDeleteControlledClassDeleteControlledByParameters]);
                         const expectedErrorMessage = 'Illegal attempt to delete instances: ' + instancesExpectedToFail.getInstanceIds();
+                        const parameters = {
+                            numberA: 1, 
+                            numberB: 1,
+                            boolean: false,
+                        }
     
                         await testForErrorAsync('ClassModel.deleteControlCheck', expectedErrorMessage, async () => {
-                            return  DeleteControlledClassDeleteControlledByParameters.deleteControlCheck(instanceSet, 1, 1, false);
+                            return  DeleteControlledClassDeleteControlledByParameters.deleteControlCheck(instanceSet, parameters);
                         });
                     });
     

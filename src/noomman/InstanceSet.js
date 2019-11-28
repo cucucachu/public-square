@@ -244,7 +244,7 @@ class InstanceSet extends SuperSet {
         await Promise.all(promises);
     }
     
-    async save(...controlMethodParameters) {
+    async save(createControlMethodParameters, updateControlMethodParameters) {
         const instancesToUpdate = this.filterToInstanceSet(instance => instance.saved());
         const instancesToCreate = this.difference(instancesToUpdate);
 
@@ -255,8 +255,8 @@ class InstanceSet extends SuperSet {
             throw new Error('Caught validation error when attempting to save InstanceSet: ' + error.message);
         }
         
-        await this.classModel.updateControlCheck(instancesToUpdate, ...controlMethodParameters);
-        await this.classModel.createControlCheck(instancesToCreate, ...controlMethodParameters);
+        await this.classModel.updateControlCheck(instancesToUpdate, updateControlMethodParameters);
+        await this.classModel.createControlCheck(instancesToCreate, createControlMethodParameters);
 
         await this.classModel.updateRelatedInstancesForInstanceSet(this);
 
@@ -264,7 +264,7 @@ class InstanceSet extends SuperSet {
         await Promise.all(promises);
     }
 
-    async saveWithoutRelatedUpdates(...controlMethodParameters) {
+    async saveWithoutRelatedUpdates(createControlMethodParameters, updateControlMethodParameters) {
         const instancesToUpdate = this.filterToInstanceSet(instance => instance.saved());
         const instancesToCreate = this.difference(instancesToUpdate);
 
@@ -275,8 +275,8 @@ class InstanceSet extends SuperSet {
             throw new Error('Caught validation error when attempting to save InstanceSet: ' + error.message);
         }
         
-        await this.classModel.updateControlCheck(instancesToUpdate, ...controlMethodParameters);
-        await this.classModel.createControlCheck(instancesToCreate, ...controlMethodParameters);
+        await this.classModel.updateControlCheck(instancesToUpdate, updateControlMethodParameters);
+        await this.classModel.createControlCheck(instancesToCreate, createControlMethodParameters);
 
         let promises = this.map(instance => instance.saveWithoutValidation())
         await Promise.all(promises);
@@ -361,11 +361,11 @@ class InstanceSet extends SuperSet {
         return walkResult;
     }
 
-    async readControlFilter(...readControlMethodParameters) {
-        return this.classModel.readControlFilter(this, ...readControlMethodParameters);
+    async readControlFilter(readControlMethodParameters) {
+        return this.classModel.readControlFilter(this, readControlMethodParameters);
     }
 
-    async delete(...deleteControlMethodParameters) {
+    async delete(deleteControlMethodParameters) {
         if (this.size == 0)
             return;
 
@@ -374,12 +374,12 @@ class InstanceSet extends SuperSet {
         if (unsavedInstances.length) 
             throw new Error('Attempt to delete an InstanceSet containing unsaved Instances.');
 
-        await this.classModel.deleteControlCheck(this, ...deleteControlMethodParameters);
+        await this.classModel.deleteControlCheck(this, deleteControlMethodParameters);
 
         const deletePromises = [];
 
         for (const instance of this) {
-            deletePromises.push(instance.delete(...deleteControlMethodParameters));
+            deletePromises.push(instance.delete(deleteControlMethodParameters));
         }
 
         return Promise.all(deletePromises);
