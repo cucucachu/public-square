@@ -46,6 +46,10 @@ class Instance extends Diffable {
         const unSettableInstanceProperties = ['classModel', 'id', '_id', '__t']; 
         const instanceMethods = Object.getOwnPropertyNames(Object.getPrototypeOf(this)); 
 
+        for (const nonStaticMethod of Object.keys(this.classModel.nonStaticMethods)) {
+            this[nonStaticMethod] = this.classModel.nonStaticMethods[nonStaticMethod];
+        }
+
         return new Proxy(this, {
             set(trapTarget, key, value, receiver) {
                 if (trapTarget.deleted()) 

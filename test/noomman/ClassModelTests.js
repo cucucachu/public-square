@@ -92,6 +92,9 @@ const testForErrorAsync = TestingFunctions.testForErrorAsync;
     var AuditableSuperClass = TestClassModels.AuditableSuperClass;
     var AuditableSubClass = TestClassModels.AuditableSubClass
     var AuditableDiscriminatedSubClass = TestClassModels.AuditableDiscriminatedSubClass;
+
+    // Static Methods Classes
+    var StaticMethodClass = TestClassModels.StaticMethodClass;
 }
 
 describe('Class Model Tests', () => {
@@ -5084,79 +5087,40 @@ describe('Class Model Tests', () => {
 
     describe('Class Model Custom Static Methods', () => {
 
-        it('Can call a basic custom static method.', () => {
-            const StaticMethodClass1 = new ClassModel({
-                className: 'StaticMethodClass1',
-                staticMethods: {
-                    sayHello: () => 'hello',
-                }
-            });
+        after(async () => {
+            await StaticMethodClass.clear();
+        });
 
-            if (StaticMethodClass1.sayHello() !== 'hello') {
+        it('Can call a basic custom static method.', () => {
+            if (StaticMethodClass.sayHello() !== 'hello') {
                 throw new Error('Static method did not work correctly');
             }
         });
 
         it('Can call a custom static method which uses this.', () => {
-            const StaticMethodClass2 = new ClassModel({
-                className: 'StaticMethodClass2',
-                staticMethods: {
-                    sayClassName: function() {
-                        return this.className;
-                    },
-                }
-            });
-
-            if (StaticMethodClass2.sayClassName() !== 'StaticMethodClass2') {
+            if (StaticMethodClass.sayClassName() !== 'StaticMethodClass') {
                 throw new Error('Static method did not work correctly');
             }
         });
 
         it('Can call a custom static method which uses this to call another function.', () => {
-            const StaticMethodClass3 = new ClassModel({
-                className: 'StaticMethodClass3',
-                staticMethods: {
-                    sayClassName: function() {
-                        return this.toString();
-                    },
-                }
-            });
-
-            if (StaticMethodClass3.sayClassName() !== 'StaticMethodClass3\n') {
+            if (StaticMethodClass.customToString() !== 'StaticMethodClass\n') {
                 throw new Error('Static method did not work correctly');
             }
         });
 
         it('Can call a custom static method which uses this to call another function with parameters.', () => {
-            const StaticMethodClass4 = new ClassModel({
-                className: 'StaticMethodClass4',
-                staticMethods: {
-                    isInstanceOfThisClassCustom: function(instance) {
-                        return this.isInstanceOfThisClass(instance);
-                    },
-                }
-            });
+            const instance = new Instance(StaticMethodClass);
 
-            const instance = new Instance(StaticMethodClass4);
-
-            if (StaticMethodClass4.isInstanceOfThisClassCustom(instance) !== true) {
+            if (StaticMethodClass.isInstanceOfThisClassCustom(instance) !== true) {
                 throw new Error('Static method did not work correctly');
             }
         });
 
         it('Can call a custom static method which uses this to call another async function with parameters.', async () => {
-            const StaticMethodClass5 = new ClassModel({
-                className: 'StaticMethodClass4',
-                staticMethods: {
-                    findByIdCustom: async function(id) {
-                        return this.findById(id);
-                    },
-                }
-            });
-
-            const instance = new Instance(StaticMethodClass5);
+            const instance = new Instance(StaticMethodClass);
             await instance.save();
-            const foundInstance = await StaticMethodClass5.findByIdCustom(instance._id);
+            const foundInstance = await StaticMethodClass.findByIdCustom(instance._id);
             
 
             if (!instance.equals(foundInstance)) {

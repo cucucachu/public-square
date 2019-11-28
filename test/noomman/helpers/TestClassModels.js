@@ -1378,6 +1378,28 @@ const ClassModel = require('../../../src/noomman/ClassModel');
             useSuperClassCollection: true,
         });
     }
+
+    // Custom Static Method Classes
+    {
+        var StaticMethodClass = new ClassModel({
+            className: 'StaticMethodClass',
+            staticMethods: {
+                sayHello: () => 'hello',
+                sayClassName: function() {
+                    return this.className;
+                },
+                customToString: function() {
+                    return this.toString();
+                },
+                isInstanceOfThisClassCustom: function(instance) {
+                    return this.isInstanceOfThisClass(instance);
+                },
+                findByIdCustom: async function(id) {
+                    return this.findById(id);
+                },
+            }
+        });
+    }
 }
 
 module.exports = {
@@ -1450,4 +1472,5 @@ module.exports = {
     AuditableSuperClass,
     AuditableSubClass,
     AuditableDiscriminatedSubClass,
+    StaticMethodClass,
 }
