@@ -1400,6 +1400,43 @@ const ClassModel = require('../../../src/noomman/ClassModel');
             }
         });
     }
+
+    // Custom Non-Static Method Classes
+    {
+        var NonStaticMethodsClass = new ClassModel({
+            className: 'NonStaticMethodsClass',
+            attributes: [
+                {
+                    name: 'name',
+                    type: String,
+                },
+                {
+                    name: 'age',
+                    type: Number,
+                }
+            ],
+            relationships: [
+                {
+                    name: 'siblings',
+                    singular: false,
+                    toClass: 'NonStaticMethodsClass',
+                    mirrorRelationship: 'siblings',
+                }
+            ],
+            nonStaticMethods: {
+                oldestSibling: async function() {
+                    const siblings = await this.siblings;
+                    let oldestSibling = this;
+                    for (const sibling of siblings) {
+                        if (sibling.age > oldestSibling.age) {
+                            oldestSibling = sibling;
+                        }
+                    }
+                    return oldestSibling.name;
+                }
+            }
+        });
+    }
 }
 
 module.exports = {
@@ -1473,4 +1510,5 @@ module.exports = {
     AuditableSubClass,
     AuditableDiscriminatedSubClass,
     StaticMethodClass,
+    NonStaticMethodsClass,
 }

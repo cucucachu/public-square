@@ -87,6 +87,9 @@ const objectsEqual = TestingFunctions.objectsEqual;
     var AuditableSuperClass = TestClassModels.AuditableSuperClass;
     var AuditableSubClass = TestClassModels.AuditableSubClass
     var AuditableDiscriminatedSubClass = TestClassModels.AuditableDiscriminatedSubClass;
+
+    // Non-Static Methods Classes
+    var NonStaticMethodsClass = TestClassModels.NonStaticMethodsClass;
 }
 
 describe('Instance Tests', () => {
@@ -5179,5 +5182,64 @@ describe('Instance Tests', () => {
 
     });
 
+    describe('Custom Non-Static Methods', () => {
+
+        let bob, joe, tracy, rao;
+
+        before(async () => {
+            bob = new Instance(NonStaticMethodsClass);
+            joe = new Instance(NonStaticMethodsClass);
+            tracy = new Instance(NonStaticMethodsClass);
+            rao = new Instance(NonStaticMethodsClass);
+
+            bob.assign({
+                name: 'bob',
+                age: 4,
+                siblings: new InstanceSet(NonStaticMethodsClass, [joe, tracy, rao]),
+            });
+
+            joe.assign({
+                name: 'joe',
+                age: 12,
+                siblings: new InstanceSet(NonStaticMethodsClass, [bob, tracy, rao]),
+            });
+
+            tracy.assign({
+                name: 'tracy',
+                age: 22,
+                siblings: new InstanceSet(NonStaticMethodsClass, [bob, joe, rao]),
+            });
+
+            rao.assign({
+                name: 'rao',
+                age: 16,
+                siblings: new InstanceSet(NonStaticMethodsClass, [bob, joe, tracy]),
+            });
+
+            await bob.save();
+        });
+
+        after(async () => {
+            await NonStaticMethodsClass.clear();
+        });
+
+        it('Can call a custom non static method which uses this and asynchronous calls.', async () => {
+            const oldestSibling = await bob.oldestSibling();
+
+            if (oldestSibling !== 'tracy') {
+                throw new Error('Non Static Method did not work correctly.');
+            }
+        });
+
+        it('Can call a custom non static method which uses this and asynchronous calls. (Instance from database.', async () => {
+            const bob2 = await NonStaticMethodsClass.findById(bob._id);
+            const oldestSibling = await bob2.oldestSibling();
+
+            if (oldestSibling !== 'tracy') {
+                throw new Error('Non Static Method did not work correctly.');
+            }
+        });
+
+    });
 
 });
