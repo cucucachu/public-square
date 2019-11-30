@@ -258,6 +258,12 @@ class InstanceSet extends SuperSet {
         await this.classModel.updateControlCheck(instancesToUpdate, updateControlMethodParameters);
         await this.classModel.createControlCheck(instancesToCreate, createControlMethodParameters);
 
+        for (const instance of this) {
+            if (instance.stripped()) {
+                throw new Error('Attempt to save an InstanceSet which contains stripped instances.');
+            }
+        }
+
         await this.classModel.updateRelatedInstancesForInstanceSet(this);
 
         let promises = this.map(instance => instance.saveWithoutValidation())

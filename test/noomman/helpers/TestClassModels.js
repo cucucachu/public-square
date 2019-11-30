@@ -1263,12 +1263,12 @@ const ClassModel = require('../../../src/noomman/ClassModel');
                     name: 'sensitiveControlledBy',
                     toClass: 'ClassControlsSensitiveControlledSuperClass',
                     singular: true,
-                    required: true,
                 },
             ],
             crudControls: {
                 sensitiveControl: async function() {
-                    return (await this.sensitiveControlledBy).allowed;
+                    const controlledBy = await this.sensitiveControlledBy;
+                    return controlledBy !== null ? controlledBy.allowed : false;
                 },
             }
         });

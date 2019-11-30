@@ -3,6 +3,8 @@ const db = require('./database');
 const Diffable = require('./Diffable');
 const InstanceState = require('./InstanceState');
 
+const stripped = Symbol('stripped');
+
 /*
  * Class Instance
  * Provides a wrapper around the native mongoose Document.
@@ -156,6 +158,10 @@ class Instance extends Diffable {
         return this.currentState === null;
     }
 
+    stripped() {
+        return this[stripped];
+    }
+
     stripSensitiveAttributes() {
         const sensitiveAttributes = this.classModel.attributes.filter(a => a.sensitive === true);
 
@@ -167,7 +173,7 @@ class Instance extends Diffable {
             delete this[attribute.name];
         }
 
-        this.stripped = true;
+        this[stripped] = true;
     }
 
     assign(object) {
@@ -411,7 +417,7 @@ class Instance extends Diffable {
             throw new Error('instance.save(): You cannot save an instance which has been deleted.');
         }
         
-        if (this.stripped) {
+        if (this[stripped]) {
             throw new Error('instance.save(): You cannot save an instance which has been stripped of sensitive attribues.');
         }
 
@@ -459,7 +465,7 @@ class Instance extends Diffable {
             throw new Error('instance.save(): You cannot save an instance which has been deleted.');
         }
 
-        if (this.stripped) {
+        if (this[stripped]) {
             throw new Error('instance.save(): You cannot save an instance which has been stripped of sensitive attribues.');
         }
 

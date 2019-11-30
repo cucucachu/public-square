@@ -74,6 +74,9 @@ const objectsEqual = TestingFunctions.objectsEqual;
     var DeleteControlledSuperClass = TestClassModels.DeleteControlledSuperClass;
     var ClassControlsDeleteControlledSuperClass = TestClassModels.ClassControlsDeleteControlledSuperClass;
     var DeleteControlledClassDeleteControlledByParameters = TestClassModels.DeleteControlledClassDeleteControlledByParameters;
+    
+    // SensitiveControlled Classes
+    var SensitiveControlledSuperClass = TestClassModels.SensitiveControlledSuperClass;
 
     // Validation Classes
     var ValidationSuperClass = TestClassModels.ValidationSuperClass;
@@ -3177,6 +3180,7 @@ describe('Instance Tests', () => {
             await database.clearCollection('audit_' + AuditableSuperClass.collection);
             await TwoWayRelationshipClass1.clear();
             await TwoWayRelationshipClass2.clear();
+            await SensitiveControlledSuperClass.clear();
         });
 
         describe('Saving New Instances', () => {
@@ -4440,6 +4444,28 @@ describe('Instance Tests', () => {
                         }
                     });
     
+                });
+
+            });
+
+        });
+
+        describe('Saving Sensitive Controlled Instances (Stripped Instances)', () => {
+            
+            it('An instance which has been stripped of a sensitive attribute cannot be saved.', async () => {
+                const expectedErrorMessage = 'instance.save(): You cannot save an instance which has been stripped of sensitive attribues.';
+                const instance = new Instance(SensitiveControlledSuperClass);
+                instance.assign({
+                    name: 'StrippedInstance',
+                    SSN: '123456789',
+                });
+
+                await instance.save();
+
+                const foundInstance = await SensitiveControlledSuperClass.findById(instance._id);
+
+                await testForErrorAsync('instance.save()', expectedErrorMessage, async () => {
+                    return foundInstance.save();
                 });
 
             });

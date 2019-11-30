@@ -60,6 +60,9 @@ const testForErrorAsyncRegex = TestingFunctions.testForErrorAsyncRegex;
     var DeleteControlledSuperClass = TestClassModels.DeleteControlledSuperClass;
     var ClassControlsDeleteControlledSuperClass = TestClassModels.ClassControlsDeleteControlledSuperClass;
     var DeleteControlledClassDeleteControlledByParameters = TestClassModels.DeleteControlledClassDeleteControlledByParameters;
+    
+    // SensitiveControlled Classes
+    var SensitiveControlledSuperClass = TestClassModels.SensitiveControlledSuperClass;
 
     // Validation Classes
     var ValidationSuperClass = TestClassModels.ValidationSuperClass;
@@ -1940,6 +1943,7 @@ describe('InstanceSet Tests', () => {
                 await UpdateControlledClassUpdateControlledByParameters.clear();
                 await CreateControlledSuperClass.clear();
                 await CreateControlledClassCreateControlledByParameters.clear();
+                await SensitiveControlledSuperClass.clear();
             });
 
             it('InstanceSet will not save any of the instances if any are invalid.', async () => {
@@ -3237,6 +3241,30 @@ describe('InstanceSet Tests', () => {
                             throw new Error('Reverse relationship not set.');
                         }
     
+                    });
+    
+                });
+    
+            });
+
+            describe('Saving Sensitive Controlled InstanceSets (Stripped Instances)', () => {
+                
+                it('An instance which has been stripped of a sensitive attribute cannot be saved.', async () => {
+                    const expectedErrorMessage = 'Attempt to save an InstanceSet which contains stripped instances.';
+                    const instance = new Instance(SensitiveControlledSuperClass);
+                    instance.assign({
+                        name: 'StrippedInstance',
+                        SSN: '123456789',
+                    });
+    
+                    await instance.save();
+    
+                    const foundInstanceSet = await SensitiveControlledSuperClass.find({
+                        _id: instance._id,
+                    });
+    
+                    await testForErrorAsync('instance.save()', expectedErrorMessage, async () => {
+                        return foundInstanceSet.save();
                     });
     
                 });
