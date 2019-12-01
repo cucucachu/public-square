@@ -2,7 +2,7 @@
   Description: Defines an application class model.
 */
 
-var db = require('./database');
+var database = require('./database');
 const InstanceSet = require('./InstanceSet');
 const Instance = require('./Instance');
 const Attribute = require('./Attribute');
@@ -294,11 +294,11 @@ class ClassModel {
         const indicesApplied = [];
 
         for (const index of this.indices) {
-            indicesApplied.push(await db.index(this.collection, index));
+            indicesApplied.push(await database.index(this.collection, index));
         }
 
         if (this.useSuperClassCollection) {
-            indicesApplied.push(await db.index(this.collection, '__t'));
+            indicesApplied.push(await database.index(this.collection, '__t'));
         }
 
         return indicesApplied;
@@ -559,19 +559,19 @@ class ClassModel {
     // Insert, Update, Delete Methods
 
     async insertOne(document) {
-        return db.insertOne(this.collection, document);
+        return database.insertOne(this.collection, document);
     }
     
     async insertMany(documents) {
-        return db.insertMany(this.collection, documents);
+        return database.insertMany(this.collection, documents);
     }
 
     async update(instance) {
-        return db.update(this.collection, instance);
+        return database.update(this.collection, instance);
     }
 
     async overwrite(instance) {
-        return db.overwrite(this.collection, instance);
+        return database.overwrite(this.collection, instance);
     }
 
     async delete(instance) {
@@ -579,7 +579,7 @@ class ClassModel {
         if (instance.classModel !== this)
             throw new Error(this.className + '.delete() called on an instance of a different class.');
 
-        return db.deleteOne(this.collection, instance);
+        return database.deleteOne(this.collection, instance);
     }
 
     // Query Methods
@@ -613,7 +613,7 @@ class ClassModel {
         }
 
         if (this.collection) {
-            const documentsFoundInThisCollection = await db.find(this.collection, queryFilter); 
+            const documentsFoundInThisCollection = await database.find(this.collection, queryFilter); 
             const instancesFoundInThisCollection = new InstanceSet(this, documentsFoundInThisCollection.map(document => { 
                 if (document.__t)
                     return new Instance(AllClassModels[document.__t], document);
@@ -674,7 +674,7 @@ class ClassModel {
         }
 
         if (this.collection) {
-            const documentFoundInThisCollection = await db.findOne(this.collection, queryFilter);
+            const documentFoundInThisCollection = await database.findOne(this.collection, queryFilter);
 
             if (documentFoundInThisCollection !== null) {
                 if (documentFoundInThisCollection.__t)
@@ -932,7 +932,7 @@ class ClassModel {
     }
 
     async deleteMany(instances) {
-        return db.deleteMany(this.collection, instances);
+        return database.deleteMany(this.collection, instances);
     }
 
     // Clear the collection. Never run in production! Only run in a test environment.
@@ -941,10 +941,10 @@ class ClassModel {
             throw new Error('Cannot call clear() on an abstract, non-discriminated class. Class: ' + classModel.className);
 
         if (this.useSuperClassCollection) {
-            return db.collection(this.collection).deleteMany({ __t: this.className });
+            return database.collection(this.collection).deleteMany({ __t: this.className });
         }
         else {
-            return db.collection(this.collection).deleteMany({});
+            return database.collection(this.collection).deleteMany({});
         }        
     }
 }

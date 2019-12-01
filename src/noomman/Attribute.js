@@ -1,6 +1,6 @@
 /*
  * Class Attribute
- * Describes the properties and rules/requirements for a single attribute (non-ObjectId property) 
+ * Describes the properties and rules/requirements for a single attribute (non-ObjectId/relationship property) 
  *   of a ClassModel. 
  */
 
