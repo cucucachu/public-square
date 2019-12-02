@@ -838,10 +838,24 @@ class ClassModel {
         return filtered;
     }
 
+    /* 
+     * isSuperClass()
+     * Use to determine if this ClassModel is a super ClassModel.
+     * Returns
+     * - Boolean - True if this ClassModel has any sub ClassModels, false otherwise.
+     */
     isSuperClass() {
         return (this.subClasses && this.subClasses.length)
     }
 
+    /*
+     * allSuperClasses()
+     * Finds all the ClassModels which are a parent ClassModel to this ClassModel, 
+     *    all the way up the inheritance tree.
+     * Returns
+     * - Array<ClassModel> - An array containing all the ClassModels that are a super ClassModel
+     *    to this ClassModel.
+     */
     allSuperClasses() {
         const superClasses = new SuperSet(this.superClasses);
 
@@ -852,6 +866,12 @@ class ClassModel {
         return [...superClasses];
     }
 
+    /*
+     * emptyInstanceSet()
+     * Creates a new empty InstanceSet of this classModel.
+     * Returns
+     * - An empty InstanceSet of this ClassModel.
+     */
     emptyInstanceSet() {
         return new InstanceSet(this);
     }
@@ -859,22 +879,63 @@ class ClassModel {
 
     // Insert, Update, Delete Methods
 
+    /*
+     * insertOne(document)
+     * Inserts a document into the collection for this ClassModel. Internal use only. 
+     * Parameters
+     * - document - Object - an object to insert into the collection for this ClassModel.
+     * Returns
+     * - Promise<insertOneWriteOpResult> - see https://mongodb.github.io/node-mongodb-native/3.3/api/Collection.html#~insertOneWriteOpResult
+     */
     async insertOne(document) {
         return database.insertOne(this.collection, document);
     }
-    
+
+    /*
+     * insertMany(documents)
+     * Inserts multiple documents into the collection for this ClassModel. Internal use only. 
+     * Parameters
+     * - documents - Array<Object> - an array of objects to insert into the collection for this ClassModel.
+     * Returns
+     * - Promise<insertWriteOpResultObject> - see https://mongodb.github.io/node-mongodb-native/3.3/api/Collection.html#~insertWriteOpResult
+     */
     async insertMany(documents) {
         return database.insertMany(this.collection, documents);
     }
 
+    /* 
+     * update(instance)
+     * Updates the given instance in this ClassModel's collection to match the current state of the instance.
+     *    Internal use only.
+     * Parameters
+     * - instance - Instance - An instance of this ClassModel to update in the database.
+     * Returns
+     * - Promise<updateWriteOpResult> - see https://mongodb.github.io/node-mongodb-native/3.3/api/Collection.html#~updateWriteOpResult
+     */
     async update(instance) {
         return database.update(this.collection, instance);
     }
 
+    /* 
+     * overwrite(instance)
+     * Overwrites an instance in the collection for this ClassModel. Do Not Use. Internal Use Only.
+     * Parameters
+     * - instance - Instance - An instance of this ClassModel to overwrite in the database.
+     * Returns
+     * - Promise<updateWriteOpResult> - see https://mongodb.github.io/node-mongodb-native/3.3/api/Collection.html#~updateWriteOpResult
+     */
     async overwrite(instance) {
         return database.overwrite(this.collection, instance);
     }
 
+    /*
+     * delete(instance)
+     * Deletes an instance from the collection for this ClassModel.
+     * Parameters
+     * - instance - Instance - an instance to delete.
+     * Returns
+     * - Promise<deleteWriteOpResult> - see https://mongodb.github.io/node-mongodb-native/3.3/api/Collection.html#~deleteWriteOpResult
+     */
     async delete(instance) {
 
         if (instance.classModel !== this)
@@ -885,11 +946,23 @@ class ClassModel {
 
     // Query Methods
 
-    /* Finds instances of this ClassModel using the given query filter in the database. 
-     * If called on a superclass, will recursively check this ClassModel's collection, and then it's subclasses collections.
-     * Required Parameter queryFilter - A mongo query object
-     * Rest Parameter readControlMethodParameters - Optional parameters used by this ClassModels read control method. 
-     * Returns a promise, which will resolve with the instance with the given query filter if it can be found, otherwise null.
+    /* 
+     * find(queryFilter, readControlMethodParameters, sensitiveControlMethodParameters)
+     * Finds instances of this ClassModel using the given query filter in the database. 
+     *    If called on a superclass, will recursively check this ClassModel's collection, and then it's sub-ClassModels collections.
+     *    This method respects readControl and sensitiveControl methods. If this ClassModel is read controlled, instances found
+     *    during query will be filtered down to those which pass the readControl method(s) for this ClassModel. If this ClassModel
+     *    is sensitive controlled, all instances which do not pass the sensitiveControl method(s) for this ClassModel will be 
+     *    stripped of any sensitive attributes.
+     * Parameters
+     * - queryFilter - Object - A mongo query object (required)
+     * - readControlMethodParameters - Object - An object containing parameters that will be passed to the readControl method(s)
+     *    for this ClassModel.
+     * - sensitiveControlMethodParameters - Object - An object containing parameters that will be passed to the sensitiveControl
+     *    method(s) for this ClassModel.
+     * Returns 
+     * - Promise<InstanceSet> - An InstanceSet of this ClassModel containing all instances of this ClassModel or its children
+     *    which match the given query and pass the readControl methods if applicable.
      */
     async find(queryFilter, readControlMethodParameters, sensitiveControlMethodParameters) {
         const unfiltered = await this.pureFind(queryFilter);
@@ -900,6 +973,17 @@ class ClassModel {
         return filtered;
     }
 
+    /* 
+     * pureFind(queryFilter)
+     * Finds instances of this ClassModel using the given query filter in the database. 
+     *    If called on a superclass, will recursively check this ClassModel's collection, and then it's sub-ClassModels collections.
+     *    This method DOES NOT do any readControl or sensitiveControl filtering. 
+     * Parameters
+     * - queryFilter - Object - A mongo query object (required)
+     * Returns 
+     * - Promise<InstanceSet> - An InstanceSet of this ClassModel containing all instances of this ClassModel or its children
+     *    which match the given query.
+     */
     async pureFind(queryFilter) {
         const foundInstances = new InstanceSet(this);
 
@@ -920,7 +1004,6 @@ class ClassModel {
                     return new Instance(AllClassModels[document.__t], document);
                 return new Instance(this, document);
             }));
-            //const instancesFoundInThisCollectionFiltered = await this.readControlFilter(instancesFoundInThisCollection, readControlMethodParameters)
             foundInstances.addInstances(instancesFoundInThisCollection);
         }
         
@@ -937,11 +1020,24 @@ class ClassModel {
         return foundInstances;
     }
 
-    /* Finds an instance of this ClassModel using the given query filter in the database. 
-     * If called on a superclass, will recursively check this ClassModel's collection, and then it's subclasses collections.
-     * Required Parameter queryFilter - A mongo query object.
-     * Rest Parameter readControlMethodParameters - Optional parameters used by this ClassModels read control method. 
-     * Returns a promise, which will resolve with the instance with the given query filter if it can be found, otherwise null.
+    /* 
+     * findOne(queryFilter, readControlMethodParameters, sensitiveControlMethodParameters)
+     * Finds a single instance of this ClassModel using the given query filter in the database. 
+     *    If called on a superclass, will recursively check this ClassModel's collection, and then it's sub-ClassModels collections.
+     *    This method respects readControl and sensitiveControl methods. If this ClassModel is read controlled, the instance found
+     *    during query will not be returned if it does not pass the readControl method(s) for this ClassModel. If this ClassModel
+     *    is sensitive controlled, an instance which does not pass the sensitiveControl method(s) for this ClassModel will be 
+     *    stripped of any sensitive attributes.
+     * Parameters
+     * - queryFilter - Object - A mongo query object (required)
+     * - readControlMethodParameters - Object - An object containing parameters that will be passed to the readControl method(s)
+     *    for this ClassModel.
+     * - sensitiveControlMethodParameters - Object - An object containing parameters that will be passed to the sensitiveControl
+     *    method(s) for this ClassModel.
+     * Returns 
+     * - Promise<Instance> - The first Instance of this ClassModel or its children
+     *    which matches the given query and passes the readControl methods if applicable. Returns null if no Instance matches query
+     *    or if matching instance does not pass readControl method (if applicable).
      */
     async findOne(queryFilter, readControlMethodParameters, sensitiveControlMethodParameters) {
         const unfiltered = await this.pureFindOne(queryFilter);
@@ -962,7 +1058,16 @@ class ClassModel {
         return filtered;
     }
 
-
+    /* 
+     * pureFindOne(queryFilter)
+     * Finds a single instance of this ClassModel using the given query filter in the database. 
+     *    If called on a superclass, will recursively check this ClassModel's collection, and then it's sub-ClassModels collections.
+     *    This method does not respect readControl and sensitiveControl methods. 
+     * Parameters
+     * - queryFilter - Object - A mongo query object (required)
+     * Returns 
+     * - Promise<Instance> - The first Instance of this ClassModel or its children which matches the given query.
+     */
     async pureFindOne(queryFilter) {
         const subClassesWithDifferentCollections = this.subClasses ? this.subClasses.filter(subClass => !subClass.useSuperClassCollection) : [];
 
@@ -998,19 +1103,56 @@ class ClassModel {
         return ClassModel.firstNonNullPromiseResolution(promises);
     }
 
-    /* Finds an instance of this ClassModel with the given id in the database. 
-     * If called on a superclass, will recursively check this ClassModel's collection, and then it's subclasses collections.
-     * Parameter id - the Object ID of the instance to find.
-     * Returns a promise, which will resolve with the instance with the given id if it can be found, otherwise null.
+    /* 
+     * findById(queryFilter, readControlMethodParameters, sensitiveControlMethodParameters)
+     * Finds a single instance of this ClassModel with the given id. 
+     *    If called on a superclass, will recursively check this ClassModel's collection, and then it's sub-ClassModels collections.
+     *    This method respects readControl and sensitiveControl methods. If this ClassModel is read controlled, the instance found
+     *    during query will not be returned if it does not pass the readControl method(s) for this ClassModel. If this ClassModel
+     *    is sensitive controlled, an instance which does not pass the sensitiveControl method(s) for this ClassModel will be 
+     *    stripped of any sensitive attributes.
+     * Parameters
+     * - id - ObjectId - A mongo ObjectId of the Instance you which to find.
+     * - readControlMethodParameters - Object - An object containing parameters that will be passed to the readControl method(s)
+     *    for this ClassModel.
+     * - sensitiveControlMethodParameters - Object - An object containing parameters that will be passed to the sensitiveControl
+     *    method(s) for this ClassModel.
+     * Returns 
+     * - Promise<Instance> - The first Instance of this ClassModel or its children
+     *    which has the given id and passes the readControl methods if applicable. Returns null if no Instance with the given id is 
+     *    found, or if matching instance does not pass readControl method (if applicable).
      */
-    async findById(id, readControlMethodParameters) {
-        return this.findOne({_id: id}, readControlMethodParameters);
+    async findById(id, readControlMethodParameters, sensitiveControlMethodParameters) {
+        return this.findOne({_id: id}, readControlMethodParameters, sensitiveControlMethodParameters);
     }
 
+    /* 
+     * pureFindById(id)
+     * Finds a single instance of this ClassModel with the given id.
+     *    If called on a superclass, will recursively check this ClassModel's collection, and then it's sub-ClassModels collections.
+     *    This method does not respect readControl and sensitiveControl methods. 
+     * Parameters
+     * - id - ObjectId - A mongo ObjectId of the Instance you which to find.
+     * Returns 
+     * - Promise<Instance> - The Instance of this ClassModel or its children with the given id.
+     */
     async pureFindById(id) {
         return this.pureFindOne({_id: id});
     }
 
+    /*
+     * updateRelatedInstancesForInstance(instance) 
+     * Analyzes the changes to two-way relationships for the given Instance to determine which related instances also
+     *    need to be updated in order to maintain the consistency of the two-way relationships. Will make the updates
+     *    to those related Instances as necessary and save the changes to those instances.
+     *    Internal use only.
+     * Parameters
+     * - instance - Instance - An instance of this ClassModel to analyze and  update related instances for.
+     * Returns
+     * - Promise<Array<Instance>> - An array of all the related instances which were updated.
+     * Throws
+     * - Error - Throws errors which are thrown during saving, such as validation or database errors.
+     */
     async updateRelatedInstancesForInstance(instance) {
         const relatedDiff = instance.relatedDiffs();
         const reducedRelatedDiff = instance.reducedRelatedDiffs(relatedDiff);
@@ -1050,6 +1192,19 @@ class ClassModel {
         return instanceSet.saveWithoutRelatedUpdates();
     }
 
+    /*
+     * updateRelatedInstancesForInstanceSet(instanceSet)
+     * Analyzes the changes to two-way relationships for the Instances in the given InstanceSet to determine which 
+     *    related Instances also need to be updated in order to maintain the consistency of the two-way relationships. 
+     *    Will make the updates to those related instances as necessary and save the changes to those instances.
+     *    Internal use only.
+     * Parameters
+     * - instanceSet - InstanceSet - An InstanceSet of this ClassModel to analyze and update related instances for.
+     * Returns
+     * - Promise<Array<Instance>> - An array of all the related instances which were updated.
+     * Throws
+     * - Error - Throws errors which are thrown during saving, such as validation or database errors.
+     */
     async updateRelatedInstancesForInstanceSet(instanceSet) {
         const relationshipsNeedingUpdate = new SuperSet();
         const reducedRelatedDiffs = [];
@@ -1100,7 +1255,24 @@ class ClassModel {
 
     // Crud Control Methods
 
-    async evaluateCrudControlMethods(instanceSet, controlMethods, ...methodParameters) {
+    /*
+     * evaluateCrudControlMethods(instanceSet, controlMethods, methodParameters)
+     * Runs the crudControl methods determined by the controlMethods parameter for each Instance in the 
+     *    given InstanceSet that are applicable for each Instance's ClassModel, using the given methodParameters.
+     *    Returns an InstanceSet of Instances which for which at least one controlMethod returns false.
+     *    Internal use only.
+     * Parameters
+     * - instanceSet - InstanceSet - an InstanceSet of this ClassModel to evaluate crudControl methods on.
+     * - controlMethods - String - A string which determines which type of control methods to run. Valid values
+     *    are 'readControlMethods', 'createControlMethods', 'updateControlMethods', 'deleteControlMethods',
+     *    or 'sensitiveControlMethods'.
+     * - methodParameters - Object - An object containing any parameters that a particular crudControl method
+     *    may need.
+     * Returns
+     * - Promise<InstanceSet> - An InstanceSet containing all the instances for which at least one crudControl
+     *    method returns false.
+     */
+    async evaluateCrudControlMethods(instanceSet, controlMethods, methodParameters) {
         let rejectedInstances = new InstanceSet(this);
 
         const instancesOfThisClass = instanceSet.filterToInstanceSet(instance => {
@@ -1109,7 +1281,7 @@ class ClassModel {
 
         for (const instance of instancesOfThisClass) {
             for (const controlMethod of this[controlMethods]) {
-                let result = controlMethod.apply(instance, methodParameters);
+                let result = controlMethod.call(instance, methodParameters);
                 if (result instanceof Promise) {
                     result = await result;
                 }
@@ -1125,16 +1297,29 @@ class ClassModel {
                 let instancesOfSubClass = instanceSet.filterForClassModel(subClass);
 
                 if (!instancesOfSubClass.isEmpty()) {
-                    const rejectedSubClassInstances = await subClass.evaluateCrudControlMethods(instancesOfSubClass, controlMethods, ...methodParameters);
+                    const rejectedSubClassInstances = await subClass.evaluateCrudControlMethods(instancesOfSubClass, controlMethods, methodParameters);
                     rejectedInstances.addFromIterable(rejectedSubClassInstances);
                 }
             }
         }
 
         return rejectedInstances;
-
     }
 
+    /*
+     * createControlCheck(instanceSet, createControlMethodParameters)
+     * Runs applicable createControl methods for each Instance in the given InstanceSet, and throws an error if any
+     *    createControl method returns false for any of the Instances in the InstanceSet.
+     * Parameters
+     * - instanceSet - InstanceSet - an InstanceSet of this ClassModel to evaluate createControl methods on.
+     * - createControlMethodParameters - Object - An object containing any parameters that the createControl method(s)
+     *    may need.
+     * Returns
+     * - Promise<undefined> - Returns a promise which resolves to undefined if all Instances pass the createControl methods.
+     * Throws
+     * - Error - if instanceSet parameter is not an InstanceSet
+     * - Error - if any createControl method returns false for any of the Instances in the InstanceSet.
+     */
     async createControlCheck(instanceSet, createControlMethodParameters) {
         if (!(instanceSet instanceof InstanceSet))
             throw new Error('Incorrect parameters. ' + this.className + '.createControlCheck(InstanceSet instanceSet, createControlMethodParameters)');
@@ -1148,16 +1333,39 @@ class ClassModel {
             throw new Error('Illegal attempt to create instances: ' + rejectedInstances.getInstanceIds());
     }
 
+
+    /*
+     * createControlCheckInstance(instance, createControlMethodParameters)
+     * Runs applicable createControl methods for the given Instance, and throws an error if any
+     *    createControl method returns false for the Instance.
+     * Parameters
+     * - instance - Instance - an Instance of this ClassModel to evaluate createControl methods on.
+     * - createControlMethodParameters - Object - An object containing any parameters that the createControl method(s)
+     *    may need.
+     * Returns
+     * - Promise<undefined> - Returns a promise which resolves to undefined if all Instances pass the createControl methods.
+     * Throws
+     * - Error - if instance parameter is not an Instance
+     * - Error - if any createControl method returns false for the Instance.
+     */
     async createControlCheckInstance(instance, createControlMethodParameters) {
         const instanceSet = new InstanceSet(instance.classModel, [instance]);
         return this.createControlCheck(instanceSet, createControlMethodParameters);
     }
 
-    /* Takes an array of instances of the Class Model and filters out any that do not pass this Class Model's read control method.
-     * @param required Array<instance> : An array of instances of this Class Model to filter.
-     * @return Promise(Array<Instance>): The given instances filtered for read control.
+    /*
+     * readControlFilter(instanceSet, readControlMethodParameters)
+     * Runs applicable readControl methods for each Instance in the given InstanceSet, and filters out any
+     *    Instances for which any readControl method returns false.
+     * Parameters
+     * - instanceSet - InstanceSet - an InstanceSet of this ClassModel to evaluate readControl methods on.
+     * - readControlMethodParameters - Object - An object containing any parameters that the readControl method(s)
+     *    may need.
+     * Returns
+     * - Promise<InstanceSet> - An InstanceSet containing those Instances for which all readControl methods return true.
+     * Throws
+     * - Error - if instanceSet parameter is not an InstanceSet
      */
-
     async readControlFilter(instanceSet, readControlMethodParameters) {
         if (!(instanceSet instanceof InstanceSet))
             throw new Error('Incorrect parameters. ' + this.className + '.readControlFilter(InstanceSet instanceSet, readControlMethodParameters)');
@@ -1171,12 +1379,37 @@ class ClassModel {
         return instanceSet.difference(rejectedInstances);
     }
 
+    /*
+     * readControlFilterInstance(instance, readControlMethodParameters)
+     * Runs applicable readControl methods for the given Instance. If each readControl method returns true for 
+     *    the Instance, then the Instance is returned, otherwise null is returned.
+     * Parameters
+     * - instance - Instance - an Instancee of this ClassModel to evaluate readControl methods on.
+     * - readControlMethodParameters - Object - An object containing any parameters that the readControl method(s)
+     *    may need.
+     * Returns
+     * - Promise<Instance> - The given Instance if all readControl methods return true, otherwise null.
+     */
     async readControlFilterInstance(instance, readControlMethodParameters) {
         const instanceSet = new InstanceSet(this, [instance]);
         const filteredInstanceSet = await this.readControlFilter(instanceSet, readControlMethodParameters);
         return filteredInstanceSet.isEmpty() ? null : [...instanceSet][0];
     }
 
+    /*
+     * updateControlCheck(instanceSet, updateControlMethodParameters)
+     * Runs applicable updateControl methods for each Instance in the given InstanceSet, throws an error 
+     *    if any updateControl method returns false for any Instance.
+     * Parameters
+     * - instanceSet - InstanceSet - an InstanceSet of this ClassModel to evaluate updateControl methods on.
+     * - updateControlMethodParameters - Object - An object containing any parameters that the updateControl method(s)
+     *    may need.
+     * Returns
+     * - Promise<undefined> - Returns a promise which resolves to undefined if all Instances pass the updateControl methods.
+     * Throws
+     * - Error - if instanceSet parameter is not an InstanceSet
+     * - Error - if any updateControl method returns false for any of the Instances in the InstanceSet.
+     */
     async updateControlCheck(instanceSet, updateControlMethodParameters) {
         if (!(instanceSet instanceof InstanceSet))
             throw new Error('Incorrect parameters. ' + this.className + '.updateControlCheck(InstanceSet instanceSet, updateControlMethodParameters)');
@@ -1190,11 +1423,38 @@ class ClassModel {
             throw new Error('Illegal attempt to update instances: ' + rejectedInstances.getInstanceIds());
     }
 
+    /*
+     * updateControlCheckInstance(instance, updateControlMethodParameters)
+     * Runs applicable updateControl methods for the given Instance, throws an error 
+     *    if any updateControl method returns false for the Instance.
+     * Parameters
+     * - instance - Instance - an Instance of this ClassModel to evaluate updateControl methods on.
+     * - updateControlMethodParameters - Object - An object containing any parameters that the updateControl method(s)
+     *    may need.
+     * Returns
+     * - Promise<undefined> - Returns a promise which resolves to undefined if the Instance passes the updateControl methods.
+     * Throws
+     * - Error - if any updateControl method returns false for the given Instance.
+     */
     async updateControlCheckInstance(instance, updateControlMethodParameters) {
         const instanceSet = new InstanceSet(instance.classModel, [instance]);
         return this.updateControlCheck(instanceSet, updateControlMethodParameters);
     }
 
+    /*
+     * deleteControlCheck(instanceSet, deleteControlMethodParameters)
+     * Runs applicable deleteControl methods for each Instance in the given InstanceSet, throws an error 
+     *    if any deleteControl method returns false for any Instance.
+     * Parameters
+     * - instanceSet - InstanceSet - an InstanceSet of this ClassModel to evaluate deleteControl methods on.
+     * - deleteControlMethodParameters - Object - An object containing any parameters that the deleteControl method(s)
+     *    may need.
+     * Returns
+     * - Promise<undefined> - Returns a promise which resolves to undefined if all Instances pass the deleteControl methods.
+     * Throws
+     * - Error - if instanceSet parameter is not an InstanceSet
+     * - Error - if any deleteControl method returns false for any of the Instances in the InstanceSet.
+     */
     async deleteControlCheck(instanceSet, deleteControlMethodParameters) {
         if (!(instanceSet instanceof InstanceSet))
             throw new Error('Incorrect parameters. ' + this.className + '.deleteControlCheck(InstanceSet instanceSet, deleteControlMethodParameters)');
@@ -1208,11 +1468,37 @@ class ClassModel {
             throw new Error('Illegal attempt to delete instances: ' + rejectedInstances.getInstanceIds());
     }
 
+    /*
+     * deleteControlCheckInstance(instance, deleteControlMethodParameters)
+     * Runs applicable deleteControl methods for the given Instance, throws an error 
+     *    if any deleteControl method returns false for the Instance.
+     * Parameters
+     * - instance - Instance - an Instance of this ClassModel to evaluate deleteControl methods on.
+     * - deleteControlMethodParameters - Object - An object containing any parameters that the deleteControl method(s)
+     *    may need.
+     * Returns
+     * - Promise<undefined> - Returns a promise which resolves to undefined if the Instance passes the deleteControl methods.
+     * Throws
+     * - Error - if any deleteControl method returns false for the given Instance.
+     */
     async deleteControlCheckInstance(instance, deleteControlMethodParameters) {
         const instanceSet = new InstanceSet(instance.classModel, [instance]);
         return this.deleteControlCheck(instanceSet, deleteControlMethodParameters);
     }
 
+    /*
+     * sensitiveControlFilter(instanceSet, sensitiveControlMethodParameters)
+     * Runs applicable sensitiveControl methods for each Instance in the given InstanceSet, and returns those for which
+     *    at least one sensitiveControl method fails.
+     * Parameters
+     * - instanceSet - InstanceSet - an InstanceSet of this ClassModel to evaluate sensitiveControl methods on.
+     * - sensitiveControlMethodParameters - Object - An object containing any parameters that the sensitiveControl method(s)
+     *    may need.
+     * Returns
+     * - Promise<InstanceSet> - An InstanceSet containing those Instances for which any sensitiveControl method returns false.
+     * Throws
+     * - Error - if instanceSet parameter is not an InstanceSet
+     */
     async sensitiveControlFilter(instanceSet, sensitiveControlMethodParameters) {
         if (!(instanceSet instanceof InstanceSet))
             throw new Error('Incorrect parameters. ' + this.className + '.sensitiveControlFilter(InstanceSet instanceSet, sensitiveControlMethodParameters)');
@@ -1226,17 +1512,44 @@ class ClassModel {
         return rejectedInstances;
     }
 
+    /*
+     * sensitiveControlFilterInstance(instance, sensitiveControlMethodParameters)
+     * Runs applicable sensitiveControl methods for the given Instance, and returns the instance if 
+     *    any sensitiveControl method returns false. Returns null otherwise.
+     * Parameters
+     * - instance - Instance - an Instance of this ClassModel to evaluate sensitiveControl methods on.
+     * - sensitiveControlMethodParameters - Object - An object containing any parameters that the sensitiveControl method(s)
+     *    may need.
+     * Returns
+     * - Promise<Instance> - the given Instance if any sensitiveControl method returns false, otherwise null.
+     */
     async sensitiveControlFilterInstance(instance, sensitiveControlMethodParameters) {
         const instanceSet = new InstanceSet(this, [instance]);
         const rejectedInstances = await this.sensitiveControlFilter(instanceSet, sensitiveControlMethodParameters);
         return rejectedInstances.size > 0 ? instance : null;
     }
 
+    /*
+     * deleteMany(instances)
+     * Deletes all of the given instances from this ClassModel's collection.
+     * Parameters
+     * - instances - Iterable<Instance> - an Iterable (Array, InstanceSet, etc.) containing Instances to delete.
+     * Returns 
+     * - Promise<deleteWriteOpResult> - see https://mongodb.github.io/node-mongodb-native/3.3/api/Collection.html#~deleteWriteOpResult
+     */
     async deleteMany(instances) {
         return database.deleteMany(this.collection, instances);
     }
 
-    // Clear the collection. Never run in production! Only run in a test environment.
+    /* 
+     * clear() 
+     * Deletes every document in the collection for this ClassModel. 
+     *    This is for testing purposes only, never run in production.
+     * Returns
+     * - Promise<undefined> - A promise which resolves to undefined if no Errors are thrown.
+     * Throws
+     * - Error - if this is an abstract, non-discriminated ClassModel.
+     */
     async clear() {
         if (this.abstract && !this.discriminated())
             throw new Error('Cannot call clear() on an abstract, non-discriminated class. Class: ' + classModel.className);
@@ -1250,6 +1563,11 @@ class ClassModel {
     }
 }
 
+/* 
+ * NoommanClassModel
+ * An internal ClassModel which is the root of the ClassModel inheritance tree. Every
+ *    ClassModel created will be considered a sub-ClassModel of the NoommanClassModel.
+ */
 const NoommanClassModel = new ClassModel({
     className: 'NoommanClassModel',
     abstract: true,
