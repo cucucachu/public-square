@@ -1,9 +1,4 @@
-/*
-  Class ClassModel
-  A class which defines the schema for a Class which will be stored in the mongo database.
-  Has methods for querying the underlying database collections for instances of a ClassModel
-  and its sub ClassModels. 
-*/
+
 
 var database = require('./database');
 const InstanceSet = require('./InstanceSet');
@@ -15,6 +10,12 @@ const SuperSet = require('./SuperSet');
 
 const AllClassModels = [];
 
+/*
+ * Class ClassModel
+ * A class which defines the schema for a Class which will be stored in the mongo database.
+ * Has methods for querying the underlying database collections for instances of a ClassModel
+ * and its sub ClassModels. 
+ */
 class ClassModel {
 
     /*
@@ -1207,7 +1208,7 @@ class ClassModel {
      */
     async updateRelatedInstancesForInstanceSet(instanceSet) {
         const relationshipsNeedingUpdate = new SuperSet();
-        const reducedRelatedDiffs = [];
+        const relatedDiffs = [];
 
         if (!(instanceSet instanceof InstanceSet) || instanceSet.isEmpty()) {
             return;
@@ -1220,7 +1221,7 @@ class ClassModel {
                 relationshipsNeedingUpdate.add(relationshipName);
             }
             if (relationshipsToUpdateForInstance.length) {
-                reducedRelatedDiffs.push(relatedDiff);
+                relatedDiffs.push(relatedDiff);
             }
         }
 
@@ -1228,7 +1229,7 @@ class ClassModel {
             return;
         }
 
-        const combinedDiff = Diffable.combineMultipleReducedDiffs(reducedRelatedDiffs);
+        const combinedDiff = Diffable.combineMultipleRelatedDiffs(relatedDiffs);
         const allRelatedInstances = new InstanceSet(NoommanClassModel);
 
         // Retrieve all related instances and collect them in an instanceSet.

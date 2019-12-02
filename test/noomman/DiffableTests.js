@@ -1835,7 +1835,7 @@ describe('Diffable Tests', () => {
 
     });
 
-    describe('Diffable.combineMultipleReducedDiffs()', () => {
+    describe('Diffable.combineMultipleRelatedDiffs()', () => {
 
         describe('Many to One Relationships', () => {
 
@@ -1855,7 +1855,7 @@ describe('Diffable Tests', () => {
     
                     const diff1 = instance1.relatedDiffs();
                     const diff2 = instance2.relatedDiffs();
-                    const combinedDiff = Diffable.combineMultipleReducedDiffs([diff1, diff2]);
+                    const combinedDiff = Diffable.combineMultipleRelatedDiffs([diff1, diff2]);
 
                     console.log(JSON.stringify(combinedDiff, null, 2));
     
@@ -1878,7 +1878,7 @@ describe('Diffable Tests', () => {
                     instance1[relationship] = relatedInstance;
     
                     const diff1 = instance1.relatedDiffs();
-                    const combinedDiff = Diffable.combineMultipleReducedDiffs([diff1]);
+                    const combinedDiff = Diffable.combineMultipleRelatedDiffs([diff1]);
     
                     if (!combinedDiff[relatedInstance.id][operator][mirrorRelationship].equals(instance1._id)) {
                         throw new Error('Combined diff is not correct.');
@@ -1902,7 +1902,7 @@ describe('Diffable Tests', () => {
                     const diff1 = instance1.relatedDiffs();
                     const diff2 = instance2.relatedDiffs();
                     const diff3 = instance3.relatedDiffs();
-                    const combinedDiff = Diffable.combineMultipleReducedDiffs([diff1, diff2, diff3]);
+                    const combinedDiff = Diffable.combineMultipleRelatedDiffs([diff1, diff2, diff3]);
     
                     if (!combinedDiff[relatedInstance.id][operator][mirrorRelationship][spreadOperator][0].equals(instance1._id)) {
                         throw new Error('Combined diff is not correct.');
@@ -1943,7 +1943,7 @@ describe('Diffable Tests', () => {
     
                     const diff1 = instance1.relatedDiffs();
                     const diff2 = instance2.relatedDiffs();
-                    const combinedDiff = Diffable.combineMultipleReducedDiffs([diff1, diff2]);
+                    const combinedDiff = Diffable.combineMultipleRelatedDiffs([diff1, diff2]);
     
                     if (!combinedDiff[relatedInstance.id][operator][mirrorRelationship][spreadOperator][0].equals(instance1._id)) {
                         throw new Error('Combined diff is not correct.');
@@ -1969,7 +1969,7 @@ describe('Diffable Tests', () => {
                     instance1[relationship] = null;
     
                     const diff1 = instance1.relatedDiffs();
-                    const combinedDiff = Diffable.combineMultipleReducedDiffs([diff1]);
+                    const combinedDiff = Diffable.combineMultipleRelatedDiffs([diff1]);
     
                     if (!combinedDiff[relatedInstance.id][operator][mirrorRelationship].equals(instance1._id)) {
                         throw new Error('Combined diff is not correct.');
@@ -2000,7 +2000,7 @@ describe('Diffable Tests', () => {
     
                     const diff1 = instance1.relatedDiffs();
                     const diff2 = instance2.relatedDiffs();
-                    const combinedDiff = Diffable.combineMultipleReducedDiffs([diff1, diff2]);
+                    const combinedDiff = Diffable.combineMultipleRelatedDiffs([diff1, diff2]);
     
                     if (!combinedDiff[relatedInstance1.id][operator][mirrorRelationship][spreadOperator][0].equals(instance1._id)) {
                         throw new Error('Combined diff is not correct.');
@@ -2034,7 +2034,7 @@ describe('Diffable Tests', () => {
     
                     const diff1 = instance1.relatedDiffs();
                     const diff2 = instance2.relatedDiffs();
-                    const combinedDiff = Diffable.combineMultipleReducedDiffs([diff1, diff2]);
+                    const combinedDiff = Diffable.combineMultipleRelatedDiffs([diff1, diff2]);
     
                     if (!combinedDiff[relatedInstance1.id][operator][mirrorRelationship].equals(instance1._id)) {
                         throw new Error('Combined diff is not correct.');
@@ -2081,7 +2081,7 @@ describe('Diffable Tests', () => {
     
                     const diff1 = instance1.relatedDiffs();
                     const diff2 = instance2.relatedDiffs();
-                    const combinedDiff = Diffable.combineMultipleReducedDiffs([diff1, diff2]);
+                    const combinedDiff = Diffable.combineMultipleRelatedDiffs([diff1, diff2]);
     
                     if (!combinedDiff[relatedInstance1.id][operator][mirrorRelationship][spreadOperator][0].equals(instance1._id)) {
                         throw new Error('Combined diff is not correct.');
@@ -2124,7 +2124,7 @@ describe('Diffable Tests', () => {
     
                     const diff1 = instance1.relatedDiffs();
                     const diff2 = instance2.relatedDiffs();
-                    const combinedDiff = Diffable.combineMultipleReducedDiffs([diff1, diff2]);
+                    const combinedDiff = Diffable.combineMultipleRelatedDiffs([diff1, diff2]);
     
                     if (!combinedDiff[relatedInstance1.id][operator][mirrorRelationship].equals(instance1._id)) {
                         throw new Error('Combined diff is not correct.');
@@ -2167,7 +2167,7 @@ describe('Diffable Tests', () => {
     
                     const diff1 = instance1.relatedDiffs();
                     const diff2 = instance2.relatedDiffs();
-                    const combinedDiff = Diffable.combineMultipleReducedDiffs([diff1, diff2]);
+                    const combinedDiff = Diffable.combineMultipleRelatedDiffs([diff1, diff2]);
     
                     if (!combinedDiff[relatedInstance1.id][operator][mirrorRelationship].equals(instance1._id)) {
                         throw new Error('Combined diff is not correct.');
