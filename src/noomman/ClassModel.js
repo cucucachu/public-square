@@ -1,5 +1,8 @@
 /*
-  Description: Defines an application class model.
+  Class ClassModel
+  A class which defines the schema for a Class which will be stored in the mongo database.
+  Has methods for querying the underlying database collections for instances of a ClassModel
+  and its sub ClassModels. 
 */
 
 var database = require('./database');
@@ -14,6 +17,59 @@ const AllClassModels = [];
 
 class ClassModel {
 
+    /*
+     * constructor(schema)
+     * Parameters: 
+     * - schema - Object - A schema describing the properties of this ClassModel
+     * {
+     *    className: String (required),
+     *    superClasses: [ ClassModel ],
+     *    useSuperClassCollection: Boolean,
+     *    abstract: Boolean,
+     *    auditable: Boolean,
+     *    attributes: [
+     *       {
+     *          name: String (required), 
+     *          type: String (required), 
+     *          list: Boolean,
+     *          required: Boolean,
+     *          unique: Boolean,
+     *          sensitive: Boolean,
+     *          mutex: String,
+     *          requiredGroup: String,
+     *       },
+     *    ],
+     *    relationships: [
+     *       {
+     *          name: String (required),
+     *          toClass: String (required),
+     *          singular: Boolean (required),
+     *          required: Boolean,
+     *          owns: Boolean,
+     *          mirrorRelationship: String,
+     *          mutex: String,
+     *          requiredGroup: String,
+     *       }
+     *    ],
+     *    crudFunctions: {
+     *       createControl: Function,
+     *       readControl: Function,
+     *       updateControl: Function,
+     *       deleteControl: Function,
+     *       sensitiveControl: Function,
+     *    },
+     *    validations: [ Function ],
+     *    indices: [ fieldOrSpec ], 
+     *    staticMethods: {
+     *       String: Function,
+     *    },
+     *    nonStaticMethods: {
+     *       String: Function,
+     *    },
+     * }
+     * Returns
+     * - An instance of ClassModel with the given schema.
+     */
     constructor(schema) {
 
         this.constructorValidations(schema);
@@ -118,6 +174,17 @@ class ClassModel {
         AllClassModels[this.className] = this;
     }
 
+    /*
+     * constructorValidations(schema)
+     * Validates that the schema passed to constructor() is of expected type and 
+     *    is functionally valid.
+     * Parameters
+     * - schema - Object - See constructor parameter definition.
+     * Returns
+     * - undefined
+     * Throws
+     * - Error - throws an error if the schema is invalid in any way.
+     */
     constructorValidations(schema) {
         ClassModel.paramterShapeConstructorValidations(schema);
 
@@ -130,6 +197,16 @@ class ClassModel {
         ClassModel.inheritanceConstructorValidations(schema);
     }
 
+    /*
+     * paramterShapeConstructorValidations(schema)
+     * Validates that the schema passed to constructor() is the correct shape and property types.
+     * Parameters
+     * - schema - Object - See constructor parameter definition.
+     * Returns
+     * - undefined
+     * Throws
+     * - Error - throws an error if the schema constains properties with the incorrect type.
+     */
     static paramterShapeConstructorValidations(schema) {        
         if (!schema.className)
             throw new Error('className is required.');
@@ -162,6 +239,17 @@ class ClassModel {
             throw new Error('If validations are provided, it must be an Array.');
     }
 
+    /*
+     * crudControlsConstructorValidations(schema)
+     * Validates that if the schema passed to constructor() contains the crudFunctions property,
+     *    that each property of crudFunctions is a function. 
+     * Parameters
+     * - schema - Object - See constructor parameter definition.
+     * Returns
+     * - undefined
+     * Throws
+     * - Error - throws an error if the schema constains crudFunctions with properties that are not functions.
+     */
     static crudControlsConstructorValidations(schema) {
         if (schema.crudControls) {
             if (schema.crudControls.readControl && typeof(schema.crudControls.readControl) !== 'function') {
@@ -182,6 +270,18 @@ class ClassModel {
         }
     }
 
+    /*
+     * sensitiveAttributesContructorValidations(schema)
+     * Validates if an attribute in ClassModel schema or parent ClassModel schema has an attribute
+     *    marked sensitive, that this ClassModel has a sensitiveControl method, or vice versa.
+     * Parameters
+     * - schema - Object - See constructor parameter definition.
+     * Returns
+     * - undefined
+     * Throws
+     * - Error - throws an error if there are sensitive attributes defined and no sensitiveControl method,
+     *    or vice versa.
+     */
     static sensitiveAttributesContructorValidations(schema) {
         let allAttributes = [];
 
@@ -223,6 +323,18 @@ class ClassModel {
 
     }
 
+    /*
+     * customMethodsContructorValidations(schema)
+     * Validates that staticMethods and nonStaticMethods properties of schema are both objects 
+     *    (if provided) and that all of thir properties are functions.
+     * Parameters
+     * - schema - Object - See constructor parameter definition.
+     * Returns
+     * - undefined
+     * Throws
+     * - Error - throws if staticMethods or nonStaticMethods properties are not objects or 
+     *    if their properties are not functions.
+     */
     static customMethodsContructorValidations(schema) {
         if (schema.staticMethods !== undefined) {
             if (typeof(schema.staticMethods) !== 'object') {
@@ -257,6 +369,17 @@ class ClassModel {
         }
     }
 
+    /*
+     * inheritanceConstructorValidations(schema)
+     * Validates that inheritance related portions of the schema are of the correct types and
+     *    do not logically conflict with one another.
+     * Parameters
+     * - schema - Object - See constructor parameter definition.
+     * Returns
+     * - undefined
+     * Throws
+     * - Error - throws if inheritance portion of schema is invalid.
+     */
     static inheritanceConstructorValidations(schema) {
         if (schema.useSuperClassCollection && schema.abstract) {
             throw new Error('If useSuperClassCollection is true, abstract cannot be true.')
@@ -290,6 +413,13 @@ class ClassModel {
             throw new Error('If useSuperClassCollection is true, the class cannot be abstract.');
     }
 
+    /* 
+     * index()
+     * Adds any user defined or noomman automatic indices to the collection for this ClassModel.
+     *    This method is called automatically as part of the finalize() static method.
+     * Returns
+     * - undefined
+     */
     async index() {
         const indicesApplied = [];
 
@@ -304,6 +434,18 @@ class ClassModel {
         return indicesApplied;
     }
 
+    /* 
+     * validateRelationships()
+     * Determines if all the relationships defined on this ClassModel are valid.
+     *    This must be called only after all the ClassModels have been definied, as it checks
+     *    that the toClass is defined ClassModel and that two way relationships are correct
+     *    on both sides of the relationship.
+     * Returns 
+     * - undefined
+     * Throws 
+     * - Error - when a relationship is invalid due to toClass or mirrorRelationship properties being
+     *    invalid.
+     */
     validateRelationships() {
         for (const relationship of this.relationships) {
             const toClass = AllClassModels[relationship.toClass];
@@ -343,6 +485,14 @@ class ClassModel {
         }
     }
 
+    /* 
+     * inheritStaticMethods(fromClass) 
+     * Adds all staticMethods on the fromClass paramter to this ClassModel. Called by constructor(). 
+     * Paramters
+     * - fromClass - ClassModel - The classModel to inherit methods from.
+     * Returns 
+     * - undefined
+     */
     inheritStaticMethods(fromClass) {
         for (const staticMethod of Object.keys(fromClass.staticMethods)) {
             if (!Object.keys(this.staticMethods).includes(staticMethod)) {
@@ -351,6 +501,14 @@ class ClassModel {
         }
     }
 
+    /* 
+     * inheritNonStaticMethods(fromClass) 
+     * Adds all monStaticMethods on the fromClass paramter to this ClassModel. Called by constructor(). 
+     * Paramters
+     * - fromClass - ClassModel - The classModel to inherit methods from.
+     * Returns 
+     * - undefined
+     */
     inheritNonStaticMethods(fromClass) {
         for (const nonStaticMethod of Object.keys(fromClass.nonStaticMethods)) {
             if (!Object.keys(this.nonStaticMethods).includes(nonStaticMethod)) {
@@ -359,7 +517,15 @@ class ClassModel {
         }
     }
 
-    // Runs validations and indexing, run after ALL class models have been created.
+    /* 
+     * finalize()
+     * For each defined ClassModel, runs post constructor validations and applies indices.
+     *    Run only after ALL class models have been created.
+     * Returns
+     * - undefined
+     * Throws
+     * - Error - thrown by validateRelationships()
+     */
     static async finalize() {
         for (const classModel of AllClassModels) { 
             classModel.validateRelationships();
@@ -369,11 +535,24 @@ class ClassModel {
         }
     }
 
-    // to String
+    /* 
+     * toString()
+     * Returns 
+     * - a string with this ClassModel's className, followed by a new line.
+     */
     toString() {
         return this.className + '\n';
     }
 
+    /* 
+     * isInstanceOfThisClass(instance)
+     * Determines if the given instance is an instance of this ClassModel or any of 
+     *    this ClassModels children.
+     * Parameters
+     * - instance - Instance - An instance of noomman class Instance
+     * Returns
+     * - true if this given instance is an instance of this ClassModel or its children, false otherwise.
+     */
     isInstanceOfThisClass(instance) {
         if (instance.classModel === this)
             return true;
@@ -381,6 +560,15 @@ class ClassModel {
         return instance.classModel.allSuperClasses().map(c => c.className).includes(this.className);
     }
 
+    /* 
+     * isInstanceSetOfThisClass(instanceSet)
+     * Determines if the given instanceSet is an InstanceSet of this ClassModel or any of 
+     *    this ClassModels children.
+     * Parameters
+     * - instanceSet - InstanceSet - An instance of noomman class InstanceSet
+     * Returns
+     * - true if this given instanceSet is an InstanceSet of this ClassModel or its children, false otherwise.
+     */
     isInstanceSetOfThisClass(instanceSet) {
         if (instanceSet.classModel === this)
             return true;
@@ -388,14 +576,46 @@ class ClassModel {
         return instanceSet.classModel.allSuperClasses().map(c => c.className).includes(this.className);
     }
 
+    /* 
+     * getRelatedClassModel(relationshipName)
+     * Retreives the ClassModel for the given relationshipName, corresponding to a relationship on this 
+     *    ClassModel, from the internal static property AllCLassModels.
+     * Parameters
+     * - relationshipName - String - a string matching the name property of one of the relationships of 
+     *    this ClassModel.
+     * Returns
+     * - ClassModel - The ClassModel with the className matching the toClass of the relationship with name
+     *    matching the relationshipName parameter, defined for this ClassModel (or a parent). 
+     */
     getRelatedClassModel(relationshipName) {
         return AllClassModels[this.relationships.filter(relationship => relationship.name === relationshipName)[0].toClass];
     }
 
+    /* 
+     * getClassModel(className)
+     * Retreives a ClassModel with the given name from the internal static property AllClassModels.
+     * Parameters
+     * - className - String - a string which should match the className property of the ClassModel one 
+     *    wishes to retrieve.
+     * Returns
+     * - ClassModel - The ClassModel whose className property matches the given className.
+     */
     static getClassModel(className) {
         return AllClassModels[className];
     }
 
+    /* 
+     * validateAttribute(attributeName, value)
+     * Validates that the given value is a valid value for the Attribute with the given attributeName.
+     *    Calls method attribute.validate().
+     * Parameters
+     * - attributeName - String - the name of an attribute of this ClassModel to validate against.
+     * - value - Any - a value to validate against the attribute of this ClassModel with the given name.
+     * Returns
+     * - undefined
+     * Throws
+     * - Error - when the value is an invalid value for the attribute of this ClassModel with the given name.
+     */ 
     validateAttribute(attributeName, value) {
         const attribute = this.attributes.filter(attribute => attribute.name === attributeName);
 
@@ -405,6 +625,22 @@ class ClassModel {
         attribute[0].validate(value);
     }
 
+    /* 
+     * valueValidForSingularRelationship(value, relationshipName)
+     * Determines if the given value is a valid value for the singular relationship on this ClassModel
+     *    with the given relationshipName. Value is considered valid if it is an Instance of the ClassModel
+     *    that has the same name as the toClass property of the reltaionship on this ClassModel matching
+     *    the given relationshipName (or any sub-ClassModel thereof). Null is also a valid value.
+     * Parameters
+     * - value - Any - A value to validate.
+     * - relationshipName - String - The name of a singular relationship on this ClassModel.
+     * Returns
+     * - Boolean - true if value is valid for the relationship on this ClassModel matching relationshipName,
+     *    false otherwise.
+     * Throws
+     * - Error - if relationshipName does not match the name property of a singular relationship defined 
+     *    for this ClassModel.
+     */
     valueValidForSingularRelationship(value, relationshipName) {
         const relationship = this.relationships.filter(relationship => relationship.name === relationshipName && relationship.singular);
         if (relationship.length === 0)
@@ -424,6 +660,22 @@ class ClassModel {
         return true;
     }
 
+    /* 
+     * valueValidForNonSingularRelationship(value, relationshipName)
+     * Determines if the given value is a valid value for the non-singular relationship on this ClassModel
+     *    with the given relationshipName. Value is considered valid if it is an InstanceSet of the ClassModel
+     *    that has the same name as the toClass property of the reltaionship on this ClassModel matching
+     *    the given relationshipName (or any sub-ClassModel thereof). Null is also a valid value.
+     * Parameters
+     * - value - Any - A value to validate.
+     * - relationshipName - String - The name of a non-singular relationship on this ClassModel.
+     * Returns
+     * - Boolean - true if value is valid for the relationship on this ClassModel matching relationshipName,
+     *    false otherwise.
+     * Throws
+     * - Error - if relationshipName does not match the name property of a non-singular relationship defined 
+     *    for this ClassModel.
+     */
     valueValidForNonSingularRelationship(value, relationshipName) {
         const relationship = this.relationships.filter(relationship => relationship.name === relationshipName && !relationship.singular);
         if (relationship.length === 0)
@@ -443,6 +695,20 @@ class ClassModel {
         return true;
     }
 
+    /* 
+     * cardinalityOfRelationship(relationshipName)
+     * Returns an object representing the cardinality of the relationship on this ClassModel matching the
+     *    given relationshipName. 
+     * Parameters
+     * - relationshipName - String - A string matching the name property of a relationship defined for this
+     *    ClassModel
+     * Returns
+     * - Object - An object with two properties, to and from. 
+     * {
+     *    to: String - either '1', or 'many',
+     *    from: String - either null, '1', or 'many',
+     * }
+     */
     cardinalityOfRelationship(relationshipName) {
         const relationship = this.relationships.filter(r => r.name === relationshipName)[0];
 
@@ -474,6 +740,14 @@ class ClassModel {
         return cardinality;
     }
 
+    /*
+     * discriminated()
+     * Determines if this ClassModel is discriminated. This ClassModel is considered discriminated if 
+     *    it has a direct sub-ClassModel with its 'useSuperClassCollection' property set to true.
+     * Returns
+     * - Boolean - true if at least one of this ClassModels direct subClasses has useSuperClassCollection 
+     *    property equal to true. False otherwise.
+     */
     discriminated() {
         for (const subClass of this.subClasses) {
             if (subClass.useSuperClassCollection)
@@ -483,9 +757,19 @@ class ClassModel {
     }
 
     /*
+     * firstNonNullPromiseResolution(promises)
      * Helper function for findById and findOne
-     * Loops through promises one at a time and returns the first non null resolution. Will break the loop on the first non-null resolution.
-     *   If none of the promises return a non-null value, null is returned.
+     *    Loops through given promises one at a time and returns the first non null resolution. \
+     *    Will break the loop on the first non-null resolution. If none of the promises return 
+     *    a non-null value, null is returned.
+     * Parameters
+     * - promises - Array<Promise> - An array of promises to wait for.
+     * Returns 
+     * - Promise<Any> - The resolved value of the first promise to resolve with a non-null value. Returns null
+     *    if all promises resolve to null.
+     * Throws
+     * - Error - throws an error if any of the given promises reject with an error before another promise
+     *    resolves with a non-null promise.
      */
     static async firstNonNullPromiseResolution(promises) {
         for (var index in promises) {
@@ -502,8 +786,18 @@ class ClassModel {
     }
 
     /*
-     * Helper function for find
-     * Loops through promises one at a time and pushes the results to the results array.
+     * allPromiseResolutionsInstanceSets(promises)
+     * Loops through and waits for the given promises one at a time. Each promise is expected to resolve
+     *    to an InstanceSet. The promise resolutions are combined to a single InstanceSet with classModel
+     *    of this ClassModel.
+     *    Helper function for find().
+     * Parameters
+     * - promises - Array<Promise> - An array of promises to wait for.
+     * Returns 
+     * - Promise<InstanceSet> - A Promise which resolves to an InstanceSet containing all the Instances
+     *    of each InstanceSet that each of the given promises resolves with.
+     * Throws
+     * - Error - throws an error if any of the given promises reject with an error.
      */
     async allPromiseResoltionsInstanceSets(promises) {
         let results = new InstanceSet(this);
@@ -518,7 +812,14 @@ class ClassModel {
     }
 
     /* 
+     * asyncFilter(instances, asyncFilterFunction)
      * A function which can filter an array of instances using an asynchronus function.
+     * Parameters
+     * - instances - Iterable<Instance> - An iterable (InstanceSet, Array, etc.) of Instances to filter.
+     * - asyncFilterFunction - Function - an asynchronous function which accepts a single Instance as
+     *    and argument and which will resolve true or false.
+     * Returns
+     * - Promise<Instances>
      */
     static async asyncFilter(instances, asyncFilterFunction) {
         let filtered = [];
