@@ -6,14 +6,14 @@ const InstanceState = require('./InstanceState');
 const stripped = Symbol('stripped');
 
 /*
- * Class Instance
+ * Class Instance extends Diffable
  * Represents a single instance of a specific ClassModel. Provides functionallity for saving, deleting
  *    validation, comparison, auditing, and walking relationships.
  */
 class Instance extends Diffable {
 
     /*
-     * constructor(ClassModel, document)
+     * constructor(classModel, document)
      * Creates an instance of Instance for a given ClassModel.
      * Parameters
      * - classModel - ClassModel - A ClassModel that the created Instance will be an instance of.
@@ -215,7 +215,7 @@ class Instance extends Diffable {
 
     /*
      * stripSensitiveAttributes()
-     *    Will remove any attributes with property sensitive equal to true from this Instance.
+     * Will remove any attributes with property sensitive equal to true from this Instance.
      */
     stripSensitiveAttributes() {
         const sensitiveAttributes = this.classModel.attributes.filter(a => a.sensitive === true);
