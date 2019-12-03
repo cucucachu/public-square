@@ -29,13 +29,31 @@ class Attribute {
 
     /* 
      * constructorValidations(attributeSchema)
-     * This method validates that the attributeSchema object passed to the Attribute constructor are valid values.
+     * This method validates that the attributeSchema object passed to the Attribute constructor contains
+     *    valid values.
      * Parameters
-     * - attributeSchema - Object - The same object that the constructor() method accepts.
-     * Returns
-     * - Nothing
+     * - attributeSchema - An object describing an attribute. 
+     * {
+     *  name: String (required), 
+     *  type: String (required), 
+     *  list: Boolean,
+     *  required: Boolean,
+     *  unique: Boolean,
+     *  sensitive: Boolean,
+     *  mutex: String,
+     *  requiredGroup: String,
+     * }
      * Throws
-     * - Error - When the attributeSchema properties are of incorrect type or conflict with one another.
+     * - Error - If name property is omitted.
+     * - Error - If name property is not a String.
+     * - Error - If type property is omitted.
+     * - Error - If type property is not one of the valid types (String, Boolean, Number, Date).
+     * - Error - If list property is provided and is not a Boolean.
+     * - Error - If required property is provided and is not a Boolean.
+     * - Error - If unique property is provided and is not a Boolean.
+     * - Error - If sensitive property is provided and is not a Boolean.
+     * - Error - If mutex property is provided and is not a String.
+     * - Error - If requiredGroup property is provided and is not a String.
      */
     constructorValidations(attributeSchema) {
         if (!attributeSchema.name) {
@@ -74,7 +92,7 @@ class Attribute {
      * validTypes()
      * This method returns the valid data types for an attribute.
      * Returns
-     * - An array containing valid data types for an attribute.
+     * - Array - An array containing valid data types for an attribute.
      */
     static validTypes() {
         return [Number, String, Boolean, Date];
@@ -83,11 +101,11 @@ class Attribute {
     /* 
      * isSet(value)
      * Determines if a given value for this Attribute is considered as 'set'. 
-     * A set value is one which is not null, or not an empty array.
+     *    A set value is one which is not null, or not an empty array.
      * Parameters
-     * - value - any type - a value from an Instance of the ClassModel which holds this Attribute.
+     * - value - Any - a value from an Instance of the ClassModel which holds this Attribute.
      * Returns
-     * - True is value is considered set for this Attribute, false otherwise.
+     * - Boolean - True is value is considered set for this Attribute, false otherwise.
      */
     isSet(value) {
         if (this.list) {
@@ -107,10 +125,8 @@ class Attribute {
      * Validates a given value for the type and restrictions defined in this Attribtue.
      * Parameters
      * - value - any type - a value from an Instance of the ClassModel which holds this Attribute.
-     * Returns
-     * - undefined
      * Throws
-     * - Error - when given value is not valid for this Attribute.
+     * - Error - If given value is not valid for this Attribute.
      */
     validate(value) {
         if (value === null)
@@ -141,9 +157,9 @@ class Attribute {
      * validType(value)
      * Validates a given value is of correct type for this attribute.
      * Parameters
-     * - value - any type - a value from an Instance of the ClassModel which holds this Attribute.
+     * - value - Any - a value from an Instance of a ClassModel which has this Attribute.
      * Returns 
-     * - True if value is of the correct type for this Attribute, False otherwise.
+     * - Boolean - True if value is of the correct type for this Attribute, false otherwise.
      */
     validType(value) {
         if (value === null)
