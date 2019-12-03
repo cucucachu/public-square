@@ -1,11 +1,60 @@
+/*
+ * class Relationship
+ * Defines a relationship and its properties for a ClassModel.
+ */
 class Relationship {
 
+    /*
+     * constructor(relationshipSchema)
+     * Creates a Relationship according to the given schema.
+     * Parameters
+     * - relationshipSchema - Object - An schema representing the properties and requirements
+     *    of this Relationship.
+     *    {
+     *       name: String (required),
+     *       toClass: String (required),
+     *       singular: Boolean (required),
+     *       required: Boolean,
+     *       owns: Boolean,
+     *       mirrorRelationship: String,
+     *       mutex: String,
+     *       requiredGroup: String,
+     *    }
+     */ 
     constructor(relationshipSchema) {
         this.constructorValidations(relationshipSchema);
 
         Object.assign(this, relationshipSchema);
     }
 
+    /*
+     * constructorValidations(relationshipSchema)
+     * Verifies that the parameters passed to constructor() are valid.
+     * - relationshipSchema - Object - An schema representing the properties and requirements
+     *    of this Relationship.
+     *    {
+     *       name: String (required),
+     *       toClass: String (required),
+     *       singular: Boolean (required),
+     *       required: Boolean,
+     *       owns: Boolean,
+     *       mirrorRelationship: String,
+     *       mutex: String,
+     *       requiredGroup: String,
+     *    }
+     * Throws
+     * - Error - If name property is missing.
+     * - Error - If name property is not a String.
+     * - Error - If toClass property is missing.
+     * - Error - If toClass property is not a String.
+     * - Error - If singular property is missing.
+     * - Error - If singular property is not a Boolean.
+     * - Error - If required property is provided and is not a Boolean.
+     * - Error - If owns property is provided and is not a Boolean.
+     * - Error - If mirrorRelationship property is provided and is not a String.
+     * - Error - If mutex property is provided and is not a String.
+     * - Error - If requiredGroup property is provided and is not a String.
+     */ 
     constructorValidations(relationshipSchema) {
         if (!relationshipSchema.name) {
             throw new Error('Attempt to create an relationship without a name.');

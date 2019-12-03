@@ -305,7 +305,7 @@ class InstanceSet extends SuperSet {
      * Parameters
      * - instanceSet - InstanceSet - An InstanceSet to subtract from this InstanceSet.
      * Returns
-     * InstanceSet - The set difference of this Instance and given InstanceSet.
+     * InstanceSet - The set difference of this InstanceSet and given InstanceSet.
      * Throws
      * - Error - If instanceSet parameter is not an instance of InstanceSet.
      */
@@ -323,7 +323,7 @@ class InstanceSet extends SuperSet {
      * Parameters
      * - instanceSet - InstanceSet - An InstanceSet to union with this InstanceSet.
      * Returns
-     * InstanceSet - The union of this Instance and given InstanceSet.
+     * InstanceSet - The union of this InstanceSet and given InstanceSet.
      * Throws
      * - Error - If instanceSet parameter is not an instance of InstanceSet.
      */
@@ -347,7 +347,7 @@ class InstanceSet extends SuperSet {
      * Parameters
      * - instanceSet - InstanceSet - An InstanceSet to union with this InstanceSet.
      * Returns
-     * InstanceSet - The union of this Instance and given InstanceSet.
+     * InstanceSet - The union of this InstanceSet and given InstanceSet.
      * Throws
      * - Error - If instanceSet parameter is not an instance of InstanceSet.
      */
@@ -371,7 +371,7 @@ class InstanceSet extends SuperSet {
      * Parameters
      * - instanceSet - InstanceSet - An InstanceSet to calculate the symmetric difference of with this InstanceSet.
      * Returns
-     * InstanceSet - The symmetric difference of this Instance and given InstanceSet.
+     * InstanceSet - The symmetric difference of this InstanceSet and given InstanceSet.
      * Throws
      * - Error - If instanceSet parameter is not an instance of InstanceSet.
      */

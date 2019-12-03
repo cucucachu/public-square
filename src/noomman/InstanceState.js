@@ -3,7 +3,25 @@ const moment = require('moment');
 const InstanceReference = require('./InstanceReference');
 const InstanceSetReference = require('./InstanceSetReference');
 
+/*
+ * class InstanceState
+ * Represents a point-in-time state of an Instance. Has all the attributes and relationships
+ *    of the given ClassModel. Uses InstanceReference and InstanceSetReference to hold 
+ *    the values of singular and non-singular relationships. Has methods for comparing with 
+ *    other InstanceStates.
+ */
 class InstanceState {
+
+    /*
+     * constructor(classModel, document)
+     * Creates a new InstanceState for the given ClassModel, and with the property values from the 
+     *    given document if provided.
+     * Parameters
+     * - classModel - ClassModel - The ClassModel this is an InstanceState of.
+     * - document - Object - an optional document returned from a raw database query.
+     * Throws
+     * - Error - If classModel parameter is omitted.
+     */
     constructor(classModel, document) {
         this.attributes = {};
         this.instanceReferences = {};
@@ -119,12 +137,27 @@ class InstanceState {
         });
     }
 
+    /* 
+     * sync()
+     * Calls sync() on each InstanceSetReference that is held by this InstanceState, so
+     *    that each InstanceSetReference _ids array matches the ids of the InstanceSet heldd
+     *    by the InstanceSetReference.
+     */
     sync() {
         for (const instanceSetReference in this.instanceSetReferences) {
             this.instanceSetReferences[instanceSetReference].sync();
         }
     }
 
+    /*
+     * equals(that)
+     * Determines if this InstanceState equals the given InstanceState. InstanceStates are 
+     *    considered equal if every attribute and relationship is equal.
+     * Parameters
+     * - that - InstanceState - Another InstanceState to compare against.
+     * Returns
+     * - Boolean - True if the InstanceStates are equal, false otherwise.
+     */
     equals(that) {
         if (that == null) {
             return false;
@@ -206,8 +239,14 @@ class InstanceState {
         return true;
     }
 
+    /*
+     * toString()
+     * Implementation of the toString() method to return a string representation
+     *    of this InstanceState.
+     * Returns
+     * - String - A string representation of this InstanceState.
+     */
     toString() {
-        console.log('instanceState.toString()');
         let returnString = 'Instance of ' + this.classModel.className;
         if (Object.keys(this.attributes).length) {
             returnString += '\nAttributes:'
@@ -218,17 +257,12 @@ class InstanceState {
         return returnString;
     }
 
-    static listAttributesEqual(array1, array2) {
-        if (array1.length != array2.length)
-            return false;
-
-        for (const index in array1)
-            if (array1[index] !== array2[index])
-                return false;
-
-        return true;
-    }
-
+    /*
+     * toDocument()
+     * Produces an object from this InstanceState in the form of a mongodb document.
+     * Returns
+     * - Object - an object that can be inserted into the database, if an id is added.
+     */
     toDocument() {
         this.sync();
         const document = {};
@@ -257,6 +291,16 @@ class InstanceState {
         return document;
     }
 
+    /*
+     * diff(that) 
+     * Produces a diff object representing the changes between this InstanceState and the
+     *    given InstanceState, following mongodb update operation object conventions.
+     * Parameters
+     * - that - InstanceState - Another InstanceState to compare against.
+     * Returns
+     * - Object - An object representing the changes between this InstanceState and the
+     *    given InstanceState, following mongodb update operation object conventions.
+     */
     diff(that) {
         this.sync();
 
@@ -398,6 +442,19 @@ class InstanceState {
         return diffObject;
     }
 
+    /*
+     * diffWithSplit(that) 
+     * Produces a diff object representing the changes between this InstanceState and the
+     *    given InstanceState. Follows mongodb update operation object conventions, except
+     *    that changes to non-singular relationships can be split across '$addToSet' and 
+     *    '$pull' operations. This is useful for determining which related instances need
+     *    to be updated to maintain two-way relationship consistency.
+     * Parameters
+     * - that - InstanceState - Another InstanceState to compare against.
+     * Returns
+     * - Object - An object representing the changes between this InstanceState and the
+     *    given InstanceState, following (most) mongodb update operation object conventions.
+     */
     diffWithSplit(that) {
         this.sync();
 
@@ -540,11 +597,25 @@ class InstanceState {
         return diffObject;
     }
 
+    /*
+     * setSingularRelationshipToId(relationship, id)
+     * Sets the given singular relationship to the given id.
+     * Parameters
+     * - relationship - String - The name of the relationship to update.
+     * - id - mongodb.ObjectId - An id to set the relationship to.
+     */
     setSingularRelationshipToId(relationship, id) {
         this.instanceReferences[relationship]._id = id;
         this.instanceReferences[relationship].instance = null;
     }
 
+    /*
+     * setNonSingularRelationshipToIds(relationship, ids)
+     * Sets the given singular relationship to the given ids.
+     * Parameters
+     * - relationship - String - The name of the relationship to update.
+     * - ids - Array<mongodb.ObjectId> - An array of ids to set the relationship to.
+     */
     setNonSingularRelationshipToIds(relationship, ids) {
         this.instanceSetReferences[relationship]._ids = ids;
         this.instanceSetReferences[relationship].instanceSet = null;
