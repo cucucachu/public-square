@@ -13,8 +13,8 @@ const AllClassModels = [];
 /*
  * Class ClassModel
  * A class which defines the schema for a Class which will be stored in the mongo database.
- * Has methods for querying the underlying database collections for instances of a ClassModel
- * and its sub ClassModels. 
+ *    Has methods for querying the underlying database collections for instances of a ClassModel
+ *    and its sub ClassModels. Enables inheritance of attributes, relationships, methods, etc.
  */
 class ClassModel {
 
@@ -22,54 +22,56 @@ class ClassModel {
      * constructor(schema)
      * Parameters: 
      * - schema - Object - A schema describing the properties of this ClassModel
-     * {
-     *    className: String (required),
-     *    superClasses: [ ClassModel ],
-     *    useSuperClassCollection: Boolean,
-     *    abstract: Boolean,
-     *    auditable: Boolean,
-     *    attributes: [
-     *       {
-     *          name: String (required), 
-     *          type: String (required), 
-     *          list: Boolean,
-     *          required: Boolean,
-     *          unique: Boolean,
-     *          sensitive: Boolean,
-     *          mutex: String,
-     *          requiredGroup: String,
+     *    {
+     *       className: String (required),
+     *       superClasses: [ ClassModel ],
+     *       useSuperClassCollection: Boolean,
+     *       abstract: Boolean,
+     *       auditable: Boolean,
+     *       attributes: [
+     *          {
+     *             name: String (required), 
+     *             type: String (required), 
+     *             list: Boolean,
+     *             required: Boolean,
+     *             unique: Boolean,
+     *             sensitive: Boolean,
+     *             mutex: String,
+     *             requiredGroup: String,
+     *          },
+     *       ],
+     *       relationships: [
+     *          {
+     *             name: String (required),
+     *             toClass: String (required),
+     *             singular: Boolean (required),
+     *             required: Boolean,
+     *             owns: Boolean,
+     *             mirrorRelationship: String,
+     *             mutex: String,
+     *             requiredGroup: String,
+     *          }
+     *       ],
+     *       crudFunctions: {
+     *          createControl: Function,
+     *          readControl: Function,
+     *          updateControl: Function,
+     *          deleteControl: Function,
+     *          sensitiveControl: Function,
      *       },
-     *    ],
-     *    relationships: [
-     *       {
-     *          name: String (required),
-     *          toClass: String (required),
-     *          singular: Boolean (required),
-     *          required: Boolean,
-     *          owns: Boolean,
-     *          mirrorRelationship: String,
-     *          mutex: String,
-     *          requiredGroup: String,
-     *       }
-     *    ],
-     *    crudFunctions: {
-     *       createControl: Function,
-     *       readControl: Function,
-     *       updateControl: Function,
-     *       deleteControl: Function,
-     *       sensitiveControl: Function,
-     *    },
-     *    validations: [ Function ],
-     *    indices: [ fieldOrSpec ], 
-     *    staticMethods: {
-     *       String: Function,
-     *    },
-     *    nonStaticMethods: {
-     *       String: Function,
-     *    },
-     * }
+     *       validations: [ Function ],
+     *       indices: [ fieldOrSpec ], 
+     *       staticMethods: {
+     *          String: Function,
+     *       },
+     *       nonStaticMethods: {
+     *          String: Function,
+     *       },
+     *    }
      * Returns
-     * - An instance of ClassModel with the given schema.
+     * - ClassModel - The ClassModel created according to the given schema.
+     * Throws
+     * - Error - If constructorValidations() method throws an Error.
      */
     constructor(schema) {
 
@@ -177,14 +179,13 @@ class ClassModel {
 
     /*
      * constructorValidations(schema)
-     * Validates that the schema passed to constructor() is of expected type and 
-     *    is functionally valid.
-     * Parameters
-     * - schema - Object - See constructor parameter definition.
-     * Returns
-     * - undefined
+     * Throws an error if the schema passed to constructor() is not of expected type or 
+     *    is functionally invalid.
+     * Parameters: 
+     * - schema - Object - A schema describing the properties of this ClassModel. 
+     *    See schema parameter or constructor() method.
      * Throws
-     * - Error - throws an error if the schema is invalid in any way.
+     * - Error - Throws an error if the schema is invalid in any way.
      */
     constructorValidations(schema) {
         ClassModel.paramterShapeConstructorValidations(schema);
@@ -203,10 +204,17 @@ class ClassModel {
      * Validates that the schema passed to constructor() is the correct shape and property types.
      * Parameters
      * - schema - Object - See constructor parameter definition.
-     * Returns
-     * - undefined
      * Throws
-     * - Error - throws an error if the schema constains properties with the incorrect type.
+     * - Error - If property className is omitted.
+     * - Error - If property attributes is provided and is not an Array.
+     * - Error - If property relationships is provided and is not an Array.
+     * - Error - If property superClasses is provided and is not an Array.
+     * - Error - If property superClasses is provided and is an empty Array.
+     * - Error - If property useSuperClassCollection is true and superClasses
+     *    is omitted or contains more than one ClassModel.
+     * - Error - If property auditable is provided and is not a Boolean.
+     * - Error - If property indices is provided and is not an Array.
+     * - Error - If property validations is provided and is not an Array.
      */
     static paramterShapeConstructorValidations(schema) {        
         if (!schema.className)
@@ -242,14 +250,16 @@ class ClassModel {
 
     /*
      * crudControlsConstructorValidations(schema)
-     * Validates that if the schema passed to constructor() contains the crudFunctions property,
-     *    that each property of crudFunctions is a function. 
+     * If the property crudControls is provided and any of the properties are not a Function, will
+     *    throw an Error.
      * Parameters
      * - schema - Object - See constructor parameter definition.
-     * Returns
-     * - undefined
      * Throws
-     * - Error - throws an error if the schema constains crudFunctions with properties that are not functions.
+     * - Error - If property createControl of property crudControls is not a Function.
+     * - Error - If property readControl of property crudControls is not a Function.
+     * - Error - If property updateControl of property crudControls is not a Function.
+     * - Error - If property deleteControl of property crudControls is not a Function.
+     * - Error - If property sensitiveControl of property crudControls is not a Function.
      */
     static crudControlsConstructorValidations(schema) {
         if (schema.crudControls) {
@@ -273,15 +283,13 @@ class ClassModel {
 
     /*
      * sensitiveAttributesContructorValidations(schema)
-     * Validates if an attribute in ClassModel schema or parent ClassModel schema has an attribute
-     *    marked sensitive, that this ClassModel has a sensitiveControl method, or vice versa.
+     * Will throw an error if an attribute in ClassModel schema or parent ClassModel schema has an attribute
+     *    marked sensitive, and this ClassModel does not ahve a sensitiveControl method, and vice versa.
      * Parameters
      * - schema - Object - See constructor parameter definition.
-     * Returns
-     * - undefined
      * Throws
-     * - Error - throws an error if there are sensitive attributes defined and no sensitiveControl method,
-     *    or vice versa.
+     * - Error - If ClassModel has a sensitive attribute but no sensitiveControl method.
+     * - Error - If ClassModel has a sensitiveControl method but no sensitive attribute.
      */
     static sensitiveAttributesContructorValidations(schema) {
         let allAttributes = [];
@@ -326,15 +334,19 @@ class ClassModel {
 
     /*
      * customMethodsContructorValidations(schema)
-     * Validates that staticMethods and nonStaticMethods properties of schema are both objects 
-     *    (if provided) and that all of thir properties are functions.
+     * Will throw an error if staticMethods and nonStaticMethods properties of schema are not Objects 
+     *    (if provided) or if any of their properties are not functions.
      * Parameters
      * - schema - Object - See constructor parameter definition.
-     * Returns
-     * - undefined
      * Throws
-     * - Error - throws if staticMethods or nonStaticMethods properties are not objects or 
-     *    if their properties are not functions.
+     * - Error - If property staticMethods is provided but is not an Object.
+     * - Error - If property staticMethods is provided, and any of its properties is not a Function.
+     * - Error - If property staticMethods is provided, and any of its properties has the same
+     *    name as a built in noomman method on class ClassModel.
+     * - Error - If property nonStaticMethods is provided but is not an Object.
+     * - Error - If property nonStaticMethods is provided, and any of its properties is not a Function.
+     * - Error - If property nonStaticMethods is provided, and any of its properties has the same
+     *    name as a built in noomman method on class Instance.
      */
     static customMethodsContructorValidations(schema) {
         if (schema.staticMethods !== undefined) {
@@ -376,10 +388,16 @@ class ClassModel {
      *    do not logically conflict with one another.
      * Parameters
      * - schema - Object - See constructor parameter definition.
-     * Returns
-     * - undefined
      * Throws
-     * - Error - throws if inheritance portion of schema is invalid.
+     * - Error - If properties useSuperClassCollection and abstract are both true.
+     * - Error - If property superClasses is provided, and any super ClassModel has an attribute
+     *    with the same name as a attribute defined in the attributes property of the schema.
+     * - Error - If property superClasses is provided, and any super ClassModel has an relationship
+     *    with the same name as a relationship defined in the relationships property of the schema.
+     * - Error - If any ClassModel in the superClasses property has useSuperClassModel set to true.
+     * - Error - If property auditable is false, but a ClassModel in the superClasses property has
+     *    auditable set to true.
+     * - Error - If properties abstract and useSuperClassCollection are both true.
      */
     static inheritanceConstructorValidations(schema) {
         if (schema.useSuperClassCollection && schema.abstract) {
@@ -419,7 +437,7 @@ class ClassModel {
      * Adds any user defined or noomman automatic indices to the collection for this ClassModel.
      *    This method is called automatically as part of the finalize() static method.
      * Returns
-     * - undefined
+     * - Promise<undefined> - A Promise which resolves to undefined if indexing is successful.
      */
     async index() {
         const indicesApplied = [];
@@ -439,13 +457,14 @@ class ClassModel {
      * validateRelationships()
      * Determines if all the relationships defined on this ClassModel are valid.
      *    This must be called only after all the ClassModels have been definied, as it checks
-     *    that the toClass is defined ClassModel and that two way relationships are correct
-     *    on both sides of the relationship.
-     * Returns 
-     * - undefined
+     *    that the toClass of each relationship is a defined ClassModel and that two way 
+     *    relationships are correct on both sides of the relationship.
      * Throws 
-     * - Error - when a relationship is invalid due to toClass or mirrorRelationship properties being
-     *    invalid.
+     * - Error - If no ClassModel exists with the value of a relationship's toClass property.
+     * - Error - If a two-way relationship is defined and the related ClassModel does not have
+     *    a relationship a name matching the mirrorRelationship property of the relationship.
+     * - Error - If a two-way relationship is defined but the mirrorRelationship properties of 
+     *    the two relationships are not the name of the other relationship.
      */
     validateRelationships() {
         for (const relationship of this.relationships) {
@@ -486,13 +505,11 @@ class ClassModel {
         }
     }
 
-    /* 
+    /*
      * inheritStaticMethods(fromClass) 
      * Adds all staticMethods on the fromClass paramter to this ClassModel. Called by constructor(). 
      * Paramters
      * - fromClass - ClassModel - The classModel to inherit methods from.
-     * Returns 
-     * - undefined
      */
     inheritStaticMethods(fromClass) {
         for (const staticMethod of Object.keys(fromClass.staticMethods)) {
@@ -507,8 +524,6 @@ class ClassModel {
      * Adds all monStaticMethods on the fromClass paramter to this ClassModel. Called by constructor(). 
      * Paramters
      * - fromClass - ClassModel - The classModel to inherit methods from.
-     * Returns 
-     * - undefined
      */
     inheritNonStaticMethods(fromClass) {
         for (const nonStaticMethod of Object.keys(fromClass.nonStaticMethods)) {
@@ -520,12 +535,12 @@ class ClassModel {
 
     /* 
      * finalize()
-     * For each defined ClassModel, runs post constructor validations and applies indices.
+     * For each defined ClassModel, runs post-constructor validations and applies indices.
      *    Run only after ALL class models have been created.
      * Returns
-     * - undefined
+     * - Promise<undefined> - A Promise which resolves to undefined if successful.
      * Throws
-     * - Error - thrown by validateRelationships()
+     * - Error - Validations errors thrown by validateRelationships()
      */
     static async finalize() {
         for (const classModel of AllClassModels) { 
@@ -539,7 +554,7 @@ class ClassModel {
     /* 
      * toString()
      * Returns 
-     * - a string with this ClassModel's className, followed by a new line.
+     * - String - A string with this ClassModel's className, followed by a new line.
      */
     toString() {
         return this.className + '\n';
@@ -552,7 +567,7 @@ class ClassModel {
      * Parameters
      * - instance - Instance - An instance of noomman class Instance
      * Returns
-     * - true if this given instance is an instance of this ClassModel or its children, false otherwise.
+     * - Boolean - True if the given Instance is an Instance for this ClassModel or its children, false otherwise.
      */
     isInstanceOfThisClass(instance) {
         if (instance.classModel === this)
@@ -564,11 +579,11 @@ class ClassModel {
     /* 
      * isInstanceSetOfThisClass(instanceSet)
      * Determines if the given instanceSet is an InstanceSet of this ClassModel or any of 
-     *    this ClassModels children.
+     *    this ClassModel's children.
      * Parameters
      * - instanceSet - InstanceSet - An instance of noomman class InstanceSet
      * Returns
-     * - true if this given instanceSet is an InstanceSet of this ClassModel or its children, false otherwise.
+     * - Boolean - True if the given InstanceSet is an InstanceSet of this ClassModel or its children, false otherwise.
      */
     isInstanceSetOfThisClass(instanceSet) {
         if (instanceSet.classModel === this)
@@ -582,7 +597,7 @@ class ClassModel {
      * Retreives the ClassModel for the given relationshipName, corresponding to a relationship on this 
      *    ClassModel, from the internal static property AllCLassModels.
      * Parameters
-     * - relationshipName - String - a string matching the name property of one of the relationships of 
+     * - relationshipName - String - A string matching the name property of one of the relationships of 
      *    this ClassModel.
      * Returns
      * - ClassModel - The ClassModel with the className matching the toClass of the relationship with name
@@ -596,7 +611,7 @@ class ClassModel {
      * getClassModel(className)
      * Retreives a ClassModel with the given name from the internal static property AllClassModels.
      * Parameters
-     * - className - String - a string which should match the className property of the ClassModel one 
+     * - className - String - A string which should match the className property of the ClassModel one 
      *    wishes to retrieve.
      * Returns
      * - ClassModel - The ClassModel whose className property matches the given className.
@@ -610,12 +625,11 @@ class ClassModel {
      * Validates that the given value is a valid value for the Attribute with the given attributeName.
      *    Calls method attribute.validate().
      * Parameters
-     * - attributeName - String - the name of an attribute of this ClassModel to validate against.
-     * - value - Any - a value to validate against the attribute of this ClassModel with the given name.
-     * Returns
-     * - undefined
+     * - attributeName - String - The name of an attribute of this ClassModel to validate against.
+     * - value - Any - A value to validate against the attribute of this ClassModel with the given name.
      * Throws
-     * - Error - when the value is an invalid value for the attribute of this ClassModel with the given name.
+     * - Error - If the value is an invalid value for the attribute of this ClassModel with the given name. 
+     *    See errors on method attribute.validate().
      */ 
     validateAttribute(attributeName, value) {
         const attribute = this.attributes.filter(attribute => attribute.name === attributeName);
@@ -636,10 +650,10 @@ class ClassModel {
      * - value - Any - A value to validate.
      * - relationshipName - String - The name of a singular relationship on this ClassModel.
      * Returns
-     * - Boolean - true if value is valid for the relationship on this ClassModel matching relationshipName,
+     * - Boolean - True if value is valid for the relationship on this ClassModel matching relationshipName,
      *    false otherwise.
      * Throws
-     * - Error - if relationshipName does not match the name property of a singular relationship defined 
+     * - Error - If relationshipName does not match the name property of a singular relationship defined 
      *    for this ClassModel.
      */
     valueValidForSingularRelationship(value, relationshipName) {
@@ -671,10 +685,10 @@ class ClassModel {
      * - value - Any - A value to validate.
      * - relationshipName - String - The name of a non-singular relationship on this ClassModel.
      * Returns
-     * - Boolean - true if value is valid for the relationship on this ClassModel matching relationshipName,
+     * - Boolean - True if value is valid for the relationship on this ClassModel matching relationshipName,
      *    false otherwise.
      * Throws
-     * - Error - if relationshipName does not match the name property of a non-singular relationship defined 
+     * - Error - If relationshipName does not match the name property of a non-singular relationship defined 
      *    for this ClassModel.
      */
     valueValidForNonSingularRelationship(value, relationshipName) {
@@ -699,15 +713,15 @@ class ClassModel {
     /* 
      * cardinalityOfRelationship(relationshipName)
      * Returns an object representing the cardinality of the relationship on this ClassModel matching the
-     *    given relationshipName. 
+     *    given relationshipName.
      * Parameters
      * - relationshipName - String - A string matching the name property of a relationship defined for this
      *    ClassModel
      * Returns
      * - Object - An object with two properties, to and from. 
      * {
-     *    to: String - either '1', or 'many',
-     *    from: String - either null, '1', or 'many',
+     *    to: String - Either '1', or 'many',
+     *    from: String - Either null, '1', or 'many',
      * }
      */
     cardinalityOfRelationship(relationshipName) {
@@ -746,7 +760,7 @@ class ClassModel {
      * Determines if this ClassModel is discriminated. This ClassModel is considered discriminated if 
      *    it has a direct sub-ClassModel with its 'useSuperClassCollection' property set to true.
      * Returns
-     * - Boolean - true if at least one of this ClassModels direct subClasses has useSuperClassCollection 
+     * - Boolean - True if at least one of this ClassModel's direct sub-ClassModels has useSuperClassCollection 
      *    property equal to true. False otherwise.
      */
     discriminated() {
@@ -759,8 +773,7 @@ class ClassModel {
 
     /*
      * firstNonNullPromiseResolution(promises)
-     * Helper function for findById and findOne
-     *    Loops through given promises one at a time and returns the first non null resolution. \
+     * Loops through given promises one at a time and returns the first non null resolution. 
      *    Will break the loop on the first non-null resolution. If none of the promises return 
      *    a non-null value, null is returned.
      * Parameters
@@ -769,7 +782,7 @@ class ClassModel {
      * - Promise<Any> - The resolved value of the first promise to resolve with a non-null value. Returns null
      *    if all promises resolve to null.
      * Throws
-     * - Error - throws an error if any of the given promises reject with an error before another promise
+     * - Error - If any of the given promises reject with an error before another promise
      *    resolves with a non-null promise.
      */
     static async firstNonNullPromiseResolution(promises) {
@@ -789,16 +802,15 @@ class ClassModel {
     /*
      * allPromiseResolutionsInstanceSets(promises)
      * Loops through and waits for the given promises one at a time. Each promise is expected to resolve
-     *    to an InstanceSet. The promise resolutions are combined to a single InstanceSet with classModel
+     *    to an InstanceSet. The promise resolutions are combined into a single InstanceSet with ClassModel
      *    of this ClassModel.
-     *    Helper function for find().
      * Parameters
      * - promises - Array<Promise> - An array of promises to wait for.
      * Returns 
      * - Promise<InstanceSet> - A Promise which resolves to an InstanceSet containing all the Instances
      *    of each InstanceSet that each of the given promises resolves with.
      * Throws
-     * - Error - throws an error if any of the given promises reject with an error.
+     * - Error - If any of the given promises reject with an error.
      */
     async allPromiseResoltionsInstanceSets(promises) {
         let results = new InstanceSet(this);
@@ -817,10 +829,10 @@ class ClassModel {
      * A function which can filter an array of instances using an asynchronus function.
      * Parameters
      * - instances - Iterable<Instance> - An iterable (InstanceSet, Array, etc.) of Instances to filter.
-     * - asyncFilterFunction - Function - an asynchronous function which accepts a single Instance as
+     * - asyncFilterFunction - Function - An asynchronous function which accepts a single Instance as
      *    and argument and which will resolve true or false.
      * Returns
-     * - Promise<Instances>
+     * - Promise<Instances> - The Instances for which the given asyncFilter resolves true.
      */
     static async asyncFilter(instances, asyncFilterFunction) {
         let filtered = [];
@@ -884,9 +896,9 @@ class ClassModel {
      * insertOne(document)
      * Inserts a document into the collection for this ClassModel. Internal use only. 
      * Parameters
-     * - document - Object - an object to insert into the collection for this ClassModel.
+     * - document - Object - An object to insert into the collection for this ClassModel.
      * Returns
-     * - Promise<insertOneWriteOpResult> - see https://mongodb.github.io/node-mongodb-native/3.3/api/Collection.html#~insertOneWriteOpResult
+     * - Promise<insertOneWriteOpResult> - See https://mongodb.github.io/node-mongodb-native/3.3/api/Collection.html#~insertOneWriteOpResult
      */
     async insertOne(document) {
         return database.insertOne(this.collection, document);
@@ -896,9 +908,9 @@ class ClassModel {
      * insertMany(documents)
      * Inserts multiple documents into the collection for this ClassModel. Internal use only. 
      * Parameters
-     * - documents - Array<Object> - an array of objects to insert into the collection for this ClassModel.
+     * - documents - Array<Object> - An array of objects to insert into the collection for this ClassModel.
      * Returns
-     * - Promise<insertWriteOpResultObject> - see https://mongodb.github.io/node-mongodb-native/3.3/api/Collection.html#~insertWriteOpResult
+     * - Promise<insertWriteOpResultObject> - See https://mongodb.github.io/node-mongodb-native/3.3/api/Collection.html#~insertWriteOpResult
      */
     async insertMany(documents) {
         return database.insertMany(this.collection, documents);
@@ -911,7 +923,7 @@ class ClassModel {
      * Parameters
      * - instance - Instance - An instance of this ClassModel to update in the database.
      * Returns
-     * - Promise<updateWriteOpResult> - see https://mongodb.github.io/node-mongodb-native/3.3/api/Collection.html#~updateWriteOpResult
+     * - Promise<updateWriteOpResult> - See https://mongodb.github.io/node-mongodb-native/3.3/api/Collection.html#~updateWriteOpResult
      */
     async update(instance) {
         return database.update(this.collection, instance);
@@ -923,7 +935,7 @@ class ClassModel {
      * Parameters
      * - instance - Instance - An instance of this ClassModel to overwrite in the database.
      * Returns
-     * - Promise<updateWriteOpResult> - see https://mongodb.github.io/node-mongodb-native/3.3/api/Collection.html#~updateWriteOpResult
+     * - Promise<updateWriteOpResult> - See https://mongodb.github.io/node-mongodb-native/3.3/api/Collection.html#~updateWriteOpResult
      */
     async overwrite(instance) {
         return database.overwrite(this.collection, instance);
@@ -933,9 +945,9 @@ class ClassModel {
      * delete(instance)
      * Deletes an instance from the collection for this ClassModel.
      * Parameters
-     * - instance - Instance - an instance to delete.
+     * - instance - Instance - An instance to delete.
      * Returns
-     * - Promise<deleteWriteOpResult> - see https://mongodb.github.io/node-mongodb-native/3.3/api/Collection.html#~deleteWriteOpResult
+     * - Promise<deleteWriteOpResult> - See https://mongodb.github.io/node-mongodb-native/3.3/api/Collection.html#~deleteWriteOpResult
      */
     async delete(instance) {
 
@@ -949,11 +961,11 @@ class ClassModel {
 
     /* 
      * find(queryFilter, readControlMethodParameters, sensitiveControlMethodParameters)
-     * Finds instances of this ClassModel using the given query filter in the database. 
-     *    If called on a superclass, will recursively check this ClassModel's collection, and then it's sub-ClassModels collections.
-     *    This method respects readControl and sensitiveControl methods. If this ClassModel is read controlled, instances found
+     * Finds Instances of this ClassModel using the given query filter in the database. 
+     *    If called on a superclass, will recursively check this ClassModel's collection, and then it's sub-ClassModels' collections.
+     *    This method respects readControl and sensitiveControl methods. If this ClassModel is read controlled, Instances found
      *    during query will be filtered down to those which pass the readControl method(s) for this ClassModel. If this ClassModel
-     *    is sensitive controlled, all instances which do not pass the sensitiveControl method(s) for this ClassModel will be 
+     *    is sensitive controlled, all Instances which do not pass the sensitiveControl method(s) for this ClassModel will be 
      *    stripped of any sensitive attributes.
      * Parameters
      * - queryFilter - Object - A mongo query object (required)
@@ -1023,11 +1035,11 @@ class ClassModel {
 
     /* 
      * findOne(queryFilter, readControlMethodParameters, sensitiveControlMethodParameters)
-     * Finds a single instance of this ClassModel using the given query filter in the database. 
-     *    If called on a superclass, will recursively check this ClassModel's collection, and then it's sub-ClassModels collections.
-     *    This method respects readControl and sensitiveControl methods. If this ClassModel is read controlled, the instance found
+     * Finds a single Instance of this ClassModel using the given query filter in the database. 
+     *    If called on a super ClassModel, will recursively check this ClassModel's collection, and then it's sub-ClassModels collections.
+     *    This method respects readControl and sensitiveControl methods. If this ClassModel is read controlled, the Instance found
      *    during query will not be returned if it does not pass the readControl method(s) for this ClassModel. If this ClassModel
-     *    is sensitive controlled, an instance which does not pass the sensitiveControl method(s) for this ClassModel will be 
+     *    is sensitive controlled, an Instance which does not pass the sensitiveControl method(s) for this ClassModel will be 
      *    stripped of any sensitive attributes.
      * Parameters
      * - queryFilter - Object - A mongo query object (required)
@@ -1036,9 +1048,9 @@ class ClassModel {
      * - sensitiveControlMethodParameters - Object - An object containing parameters that will be passed to the sensitiveControl
      *    method(s) for this ClassModel.
      * Returns 
-     * - Promise<Instance> - The first Instance of this ClassModel or its children
-     *    which matches the given query and passes the readControl methods if applicable. Returns null if no Instance matches query
-     *    or if matching instance does not pass readControl method (if applicable).
+     * - Promise<Instance> - The first Instance of this ClassModel or its children which matches the given query and passes the
+     *    readControl methods if applicable. Returns null if no Instance matches query or if matching Instance does not pass 
+     *    readControl method if applicable.
      */
     async findOne(queryFilter, readControlMethodParameters, sensitiveControlMethodParameters) {
         const unfiltered = await this.pureFindOne(queryFilter);
@@ -1097,6 +1109,7 @@ class ClassModel {
         delete queryFilter.__t;
 
         const promises = [];
+
         // Call findOne on our subclasses as well.
         for (let subClass of subClassesWithDifferentCollections)
             promises.push(subClass.pureFindOne(queryFilter));
@@ -1108,7 +1121,7 @@ class ClassModel {
      * findById(queryFilter, readControlMethodParameters, sensitiveControlMethodParameters)
      * Finds a single instance of this ClassModel with the given id. 
      *    If called on a superclass, will recursively check this ClassModel's collection, and then it's sub-ClassModels collections.
-     *    This method respects readControl and sensitiveControl methods. If this ClassModel is read controlled, the instance found
+     *    This method respects readControl and sensitiveControl methods. If this ClassModel is read controlled, the Instance found
      *    during query will not be returned if it does not pass the readControl method(s) for this ClassModel. If this ClassModel
      *    is sensitive controlled, an instance which does not pass the sensitiveControl method(s) for this ClassModel will be 
      *    stripped of any sensitive attributes.
@@ -1152,7 +1165,7 @@ class ClassModel {
      * Returns
      * - Promise<Array<Instance>> - An array of all the related instances which were updated.
      * Throws
-     * - Error - Throws errors which are thrown during saving, such as validation or database errors.
+     * - Error - If InstanceSet.saveWithoutRelatedUpdates() throws an Error.
      */
     async updateRelatedInstancesForInstance(instance) {
         const relatedDiff = instance.relatedDiffs();
@@ -1204,7 +1217,7 @@ class ClassModel {
      * Returns
      * - Promise<Array<Instance>> - An array of all the related instances which were updated.
      * Throws
-     * - Error - Throws errors which are thrown during saving, such as validation or database errors.
+     * - Error - If InstanceSet.saveWithoutRelatedUpdates() throws an Error.
      */
     async updateRelatedInstancesForInstanceSet(instanceSet) {
         const relationshipsNeedingUpdate = new SuperSet();
@@ -1263,7 +1276,7 @@ class ClassModel {
      *    Returns an InstanceSet of Instances which for which at least one controlMethod returns false.
      *    Internal use only.
      * Parameters
-     * - instanceSet - InstanceSet - an InstanceSet of this ClassModel to evaluate crudControl methods on.
+     * - instanceSet - InstanceSet - An InstanceSet of this ClassModel to evaluate crudControl methods on.
      * - controlMethods - String - A string which determines which type of control methods to run. Valid values
      *    are 'readControlMethods', 'createControlMethods', 'updateControlMethods', 'deleteControlMethods',
      *    or 'sensitiveControlMethods'.
@@ -1312,14 +1325,14 @@ class ClassModel {
      * Runs applicable createControl methods for each Instance in the given InstanceSet, and throws an error if any
      *    createControl method returns false for any of the Instances in the InstanceSet.
      * Parameters
-     * - instanceSet - InstanceSet - an InstanceSet of this ClassModel to evaluate createControl methods on.
+     * - instanceSet - InstanceSet - An InstanceSet of this ClassModel to evaluate createControl methods on.
      * - createControlMethodParameters - Object - An object containing any parameters that the createControl method(s)
      *    may need.
      * Returns
-     * - Promise<undefined> - Returns a promise which resolves to undefined if all Instances pass the createControl methods.
+     * - Promise<undefined> - A promise which resolves to undefined if all Instances pass the createControl methods.
      * Throws
-     * - Error - if instanceSet parameter is not an InstanceSet
-     * - Error - if any createControl method returns false for any of the Instances in the InstanceSet.
+     * - Error - If instanceSet parameter is not an InstanceSet
+     * - Error - If any createControl method returns false for any of the Instances in the InstanceSet.
      */
     async createControlCheck(instanceSet, createControlMethodParameters) {
         if (!(instanceSet instanceof InstanceSet))
@@ -1340,14 +1353,14 @@ class ClassModel {
      * Runs applicable createControl methods for the given Instance, and throws an error if any
      *    createControl method returns false for the Instance.
      * Parameters
-     * - instance - Instance - an Instance of this ClassModel to evaluate createControl methods on.
+     * - instance - Instance - An Instance of this ClassModel to evaluate createControl methods on.
      * - createControlMethodParameters - Object - An object containing any parameters that the createControl method(s)
      *    may need.
      * Returns
-     * - Promise<undefined> - Returns a promise which resolves to undefined if all Instances pass the createControl methods.
+     * - Promise<undefined> - A promise which resolves to undefined if all Instances pass the createControl methods.
      * Throws
-     * - Error - if instance parameter is not an Instance
-     * - Error - if any createControl method returns false for the Instance.
+     * - Error - If instance parameter is not an Instance
+     * - Error - If any createControl method returns false for the Instance.
      */
     async createControlCheckInstance(instance, createControlMethodParameters) {
         const instanceSet = new InstanceSet(instance.classModel, [instance]);
@@ -1359,13 +1372,13 @@ class ClassModel {
      * Runs applicable readControl methods for each Instance in the given InstanceSet, and filters out any
      *    Instances for which any readControl method returns false.
      * Parameters
-     * - instanceSet - InstanceSet - an InstanceSet of this ClassModel to evaluate readControl methods on.
+     * - instanceSet - InstanceSet - An InstanceSet of this ClassModel to evaluate readControl methods on.
      * - readControlMethodParameters - Object - An object containing any parameters that the readControl method(s)
      *    may need.
      * Returns
      * - Promise<InstanceSet> - An InstanceSet containing those Instances for which all readControl methods return true.
      * Throws
-     * - Error - if instanceSet parameter is not an InstanceSet
+     * - Error - If instanceSet parameter is not an InstanceSet
      */
     async readControlFilter(instanceSet, readControlMethodParameters) {
         if (!(instanceSet instanceof InstanceSet))
@@ -1385,7 +1398,7 @@ class ClassModel {
      * Runs applicable readControl methods for the given Instance. If each readControl method returns true for 
      *    the Instance, then the Instance is returned, otherwise null is returned.
      * Parameters
-     * - instance - Instance - an Instancee of this ClassModel to evaluate readControl methods on.
+     * - instance - Instance - An Instance of this ClassModel to evaluate readControl methods on.
      * - readControlMethodParameters - Object - An object containing any parameters that the readControl method(s)
      *    may need.
      * Returns
@@ -1402,14 +1415,14 @@ class ClassModel {
      * Runs applicable updateControl methods for each Instance in the given InstanceSet, throws an error 
      *    if any updateControl method returns false for any Instance.
      * Parameters
-     * - instanceSet - InstanceSet - an InstanceSet of this ClassModel to evaluate updateControl methods on.
+     * - instanceSet - InstanceSet - An InstanceSet of this ClassModel to evaluate updateControl methods on.
      * - updateControlMethodParameters - Object - An object containing any parameters that the updateControl method(s)
      *    may need.
      * Returns
-     * - Promise<undefined> - Returns a promise which resolves to undefined if all Instances pass the updateControl methods.
+     * - Promise<undefined> - A promise which resolves to undefined if all Instances pass the updateControl methods.
      * Throws
-     * - Error - if instanceSet parameter is not an InstanceSet
-     * - Error - if any updateControl method returns false for any of the Instances in the InstanceSet.
+     * - Error - If instanceSet parameter is not an InstanceSet
+     * - Error - If any updateControl method returns false for any of the Instances in the InstanceSet.
      */
     async updateControlCheck(instanceSet, updateControlMethodParameters) {
         if (!(instanceSet instanceof InstanceSet))
@@ -1429,13 +1442,13 @@ class ClassModel {
      * Runs applicable updateControl methods for the given Instance, throws an error 
      *    if any updateControl method returns false for the Instance.
      * Parameters
-     * - instance - Instance - an Instance of this ClassModel to evaluate updateControl methods on.
+     * - instance - Instance - An Instance of this ClassModel to evaluate updateControl methods on.
      * - updateControlMethodParameters - Object - An object containing any parameters that the updateControl method(s)
      *    may need.
      * Returns
-     * - Promise<undefined> - Returns a promise which resolves to undefined if the Instance passes the updateControl methods.
+     * - Promise<undefined> - A promise which resolves to undefined if the Instance passes the updateControl methods.
      * Throws
-     * - Error - if any updateControl method returns false for the given Instance.
+     * - Error - If any updateControl method returns false for the given Instance.
      */
     async updateControlCheckInstance(instance, updateControlMethodParameters) {
         const instanceSet = new InstanceSet(instance.classModel, [instance]);
@@ -1447,14 +1460,14 @@ class ClassModel {
      * Runs applicable deleteControl methods for each Instance in the given InstanceSet, throws an error 
      *    if any deleteControl method returns false for any Instance.
      * Parameters
-     * - instanceSet - InstanceSet - an InstanceSet of this ClassModel to evaluate deleteControl methods on.
+     * - instanceSet - InstanceSet - An InstanceSet of this ClassModel to evaluate deleteControl methods on.
      * - deleteControlMethodParameters - Object - An object containing any parameters that the deleteControl method(s)
      *    may need.
      * Returns
-     * - Promise<undefined> - Returns a promise which resolves to undefined if all Instances pass the deleteControl methods.
+     * - Promise<undefined> - A promise which resolves to undefined if all Instances pass the deleteControl methods.
      * Throws
-     * - Error - if instanceSet parameter is not an InstanceSet
-     * - Error - if any deleteControl method returns false for any of the Instances in the InstanceSet.
+     * - Error - If instanceSet parameter is not an InstanceSet
+     * - Error - If any deleteControl method returns false for any of the Instances in the InstanceSet.
      */
     async deleteControlCheck(instanceSet, deleteControlMethodParameters) {
         if (!(instanceSet instanceof InstanceSet))
@@ -1474,13 +1487,13 @@ class ClassModel {
      * Runs applicable deleteControl methods for the given Instance, throws an error 
      *    if any deleteControl method returns false for the Instance.
      * Parameters
-     * - instance - Instance - an Instance of this ClassModel to evaluate deleteControl methods on.
+     * - instance - Instance - An Instance of this ClassModel to evaluate deleteControl methods on.
      * - deleteControlMethodParameters - Object - An object containing any parameters that the deleteControl method(s)
      *    may need.
      * Returns
-     * - Promise<undefined> - Returns a promise which resolves to undefined if the Instance passes the deleteControl methods.
+     * - Promise<undefined> - A promise which resolves to undefined if the Instance passes the deleteControl methods.
      * Throws
-     * - Error - if any deleteControl method returns false for the given Instance.
+     * - Error - If any deleteControl method returns false for the given Instance.
      */
     async deleteControlCheckInstance(instance, deleteControlMethodParameters) {
         const instanceSet = new InstanceSet(instance.classModel, [instance]);
@@ -1492,13 +1505,13 @@ class ClassModel {
      * Runs applicable sensitiveControl methods for each Instance in the given InstanceSet, and returns those for which
      *    at least one sensitiveControl method fails.
      * Parameters
-     * - instanceSet - InstanceSet - an InstanceSet of this ClassModel to evaluate sensitiveControl methods on.
+     * - instanceSet - InstanceSet - An InstanceSet of this ClassModel to evaluate sensitiveControl methods on.
      * - sensitiveControlMethodParameters - Object - An object containing any parameters that the sensitiveControl method(s)
      *    may need.
      * Returns
      * - Promise<InstanceSet> - An InstanceSet containing those Instances for which any sensitiveControl method returns false.
      * Throws
-     * - Error - if instanceSet parameter is not an InstanceSet
+     * - Error - If instanceSet parameter is not an InstanceSet
      */
     async sensitiveControlFilter(instanceSet, sensitiveControlMethodParameters) {
         if (!(instanceSet instanceof InstanceSet))
@@ -1518,11 +1531,11 @@ class ClassModel {
      * Runs applicable sensitiveControl methods for the given Instance, and returns the instance if 
      *    any sensitiveControl method returns false. Returns null otherwise.
      * Parameters
-     * - instance - Instance - an Instance of this ClassModel to evaluate sensitiveControl methods on.
+     * - instance - Instance - An Instance of this ClassModel to evaluate sensitiveControl methods on.
      * - sensitiveControlMethodParameters - Object - An object containing any parameters that the sensitiveControl method(s)
      *    may need.
      * Returns
-     * - Promise<Instance> - the given Instance if any sensitiveControl method returns false, otherwise null.
+     * - Promise<Instance> - The given Instance if any sensitiveControl method returns false, otherwise null.
      */
     async sensitiveControlFilterInstance(instance, sensitiveControlMethodParameters) {
         const instanceSet = new InstanceSet(this, [instance]);
@@ -1534,9 +1547,9 @@ class ClassModel {
      * deleteMany(instances)
      * Deletes all of the given instances from this ClassModel's collection.
      * Parameters
-     * - instances - Iterable<Instance> - an Iterable (Array, InstanceSet, etc.) containing Instances to delete.
+     * - instances - Iterable<Instance> - An Iterable (Array, InstanceSet, etc.) containing Instances to delete.
      * Returns 
-     * - Promise<deleteWriteOpResult> - see https://mongodb.github.io/node-mongodb-native/3.3/api/Collection.html#~deleteWriteOpResult
+     * - Promise<deleteWriteOpResult> - See https://mongodb.github.io/node-mongodb-native/3.3/api/Collection.html#~deleteWriteOpResult
      */
     async deleteMany(instances) {
         return database.deleteMany(this.collection, instances);
@@ -1549,7 +1562,7 @@ class ClassModel {
      * Returns
      * - Promise<undefined> - A promise which resolves to undefined if no Errors are thrown.
      * Throws
-     * - Error - if this is an abstract, non-discriminated ClassModel.
+     * - Error - If this is an abstract, non-discriminated ClassModel.
      */
     async clear() {
         if (this.abstract && !this.discriminated())

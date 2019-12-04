@@ -1,6 +1,6 @@
 /*
- * class SuperSet
- * extends Set
+ * Class SuperSet
+ * Extends Set
  * A mathematical Set with methods for set mathematics.
  */
 class SuperSet extends Set {
@@ -11,6 +11,8 @@ class SuperSet extends Set {
      * Parameters
      * - iterable - Iterable - An Iterable <Array, Set, Map, etc.> containing items 
      *    to add to this SuperSet.
+     * Returns
+     * - SuperSet - The SuperSet created containing the items from the given iterable.
      */
     constructor(iterable) {
         super(iterable);
@@ -20,7 +22,7 @@ class SuperSet extends Set {
      * toString()
      * Implements the toString method for SuperSets.
      * Returns
-     * - String - a String representation of this SuperSet.
+     * - String - A String representation of this SuperSet.
      */
     toString() {
         return [...this].toString();
@@ -63,7 +65,7 @@ class SuperSet extends Set {
      * Parameters
      * - superSet - SuperSet - An SuperSet to subtract from this SuperSet.
      * Returns
-     * SuperSet - The set difference of this SuperSet and given SuperSet.
+     * - SuperSet - The set difference of this SuperSet and given SuperSet.
      * Throws
      * - Error - If superSet parameter is not an instance of SuperSet.
      */
@@ -81,7 +83,7 @@ class SuperSet extends Set {
      * Parameters
      * - superSet - SuperSet - An SuperSet to intersect this SuperSet.
      * Returns
-     * SuperSet - The intersection of this SuperSet and given SuperSet.
+     * - SuperSet - The intersection of this SuperSet and given SuperSet.
      * Throws
      * - Error - If superSet parameter is not an instance of SuperSet.
      */
@@ -99,7 +101,7 @@ class SuperSet extends Set {
      * Parameters
      * - superSet - SuperSet - An SuperSet to union with this SuperSet.
      * Returns
-     * SuperSet - The union of this SuperSet and given SuperSet.
+     * - SuperSet - The union of this SuperSet and given SuperSet.
      * Throws
      * - Error - If superSet parameter is not an instance of SuperSet.
      */
@@ -185,7 +187,7 @@ class SuperSet extends Set {
      * - callback - Function - A function to execute on each item in the SuperSet
      *    (except for the first, if no initialValue is supplied).
      * Returns
-     * Any - The accumulated value resulting from calling the callback function for each item in the SuperSet.
+     * - Any - The accumulated value resulting from calling the callback function for each item in the SuperSet.
      */
     reduce(callback, initialValue=undefined) {
         if (initialValue != undefined)
@@ -202,7 +204,7 @@ class SuperSet extends Set {
      *    and is expected to return true if this item should be returned in the new
      *    SuperSet, and false if the item should be filtered out of the new SuperSet.
      * Returns
-     * - SuperSet - a new SuperSet containing all the items for which the callback function
+     * - SuperSet - A new SuperSet containing all the items for which the callback function
      *    returned true.
      */
     filter(callback) {
@@ -230,10 +232,10 @@ class SuperSet extends Set {
      * - Error - If iterable is given and is not an Iterable.
      */
     addFromIterable(iterable) {
-        //Check if iterable is really iterable
         if (!iterable)
             return;
 
+        //Check if iterable is really iterable
         if (!(typeof iterable[Symbol.iterator] === 'function'))
             throw new Error('SuperSet.addFromIterable() called with an argument which is not iterable.');
 

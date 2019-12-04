@@ -1,5 +1,5 @@
 /*
- * class InstanceReference
+ * Class InstanceReference
  * Used by InstanceState to hold the value of a singular relationship. This class helps the processing
  *    and storing of singular relationships, since relationships will have an ObjectId as a value when 
  *    retrieved from the database, and an Instance as a value when the relationship is set by a user 
@@ -10,6 +10,8 @@ class InstanceReference {
     /*
      * constructor()
      * Creates a new instance of InstanceReference.
+     * Returns
+     * - InstanceReference - The InstanceReference created.
      */
     constructor() {
         this._id = null;
@@ -55,7 +57,7 @@ class InstanceReference {
      * Parameters
      * - that - InstanceReference - Another InstanceReference to compare against.
      * Returns
-     * - Object - a diff object in the format of a mongo update operation object.
+     * - Object - A diff object in the format of a mongo update operation object.
      */
     diff(that) {
         if (that === null) {

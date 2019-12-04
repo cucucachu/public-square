@@ -6,7 +6,8 @@ const InstanceState = require('./InstanceState');
 const stripped = Symbol('stripped');
 
 /*
- * Class Instance extends Diffable
+ * Class Instance 
+ * Extends Diffable
  * Represents a single instance of a specific ClassModel. Provides functionallity for saving, deleting
  *    validation, comparison, auditing, and walking relationships.
  */
@@ -17,16 +18,12 @@ class Instance extends Diffable {
      * Creates an instance of Instance for a given ClassModel.
      * Parameters
      * - classModel - ClassModel - A ClassModel that the created Instance will be an instance of.
-     * - document - Object - a mongo document retrieved from a database. This parameter should only be 
+     * - document - Object - A mongo document retrieved from a database. This parameter should only be 
      *    used by internal noomman methods.
      * Returns
-     * - Instance - the Instance created.
+     * - Instance - The Instance created with the given classModel and optional document.
      * Throws
-     * - Error - If no ClassModel is provided.
-     * - Error - If classModel is not an instance of ClassModel.
-     * - Error - If classModel is abstract.
-     * - Error - If given document does not have an _id property.
-     * - Error - If given document is for an auditable ClassModel but does not have a revision property.
+     * - Error - If constructorValidations() throws an Error.
      */
     constructor(classModel, document=null) {
         super();
@@ -144,7 +141,7 @@ class Instance extends Diffable {
      * Runs validations for the constructor method.
      * Parameters
      * - classModel - ClassModel - A ClassModel that the created Instance will be an instance of.
-     * - document - Object - a mongo document retrieved from a database. This parameter should only be 
+     * - document - Object - A mongo document retrieved from a database. This parameter should only be 
      *    used by internal noomman methods.
      * Throws
      * - Error - If no ClassModel is provided.
@@ -250,7 +247,7 @@ class Instance extends Diffable {
      * walk(relationshipName, usePreviousState)
      * Walks a relationship from this Instance, returning the related Instance or Instances. 
      * Parameters
-     * - relationshipName - String - the name of the relationship to walk.
+     * - relationshipName - String - The name of the relationship to walk.
      * - usePreviousState - Boolean - If true, will walk the previous value of the given relationship for this Instance.
      *    For noomman internal use only.
      * Returns
@@ -258,9 +255,9 @@ class Instance extends Diffable {
      *    is non-singular) related to this Instance through the given relationship. If relationship is empty, then null will
      *    be returned for singular relationships or an empty InstanceSet will be returned for non-singular relationships.
      * Throws
-     * - Error - if no relationshipName is given.
-     * - Error - if relationshipName is not a String
-     * - Error - if relationshipName does not match any relationship for the ClassModel of this Instance.
+     * - Error - If no relationshipName is given.
+     * - Error - If relationshipName is not a String
+     * - Error - If relationshipName does not match any relationship for the ClassModel of this Instance.
      */ 
     async walk(relationshipName, usePreviousState=false) {
         if (!relationshipName)
@@ -366,7 +363,7 @@ class Instance extends Diffable {
      * Array: Any array with a length greater than 0.
      * Object/Relationship: Any Value
      * Parameters
-     * - propertyName - String - the name of an attribute or relationship to check.
+     * - propertyName - String - The name of an attribute or relationship to check.
      * Returns
      * - Boolean - True if the value of the attribute or relationship is considered as set. 
      */
@@ -540,12 +537,12 @@ class Instance extends Diffable {
      * - createControlMethodParameters - Object - An object containing parameters needed by a createControl method.
      * - updateControlMethodParameters - Object - An object containing parameters needed by a updateControl method.
      * Returns
-     * - Promise<Instance> - this Instance, if save is successful.
+     * - Promise<Instance> - This Instance, if save is successful.
      * Throws
-     * - Error - if this Instance has already been deleted.
-     * - Error - if this Instance has been stripped by stripSensitiveAttributes().
-     * - Error - if a call to validate() throws an error.
-     * - Error - if Instance does not pass createControl or updateControl methods.
+     * - Error - If this Instance has already been deleted.
+     * - Error - If this Instance has been stripped by stripSensitiveAttributes().
+     * - Error - If a call to validate() throws an error.
+     * - Error - If Instance does not pass createControl or updateControl methods.
      */ 
     async save(createControlMethodParameters, updateControlMethodParameters) {
         if (this.deleted()) {
@@ -603,10 +600,10 @@ class Instance extends Diffable {
      *    noomman methods. The purpose is for use in saving multiple instances at once, and any calling method is 
      *    expected to have already run validations and crudControl functions.
      * Returns
-     * - Promise<Instance> - this Instance, if save is successful.
+     * - Promise<Instance> - This Instance, if save is successful.
      * Throws
-     * - Error - if this Instance has already been deleted.
-     * - Error - if this Instance has been stripped by stripSensitiveAttributes().
+     * - Error - If this Instance has already been deleted.
+     * - Error - If this Instance has been stripped by stripSensitiveAttributes().
      */ 
     async saveWithoutValidation() {
         if (this.deleted()) {
@@ -639,12 +636,12 @@ class Instance extends Diffable {
      * delete(deleteControlMethodParameters) 
      * Deletes this Instance from the database.
      * Parameters
-     * - deleteControlMethodParameters - Object - an object containing any parameters needed by a deleteControl method.
+     * - deleteControlMethodParameters - Object - An object containing any parameters needed by a deleteControl method.
      * Returns
      * - Promise<Boolean> - True if Instance is deleted properly.
      * Throws
-     * - Error - if this Instance has not yet been saved (i.e. is not in the database).
-     * - Error - if deleteControl method returns false for this Instance.
+     * - Error - If this Instance has not yet been saved (i.e. is not in the database).
+     * - Error - If deleteControl method returns false for this Instance.
      */
     async delete(deleteControlMethodParameters) {
         if (!this.saved())
@@ -682,13 +679,13 @@ class Instance extends Diffable {
      * deleteOwnedInstances(deleteControlMethodParameters)
      * Deletes any Instances related to this Instance through an 'owns' relationship.
      * Parameters
-     * - deleteControlMethodParameters - Object - an object containing any parameters needed by a deleteControl method.
+     * - deleteControlMethodParameters - Object - An object containing any parameters needed by a deleteControl method.
      * Returns 
-     * - Promise<Array<Boolean>> - An array of booleans, each of which will be true if all related instances were deleted
+     * - Promise<Array<Boolean>> - An Array of Booleans, each of which will be true if all related instances were deleted
      *    successfully.
      * Throws
-     * - Error - if a related owned Instance has not yet been saved (i.e. is not in the database).
-     * - Error - if deleteControl method returns false for a related owned Instance.
+     * - Error - If a related owned Instance has not yet been saved (i.e. is not in the database).
+     * - Error - If deleteControl method returns false for a related owned Instance.
      */
     async deleteOwnedInstances(deleteControlMethodParameters) {
         const ownsRelationships = this.classModel.relationships.filter(r => r.owns === true);
@@ -718,9 +715,9 @@ class Instance extends Diffable {
      * Determines if this Instance is an Instance of the given ClassModel, or any of its
      *    sub-ClassModels.
      * Parameters
-     * - classModel - ClassModel - a ClassModel to check if this is an Instance of.
+     * - classModel - ClassModel - A ClassModel to check if this is an Instance of.
      * Returns
-     * Boolean - True if this Instance is an instance of the given ClassModel, or any of
+     * - Boolean - True if this Instance is an instance of the given ClassModel, or any of
      *    its sub-ClassModels.
      */
     isInstanceOf(classModel) {
@@ -731,7 +728,7 @@ class Instance extends Diffable {
      * toDocument()
      * Produces an object from this Instance which is exactly what will be stored in the database.
      * Returns
-     * - Object - an object that can be inserted into the database.
+     * - Object - An object that can be inserted into the database.
      */
     toDocument() {
         const document = this.currentState.toDocument();
@@ -753,12 +750,12 @@ class Instance extends Diffable {
      * Used to compare two instances. Checks that this Instance and the given Instance have
      *    (exactly) the same ClassModel, id, and values for each attribute and relationship.
      * Parameters
-     * - that - Instance - an Instance to compare this Instance to.
+     * - that - Instance - An Instance to compare this Instance to.
      * Returns
      * - Boolean - True if the ClassModel, id, and all attributes and relationships are the same
      *    for both Instances, false otherwise.
      * Throws
-     * - Error - if 'that' parameter is not an instance of Instance.
+     * - Error - If 'that' parameter is not an instance of Instance.
      */
     equals(that) {
         if (!(that instanceof Instance))

@@ -4,7 +4,7 @@ const InstanceReference = require('./InstanceReference');
 const InstanceSetReference = require('./InstanceSetReference');
 
 /*
- * class InstanceState
+ * Class InstanceState
  * Represents a point-in-time state of an Instance. Has all the attributes and relationships
  *    of the given ClassModel. Uses InstanceReference and InstanceSetReference to hold 
  *    the values of singular and non-singular relationships. Has methods for comparing with 
@@ -18,7 +18,9 @@ class InstanceState {
      *    given document if provided.
      * Parameters
      * - classModel - ClassModel - The ClassModel this is an InstanceState of.
-     * - document - Object - an optional document returned from a raw database query.
+     * - document - Object - An optional document returned from a raw database query.
+     * Returns
+     * - InstanceState - the InstanceState created for the given classModel and optional document.
      * Throws
      * - Error - If classModel parameter is omitted.
      */

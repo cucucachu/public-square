@@ -3,7 +3,8 @@ const SuperSet = require('./SuperSet');
 const database = require('./database');
 
 /*
- * class InstanceSet extends SuperSet
+ * Class InstanceSet 
+ * Extends SuperSet
  * Represents a mathematical set of Instances, all of the same ClassModel (including Instances of Sub-ClassModels).
  *    Has methods for bulk crud operations, set math operations, and walking relationships.
  */
@@ -15,7 +16,9 @@ class InstanceSet extends SuperSet {
      * Parameters
      * - classModel - ClassModel - The classModel for this InstanceSet. All Instances added to this InstanceSet
      *     must be of this classModel or one of its sub-ClassModels.
-     * - instances - Iterable<Instance> - an Iterable (Array, InstanceSet, etc.) containing Instances.
+     * - instances - Iterable<Instance> - An Iterable (Array, InstanceSet, etc.) containing Instances.
+     * Returns
+     * - InstanceSet - The InstanceSet created with the given classModel and instances.
      * Throws
      * - Error - If classModel parameter is missing or not an instance of ClassModel.
      * - Error - If instances is given and is not an Iterable.
@@ -33,7 +36,7 @@ class InstanceSet extends SuperSet {
      * constructorValidations(classModel, instances)
      * Ensures that the parameters for constructor() are valid.
      * Parameters
-     * - classModel - ClassModel - The classModel for this InstanceSet. All Instances added to this InstanceSet
+     * - classModel - ClassModel - The ClassModel for this InstanceSet. All Instances added to this InstanceSet
      *     must be of this classModel or one of its sub-ClassModels.
      * - instances - Iterable<Instance> - an Iterable (Array, InstanceSet, etc.) containing Instances.
      * Throws
@@ -51,7 +54,7 @@ class InstanceSet extends SuperSet {
 
     /* 
      * addInstancesValidations(classModel, instances)
-     * Ensures that instances is an iterable containing only Instances of the given ClassModel.
+     * Ensures that instances is an Iterable containing only Instances of the given ClassModel.
      * Parameters
      * - classModel - ClassModel - The classModel that all of the given Instances must be of.
      * - instances - Iterable<Instance> - an Iterable (Array, InstanceSet, etc.) containing Instances.
@@ -76,9 +79,9 @@ class InstanceSet extends SuperSet {
 
     /*
      * add(instance)
-     * Adds the given instance to this InstanceSet.
+     * Adds the given Instance to this InstanceSet.
      * Parameters
-     * - instance - Instance - An instance of the ClassModel for this InstanceSet (or a sub-ClassModel)
+     * - instance - Instance - An Instance of the ClassModel for this InstanceSet (or a sub-ClassModel)
      *    to add to this InstanceSet.
      * Throws
      * - Error - If instance is not an Instance.
@@ -160,7 +163,7 @@ class InstanceSet extends SuperSet {
      * - instances - Iterable<Instance> - An Iterable containing Instances of the ClassModel for this InstanceSet 
      *    (or a sub-ClassModel) to remove from this InstanceSet.
      * Throws
-     * - Error - if instances parameter is not an Iterable.
+     * - Error - If instances parameter is not an Iterable.
      */
     removeFromIterable(instances) {
         this.removeInstances(instances);
@@ -174,7 +177,7 @@ class InstanceSet extends SuperSet {
      * - instances - Iterable<Instance> - An Iterable containing Instances of the ClassModel for this InstanceSet 
      *    (or a sub-ClassModel) to remove from this InstanceSet.
      * Throws
-     * - Error - if instances parameter is not an Iterable.
+     * - Error - If instances parameter is not an Iterable.
      */
     removeInstances(instances) {
         if (!instances || !this.size)
@@ -192,7 +195,7 @@ class InstanceSet extends SuperSet {
      *    the id of the Instances, so the given Instance does not need to be the exact same object
      *    in memory.
      * Parameters
-     * - instanceToCheck - Instance - an instance to check for.
+     * - instanceToCheck - Instance - An instance to check for.
      * Returns
      * - Boolean - True if this InstanceSet contains the given Instance, false otherwise.
      */
@@ -208,7 +211,7 @@ class InstanceSet extends SuperSet {
      * hasInstanceWithId(id)
      * Determines if this InstanceSet contains an Instance with the given id.
      * Parameters
-     * - id - mongodb.ObjectId | String - an id to check for.
+     * - id - mongodb.ObjectId | String - An id to check for.
      * Returns
      * - Boolean - True if this InstanceSet contains an Instance with the given id, false otherwise.
      */
@@ -228,7 +231,7 @@ class InstanceSet extends SuperSet {
      * getInstanceWithId(id)
      * Retrieves an Instance from this InstanceSet with the given id.
      * Parameters
-     * - id - mongodb.ObjectId | String - an id for the Instance to retrieve.
+     * - id - mongodb.ObjectId | String - An id for the Instance to retrieve.
      * Returns
      * - Instance - The Instance from this InstanceSet with the given Id. Null if 
      *    no Instance in this InstanceSet has the given id.
@@ -249,7 +252,7 @@ class InstanceSet extends SuperSet {
      * getInstancesWithIds(ids)
      * Retrieves all Instances from this InstanceSet with any of the given ids.
      * Parameters
-     * - id - Array<mongodb.ObjectId> - an array of ids for the Instances to retrieve.
+     * - id - Array<mongodb.ObjectId> - An array of ids for the Instances to retrieve.
      * Returns
      * - InstanceSet - An InstanceSet with the same classModel as this InstanceSet, containing
      *    only those Instances with the given ids.
@@ -305,7 +308,7 @@ class InstanceSet extends SuperSet {
      * Parameters
      * - instanceSet - InstanceSet - An InstanceSet to subtract from this InstanceSet.
      * Returns
-     * InstanceSet - The set difference of this InstanceSet and given InstanceSet.
+     * - InstanceSet - The set difference of this InstanceSet and given InstanceSet.
      * Throws
      * - Error - If instanceSet parameter is not an instance of InstanceSet.
      */
@@ -323,7 +326,7 @@ class InstanceSet extends SuperSet {
      * Parameters
      * - instanceSet - InstanceSet - An InstanceSet to union with this InstanceSet.
      * Returns
-     * InstanceSet - The union of this InstanceSet and given InstanceSet.
+     * - InstanceSet - The union of this InstanceSet and given InstanceSet.
      * Throws
      * - Error - If instanceSet parameter is not an instance of InstanceSet.
      */
@@ -347,7 +350,7 @@ class InstanceSet extends SuperSet {
      * Parameters
      * - instanceSet - InstanceSet - An InstanceSet to union with this InstanceSet.
      * Returns
-     * InstanceSet - The union of this InstanceSet and given InstanceSet.
+     * - InstanceSet - The union of this InstanceSet and given InstanceSet.
      * Throws
      * - Error - If instanceSet parameter is not an instance of InstanceSet.
      */
@@ -371,7 +374,7 @@ class InstanceSet extends SuperSet {
      * Parameters
      * - instanceSet - InstanceSet - An InstanceSet to calculate the symmetric difference of with this InstanceSet.
      * Returns
-     * InstanceSet - The symmetric difference of this InstanceSet and given InstanceSet.
+     * - InstanceSet - The symmetric difference of this InstanceSet and given InstanceSet.
      * Throws
      * - Error - If instanceSet parameter is not an instance of InstanceSet.
      */
@@ -408,7 +411,7 @@ class InstanceSet extends SuperSet {
      *    this function returns for each instance will be compiled into a new InstanceSet. This 
      *    function must return an Instance which is of the same ClassModel as this InstanceSet.
      * Returns
-     * - InstanceSet - an InstanceSet with the same ClassModel as this InstanceSet, which contains
+     * - InstanceSet - An InstanceSet with the same ClassModel as this InstanceSet, which contains
      *    each result of each call of the callback function.
      */
     mapToInstanceSet(callback) {
@@ -438,7 +441,7 @@ class InstanceSet extends SuperSet {
      * Parameters
      * - classModel - ClassModel - A ClassModel to use to filter this InstanceSet.
      * Returns
-     * - InstanceSet - an InstanceSet with the same ClassModel as this InstanceSet, which contains
+     * - InstanceSet - An InstanceSet with the same ClassModel as this InstanceSet, which contains
      *    all Instances from the origin InstanceSet which are of the given ClassModel (or a 
      *    ClassModel thereof).
      * Throws
@@ -505,12 +508,12 @@ class InstanceSet extends SuperSet {
      * - createControlMethodParameters - Object - An object containing parameters needed by a createControl method.
      * - updateControlMethodParameters - Object - An object containing parameters needed by a updateControl method.
      * Returns
-     * - Promise<Array<Instance>> - An array containing each Instance in this InstanceSet, if save is successful.
+     * - Promise<Array<Instance>> - An Array containing each Instance in this InstanceSet, if save is successful.
      * Throws
-     * - Error - if an Instance has already been deleted.
-     * - Error - if an Instance has been stripped by stripSensitiveAttributes().
-     * - Error - if a call to validate() for an Instance throws an error.
-     * - Error - if an Instance does not pass createControl or updateControl methods.
+     * - Error - If an Instance has already been deleted.
+     * - Error - If an Instance has been stripped by stripSensitiveAttributes().
+     * - Error - If a call to validate() for an Instance throws an error.
+     * - Error - If an Instance does not pass createControl or updateControl methods.
      */ 
     async save(createControlMethodParameters, updateControlMethodParameters) {
         const instancesToUpdate = this.filterToInstanceSet(instance => instance.saved());
@@ -549,10 +552,10 @@ class InstanceSet extends SuperSet {
      * Returns
      * - Promise<Array<Instance>> - An array containing each Instance in this InstanceSet, if save is successful.
      * Throws
-     * - Error - if an Instance has already been deleted.
-     * - Error - if an Instance has been stripped by stripSensitiveAttributes().
-     * - Error - if a call to validate() for an Instance throws an error.
-     * - Error - if an Instance does not pass createControl or updateControl methods.
+     * - Error - If an Instance has already been deleted.
+     * - Error - If an Instance has been stripped by stripSensitiveAttributes().
+     * - Error - If a call to validate() for an Instance throws an error.
+     * - Error - If an Instance does not pass createControl or updateControl methods.
      */ 
     async saveWithoutRelatedUpdates(createControlMethodParameters, updateControlMethodParameters) {
         const instancesToUpdate = this.filterToInstanceSet(instance => instance.saved());
@@ -697,13 +700,13 @@ class InstanceSet extends SuperSet {
      * delete(deleteControlMethodParameters) 
      * Deletes all Instances in this InstanceSet from the database.
      * Parameters
-     * - deleteControlMethodParameters - Object - an object containing any parameters needed by a deleteControl method.
+     * - deleteControlMethodParameters - Object - An object containing any parameters needed by a deleteControl method.
      * Returns
      * - Promise<Array<Boolean>> - An array containing True for each deleted Instance
      *    if all Instances in this InstanceSet are deleted properly.
      * Throws
-     * - Error - if any Instance has not yet been saved (i.e. is not in the database).
-     * - Error - if deleteControl method returns false for any Instance.
+     * - Error - If any Instance has not yet been saved (i.e. is not in the database).
+     * - Error - If deleteControl method returns false for any Instance.
      */
     async delete(deleteControlMethodParameters) {
         if (this.size == 0)
@@ -750,7 +753,7 @@ class InstanceSet extends SuperSet {
     /*
      * getObjectIds()
      * Retrieves the id for each Instance in this InstanceSet and returns
-     *    them in an array.
+     *    them in an Array.
      * Returns
      * - Array<ObjectId> - An array containing each Instance's id.
      * */

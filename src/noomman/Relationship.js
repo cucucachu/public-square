@@ -1,5 +1,5 @@
 /*
- * class Relationship
+ * Class Relationship
  * Defines a relationship and its properties for a ClassModel.
  */
 class Relationship {
@@ -20,6 +20,10 @@ class Relationship {
      *       mutex: String,
      *       requiredGroup: String,
      *    }
+     * Returns
+     * - Relationship - The Relationship created according to the given relationshipSchema.
+     * Throws
+     * - Error - If constructorValidations() throws an Error.
      */ 
     constructor(relationshipSchema) {
         this.constructorValidations(relationshipSchema);

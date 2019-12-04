@@ -1,9 +1,9 @@
 const SuperSet = require('./SuperSet');
 
 /*
- * class InstanceSetReference
+ * Class InstanceSetReference
  * Used by InstanceState to hold the value of a non-singular relationship. This class helps the processing
- *    and storing of non-singular relationships, since relationships will have an array of ObjectIds as a value when 
+ *    and storing of non-singular relationships, since relationships will have an Array of ObjectIds as a value when 
  *    retrieved from the database, and an InstanceSet as a value when the relationship is set by a user 
  *    or populated by calling Instance.walk().
  */
@@ -12,6 +12,8 @@ class InstanceSetReference {
     /*
      * constructor()
      * Creates a new instance of InstanceSetReference.
+     * Returns
+     * - InstanceSetReference - The InstanceSetReference created.
      */
     constructor() {
         this._ids = [];
@@ -77,7 +79,7 @@ class InstanceSetReference {
      * Determines if this InstanceSetReference is empty, i.e. it contains no ids, or it constains an 
      *    InstanceSet which is empty.
      * Returns
-     * - Boolean - true if this InstanceSetReference contains no ids, or it constains an 
+     * - Boolean - True if this InstanceSetReference contains no ids, or it constains an 
      *    InstanceSet which is empty.
      */
     isEmpty() {
@@ -92,7 +94,7 @@ class InstanceSetReference {
      * Parameters
      * - that - InstanceSetReference - Another InstanceSetReference to compare against.
      * Returns
-     * - Object - a diff object in the format of a mongo update operation object.
+     * - Object - A diff object in the format of a mongo update operation object.
      */
     diff(that) {
         if (that === null) {
@@ -152,7 +154,7 @@ class InstanceSetReference {
      * Parameters
      * - that - InstanceSetReference - Another InstanceSetReference to compare against.
      * Returns
-     * - Object - a diff object in the format of a mongo update operation object, except that 
+     * - Object - A diff object in the format of a mongo update operation object, except that 
      *    changes may be in both '$addToSet' and '$pull' operations.
      */
     splitDiff(that) {

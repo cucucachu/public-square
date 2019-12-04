@@ -10,16 +10,20 @@ class Attribute {
      * Attribute constructor
      * Parameters
      * - attributeSchema - An object describing an attribute. 
-     * {
-     *  name: String (required), 
-     *  type: String (required), 
-     *  list: Boolean,
-     *  required: Boolean,
-     *  unique: Boolean,
-     *  sensitive: Boolean,
-     *  mutex: String,
-     *  requiredGroup: String,
-     * }
+     *    {
+     *       name: String (required), 
+     *       type: String (required), 
+     *       list: Boolean,
+     *       required: Boolean,
+     *       unique: Boolean,
+     *       sensitive: Boolean,
+     *       mutex: String,
+     *       requiredGroup: String,
+     *    }
+     * Returns
+     * - Attribute - The Attribute created with the given attributeSchema.
+     * Throws
+     * - Error - If constructorValidations() throws an Error.
      */
     constructor(attributeSchema) {
         this.constructorValidations(attributeSchema);
