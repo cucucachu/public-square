@@ -19,12 +19,12 @@ let db = null;
  * Returns
  * - Promise<mongodb.Db> - The database object returned by mongodb.MongoClient.connect().
  * Throws
- * - Error - If an attempt is made to connect to a database more than once without calling close().
+ * - NoommanDatabaseError - If an attempt is made to connect to a database more than once without calling close().
  * - MongoError - If underlying call to mongodb.MongoCLient.connect() throws an error.
  */
 async function connect() {
 	if (connected()) {
-		throw new Error('Attempt to connect to database twice.');
+		throw new NoommanErrors.NoommanDatabaseError('Attempt to connect to database twice.');
 	}
 	
 	client = new MongoClient(mongo_uri, { useNewUrlParser: true });
@@ -67,10 +67,12 @@ function connected() {
  *      https://mongodb.github.io/node-mongodb-native/3.3/api/Collection.html#createIndex
  * Returns 
  * - Promise<result> - String representing all the indices added to the collection.
+ * Throws
+ * - NoommanDatabaseError - If this method is called when no database is connected.
  */
 async function index(collection, field) {
 	if (!connected()) {
-		throw new Error('database.index() called before database.connect()')
+		throw new NoommanErrors.NoommanDatabaseError('database.index() called before database.connect()')
 	}
 	return db.collection(collection).createIndex(field);
 }

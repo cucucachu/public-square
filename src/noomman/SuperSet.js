@@ -41,11 +41,11 @@ class SuperSet extends Set {
      * Returns
      * - Boolean - True if both SuperSets contain the same items.
      * Throws
-     * - Error - If the given superSet is not an instance of SuperSet.
+     * - NoommanArgumentError - If the given superSet is not an instance of SuperSet.
      */
     equals(superSet) {
         if (!(superSet instanceof SuperSet))
-            throw new Error('SuperSet.equals() argument is not an SuperSet.');
+            throw new NoommanErrors.NoommanArgumentError('SuperSet.equals() argument is not an SuperSet.');
         
         if (this.size != superSet.size)
             return false;
@@ -69,11 +69,11 @@ class SuperSet extends Set {
      * Returns
      * - SuperSet - The set difference of this SuperSet and given SuperSet.
      * Throws
-     * - Error - If superSet parameter is not an instance of SuperSet.
+     * - NoommanArgumentError - If superSet parameter is not an instance of SuperSet.
      */
     difference(superSet) {
         if (!(superSet instanceof SuperSet))
-            throw new Error('SuperSet.difference() argument is not an SuperSet.');
+            throw new NoommanErrors.NoommanArgumentError('SuperSet.difference() argument is not an SuperSet.');
 
         return new SuperSet([...this].filter(x => !superSet.has(x)));
     }
@@ -87,11 +87,11 @@ class SuperSet extends Set {
      * Returns
      * - SuperSet - The intersection of this SuperSet and given SuperSet.
      * Throws
-     * - Error - If superSet parameter is not an instance of SuperSet.
+     * - NoommanArgumentError - If superSet parameter is not an instance of SuperSet.
      */
     intersection(superSet) {
         if (!(superSet instanceof SuperSet))
-            throw new Error('SuperSet.difference() argument is not an SuperSet.');
+            throw new NoommanErrors.NoommanArgumentError('SuperSet.difference() argument is not an SuperSet.');
 
         return new SuperSet([...this].filter(x => superSet.has(x)));
     }
@@ -105,11 +105,11 @@ class SuperSet extends Set {
      * Returns
      * - SuperSet - The union of this SuperSet and given SuperSet.
      * Throws
-     * - Error - If superSet parameter is not an instance of SuperSet.
+     * - NoommanArgumentError - If superSet parameter is not an instance of SuperSet.
      */
     union(superSet) {
         if (!(superSet instanceof SuperSet))
-            throw new Error('SuperSet.difference() argument is not an SuperSet.');
+            throw new NoommanErrors.NoommanArgumentError('SuperSet.difference() argument is not an SuperSet.');
 
         let combination = new SuperSet();
 
@@ -231,7 +231,7 @@ class SuperSet extends Set {
      * Parameters
      * - iterable - Iterable - An Iterable (Array, Set, etc.) containing items to add to this SuperSet.
      * Throws
-     * - Error - If iterable is given and is not an Iterable.
+     * - NoommanArgumentError - If iterable is given and is not an Iterable.
      */
     addFromIterable(iterable) {
         if (!iterable)
@@ -239,7 +239,7 @@ class SuperSet extends Set {
 
         //Check if iterable is really iterable
         if (!(typeof iterable[Symbol.iterator] === 'function'))
-            throw new Error('SuperSet.addFromIterable() called with an argument which is not iterable.');
+            throw new NoommanErrors.NoommanArgumentError('SuperSet.addFromIterable() called with an argument which is not iterable.');
 
         for (const item of iterable)
             this.add(item);
@@ -263,7 +263,7 @@ class SuperSet extends Set {
      * Parameters
      * - iterable - Iterable - An Iterable (Array, Set, etc.) containing items to remove from this SuperSet.
      * Throws
-     * - Error - If iterable is given and is not an Iterable.
+     * - NoommanArgumentError - If iterable is given and is not an Iterable.
      */
     removeFromIterable(iterable) {
         //Check if iterable is really iterable
@@ -271,7 +271,7 @@ class SuperSet extends Set {
             return;
 
         if (!(typeof iterable[Symbol.iterator] === 'function'))
-            throw new Error('SuperSet.removeFromIterable() called with an argument which is not iterable.');
+            throw new NoommanErrors.NoommanArgumentError('SuperSet.removeFromIterable() called with an argument which is not iterable.');
         
         if (!this.size)
             return;

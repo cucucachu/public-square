@@ -13,11 +13,11 @@ class Diffable {
      * constructor()
      * Will throw an error, you should not instantiate this class directly.
      * Throws
-     * - Error - Diffable is an abstract class and should not be directly instantiated.
+     * - NoommanConstructorError - Diffable is an abstract class and should not be directly instantiated.
      */
     constructor() {
         if (new.target === Diffable) {
-            throw new Error('Diffable is an abstract class and should not be directly instantiated.');
+            throw new NoommanErrors.NoommanConstructorError('Diffable is an abstract class and should not be directly instantiated.');
         }
     }
 
@@ -419,11 +419,11 @@ class Diffable {
      * Parameters
      * - changes - Object - A diff object produced by one of the diff methods.
      * Throws
-     * - Error - If validateChanges() method throws an Error.
-     * - Error - If applySetOperations() method throws an Error.
-     * - Error - If applyUnsetOperations() method throws an Error.
-     * - Error - If applyAddToSetOperations() method throws an Error.
-     * - Error - If applyPullOperations() method throws an Error.
+     * - NoommanArgumentError - If validateChanges() method throws an NoommanArgumentError.
+     * - NoommanArgumentError - If applySetOperations() method throws an Error.
+     * - NoommanArgumentError - If applyUnsetOperations() method throws an Error.
+     * - NoommanArgumentError - If applyAddToSetOperations() method throws an Error.
+     * - NoommanArgumentError - If applyPullOperations() method throws an Error.
      */
     applyChanges(changes) {
         changes = this.combineSetOperations(changes);
@@ -436,7 +436,7 @@ class Diffable {
             this.applyPullOperations(changes);
         }
         catch(error) {
-            throw new Error('instance.applyChanges(): ' + error.message);
+            throw new NoommanErrors.NoommanArgumentError('instance.applyChanges(): ' + error.message);
         }
     }
 
@@ -446,7 +446,7 @@ class Diffable {
      * Parameters
      * - changes - Object - A diff object which follows the mongo update operation conventions.
      * Throws
-     * - Error - If '$set' operation within changes parameter contains a key which is not an 
+     * - NoommanArgumentError - If '$set' operation within changes parameter contains a key which is not an 
      *    attribute or relationship for the ClassModel related to this instance of Diffable.
      */
     applySetOperations(changes) {
@@ -468,7 +468,7 @@ class Diffable {
                     }   
                 }
                 else {
-                    throw new Error('Attempt to set a value which is not an attribute or relationship. ' + key);
+                    throw new NoommanErrors.NoommanArgumentError('Attempt to set a value which is not an attribute or relationship. ' + key);
                 }
             }
         }
@@ -480,7 +480,7 @@ class Diffable {
      * Parameters
      * - changes - Object - A diff object which follows the mongo update operation conventions.
      * Throws
-     * - Error - If '$unset' operation within changes parameter contains a key which is not an 
+     * - NoommanArgumentError - If '$unset' operation within changes parameter contains a key which is not an 
      *    attribute or relationship for the ClassModel related to this instance of Diffable.
      */
     applyUnsetOperations(changes) {
@@ -493,7 +493,7 @@ class Diffable {
                     this[key] = null;
                 }
                 else {
-                    throw new Error('Attempt to unset a value which is not an attribute or relationship. ' + key);
+                    throw new NoommanErrors.NoommanArgumentError('Attempt to unset a value which is not an attribute or relationship. ' + key);
                 }
             }
         }
@@ -505,7 +505,7 @@ class Diffable {
      * Parameters
      * - changes - Object - A diff object which follows the mongo update operation conventions.
      * Throws
-     * - Error - If '$addToSet' operation within changes parameter contains a key which is not an 
+     * - NoommanArgumentError - If '$addToSet' operation within changes parameter contains a key which is not an 
      *    attribute or relationship for the ClassModel related to this instance of Diffable.
      */
     applyAddToSetOperations(changes) {
@@ -534,11 +534,11 @@ class Diffable {
                         this.currentState.setNonSingularRelationshipToIds(key, [...idsSet]);
                     }
                     else {
-                        throw new Error('Attempt to use $addToSet on a property which is not non-singular relationship. ' + key);
+                        throw new NoommanErrors.NoommanArgumentError('Attempt to use $addToSet on a property which is not non-singular relationship. ' + key);
                     }
                 }
                 else {
-                    throw new Error('Attempt to use $addToSet on a property which is not non-singular relationship. ' + key);
+                    throw new NoommanErrors.NoommanArgumentError('Attempt to use $addToSet on a property which is not non-singular relationship. ' + key);
                 }
             }
         }
@@ -550,7 +550,7 @@ class Diffable {
      * Parameters
      * - changes - Object - A diff object which follows the mongo update operation conventions.
      * Throws
-     * - Error - If '$pull' operation within changes parameter contains a key which is not an 
+     * - NoommanArgumentError - If '$pull' operation within changes parameter contains a key which is not an 
      *    attribute or relationship for the ClassModel related to this instance of Diffable.
      */
     applyPullOperations(changes) {
@@ -586,11 +586,11 @@ class Diffable {
                         this.currentState.setNonSingularRelationshipToIds(key, [...idsSet]);
                     }
                     else {
-                        throw new Error('Attempt to use $pull on a property which is not non-singular relationship. ' + key);
+                        throw new NoommanErrors.NoommanArgumentError('Attempt to use $pull on a property which is not non-singular relationship. ' + key);
                     }
                 }
                 else {
-                    throw new Error('Attempt to use $pull on a property which is not non-singular relationship. ' + key);
+                    throw new NoommanErrors.NoommanArgumentError('Attempt to use $pull on a property which is not non-singular relationship. ' + key);
                 }
             }
         }
@@ -603,19 +603,19 @@ class Diffable {
      * Returns
      * - Promise<insertOneWriteOpResult> - See https://mongodb.github.io/node-mongodb-native/3.3/api/Collection.html#~insertOneWriteOpResult
      * Throws
-     * - Error - If this instance has a ClassModel which is not auditable.
-     * - Error - If this Diffable has no changes.
-     * - Error - If this Diffable has not yet been saved to the database.
+     * - NoommanClassModelError - If this instance has a ClassModel which is not auditable.
+     * - NoommanSaveError - If this Diffable has no changes.
+     * - NoommanSaveError - If this Diffable has not yet been saved to the database.
      */
     async saveAuditEntry() {
         if (this.classModel.auditable === false) 
-            throw new Error('instance.saveAuditEntry() called on an Instance of a non-auditable ClassModel.');
+            throw new NoommanErrors.NoommanClassModelError('instance.saveAuditEntry() called on an Instance of a non-auditable ClassModel.');
 
         if (this.currentState.equals(this.previousState)) 
-            throw new Error('instance.saveAuditEntry() called on an Instance with no changes.');
+            throw new NoommanErrors.NoommanSaveError('instance.saveAuditEntry() called on an Instance with no changes.');
         
         if (this.saved() === false)
-            throw new Error('instance.saveAuditEntry() called on an new Instance.');
+            throw new NoommanErrors.NoommanSaveError('instance.saveAuditEntry() called on an new Instance.');
 
         const auditEntry = {
             _id: database.ObjectId(),
@@ -636,11 +636,12 @@ class Diffable {
      * - revisionNumber - Number - The number of the revision to revert this Diffable to. 
      *    1 is considered the initial state of the instance.
      * Throws
-     * - Error - If called on a Diffable with a ClassModel which is not auditable.
+     * - NoommanClassModelError - If called on a Diffable with a ClassModel which is not auditable.
+     * - NoommanArgumentError - If applyChanges() throws a NoommanArgumentError.
      */
     async revertToRevision(revisionNumber) {
         if (!this.classModel.auditable) {
-            throw new Error('instance.revertToRevision() called on an instance of a non-auditable class model.');
+            throw new NoommanErrors.NoommanClassModelError('instance.revertToRevision() called on an instance of a non-auditable class model.');
         }
 
         if (this.revision <= 0 || typeof(revisionNumber) !== 'number' || revisionNumber >= this.revision) {
@@ -699,11 +700,11 @@ class Diffable {
      * Parameters
      * - changes - Object - A diff object produced by one of the diff methods.
      * Throws
-     * - Error - If the changes object contains invalid properties or is configured in an invalid way.
+     * - NoommanArgumentError - If the changes object contains invalid properties or is configured in an invalid way.
      */
     validateChanges(changes) {
         if (!changes || typeof(changes) !== 'object') {
-            throw new Error('Changes must be an object.');
+            throw new NoommanErrors.NoommanArgumentError('Changes must be an object.');
         }
         const operators = Object.keys(changes);
         const nonSingularRelationshipOperators = ['$addToSet', '$pull'];
@@ -714,17 +715,17 @@ class Diffable {
 
         for (const operator of operators) {
             if (!['$set', '$unset', '$addToSet', '$pull'].includes(operator)) {
-                throw new Error('Invalid update operator: ' + operator + '.');
+                throw new NoommanErrors.NoommanArgumentError('Invalid update operator: ' + operator + '.');
             }
 
             if (typeof(changes[operator]) !== 'object') {
-                throw new Error('Operator set to something other than an object.');
+                throw new NoommanErrors.NoommanArgumentError('Operator set to something other than an object.');
             }
 
             const properties = Object.keys(changes[operator]);
 
             if (properties.length === 0) {
-                throw new Error('Operator with empty object.');
+                throw new NoommanErrors.NoommanArgumentError('Operator with empty object.');
             }
 
             for (const property of properties) {
@@ -733,45 +734,45 @@ class Diffable {
                 const isNonSingularRelationship = nonSingularRelationshipNames.includes(property);
 
                 if(propertiesSeen.includes(property)) {
-                    throw new Error('Cannot perform multiple operations an the same attribute or relationship.');
+                    throw new NoommanErrors.NoommanArgumentError('Cannot perform multiple operations an the same attribute or relationship.');
                 }
                 propertiesSeen.push(property);
 
                 if (!isAttribute && !isRelationship) {
-                    throw new Error('Attempt to update a property which is not an attribute or relationship.');
+                    throw new NoommanErrors.NoommanArgumentError('Attempt to update a property which is not an attribute or relationship.');
                 }
 
                 if (nonSingularRelationshipOperators.includes(operator)) {
                     if (!isNonSingularRelationship) {
-                        throw new Error('Attempt to use ' + nonSingularRelationshipOperators + ', on an attribute or singular relationship.');
+                        throw new NoommanErrors.NoommanArgumentError('Attempt to use ' + nonSingularRelationshipOperators + ', on an attribute or singular relationship.');
                     }
 
                     if (Array.isArray(changes[operator][property])) {
                         if (operator === '$addToSet') {
-                            throw new Error('Attempt to add an array using $addToSet without using \'$each\'.');
+                            throw new NoommanErrors.NoommanArgumentError('Attempt to add an array using $addToSet without using \'$each\'.');
                         }
                         if (operator === '$pull') {
-                            throw new Error('Attempt to remove an array using $pull without using \'$in\'.');
+                            throw new NoommanErrors.NoommanArgumentError('Attempt to remove an array using $pull without using \'$in\'.');
                         }
                     }
 
                     if (changes[operator][property].$each !== undefined) {
                         if (operator === '$pull') {
-                            throw new Error('Attempt to use \'$each\' with a $pull operator. Use \'$in\' instead.');
+                            throw new NoommanErrors.NoommanArgumentError('Attempt to use \'$each\' with a $pull operator. Use \'$in\' instead.');
                         }
 
                         if (!Array.isArray(changes[operator][property].$each)) {
-                            throw new Error('Attempt to use $addToSet and $each without an Array value.');
+                            throw new NoommanErrors.NoommanArgumentError('Attempt to use $addToSet and $each without an Array value.');
                         }
                     }
 
                     if (changes[operator][property].$in) {
                         if (operator === '$addToSet') {
-                            throw new Error('Attempt to use \'$in\' with a $addToSet operator. Use \'$each\' instead.');
+                            throw new NoommanErrors.NoommanArgumentError('Attempt to use \'$in\' with a $addToSet operator. Use \'$each\' instead.');
                         }
 
                         if (!Array.isArray(changes[operator][property].$in)) {
-                            throw new Error('Attempt to use $pull and $in without an Array value.');
+                            throw new NoommanErrors.NoommanArgumentError('Attempt to use $pull and $in without an Array value.');
                         }
                     }
                 }

@@ -1,5 +1,4 @@
 const SuperSet = require('./SuperSet');
-const NoommanErrors = require('./NoommanErrors');
 
 /*
  * Class InstanceSetReference

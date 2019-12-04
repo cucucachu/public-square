@@ -26,7 +26,7 @@ class NoommanError extends Error {
 
 /*
  * Class NoommanValidationError
- * Extends Error
+ * Extends NoommanError
  * An Error which is thrown when an Instance does not conform to the 
  *    requirements defined by the schema of its ClassModel.
  */
@@ -45,7 +45,7 @@ class NoommanValidationError extends NoommanError {
 
 /*
  * Class NoommanSaveError
- * Extends Error
+ * Extends NoommanError
  * An Error which is thrown when attempting to save an Instance
  *    which has been deleted, stripped of sensitive attribute, 
  *    or when an Instance fails a createControl or updateControl
@@ -66,7 +66,7 @@ class NoommanSaveError extends NoommanError {
 
 /*
  * Class NoommanDeleteError
- * Extends Error
+ * Extends NoommanError
  * An Error which is thrown when attempting to delete an Instance
  *    which has not been saved, or when an Instance fails a deleteControl method.
  */
@@ -83,9 +83,29 @@ class NoommanDeleteError extends NoommanError {
     }
 }
 
+
+/*
+ * Class NoommanDatabaseError
+ * Extends NoommanError
+ * An Error which is thrown when due to errors connecting to 
+ *    a mongo databse.
+ */
+class NoommanDatabaseError extends NoommanError {
+
+    /* 
+     * constructor()
+     * Creates an instance of NoommanDatabaseError.
+     * Returns
+     * - NoommanDatabaseError - The NoommanDatabaseError created.
+     */
+    constructor(message) {
+        super(message);
+    }
+}
+
 /*
  * Class NoommanArgumentError
- * Extends Error
+ * Extends NoommanError
  * An Error which is thrown when a noomman method is called
  *    with invalid arguments.
  */
@@ -104,7 +124,7 @@ class NoommanArgumentError extends NoommanError {
 
 /*
  * Class NoommanClassModelError
- * Extends Error
+ * Extends NoommanError
  * An Error which is thrown when a ClassModel is functionally invalid, or a 
  *    ClassModel method is called on a ClassModel that the method would not 
  *    function for.
@@ -124,7 +144,7 @@ class NoommanClassModelError extends NoommanError {
 
 /*
  * Class NoommanConstructorError
- * Extends Error
+ * Extends NoommanError
  * An Error which is thrown when a noomman class constructor recieves invalid arguments.
  */
 class NoommanConstructorError extends NoommanError {
@@ -142,7 +162,7 @@ class NoommanConstructorError extends NoommanError {
 
 /*
  * Class NoommanNotImplementedError
- * Extends Error
+ * Extends NoommanError
  * An Error which is thrown when a method is called, and that method is 
  *    intentionally not implemented. This is usually the case when a class
  *    extends another class, but needs to disallow a particular inherrited
@@ -166,6 +186,7 @@ module.exports = {
     NoommanValidationError,
     NoommanSaveError,
     NoommanDeleteError,
+    NoommanDatabaseError,
     NoommanArgumentError,
     NoommanClassModelError,
     NoommanConstructorError,

@@ -21,10 +21,8 @@ class InstanceSet extends SuperSet {
      * Returns
      * - InstanceSet - The InstanceSet created with the given classModel and instances.
      * Throws
-     * - Error - If classModel parameter is missing or not an instance of ClassModel.
-     * - Error - If instances is given and is not an Iterable.
-     * - Error - If instances is given and contains anything but Instances.
-     * - Error - If instances is given and contains any Instance of a different ClassModel.
+     * - NoommanConstructorError - If constructorValidations() throws a NoommanConstructorError.
+     * - NoommanArgumentError - If constructorValidations() throws a NoommanArgumentError.
      */
     constructor(classModel, instances) {
         InstanceSet.constructorValidations(classModel, instances);
@@ -41,14 +39,12 @@ class InstanceSet extends SuperSet {
      *     must be of this classModel or one of its sub-ClassModels.
      * - instances - Iterable<Instance> - an Iterable (Array, InstanceSet, etc.) containing Instances.
      * Throws
-     * - Error - If classModel parameter is missing or not an instance of ClassModel.
-     * - Error - If instances is given and is not an Iterable.
-     * - Error - If instances is given and contains anything but Instances.
-     * - Error - If instances is given and contains any Instance of a different ClassModel.
+     * - NoommanConstructorError - If classModel parameter is missing or not an instance of ClassModel.
+     * - NoommanArgumentError - If addInstancesValidations() throws a NoommanArgumentError.
      */
     static constructorValidations(classModel, instances) {
         if (!classModel || !classModel.className)
-            throw new Error('InstanceSet.constructor() first argument must be an instance of ClassModel.');
+            throw new NoommanErrors.NoommanConstructorError('InstanceSet.constructor() first argument must be an instance of ClassModel.');
         if (instances)
             InstanceSet.addInstancesValidations(classModel, instances);
     }
@@ -60,19 +56,19 @@ class InstanceSet extends SuperSet {
      * - classModel - ClassModel - The classModel that all of the given Instances must be of.
      * - instances - Iterable<Instance> - an Iterable (Array, InstanceSet, etc.) containing Instances.
      * Throws
-     * - Error - If instances is given and is not an Iterable.
-     * - Error - If instances is given and contains anything but Instances.
-     * - Error - If instances is given and contains any Instance of a different ClassModel.
+     * - NoommanArgumentError - If instances is given and is not an Iterable.
+     * - NoommanArgumentError - If instances is given and contains anything but Instances.
+     * - NoommanArgumentError - If instances is given and contains any Instance of a different ClassModel.
      */
     static addInstancesValidations(classModel, instances) {
         if (!(typeof instances[Symbol.iterator] === 'function'))
-            throw new Error('instances argument must be iterable.');
+            throw new NoommanErrors.NoommanArgumentError('instances argument must be iterable.');
 
         instances.forEach(instance => {
             if (!(instance instanceof Instance))
-                throw new Error('Illegal attempt to add something other than instances to an InstanceSet.');
+                throw new NoommanErrors.NoommanArgumentError('Illegal attempt to add something other than instances to an InstanceSet.');
             if (!instance.isInstanceOf(classModel))
-                throw new Error('Illegal attempt to add instances of a different class to an InstanceSet.');
+                throw new NoommanErrors.NoommanArgumentError('Illegal attempt to add instances of a different class to an InstanceSet.');
         });
     }
 
@@ -85,8 +81,7 @@ class InstanceSet extends SuperSet {
      * - instance - Instance - An Instance of the ClassModel for this InstanceSet (or a sub-ClassModel)
      *    to add to this InstanceSet.
      * Throws
-     * - Error - If instance is not an Instance.
-     * - Error - If instance is an Instance of a different ClassModel.
+     * - NoommanArgumentError - If addInstancesValidations() throws a NoommanArgumentError.
      */
     add(instance) {
         if (!instance)
@@ -108,9 +103,7 @@ class InstanceSet extends SuperSet {
      * - iterable - Iterable<Instance> - An Iterable containing instances of the ClassModel for this InstanceSet 
      *    (or a sub-ClassModel) to add to this InstanceSet.
      * Throws
-     * - Error - If iterable is given and is not an Iterable.
-     * - Error - If iterable is given and contains anything but Instances.
-     * - Error - If iterable is given and contains any Instance of a different ClassModel.
+     * - NoommanArgumentError - If addInstances() throws a NoommanArgumentError.
      */
     addFromIterable(iterable) {
         this.addInstances(iterable);
@@ -123,9 +116,7 @@ class InstanceSet extends SuperSet {
      * - instances - Iterable<Instance> - An Iterable containing Instances of the ClassModel for this InstanceSet 
      *    (or a sub-ClassModel) to add to this InstanceSet.
      * Throws
-     * - Error - If instances is given and is not an Iterable.
-     * - Error - If instances is given and contains anything but Instances.
-     * - Error - If instances is given and contains any Instance of a different ClassModel.
+     * - NoommanArgumentError - If addInstancesValidations() throws a NoommanArgumentError.
      */
     addInstances(instances) {
         if (!instances)
@@ -164,7 +155,7 @@ class InstanceSet extends SuperSet {
      * - instances - Iterable<Instance> - An Iterable containing Instances of the ClassModel for this InstanceSet 
      *    (or a sub-ClassModel) to remove from this InstanceSet.
      * Throws
-     * - Error - If instances parameter is not an Iterable.
+     * - NoommanArgumentError - If removeInstances throws a NoommanArgumentError.
      */
     removeFromIterable(instances) {
         this.removeInstances(instances);
@@ -178,14 +169,14 @@ class InstanceSet extends SuperSet {
      * - instances - Iterable<Instance> - An Iterable containing Instances of the ClassModel for this InstanceSet 
      *    (or a sub-ClassModel) to remove from this InstanceSet.
      * Throws
-     * - Error - If instances parameter is not an Iterable.
+     * - NoommanArgumentError - If instances parameter is not an Iterable.
      */
     removeInstances(instances) {
         if (!instances || !this.size)
             return;
 
         if (!(typeof instances[Symbol.iterator] === 'function'))
-            throw new Error('instances argument must be iterable.');
+            throw new NoommanErrors.NoommanArgumentError('instances argument must be iterable.');
         
         instances.forEach(instance => this.remove(instance));
     }
@@ -282,11 +273,11 @@ class InstanceSet extends SuperSet {
      * Returns
      * - Boolean - True if both InstanceSets hold the same Instances, false otherwise.
      * Throws
-     * - Error - If instanceSet parameter is not an instance of InstanceSet.
+     * - NoommanArgumentError - If instanceSet parameter is not an instance of InstanceSet.
      */
     equals(instanceSet) {
         if (!(instanceSet instanceof InstanceSet))
-            throw new Error('InstanceSet.equals() argument is not an InstanceSet.');
+            throw new NoommanErrors.NoommanArgumentError('InstanceSet.equals() argument is not an InstanceSet.');
         
         if (instanceSet.size != this.size)
             return false;
@@ -311,11 +302,11 @@ class InstanceSet extends SuperSet {
      * Returns
      * - InstanceSet - The set difference of this InstanceSet and given InstanceSet.
      * Throws
-     * - Error - If instanceSet parameter is not an instance of InstanceSet.
+     * - NoommanArgumentError - If instanceSet parameter is not an instance of InstanceSet.
      */
     difference(instanceSet) {
         if (!(instanceSet instanceof InstanceSet))
-            throw new Error('InstanceSet.difference() argument is not an InstanceSet.');
+            throw new NoommanErrors.NoommanArgumentError('InstanceSet.difference() argument is not an InstanceSet.');
 
         return new InstanceSet(this.classModel, [...this].filter(x => !instanceSet.hasInstance(x)));
     }
@@ -329,14 +320,14 @@ class InstanceSet extends SuperSet {
      * Returns
      * - InstanceSet - The union of this InstanceSet and given InstanceSet.
      * Throws
-     * - Error - If instanceSet parameter is not an instance of InstanceSet.
+     * - NoommanArgumentError - If instanceSet parameter is not an instance of InstanceSet.
      */
     union(instanceSet) {
         if (!instanceSet)
             return new InstanceSet(this.classModel, this);
 
         if (!(instanceSet instanceof InstanceSet))
-            throw new Error('instanceSet.union() called with argument which is not an InstanceSet');
+            throw new NoommanErrors.NoommanArgumentError('instanceSet.union() called with argument which is not an InstanceSet');
     
         let combination = new InstanceSet(this.classModel);
 
@@ -353,14 +344,14 @@ class InstanceSet extends SuperSet {
      * Returns
      * - InstanceSet - The union of this InstanceSet and given InstanceSet.
      * Throws
-     * - Error - If instanceSet parameter is not an instance of InstanceSet.
+     * - NoommanArgumentError - If instanceSet parameter is not an instance of InstanceSet.
      */
     intersection(instanceSet) {
         if (!instanceSet)
             return new InstanceSet(this.classModel);
 
         if (!(instanceSet instanceof InstanceSet))
-            throw new Error('InstanceSet.intersection() argument is not an InstanceSet.');
+            throw new NoommanErrors.NoommanArgumentError('InstanceSet.intersection() argument is not an InstanceSet.');
             
         if (instanceSet.size == 0 || this.size == 0)
             return new InstanceSet(this.classModel);
@@ -377,14 +368,14 @@ class InstanceSet extends SuperSet {
      * Returns
      * - InstanceSet - The symmetric difference of this InstanceSet and given InstanceSet.
      * Throws
-     * - Error - If instanceSet parameter is not an instance of InstanceSet.
+     * - NoommanArgumentError - If instanceSet parameter is not an instance of InstanceSet.
      */
     symmetricDifference(instanceSet) {
         if (!instanceSet)
             return new InstanceSet(this.classModel, this);
 
         if (!(instanceSet instanceof InstanceSet))
-            throw new Error('InstanceSet.symmetricDifference() argument is not an InstanceSet.');
+            throw new NoommanErrors.NoommanArgumentError('InstanceSet.symmetricDifference() argument is not an InstanceSet.');
 
         const union = this.union(instanceSet);
         const intersection = this.intersection(instanceSet);
@@ -396,10 +387,10 @@ class InstanceSet extends SuperSet {
      * setsDifference(instanceSet)
      * Overrides the method SuperSet.setDifference. Not implemented for InstanceSets.
      * Throws
-     * - Error - Not Implemented.
+     * - NoommanNotImplementedError - Not Implemented.
      */
     static setsDifference(setA, setB) {
-        throw new Error('InstanceSet.setsDifference() is not implemented.');
+        throw new NoommanErrors.NoommanNotImplementedError('InstanceSet.setsDifference() is not implemented.');
     }
 
     // forEach, Map, Reduce, Filter
@@ -446,11 +437,11 @@ class InstanceSet extends SuperSet {
      *    all Instances from the origin InstanceSet which are of the given ClassModel (or a 
      *    ClassModel thereof).
      * Throws
-     * - Error - If the given classModel paramter is omitted or not an instance of ClassModel.
+     * - NoommanArgumentError - If the given classModel paramter is omitted or not an instance of ClassModel.
      */
     filterForClassModel(classModel) {
         if (!classModel || !classModel.className) 
-            throw new Error('instanceSet.filterForClassModel(): argument must be a ClassModel.');
+            throw new NoommanErrors.NoommanArgumentError('instanceSet.filterForClassModel(): argument must be a ClassModel.');
         
         const filtered = this.filter((instance) => {
             return instance.isInstanceOf(classModel);
@@ -486,10 +477,8 @@ class InstanceSet extends SuperSet {
      *    including violations of custom validations, required properties, required groups, 
      *    or mutexes.
      * Throws
-     * - Error - If a required property is not set on an Instance.
-     * - Error - If none of the properties in a required group are set on an Instance.
-     * - Error - If more than one property in a mutex are set on an Instance.
-     * - Error - If a custom validation method from the ClassModel fails on an Instance.
+     * - NoommanValidationError - If Instance.validate() throws a NoommanArgumentError for 
+     *    any Instance in this InstanceSet.
      */
     async validate() {
         const promises = [];
@@ -511,10 +500,13 @@ class InstanceSet extends SuperSet {
      * Returns
      * - Promise<Array<Instance>> - An Array containing each Instance in this InstanceSet, if save is successful.
      * Throws
-     * - Error - If an Instance has already been deleted.
-     * - Error - If an Instance has been stripped by stripSensitiveAttributes().
-     * - Error - If a call to validate() for an Instance throws an error.
-     * - Error - If an Instance does not pass createControl or updateControl methods.
+     * - NoommanValidationError - If validate() throws a NoommanValidationError.
+     * - NoommanValidationError - If ClassModel.updateRelatedInstancesForInstanceSet() throws a NoommanValidationError.
+     * - NoommanSaveError - If ClassModel.createControlCheck() throws a NoommanSaveError.
+     * - NoommanSaveError - If ClassModel.updateControlCheck() throws a NoommanSaveError.
+     * - NoommanSaveError - If any Instance in this InstanceSet has been stripped of sensitive attributes.
+     * - NoommanSaveError - If ClassModel.updateRelatedInstancesForInstanceSet() throws a NoommanSaveError.
+     * - NoommanSaveError - If Instance.saveWithoutValidation() throws a NoommanSaveError.
      */ 
     async save(createControlMethodParameters, updateControlMethodParameters) {
         const instancesToUpdate = this.filterToInstanceSet(instance => instance.saved());
@@ -524,7 +516,7 @@ class InstanceSet extends SuperSet {
             await this.validate();
         }
         catch (error) {
-            throw new Error('Caught validation error when attempting to save InstanceSet: ' + error.message);
+            throw new NoommanErrors.NoommanValidationError('Caught validation error when attempting to save InstanceSet: ' + error.message);
         }
         
         await this.classModel.updateControlCheck(instancesToUpdate, updateControlMethodParameters);
@@ -532,7 +524,7 @@ class InstanceSet extends SuperSet {
 
         for (const instance of this) {
             if (instance.stripped()) {
-                throw new Error('Attempt to save an InstanceSet which contains stripped instances.');
+                throw new NoommanErrors.NoommanSaveError('Attempt to save an InstanceSet which contains stripped instances.');
             }
         }
 
@@ -553,10 +545,11 @@ class InstanceSet extends SuperSet {
      * Returns
      * - Promise<Array<Instance>> - An array containing each Instance in this InstanceSet, if save is successful.
      * Throws
-     * - Error - If an Instance has already been deleted.
-     * - Error - If an Instance has been stripped by stripSensitiveAttributes().
-     * - Error - If a call to validate() for an Instance throws an error.
-     * - Error - If an Instance does not pass createControl or updateControl methods.
+     * - NoommanValidationError - If validate() throws a NoommanValidationError.
+     * - NoommanSaveError - If ClassModel.createControlCheck() throws a NoommanSaveError.
+     * - NoommanSaveError - If ClassModel.updateControlCheck() throws a NoommanSaveError.
+     * - NoommanSaveError - If any Instance in this InstanceSet has been stripped of sensitive attributes.
+     * - NoommanSaveError - If Instance.saveWithoutValidation() throws a NoommanSaveError.
      */ 
     async saveWithoutRelatedUpdates(createControlMethodParameters, updateControlMethodParameters) {
         const instancesToUpdate = this.filterToInstanceSet(instance => instance.saved());
@@ -572,6 +565,12 @@ class InstanceSet extends SuperSet {
         await this.classModel.updateControlCheck(instancesToUpdate, updateControlMethodParameters);
         await this.classModel.createControlCheck(instancesToCreate, createControlMethodParameters);
 
+        for (const instance of this) {
+            if (instance.stripped()) {
+                throw new NoommanErrors.NoommanSaveError('Attempt to save an InstanceSet which contains stripped instances.');
+            }
+        }
+
         let promises = this.map(instance => instance.saveWithoutValidation())
         await Promise.all(promises);
     }
@@ -582,20 +581,20 @@ class InstanceSet extends SuperSet {
      * Paramters
      * - relationshipName - String - The name of a relationship to walk.
      * Throws
-     * - Error - If no relationshipName is given.
-     * - Error - If relationshipName is not a String.
-     * - Error - If relationshipName does not match a relationship on the ClassModel
+     * - NoommanArgumentError - If no relationshipName is given.
+     * - NoommanArgumentError - If relationshipName is not a String.
+     * - NoommanArgumentError - If relationshipName does not match a relationship on the ClassModel
      *    for this InstanceSet.
      */
     walkValidations(relationshipName) {
         if (!relationshipName) 
-            throw new Error('InstanceSet.walk() called without relationship.');
+            throw new NoommanErrors.NoommanArgumentError('InstanceSet.walk() called without relationship.');
 
         if (typeof(relationshipName) !== 'string')
-            throw new Error('InstanceSet.walk() relationship argument must be a String.');
+            throw new NoommanErrors.NoommanArgumentError('InstanceSet.walk() relationship argument must be a String.');
 
         if (!this.classModel.relationships.map(relationship => relationship.name).includes(relationshipName))
-            throw new Error('InstanceSet.walk() called with an invalid relationship for ClassModel ' + this.classModel.className + '.');
+            throw new NoommanErrors.NoommanArgumentError('InstanceSet.walk() called with an invalid relationship for ClassModel ' + this.classModel.className + '.');
     }
 
     /*
@@ -609,10 +608,7 @@ class InstanceSet extends SuperSet {
      * - InstanceSet - an InstanceSet containing all the Instances related to the Instances
      *    in this InstanceSet through the relationship with the given relationshipName.
      * Throws
-     * - Error - If no relationshipName is given.
-     * - Error - If relationshipName is not a String.
-     * - Error - If relationshipName does not match a relationship on the ClassModel
-     *    for this InstanceSet.
+     * - NoommanArgumentError - If walkValidations() throws a NoommanArgumentError.
      */
     async walk(relationshipName) {
         this.walkValidations(relationshipName);
@@ -706,8 +702,8 @@ class InstanceSet extends SuperSet {
      * - Promise<Array<Boolean>> - An array containing True for each deleted Instance
      *    if all Instances in this InstanceSet are deleted properly.
      * Throws
-     * - Error - If any Instance has not yet been saved (i.e. is not in the database).
-     * - Error - If deleteControl method returns false for any Instance.
+     * - NoommanDeleteError - If any Instance has not yet been saved (i.e. is not in the database).
+     * - NoommanDeleteError - If deleteControlCheck() throws a NoommanDeleteError.
      */
     async delete(deleteControlMethodParameters) {
         if (this.size == 0)
@@ -716,7 +712,7 @@ class InstanceSet extends SuperSet {
         const unsavedInstances = this.filter(instance => instance.saved() == false)
 
         if (unsavedInstances.length) 
-            throw new Error('Attempt to delete an InstanceSet containing unsaved Instances.');
+            throw new NoommanErrors.NoommanDeleteError('Attempt to delete an InstanceSet containing unsaved Instances.');
 
         await this.classModel.deleteControlCheck(this, deleteControlMethodParameters);
 

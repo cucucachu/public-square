@@ -25,7 +25,7 @@ class Relationship {
      * Returns
      * - Relationship - The Relationship created according to the given relationshipSchema.
      * Throws
-     * - Error - If constructorValidations() throws an Error.
+     * - NoommanConstructorError - If constructorValidations() throws a NoommanConstructorError.
      */ 
     constructor(relationshipSchema) {
         this.constructorValidations(relationshipSchema);
@@ -49,51 +49,51 @@ class Relationship {
      *       requiredGroup: String,
      *    }
      * Throws
-     * - Error - If name property is missing.
-     * - Error - If name property is not a String.
-     * - Error - If toClass property is missing.
-     * - Error - If toClass property is not a String.
-     * - Error - If singular property is missing.
-     * - Error - If singular property is not a Boolean.
-     * - Error - If required property is provided and is not a Boolean.
-     * - Error - If owns property is provided and is not a Boolean.
-     * - Error - If mirrorRelationship property is provided and is not a String.
-     * - Error - If mutex property is provided and is not a String.
-     * - Error - If requiredGroup property is provided and is not a String.
+     * - NoommanConstructorError - If name property is missing.
+     * - NoommanConstructorError - If name property is not a String.
+     * - NoommanConstructorError - If toClass property is missing.
+     * - NoommanConstructorError - If toClass property is not a String.
+     * - NoommanConstructorError - If singular property is missing.
+     * - NoommanConstructorError - If singular property is not a Boolean.
+     * - NoommanConstructorError - If required property is provided and is not a Boolean.
+     * - NoommanConstructorError - If owns property is provided and is not a Boolean.
+     * - NoommanConstructorError - If mirrorRelationship property is provided and is not a String.
+     * - NoommanConstructorError - If mutex property is provided and is not a String.
+     * - NoommanConstructorError - If requiredGroup property is provided and is not a String.
      */ 
     constructorValidations(relationshipSchema) {
         if (!relationshipSchema.name) {
-            throw new Error('Attempt to create an relationship without a name.');
+            throw new NoommanErrors.NoommanConstructorError('Attempt to create an relationship without a name.');
         }
         if (typeof(relationshipSchema.name) !== 'string') {
-            throw new Error('Attempt to create an relationship with name set to something other than a string.');
+            throw new NoommanErrors.NoommanConstructorError('Attempt to create an relationship with name set to something other than a string.');
         }
         if (!relationshipSchema.toClass) {
-            throw new Error('Attempt to create an relationship without a toClass.');
+            throw new NoommanErrors.NoommanConstructorError('Attempt to create an relationship without a toClass.');
         }
         if (typeof(relationshipSchema.toClass) !== 'string') {
-            throw new Error('Attempt to create an relationship with toClass set to something other than a string.');
+            throw new NoommanErrors.NoommanConstructorError('Attempt to create an relationship with toClass set to something other than a string.');
         }
         if (relationshipSchema.singular === undefined) {
-            throw new Error('Attempt to create an relationship with singular undefined.');
+            throw new NoommanErrors.NoommanConstructorError('Attempt to create an relationship with singular undefined.');
         }
         if (relationshipSchema.singular !== undefined && typeof(relationshipSchema.singular) !== 'boolean') {
-            throw new Error('Attempt to create an relationship with singular set to something other than a boolean.');
+            throw new NoommanErrors.NoommanConstructorError('Attempt to create an relationship with singular set to something other than a boolean.');
         }
         if (relationshipSchema.required !== undefined && typeof(relationshipSchema.required) !== 'boolean') {
-            throw new Error('Attempt to create an relationship with required set to something other than a boolean.');
+            throw new NoommanErrors.NoommanConstructorError('Attempt to create an relationship with required set to something other than a boolean.');
         }
         if (relationshipSchema.owns !== undefined && typeof(relationshipSchema.owns) !== 'boolean') {
-            throw new Error('Attempt to create an relationship with owns set to something other than a boolean.');
+            throw new NoommanErrors.NoommanConstructorError('Attempt to create an relationship with owns set to something other than a boolean.');
         }
         if (relationshipSchema.mirrorRelationship !== undefined && typeof(relationshipSchema.mirrorRelationship) !== 'string') {
-            throw new Error('Attempt to create an relationship with mirrorRelationship set to something other than a string.');
+            throw new NoommanErrors.NoommanConstructorError('Attempt to create an relationship with mirrorRelationship set to something other than a string.');
         }
         if (relationshipSchema.mutex !== undefined && typeof(relationshipSchema.mutex) !== 'string') {
-            throw new Error('Attempt to create an relationship with mutex set to something other than a string.');
+            throw new NoommanErrors.NoommanConstructorError('Attempt to create an relationship with mutex set to something other than a string.');
         }
         if (relationshipSchema.requiredGroup !== undefined && typeof(relationshipSchema.requiredGroup) !== 'string') {
-            throw new Error('Attempt to create an relationship with requiredGroup set to something other than a string.');
+            throw new NoommanErrors.NoommanConstructorError('Attempt to create an relationship with requiredGroup set to something other than a string.');
         }
     }
 }

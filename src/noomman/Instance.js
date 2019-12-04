@@ -24,7 +24,7 @@ class Instance extends Diffable {
      * Returns
      * - Instance - The Instance created with the given classModel and optional document.
      * Throws
-     * - Error - If constructorValidations() throws an Error.
+     * - NoommanConstructorError - If constructorValidations() throws an NoommanConstructorError.
      */
     constructor(classModel, document=null) {
         super();
@@ -145,27 +145,27 @@ class Instance extends Diffable {
      * - document - Object - A mongo document retrieved from a database. This parameter should only be 
      *    used by internal noomman methods.
      * Throws
-     * - Error - If no ClassModel is provided.
-     * - Error - If classModel is not an instance of ClassModel.
-     * - Error - If classModel is abstract.
-     * - Error - If given document does not have an _id property.
-     * - Error - If given document is for an auditable ClassModel but does not have a revision property.
+     * - NoommanConstructorError - If no ClassModel is provided.
+     * - NoommanConstructorError - If classModel is not an instance of ClassModel.
+     * - NoommanConstructorError - If classModel is abstract.
+     * - NoommanConstructorError - If given document does not have an _id property.
+     * - NoommanConstructorError - If given document is for an auditable ClassModel but does not have a revision property.
      */
     constructorValidations(classModel, document) {
         if (!classModel) 
-            throw new Error('Instance.constructor(), parameter classModel is required.');
+            throw new NoommanErrors.NoommanConstructorError('Instance.constructor(), parameter classModel is required.');
 
         if (!(classModel.className))
-            throw new Error('Instance.constructor(), first parameter classModel must be an instance of ClassModel.');
+            throw new NoommanErrors.NoommanConstructorError('Instance.constructor(), first parameter classModel must be an instance of ClassModel.');
         
         if (classModel.abstract) 
-            throw new Error('Instance.constructor(), classModel cannot be abstract.');
+            throw new NoommanErrors.NoommanConstructorError('Instance.constructor(), classModel cannot be abstract.');
 
         if (document && !('_id' in document))
-            throw new Error('Instance.constructor(), given document does not have an ObjectId.');
+            throw new NoommanErrors.NoommanConstructorError('Instance.constructor(), given document does not have an ObjectId.');
 
         if (document && classModel.auditable && document.revision === undefined) {
-            throw new Error('Instance.constructor(), document of an auditable ClassModel is missing revision.');
+            throw new NoommanErrors.NoommanConstructorError('Instance.constructor(), document of an auditable ClassModel is missing revision.');
         }
     }
 
@@ -256,22 +256,22 @@ class Instance extends Diffable {
      *    is non-singular) related to this Instance through the given relationship. If relationship is empty, then null will
      *    be returned for singular relationships or an empty InstanceSet will be returned for non-singular relationships.
      * Throws
-     * - Error - If no relationshipName is given.
-     * - Error - If relationshipName is not a String
-     * - Error - If relationshipName does not match any relationship for the ClassModel of this Instance.
+     * - NoommanArgumentError - If no relationshipName is given.
+     * - NoommanArgumentError - If relationshipName is not a String
+     * - NoommanArgumentError - If relationshipName does not match any relationship for the ClassModel of this Instance.
      */ 
     async walk(relationshipName, usePreviousState=false) {
         if (!relationshipName)
-            throw new Error('instance.walk() called with insufficient arguments. Should be walk(relationshipName, <optional>filter).');
+            throw new NoommanErrors.NoommanArgumentError('instance.walk() called with insufficient arguments. Should be walk(relationshipName, <optional>filter).');
         
         if (typeof(relationshipName) != 'string')
-            throw new Error('instance.walk(): First argument needs to be a String representing the name of the relationship.');
+            throw new NoommanErrors.NoommanArgumentError('instance.walk(): First argument needs to be a String representing the name of the relationship.');
         
         if (!this.classModel.attributes.map(attribute => attribute.name).includes(relationshipName) && !this.classModel.relationships.map(relationship => relationship.name).includes(relationshipName))
-            throw new Error('instance.walk(): First argument needs to be a relationship property in ' + this.classModel.className + '\'s schema.');
+            throw new NoommanErrors.NoommanArgumentError('instance.walk(): First argument needs to be a relationship property in ' + this.classModel.className + '\'s schema.');
 
         if (!this.classModel.relationships.map(relationship => relationship.name).includes(relationshipName))
-            throw new Error('instance.walk(): property "' + relationshipName + '" is not a relationship.');
+            throw new NoommanErrors.NoommanArgumentError('instance.walk(): property "' + relationshipName + '" is not a relationship.');
     
         
         const relationshipDefinition = this.classModel.relationships.filter(relationship => relationship.name ===relationshipName)[0];
@@ -403,10 +403,10 @@ class Instance extends Diffable {
      * Throws an error if this instance is invalid for any reason, including violations of 
      *    custom validations, required properties, required groups, or mutexes.
      * Throws
-     * - Error - If a required property is not set.
-     * - Error - If none of the properties in a required group are set.
-     * - Error - If more than one property in a mutex are set.
-     * - Error - If a custom validation method from the ClassModel fails.
+     * - NoommanValidationError - If requiredValidation() throws a NoommanValidationError.
+     * - NoommanValidationError - If requiredGroupValidation() throws a NoommanValidationError.
+     * - NoommanValidationError - If mutexValidation() throws a NoommanValidationError.
+     * - Error - If customValidations() throws a Error.
      */
     async validate() {
         try {
@@ -425,7 +425,7 @@ class Instance extends Diffable {
      * mutexValidation()
      * Throws an error if more than one property that is part of a mutex is set.
      * Throws
-     * - Error - If more than one property in a mutex are set.
+     * - NoommanValidationError - If more than one property in a mutex are set.
      */
     mutexValidation() {
         const muti = [];
@@ -449,7 +449,7 @@ class Instance extends Diffable {
                     message += ' Property "' + property.name + '" with mutex "' + property.mutex + '".';
                 }
             }
-            throw new Error(message);
+            throw new NoommanErrors.NoommanValidationError(message);
         }
     }
 
@@ -457,7 +457,7 @@ class Instance extends Diffable {
      * requiredValidation()
      * Throws an error if this instance is invalid due to a required property not being set.
      * Throws
-     * - Error - If a required property is not set.
+     * - NoommanValidationError - If a required property is not set.
      */
     requiredValidation() {
         const documentProperties = this.classModel.attributes.concat(this.classModel.relationships);
@@ -476,14 +476,14 @@ class Instance extends Diffable {
         }
 
         if (!valid)
-            throw new Error(message);
+            throw new NoommanErrors.NoommanValidationError(message);
     }
 
     /* 
      * requiredGroupValidation()
      * Throws an error if none of the properties which share a required group are set.
      * Throws
-     * - Error - If none of the properties in a required group are set.
+     * - NoommanValidationError - If none of the properties in a required group are set.
      */
     requiredGroupValidation() {
         let requiredGroups = [];
@@ -509,7 +509,7 @@ class Instance extends Diffable {
             });
             message += '.';
 
-            throw new Error(message);
+            throw new NoommanErrors.NoommanValidationError(message);
         }
     }
 
@@ -540,25 +540,25 @@ class Instance extends Diffable {
      * Returns
      * - Promise<Instance> - This Instance, if save is successful.
      * Throws
-     * - Error - If this Instance has already been deleted.
-     * - Error - If this Instance has been stripped by stripSensitiveAttributes().
-     * - Error - If a call to validate() throws an error.
-     * - Error - If Instance does not pass createControl or updateControl methods.
+     * - NoommanSaveError - If this Instance has already been deleted.
+     * - NoommanSaveError - If this Instance has been stripped by stripSensitiveAttributes().
+     * - NoommanValidationError - If a call to validate() throws an NoommanValidationError.
+     * - NoommanSaveError - If Instance does not pass createControl or updateControl methods.
      */ 
     async save(createControlMethodParameters, updateControlMethodParameters) {
         if (this.deleted()) {
-            throw new Error('instance.save(): You cannot save an instance which has been deleted.');
+            throw new NoommanErrors.NoommanSaveError('instance.save(): You cannot save an instance which has been deleted.');
         }
         
         if (this[stripped]) {
-            throw new Error('instance.save(): You cannot save an instance which has been stripped of sensitive attribues.');
+            throw new NoommanErrors.NoommanSaveError('instance.save(): You cannot save an instance which has been stripped of sensitive attribues.');
         }
 
         try {
             await this.validate();
         }
         catch (error) {
-            throw new Error('Caught validation error when attempting to save Instance: ' + error.message);
+            throw new NoommanErrors.NoommanValidationError('Caught validation error when attempting to save Instance: ' + error.message);
         }
 
         if (this.currentState.equals(this.previousState)) {
@@ -603,16 +603,16 @@ class Instance extends Diffable {
      * Returns
      * - Promise<Instance> - This Instance, if save is successful.
      * Throws
-     * - Error - If this Instance has already been deleted.
-     * - Error - If this Instance has been stripped by stripSensitiveAttributes().
+     * - NoommanSaveError - If this Instance has already been deleted.
+     * - NoommanSaveError - If this Instance has been stripped by stripSensitiveAttributes().
      */ 
     async saveWithoutValidation() {
         if (this.deleted()) {
-            throw new Error('instance.save(): You cannot save an instance which has been deleted.');
+            throw new NoommanErrors.NoommanSaveError('instance.save(): You cannot save an instance which has been deleted.');
         }
 
         if (this[stripped]) {
-            throw new Error('instance.save(): You cannot save an instance which has been stripped of sensitive attribues.');
+            throw new NoommanErrors.NoommanSaveError('instance.save(): You cannot save an instance which has been stripped of sensitive attribues.');
         }
 
         if (this.currentState.equals(this.previousState))
@@ -641,12 +641,12 @@ class Instance extends Diffable {
      * Returns
      * - Promise<Boolean> - True if Instance is deleted properly.
      * Throws
-     * - Error - If this Instance has not yet been saved (i.e. is not in the database).
-     * - Error - If deleteControl method returns false for this Instance.
+     * - NoommanDeleteError - If this Instance has not yet been saved (i.e. is not in the database).
+     * - NoommanDeleteError - If deleteControl method returns false for this Instance.
      */
     async delete(deleteControlMethodParameters) {
         if (!this.saved())
-            throw new Error('instance.delete(): You cannot delete an instance which hasn\'t been saved yet');
+            throw new NoommanErrors.NoommanDeleteError('instance.delete(): You cannot delete an instance which hasn\'t been saved yet');
 
         await this.classModel.deleteControlCheckInstance(this, deleteControlMethodParameters)
 
@@ -685,8 +685,8 @@ class Instance extends Diffable {
      * - Promise<Array<Boolean>> - An Array of Booleans, each of which will be true if all related instances were deleted
      *    successfully.
      * Throws
-     * - Error - If a related owned Instance has not yet been saved (i.e. is not in the database).
-     * - Error - If deleteControl method returns false for a related owned Instance.
+     * - NoommanDeleteError - If a related owned Instance has not yet been saved (i.e. is not in the database).
+     * - NoommanDeleteError - If deleteControl method returns false for a related owned Instance.
      */
     async deleteOwnedInstances(deleteControlMethodParameters) {
         const ownsRelationships = this.classModel.relationships.filter(r => r.owns === true);
@@ -756,11 +756,11 @@ class Instance extends Diffable {
      * - Boolean - True if the ClassModel, id, and all attributes and relationships are the same
      *    for both Instances, false otherwise.
      * Throws
-     * - Error - If 'that' parameter is not an instance of Instance.
+     * - NoommanArgumentError - If 'that' parameter is not an instance of Instance.
      */
     equals(that) {
         if (!(that instanceof Instance))
-            throw new Error('instance.equals called with something that is not an instance.');
+            throw new NoommanErrors.NoommanArgumentError('instance.equals called with something that is not an instance.');
         if (that.classModel !== this.classModel)
             return false;
         if (that.id != this.id)

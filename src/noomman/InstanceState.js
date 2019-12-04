@@ -23,7 +23,7 @@ class InstanceState {
      * Returns
      * - InstanceState - the InstanceState created for the given classModel and optional document.
      * Throws
-     * - Error - If classModel parameter is omitted.
+     * - NoommanConstructorError - If classModel parameter is omitted.
      */
     constructor(classModel, document) {
         this.attributes = {};
@@ -31,7 +31,7 @@ class InstanceState {
         this.instanceSetReferences = {};
 
         if (!classModel)
-            throw new Error('new InstanceState(): First argument \'classModel\' is required.');
+            throw new NoommanErrors.NoommanConstructorError('new InstanceState(): First argument \'classModel\' is required.');
         
         const attributes = classModel.attributes;
         const singularRelationships = classModel.relationships.filter(relationship => relationship.singular);
