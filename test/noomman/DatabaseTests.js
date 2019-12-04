@@ -2,6 +2,7 @@ const database = require('../../src/noomman/database');
 const TestingFunctions = require('./helpers/TestingFunctions');
 const testForError = TestingFunctions.testForError;
 const testForErrorAsync = TestingFunctions.testForErrorAsync;
+const DatabaseConnection = require('./helpers/DatabaseConnection');
 
 describe('Database Tests', () => {
 
@@ -10,16 +11,16 @@ describe('Database Tests', () => {
     describe('Connect and Close', () => {
 
         it('database.connect() connects to the database without error.', async () => {
-            await database.connect();
+            await database.connect(DatabaseConnection.mongo_uri, DatabaseConnection.testDatabase);
             await database.close();
         });
 
         it('Error thrown when attempting to connect to db twice without calling close.', async () => {
             const expectedErrorMessage = 'Attempt to connect to database twice.';
-            await database.connect();
+            await database.connect(DatabaseConnection.mongo_uri, DatabaseConnection.testDatabase);
 
             await testForErrorAsync('database.connect', expectedErrorMessage, async () => {
-                await database.connect();
+                await database.connect(DatabaseConnection.mongo_uri, DatabaseConnection.testDatabase);
             });
 
             await database.close();
@@ -30,7 +31,7 @@ describe('Database Tests', () => {
     describe('index()', () => {
 
         it('Adding an index to a collection.', async () => {
-            await database.connect();
+            await database.connect(DatabaseConnection.mongo_uri, DatabaseConnection.testDatabase);
             const result = await database.index('testCollection', '__t');
             await database.close();
             if (result !== '__t_1') {
@@ -51,7 +52,7 @@ describe('Database Tests', () => {
     describe('Insert and Update', () => {
 
         before(async () => {
-            await database.connect();
+            await database.connect(DatabaseConnection.mongo_uri, DatabaseConnection.testDatabase);
         });
 
         after(async () => {
@@ -180,7 +181,7 @@ describe('Database Tests', () => {
         ];
 
         before(async () => {
-            await database.connect();
+            await database.connect(DatabaseConnection.mongo_uri, DatabaseConnection.testDatabase);
 
             await database.insertMany(collection, [
                 {
@@ -303,7 +304,7 @@ describe('Database Tests', () => {
         ];
 
         before(async () => {
-            await database.connect();
+            await database.connect(DatabaseConnection.mongo_uri, DatabaseConnection.testDatabase);
 
             await database.insertMany(collection, [
                 {

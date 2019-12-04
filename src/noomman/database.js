@@ -5,7 +5,6 @@
 
 const mongo = require('mongodb');
 const MongoClient = mongo.MongoClient;
-const mongo_uri = "mongodb+srv://cody_jones:cody_jones@publicsquaredev-d3ue6.gcp.mongodb.net/test?retryWrites=true";
 const NoommanErrors = require('./NoommanErrors');
 
 let client = null;
@@ -16,21 +15,22 @@ let db = null;
  * Connects to the mongo database with the given uri.
  * Parameters
  * uri - String - A uri string of the database to connect to.
+ * databaseName - String - The name of the database to connect to.
  * Returns
  * - Promise<mongodb.Db> - The database object returned by mongodb.MongoClient.connect().
  * Throws
  * - NoommanDatabaseError - If an attempt is made to connect to a database more than once without calling close().
  * - MongoError - If underlying call to mongodb.MongoCLient.connect() throws an error.
  */
-async function connect() {
+async function connect(uri, databaseName) {
 	if (connected()) {
 		throw new NoommanErrors.NoommanDatabaseError('Attempt to connect to database twice.');
 	}
 	
-	client = new MongoClient(mongo_uri, { useNewUrlParser: true });
+	client = new MongoClient(uri, { useNewUrlParser: true });
 
 	await client.connect();
-	db = client.db('test');
+	db = client.db(databaseName);
 	return db;
 }
 

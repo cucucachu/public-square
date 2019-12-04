@@ -12,6 +12,7 @@ const testForError = TestingFunctions.testForError;
 const arraysEqual = TestingFunctions.arraysEqual;
 const objectsEqual = TestingFunctions.objectsEqual;
 const testForErrorAsync = TestingFunctions.testForErrorAsync;
+const DatabaseConnection = require('./helpers/DatabaseConnection');
 
 // Load Necessarry TestClassModels
 {
@@ -35,7 +36,7 @@ const testForErrorAsync = TestingFunctions.testForErrorAsync;
 describe('Diffable Tests', () => {
 
     before(async () => {
-        await database.connect();
+        await database.connect(DatabaseConnection.mongo_uri, DatabaseConnection.testDatabase);
     });
 
     after(async () => {

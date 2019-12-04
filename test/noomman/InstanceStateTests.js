@@ -2107,17 +2107,4 @@ describe('Instance State Tests', () => {
 
     });
 
-    it.skip('wtf is going on with InstanceState...', () => {
-        const state = new InstanceState(AllAttributesAndRelationshipsClass);
-        console.log("InstanceState");
-        console.log('proto is InstanceState: ' + (state.__proto__ === InstanceState.prototype));
-        console.log(typeof(InstanceState));
-
-        const instance = new Instance(AllAttributesAndRelationshipsClass);
-        console.log("Instance");
-        console.log('proto is Instance: ' + (instance.__proto__ === Instance.prototype));
-        console.log(typeof(Instance));
-
-    });
-
 });

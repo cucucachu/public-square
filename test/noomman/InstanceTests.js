@@ -6,6 +6,7 @@ const InstanceSet = require('../../src/noomman/InstanceSet');
 const InstanceState = require('../../src/noomman/InstanceState');
 const SuperSet = require('../../src/noomman/SuperSet');
 const TestClassModels = require('./helpers/TestClassModels');
+const DatabaseConnection = require('./helpers/DatabaseConnection');
 const TestingFunctions = require('./helpers/TestingFunctions');
 const testForError = TestingFunctions.testForError;
 const testForErrorRegex = TestingFunctions.testForErrorRegex;
@@ -118,7 +119,7 @@ describe('Instance Tests', () => {
     }
 
     before(async () => {
-        await database.connect();
+        await database.connect(DatabaseConnection.mongo_uri, DatabaseConnection.testDatabase);
     });
 
     after(async () => {

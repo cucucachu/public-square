@@ -6,6 +6,7 @@ const TestingFunctions = require('./helpers/TestingFunctions');
 const testForError = TestingFunctions.testForError;
 const testForErrorAsync = TestingFunctions.testForErrorAsync;
 const testForErrorAsyncRegex = TestingFunctions.testForErrorAsyncRegex;
+const DatabaseConnection = require('./helpers/DatabaseConnection');
 
 // Load all TestClassModels 
 {
@@ -81,7 +82,7 @@ const testForErrorAsyncRegex = TestingFunctions.testForErrorAsyncRegex;
 describe('InstanceSet Tests', () => {
 
     before(async () => {
-        await database.connect();
+        await database.connect(DatabaseConnection.mongo_uri, DatabaseConnection.testDatabase);
     });
 
     after(async () => {

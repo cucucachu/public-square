@@ -4,6 +4,7 @@ const Instance = require('../../src/noomman/Instance');
 const database = require('../../src/noomman/database');
 const TestClassModels = require('./helpers/TestClassModels');
 const TestingFunctions = require('./helpers/TestingFunctions');
+const DatabaseConnection = require('./helpers/DatabaseConnection');
 const testForError = TestingFunctions.testForError;
 const testForErrorAsync = TestingFunctions.testForErrorAsync;
 
@@ -106,7 +107,7 @@ const testForErrorAsync = TestingFunctions.testForErrorAsync;
 describe('Class Model Tests', () => {
 
     before(async () => {
-        await database.connect();
+        await database.connect(DatabaseConnection.mongo_uri, DatabaseConnection.testDatabase);
         ClassModel.finalize();
     });
 
