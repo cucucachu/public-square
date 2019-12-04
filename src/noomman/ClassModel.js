@@ -7,6 +7,7 @@ const Attribute = require('./Attribute');
 const Relationship = require('./Relationship');
 const Diffable = require('./Diffable');
 const SuperSet = require('./SuperSet');
+const NoommanErrors = require('./NoommanErrors');
 
 const AllClassModels = [];
 
@@ -71,7 +72,7 @@ class ClassModel {
      * Returns
      * - ClassModel - The ClassModel created according to the given schema.
      * Throws
-     * - Error - If constructorValidations() method throws an Error.
+     * - NoommanConstructorError - If constructorValidations() method throws a NoommanConstructorError.
      */
     constructor(schema) {
 
@@ -185,7 +186,11 @@ class ClassModel {
      * - schema - Object - A schema describing the properties of this ClassModel. 
      *    See schema parameter or constructor() method.
      * Throws
-     * - Error - Throws an error if the schema is invalid in any way.
+     * - NoommanConstructorError - If parameterShapeConstructorValidations throws a NoommanConstructorError.
+     * - NoommanConstructorError - If crudControlsConstructorValidations throws a NoommanConstructorError.
+     * - NoommanConstructorError - If sensitiveAttributesContructorValidations throws a NoommanConstructorError.
+     * - NoommanConstructorError - If customMethodsContructorValidations throws a NoommanConstructorError.
+     * - NoommanConstructorError - If inheritanceConstructorValidations throws a NoommanConstructorError.
      */
     constructorValidations(schema) {
         ClassModel.paramterShapeConstructorValidations(schema);
@@ -205,47 +210,47 @@ class ClassModel {
      * Parameters
      * - schema - Object - See constructor parameter definition.
      * Throws
-     * - Error - If property className is omitted.
-     * - Error - If property attributes is provided and is not an Array.
-     * - Error - If property relationships is provided and is not an Array.
-     * - Error - If property superClasses is provided and is not an Array.
-     * - Error - If property superClasses is provided and is an empty Array.
-     * - Error - If property useSuperClassCollection is true and superClasses
+     * - NoommanConstructorError - If property className is omitted.
+     * - NoommanConstructorError - If property attributes is provided and is not an Array.
+     * - NoommanConstructorError - If property relationships is provided and is not an Array.
+     * - NoommanConstructorError - If property superClasses is provided and is not an Array.
+     * - NoommanConstructorError - If property superClasses is provided and is an empty Array.
+     * - NoommanConstructorError - If property useSuperClassCollection is true and superClasses
      *    is omitted or contains more than one ClassModel.
-     * - Error - If property auditable is provided and is not a Boolean.
-     * - Error - If property indices is provided and is not an Array.
-     * - Error - If property validations is provided and is not an Array.
+     * - NoommanConstructorError - If property auditable is provided and is not a Boolean.
+     * - NoommanConstructorError - If property indices is provided and is not an Array.
+     * - NoommanConstructorError - If property validations is provided and is not an Array.
      */
     static paramterShapeConstructorValidations(schema) {        
         if (!schema.className)
-            throw new Error('className is required.');
+            throw new NoommanErrors.NoommanConstructorError('className is required.');
 
         if (schema.attributes && !Array.isArray(schema.attributes))
-            throw new Error('If attributes is set, it must be an Array.');
+            throw new NoommanErrors.NoommanConstructorError('If attributes is set, it must be an Array.');
 
         if (schema.relationships && !Array.isArray(schema.relationships))
-            throw new Error('If relationships is set, it must be an Array.');
+            throw new NoommanErrors.NoommanConstructorError('If relationships is set, it must be an Array.');
 
         if (schema.superClasses && !Array.isArray(schema.superClasses))
-            throw new Error('If superClasses is set, it must be an Array.');
+            throw new NoommanErrors.NoommanConstructorError('If superClasses is set, it must be an Array.');
 
         if (schema.superClasses && schema.superClasses.length == 0)
-            throw new Error('If superClasses is set, it cannot be an empty Array.');
+            throw new NoommanErrors.NoommanConstructorError('If superClasses is set, it cannot be an empty Array.');
 
         if (schema.useSuperClassCollection && (!schema.superClasses || schema.superClasses.length !== 1)) {
-            throw new Error('If useSuperClassCollection is true, a single super class must be provided.');
+            throw new NoommanErrors.NoommanConstructorError('If useSuperClassCollection is true, a single super class must be provided.');
         }
 
         if (schema.auditable !== undefined && typeof(schema.auditable) !== 'boolean') {
-            throw new Error('If auditable is provided, it must be a boolean.');
+            throw new NoommanErrors.NoommanConstructorError('If auditable is provided, it must be a boolean.');
         }
 
         if (schema.indices !== undefined && !Array.isArray(schema.indices)) {
-            throw new Error('If indices are provided, indices must be an array.');
+            throw new NoommanErrors.NoommanConstructorError('If indices are provided, indices must be an array.');
         }
 
         if (schema.validations && !Array.isArray(schema.validations))
-            throw new Error('If validations are provided, it must be an Array.');
+            throw new NoommanErrors.NoommanConstructorError('If validations are provided, it must be an Array.');
     }
 
     /*
@@ -255,28 +260,28 @@ class ClassModel {
      * Parameters
      * - schema - Object - See constructor parameter definition.
      * Throws
-     * - Error - If property createControl of property crudControls is not a Function.
-     * - Error - If property readControl of property crudControls is not a Function.
-     * - Error - If property updateControl of property crudControls is not a Function.
-     * - Error - If property deleteControl of property crudControls is not a Function.
-     * - Error - If property sensitiveControl of property crudControls is not a Function.
+     * - NoommanConstructorError - If property createControl of property crudControls is not a Function.
+     * - NoommanConstructorError - If property readControl of property crudControls is not a Function.
+     * - NoommanConstructorError - If property updateControl of property crudControls is not a Function.
+     * - NoommanConstructorError - If property deleteControl of property crudControls is not a Function.
+     * - NoommanConstructorError - If property sensitiveControl of property crudControls is not a Function.
      */
     static crudControlsConstructorValidations(schema) {
         if (schema.crudControls) {
             if (schema.crudControls.readControl && typeof(schema.crudControls.readControl) !== 'function') {
-                throw new Error('If a readControl method is provided, it must be a function.');
+                throw new NoommanErrors.NoommanConstructorError('If a readControl method is provided, it must be a function.');
             }
             if (schema.crudControls.createControl && typeof(schema.crudControls.createControl) !== 'function') {
-                throw new Error('If a createControl method is provided, it must be a function.');
+                throw new NoommanErrors.NoommanConstructorError('If a createControl method is provided, it must be a function.');
             }
             if (schema.crudControls.updateControl && typeof(schema.crudControls.updateControl) !== 'function') {
-                throw new Error('If a updateControl method is provided, it must be a function.');
+                throw new NoommanErrors.NoommanConstructorError('If a updateControl method is provided, it must be a function.');
             }
             if (schema.crudControls.deleteControl && typeof(schema.crudControls.deleteControl) !== 'function') {
-                throw new Error('If a deleteControl method is provided, it must be a function.');
+                throw new NoommanErrors.NoommanConstructorError('If a deleteControl method is provided, it must be a function.');
             }
             if (schema.crudControls.sensitiveControl && typeof(schema.crudControls.sensitiveControl) !== 'function') {
-                throw new Error('If a sensitiveControl method is provided, it must be a function.');
+                throw new NoommanErrors.NoommanConstructorError('If a sensitiveControl method is provided, it must be a function.');
             }
         }
     }
@@ -288,8 +293,8 @@ class ClassModel {
      * Parameters
      * - schema - Object - See constructor parameter definition.
      * Throws
-     * - Error - If ClassModel has a sensitive attribute but no sensitiveControl method.
-     * - Error - If ClassModel has a sensitiveControl method but no sensitive attribute.
+     * - NoommanConstructorError - If ClassModel has a sensitive attribute but no sensitiveControl method.
+     * - NoommanConstructorError - If ClassModel has a sensitiveControl method but no sensitive attribute.
      */
     static sensitiveAttributesContructorValidations(schema) {
         let allAttributes = [];
@@ -315,18 +320,18 @@ class ClassModel {
 
             if (sensitiveAttributes) {
                 if (!schema.crudControls || !schema.crudControls.sensitiveControl) {
-                    throw new Error('At least one attribute is marked sensitive, but no sensitiveControl method is provided.');
+                    throw new NoommanErrors.NoommanConstructorError('At least one attribute is marked sensitive, but no sensitiveControl method is provided.');
                 }
             }
             else {
                 if (schema.crudControls && schema.crudControls.sensitiveControl) {
-                    throw new Error('A sensitiveControl method was provided, but no attributes are marked sensitive.');
+                    throw new NoommanErrors.NoommanConstructorError('A sensitiveControl method was provided, but no attributes are marked sensitive.');
                 }
             }
         }
         else {
             if (schema.crudControls && schema.crudControls.sensitiveControl) {
-                throw new Error('A sensitiveControl method was provided, but no attributes are marked sensitive.');
+                throw new NoommanErrors.NoommanConstructorError('A sensitiveControl method was provided, but no attributes are marked sensitive.');
             }
         }
 
@@ -339,44 +344,44 @@ class ClassModel {
      * Parameters
      * - schema - Object - See constructor parameter definition.
      * Throws
-     * - Error - If property staticMethods is provided but is not an Object.
-     * - Error - If property staticMethods is provided, and any of its properties is not a Function.
-     * - Error - If property staticMethods is provided, and any of its properties has the same
+     * - NoommanConstructorError - If property staticMethods is provided but is not an Object.
+     * - NoommanConstructorError - If property staticMethods is provided, and any of its properties is not a Function.
+     * - NoommanConstructorError - If property staticMethods is provided, and any of its properties has the same
      *    name as a built in noomman method on class ClassModel.
-     * - Error - If property nonStaticMethods is provided but is not an Object.
-     * - Error - If property nonStaticMethods is provided, and any of its properties is not a Function.
-     * - Error - If property nonStaticMethods is provided, and any of its properties has the same
+     * - NoommanConstructorError - If property nonStaticMethods is provided but is not an Object.
+     * - NoommanConstructorError - If property nonStaticMethods is provided, and any of its properties is not a Function.
+     * - NoommanConstructorError - If property nonStaticMethods is provided, and any of its properties has the same
      *    name as a built in noomman method on class Instance.
      */
     static customMethodsContructorValidations(schema) {
         if (schema.staticMethods !== undefined) {
             if (typeof(schema.staticMethods) !== 'object') {
-                throw new Error('If staticMethods is provided, it must be an object.');
+                throw new NoommanErrors.NoommanConstructorError('If staticMethods is provided, it must be an object.');
             }
 
             for (const staticMethod in schema.staticMethods) {
                 if (typeof(schema.staticMethods[staticMethod]) !== 'function') {
-                    throw new Error('Each property of staticMethods object must be a function.');
+                    throw new NoommanErrors.NoommanConstructorError('Each property of staticMethods object must be a function.');
                 }
 
                 if (Object.getOwnPropertyNames(ClassModel.prototype).includes(staticMethod)) {
-                    throw new Error('Attempt to add a static method with the same name as a built in Noomman method: ' + staticMethod + '.');
+                    throw new NoommanErrors.NoommanConstructorError('Attempt to add a static method with the same name as a built in Noomman method: ' + staticMethod + '.');
                 }
             }
         }
 
         if (schema.nonStaticMethods !== undefined) {
             if (typeof(schema.nonStaticMethods) !== 'object') {
-                throw new Error('If nonStaticMethods is provided, it must be an object.');
+                throw new NoommanErrors.NoommanConstructorError('If nonStaticMethods is provided, it must be an object.');
             }
 
             for (const nonStaticMethod in schema.nonStaticMethods) {
                 if (typeof(schema.nonStaticMethods[nonStaticMethod]) !== 'function') {
-                    throw new Error('Each property of nonStaticMethods object must be a function.');
+                    throw new NoommanErrors.NoommanConstructorError('Each property of nonStaticMethods object must be a function.');
                 }
 
                 if (Object.getOwnPropertyNames(Instance.prototype).includes(nonStaticMethod)) {
-                    throw new Error('Attempt to add a non-static method with the same name as a built in Noomman method: ' + nonStaticMethod + '.');
+                    throw new NoommanErrors.NoommanConstructorError('Attempt to add a non-static method with the same name as a built in Noomman method: ' + nonStaticMethod + '.');
                 }
             }
         }
@@ -389,19 +394,19 @@ class ClassModel {
      * Parameters
      * - schema - Object - See constructor parameter definition.
      * Throws
-     * - Error - If properties useSuperClassCollection and abstract are both true.
-     * - Error - If property superClasses is provided, and any super ClassModel has an attribute
+     * - NoommanConstructorError - If properties useSuperClassCollection and abstract are both true.
+     * - NoommanConstructorError - If property superClasses is provided, and any super ClassModel has an attribute
      *    with the same name as a attribute defined in the attributes property of the schema.
-     * - Error - If property superClasses is provided, and any super ClassModel has an relationship
+     * - NoommanConstructorError - If property superClasses is provided, and any super ClassModel has an relationship
      *    with the same name as a relationship defined in the relationships property of the schema.
-     * - Error - If any ClassModel in the superClasses property has useSuperClassModel set to true.
-     * - Error - If property auditable is false, but a ClassModel in the superClasses property has
+     * - NoommanConstructorError - If any ClassModel in the superClasses property has useSuperClassModel set to true.
+     * - NoommanConstructorError - If property auditable is false, but a ClassModel in the superClasses property has
      *    auditable set to true.
-     * - Error - If properties abstract and useSuperClassCollection are both true.
+     * - NoommanConstructorError - If properties abstract and useSuperClassCollection are both true.
      */
     static inheritanceConstructorValidations(schema) {
         if (schema.useSuperClassCollection && schema.abstract) {
-            throw new Error('If useSuperClassCollection is true, abstract cannot be true.')
+            throw new NoommanErrors.NoommanConstructorError('If useSuperClassCollection is true, abstract cannot be true.')
         }
 
         if (schema.superClasses) {
@@ -409,27 +414,27 @@ class ClassModel {
 
                 for (const attribute of superClass.attributes) {
                     if (schema.attributes && schema.attributes.map(attribute => attribute.name).includes(attribute.name)) {
-                        throw new Error('Sub class schema cannot contain the same attribute names as a super class schema.');
+                        throw new NoommanErrors.NoommanConstructorError('Sub class schema cannot contain the same attribute names as a super class schema.');
                     }
                 }
                 for (const relationship of superClass.relationships) {
                     if (schema.relationships && schema.relationships.map(relationship => relationship.name).includes(relationship.name)) {
-                        throw new Error('Sub class schema cannot contain the same relationship names as a super class schema.');
+                        throw new NoommanErrors.NoommanConstructorError('Sub class schema cannot contain the same relationship names as a super class schema.');
                     }
                 }
 
                 if (superClass.useSuperClassCollection) {
-                    throw new Error('You cannot create a sub class of a class which has useSuperClassCollection set to true.');
+                    throw new NoommanErrors.NoommanConstructorError('You cannot create a sub class of a class which has useSuperClassCollection set to true.');
                 }
 
                 if (schema.auditable === false && superClass.auditable === true) {
-                    throw new Error('You cannot create a non-auditable sub class of an auditable super class.');
+                    throw new NoommanErrors.NoommanConstructorError('You cannot create a non-auditable sub class of an auditable super class.');
                 }
             }
         } 
 
         if (schema.useSuperClassCollection && schema.abstract) 
-            throw new Error('If useSuperClassCollection is true, the class cannot be abstract.');
+            throw new NoommanErrors.NoommanConstructorError('If useSuperClassCollection is true, the class cannot be abstract.');
     }
 
     /* 
@@ -460,17 +465,17 @@ class ClassModel {
      *    that the toClass of each relationship is a defined ClassModel and that two way 
      *    relationships are correct on both sides of the relationship.
      * Throws 
-     * - Error - If no ClassModel exists with the value of a relationship's toClass property.
-     * - Error - If a two-way relationship is defined and the related ClassModel does not have
+     * - NoommanClassModelError - If no ClassModel exists with the value of a relationship's toClass property.
+     * - NoommanClassModelError - If a two-way relationship is defined and the related ClassModel does not have
      *    a relationship a name matching the mirrorRelationship property of the relationship.
-     * - Error - If a two-way relationship is defined but the mirrorRelationship properties of 
+     * - NoommanClassModelError - If a two-way relationship is defined but the mirrorRelationship properties of 
      *    the two relationships are not the name of the other relationship.
      */
     validateRelationships() {
         for (const relationship of this.relationships) {
             const toClass = AllClassModels[relationship.toClass];
             if (toClass === undefined) {
-                throw new Error(
+                throw new NoommanErrors.NoommanClassModelError(
                     'Relationship ' + this.className + '.' + relationship.name + 
                     ' is a reference to a Class Model that does not exist: ' + relationship.toClass + '.'
                 );
@@ -479,7 +484,7 @@ class ClassModel {
             if (relationship.mirrorRelationship !== undefined) {
                 let mirrorRelationship = toClass.relationships.filter(r => r.name === relationship.mirrorRelationship);
                 if (mirrorRelationship.length === 0) {
-                    throw new Error('Invalid two-way relationship. ' + 
+                    throw new NoommanErrors.NoommanClassModelError('Invalid two-way relationship. ' + 
                         this.className + '.' + relationship.name + ' is missing mirror relationship ' + 
                         toClass.className + '.' + relationship.mirrorRelationship + '.'
                     );
@@ -487,7 +492,7 @@ class ClassModel {
                 mirrorRelationship = mirrorRelationship[0];
 
                 if (mirrorRelationship.toClass !== this.className) {
-                    throw new Error('Invalid two-way relationship. ' + 
+                    throw new NoommanErrors.NoommanClassModelError('Invalid two-way relationship. ' + 
                         this.className + '.' + relationship.name + '. Mirror relationship ' + 
                         toClass.className + '.' + relationship.mirrorRelationship + 
                         ' has incorrect toClass: ' + mirrorRelationship.toClass + '.'
@@ -495,7 +500,7 @@ class ClassModel {
                 }
 
                 if (mirrorRelationship.mirrorRelationship !== relationship.name) {
-                    throw new Error('Invalid two-way relationship. ' + 
+                    throw new NoommanErrors.NoommanClassModelError('Invalid two-way relationship. ' + 
                         this.className + '.' + relationship.name + '. Mirror relationship ' + 
                         toClass.className + '.' + relationship.mirrorRelationship + 
                         ' has incorrect mirrorRelationship: ' + mirrorRelationship.mirrorRelationship + '.'
@@ -540,7 +545,7 @@ class ClassModel {
      * Returns
      * - Promise<undefined> - A Promise which resolves to undefined if successful.
      * Throws
-     * - Error - Validations errors thrown by validateRelationships()
+     * - NoommanClassModelError - Validations errors thrown by validateRelationships()
      */
     static async finalize() {
         for (const classModel of AllClassModels) { 
@@ -628,14 +633,14 @@ class ClassModel {
      * - attributeName - String - The name of an attribute of this ClassModel to validate against.
      * - value - Any - A value to validate against the attribute of this ClassModel with the given name.
      * Throws
-     * - Error - If the value is an invalid value for the attribute of this ClassModel with the given name. 
+     * - NoommanValidationError - If the value is an invalid value for the attribute of this ClassModel with the given name. 
      *    See errors on method attribute.validate().
      */ 
     validateAttribute(attributeName, value) {
         const attribute = this.attributes.filter(attribute => attribute.name === attributeName);
 
         if (attribute.length === 0)
-            throw new Error('classModel.validateAttribute() called with an invalid attribute name.');
+            throw new NoommanErrors.NoommanValidationError('classModel.validateAttribute() called with an invalid attribute name.');
 
         attribute[0].validate(value);
     }
@@ -653,13 +658,13 @@ class ClassModel {
      * - Boolean - True if value is valid for the relationship on this ClassModel matching relationshipName,
      *    false otherwise.
      * Throws
-     * - Error - If relationshipName does not match the name property of a singular relationship defined 
+     * - NoommanValidationError - If relationshipName does not match the name property of a singular relationship defined 
      *    for this ClassModel.
      */
     valueValidForSingularRelationship(value, relationshipName) {
         const relationship = this.relationships.filter(relationship => relationship.name === relationshipName && relationship.singular);
         if (relationship.length === 0)
-            throw new Error('classModel.valueValidForSingularRelationship() called with an invalid relationship name.');
+            throw new NoommanErrors.NoommanValidationError('classModel.valueValidForSingularRelationship() called with an invalid relationship name.');
 
         const toClass = AllClassModels[relationship[0].toClass];
 
@@ -688,13 +693,13 @@ class ClassModel {
      * - Boolean - True if value is valid for the relationship on this ClassModel matching relationshipName,
      *    false otherwise.
      * Throws
-     * - Error - If relationshipName does not match the name property of a non-singular relationship defined 
+     * - NoommanValidationError - If relationshipName does not match the name property of a non-singular relationship defined 
      *    for this ClassModel.
      */
     valueValidForNonSingularRelationship(value, relationshipName) {
         const relationship = this.relationships.filter(relationship => relationship.name === relationshipName && !relationship.singular);
         if (relationship.length === 0)
-            throw new Error('classModel.valueValidForNonSingularRelationship() called with an invalid relationship name.');
+            throw new NoommanErrors.NoommanValidationError('classModel.valueValidForNonSingularRelationship() called with an invalid relationship name.');
 
         const toClass = AllClassModels[relationship[0].toClass];
 
@@ -948,11 +953,13 @@ class ClassModel {
      * - instance - Instance - An instance to delete.
      * Returns
      * - Promise<deleteWriteOpResult> - See https://mongodb.github.io/node-mongodb-native/3.3/api/Collection.html#~deleteWriteOpResult
+     * Throws
+     * - NoommanArgumentError - If the given Instance's ClassModel is not this ClassModel.
      */
     async delete(instance) {
 
         if (instance.classModel !== this)
-            throw new Error(this.className + '.delete() called on an instance of a different class.');
+            throw new NoommanErrors.NoommanArgumentError(this.className + '.delete() called on an instance of a different class.');
 
         return database.deleteOne(this.collection, instance);
     }
@@ -996,6 +1003,8 @@ class ClassModel {
      * Returns 
      * - Promise<InstanceSet> - An InstanceSet of this ClassModel containing all instances of this ClassModel or its children
      *    which match the given query.
+     * Throws
+     * - NoommanClassModelError - If this ClassModel is abstract and has no sub-ClassModels.
      */
     async pureFind(queryFilter) {
         const foundInstances = new InstanceSet(this);
@@ -1004,7 +1013,7 @@ class ClassModel {
 
         // If this class is a non-discriminated abstract class and it doesn't have any sub classes, throw an error.
         if (this.abstract && !this.isSuperClass())
-            throw new Error('Error in ' + this.className + '.find(). This class is abstract and non-discriminated, but it has no sub-classes.');
+            throw new NoommanErrors.NoommanClassModelError('Error in ' + this.className + '.find(). This class is abstract and non-discriminated, but it has no sub-classes.');
 
         if (this.useSuperClassCollection) {
             queryFilter.__t = this.className;
@@ -1080,13 +1089,15 @@ class ClassModel {
      * - queryFilter - Object - A mongo query object (required)
      * Returns 
      * - Promise<Instance> - The first Instance of this ClassModel or its children which matches the given query.
+     * Throws
+     * - NoommanClassModelError - If this ClassModel is abstract and has no sub-ClassModels.
      */
     async pureFindOne(queryFilter) {
         const subClassesWithDifferentCollections = this.subClasses ? this.subClasses.filter(subClass => !subClass.useSuperClassCollection) : [];
 
         // If this class is a non-discriminated abstract class and it doesn't have any sub classes, throw an error.
         if (this.abstract && !this.isSuperClass())
-            throw new Error('Error in ' + this.className + '.findOne(). This class is abstract and non-discriminated, but it has no sub-classes.');
+            throw new NoommanErrors.NoommanClassModelError('Error in ' + this.className + '.findOne(). This class is abstract and non-discriminated, but it has no sub-classes.');
 
         if (this.useSuperClassCollection) {
             queryFilter.__t = this.className;
@@ -1165,7 +1176,8 @@ class ClassModel {
      * Returns
      * - Promise<Array<Instance>> - An array of all the related instances which were updated.
      * Throws
-     * - Error - If InstanceSet.saveWithoutRelatedUpdates() throws an Error.
+     * - NoommanSaveError - If InstanceSet.saveWithoutRelatedUpdates() throws a NoommanSaveError.
+     * - NoommanValidationError - If InstanceSet.saveWithoutRelatedUpdates() throws a NoommanValidationError.
      */
     async updateRelatedInstancesForInstance(instance) {
         const relatedDiff = instance.relatedDiffs();
@@ -1217,7 +1229,8 @@ class ClassModel {
      * Returns
      * - Promise<Array<Instance>> - An array of all the related instances which were updated.
      * Throws
-     * - Error - If InstanceSet.saveWithoutRelatedUpdates() throws an Error.
+     * - NoommanSaveError - If InstanceSet.saveWithoutRelatedUpdates() throws a NoommanSaveError.
+     * - NoommanValidationError - If InstanceSet.saveWithoutRelatedUpdates() throws a NoommanValidationError.
      */
     async updateRelatedInstancesForInstanceSet(instanceSet) {
         const relationshipsNeedingUpdate = new SuperSet();
@@ -1331,12 +1344,12 @@ class ClassModel {
      * Returns
      * - Promise<undefined> - A promise which resolves to undefined if all Instances pass the createControl methods.
      * Throws
-     * - Error - If instanceSet parameter is not an InstanceSet
-     * - Error - If any createControl method returns false for any of the Instances in the InstanceSet.
+     * - NoommanArgumentError - If instanceSet parameter is not an InstanceSet.
+     * - NoommanSaveError - If any createControl method returns false for any of the Instances in the InstanceSet.
      */
     async createControlCheck(instanceSet, createControlMethodParameters) {
         if (!(instanceSet instanceof InstanceSet))
-            throw new Error('Incorrect parameters. ' + this.className + '.createControlCheck(InstanceSet instanceSet, createControlMethodParameters)');
+            throw new NoommanErrors.NoommanArgumentError('Incorrect parameters. ' + this.className + '.createControlCheck(InstanceSet instanceSet, createControlMethodParameters)');
         
         if (instanceSet.isEmpty() || !this.createControlMethods.length)
             return;
@@ -1344,7 +1357,7 @@ class ClassModel {
         const rejectedInstances = await this.evaluateCrudControlMethods(instanceSet, 'createControlMethods', createControlMethodParameters);
 
         if (!rejectedInstances.isEmpty())
-            throw new Error('Illegal attempt to create instances: ' + rejectedInstances.getInstanceIds());
+            throw new NoommanErrors.NoommanSaveError('Illegal attempt to create instances: ' + rejectedInstances.getInstanceIds());
     }
 
 
@@ -1359,8 +1372,8 @@ class ClassModel {
      * Returns
      * - Promise<undefined> - A promise which resolves to undefined if all Instances pass the createControl methods.
      * Throws
-     * - Error - If instance parameter is not an Instance
-     * - Error - If any createControl method returns false for the Instance.
+     * - NoommanArgumentError - If instance is not an Instance of this ClassModel.
+     * - NoommanSaveError - If any createControl method returns false for the given Instance.
      */
     async createControlCheckInstance(instance, createControlMethodParameters) {
         const instanceSet = new InstanceSet(instance.classModel, [instance]);
@@ -1378,11 +1391,11 @@ class ClassModel {
      * Returns
      * - Promise<InstanceSet> - An InstanceSet containing those Instances for which all readControl methods return true.
      * Throws
-     * - Error - If instanceSet parameter is not an InstanceSet
+     * - NoommanArgumentError - If instanceSet parameter is not an InstanceSet.
      */
     async readControlFilter(instanceSet, readControlMethodParameters) {
         if (!(instanceSet instanceof InstanceSet))
-            throw new Error('Incorrect parameters. ' + this.className + '.readControlFilter(InstanceSet instanceSet, readControlMethodParameters)');
+            throw new NoommanErrors.NoommanArgumentError('Incorrect parameters. ' + this.className + '.readControlFilter(InstanceSet instanceSet, readControlMethodParameters)');
         
         // If InstanceSet is empty or not read controlled, just return a copy of it.
         if (!instanceSet.size || this.readControlMethods.length === 0)
@@ -1403,6 +1416,8 @@ class ClassModel {
      *    may need.
      * Returns
      * - Promise<Instance> - The given Instance if all readControl methods return true, otherwise null.
+     * Throws
+     * - NoommanArgumentError - If instance is not an Instance of this ClassModel.
      */
     async readControlFilterInstance(instance, readControlMethodParameters) {
         const instanceSet = new InstanceSet(this, [instance]);
@@ -1421,12 +1436,12 @@ class ClassModel {
      * Returns
      * - Promise<undefined> - A promise which resolves to undefined if all Instances pass the updateControl methods.
      * Throws
-     * - Error - If instanceSet parameter is not an InstanceSet
-     * - Error - If any updateControl method returns false for any of the Instances in the InstanceSet.
+     * - NoommanArgumentError - If instanceSet parameter is not an InstanceSet.
+     * - NoommanSaveError - If any updateControl method returns false for any of the Instances in the InstanceSet.
      */
     async updateControlCheck(instanceSet, updateControlMethodParameters) {
         if (!(instanceSet instanceof InstanceSet))
-            throw new Error('Incorrect parameters. ' + this.className + '.updateControlCheck(InstanceSet instanceSet, updateControlMethodParameters)');
+            throw new NoommanErrors.NoommanArgumentError('Incorrect parameters. ' + this.className + '.updateControlCheck(InstanceSet instanceSet, updateControlMethodParameters)');
 
         if (instanceSet.isEmpty() || !this.updateControlMethods.length)
             return;
@@ -1434,7 +1449,7 @@ class ClassModel {
         const rejectedInstances = await this.evaluateCrudControlMethods(instanceSet, 'updateControlMethods', updateControlMethodParameters);
 
         if (!rejectedInstances.isEmpty())
-            throw new Error('Illegal attempt to update instances: ' + rejectedInstances.getInstanceIds());
+            throw new NoommanErrors.NoommanSaveError('Illegal attempt to update instances: ' + rejectedInstances.getInstanceIds());
     }
 
     /*
@@ -1448,7 +1463,8 @@ class ClassModel {
      * Returns
      * - Promise<undefined> - A promise which resolves to undefined if the Instance passes the updateControl methods.
      * Throws
-     * - Error - If any updateControl method returns false for the given Instance.
+     * - NoommanArgumentError - If instance is not an Instance of this ClassModel.
+     * - NoommanSaveError - If any updateControl method returns false for the given Instance.
      */
     async updateControlCheckInstance(instance, updateControlMethodParameters) {
         const instanceSet = new InstanceSet(instance.classModel, [instance]);
@@ -1466,12 +1482,12 @@ class ClassModel {
      * Returns
      * - Promise<undefined> - A promise which resolves to undefined if all Instances pass the deleteControl methods.
      * Throws
-     * - Error - If instanceSet parameter is not an InstanceSet
-     * - Error - If any deleteControl method returns false for any of the Instances in the InstanceSet.
+     * - NoommanArgumentError - If instanceSet parameter is not an InstanceSet.
+     * - NoommanDeleteError - If any deleteControl method returns false for any of the Instances in the InstanceSet.
      */
     async deleteControlCheck(instanceSet, deleteControlMethodParameters) {
         if (!(instanceSet instanceof InstanceSet))
-            throw new Error('Incorrect parameters. ' + this.className + '.deleteControlCheck(InstanceSet instanceSet, deleteControlMethodParameters)');
+            throw new NoommanErrors.NoommanArgumentError('Incorrect parameters. ' + this.className + '.deleteControlCheck(InstanceSet instanceSet, deleteControlMethodParameters)');
 
         if (instanceSet.isEmpty() || !this.deleteControlMethods.length)
             return;
@@ -1479,7 +1495,7 @@ class ClassModel {
         const rejectedInstances = await this.evaluateCrudControlMethods(instanceSet, 'deleteControlMethods', deleteControlMethodParameters);
 
         if (!rejectedInstances.isEmpty())
-            throw new Error('Illegal attempt to delete instances: ' + rejectedInstances.getInstanceIds());
+            throw new NoommanErrors.NoommanDeleteError('Illegal attempt to delete instances: ' + rejectedInstances.getInstanceIds());
     }
 
     /*
@@ -1493,7 +1509,8 @@ class ClassModel {
      * Returns
      * - Promise<undefined> - A promise which resolves to undefined if the Instance passes the deleteControl methods.
      * Throws
-     * - Error - If any deleteControl method returns false for the given Instance.
+     * - NoommanArgumentError - If instance is not an Instance of this ClassModel.
+     * - NoommanDeleteError - If any deleteControl method returns false for the given Instance.
      */
     async deleteControlCheckInstance(instance, deleteControlMethodParameters) {
         const instanceSet = new InstanceSet(instance.classModel, [instance]);
@@ -1511,11 +1528,11 @@ class ClassModel {
      * Returns
      * - Promise<InstanceSet> - An InstanceSet containing those Instances for which any sensitiveControl method returns false.
      * Throws
-     * - Error - If instanceSet parameter is not an InstanceSet
+     * - NoommanArgumentError - If instanceSet parameter is not an InstanceSet.
      */
     async sensitiveControlFilter(instanceSet, sensitiveControlMethodParameters) {
         if (!(instanceSet instanceof InstanceSet))
-            throw new Error('Incorrect parameters. ' + this.className + '.sensitiveControlFilter(InstanceSet instanceSet, sensitiveControlMethodParameters)');
+            throw new NoommanErrors.NoommanArgumentError('Incorrect parameters. ' + this.className + '.sensitiveControlFilter(InstanceSet instanceSet, sensitiveControlMethodParameters)');
         
         // If InstanceSet is empty or not sensitive controlled, just return a copy of it.
         if (!instanceSet.size || this.sensitiveControlMethods.length === 0)
@@ -1536,6 +1553,8 @@ class ClassModel {
      *    may need.
      * Returns
      * - Promise<Instance> - The given Instance if any sensitiveControl method returns false, otherwise null.
+     * Throws
+     * - NoommanArgumentError - If instance is not an Instance of this ClassModel.
      */
     async sensitiveControlFilterInstance(instance, sensitiveControlMethodParameters) {
         const instanceSet = new InstanceSet(this, [instance]);
@@ -1562,11 +1581,11 @@ class ClassModel {
      * Returns
      * - Promise<undefined> - A promise which resolves to undefined if no Errors are thrown.
      * Throws
-     * - Error - If this is an abstract, non-discriminated ClassModel.
+     * - NoommanClassModelError - If this is an abstract, non-discriminated ClassModel.
      */
     async clear() {
         if (this.abstract && !this.discriminated())
-            throw new Error('Cannot call clear() on an abstract, non-discriminated class. Class: ' + classModel.className);
+            throw new NoommanErrors.NoommanClassModelError('Cannot call clear() on an abstract, non-discriminated class. Class: ' + classModel.className);
 
         if (this.useSuperClassCollection) {
             return database.collection(this.collection).deleteMany({ __t: this.className });

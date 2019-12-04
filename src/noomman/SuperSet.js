@@ -1,3 +1,5 @@
+const NoommanErrors = require('./NoommanErrors');
+
 /*
  * Class SuperSet
  * Extends Set

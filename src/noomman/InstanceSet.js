@@ -1,6 +1,7 @@
 const Instance = require('./Instance');
 const SuperSet = require('./SuperSet');
 const database = require('./database');
+const NoommanErrors = require('./NoommanErrors');
 
 /*
  * Class InstanceSet 

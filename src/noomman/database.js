@@ -6,6 +6,7 @@
 const mongo = require('mongodb');
 const MongoClient = mongo.MongoClient;
 const mongo_uri = "mongodb+srv://cody_jones:cody_jones@publicsquaredev-d3ue6.gcp.mongodb.net/test?retryWrites=true";
+const NoommanErrors = require('./NoommanErrors');
 
 let client = null;
 let db = null;

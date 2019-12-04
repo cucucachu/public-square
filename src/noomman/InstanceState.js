@@ -2,6 +2,7 @@ const moment = require('moment');
 
 const InstanceReference = require('./InstanceReference');
 const InstanceSetReference = require('./InstanceSetReference');
+const NoommanErrors = require('./NoommanErrors');
 
 /*
  * Class InstanceState

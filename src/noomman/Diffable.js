@@ -1,4 +1,5 @@
 const database = require('./database');
+const NoommanErrors = require('./NoommanErrors');
 
 /*
  * Class Diffable

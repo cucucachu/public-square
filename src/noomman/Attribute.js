@@ -1,9 +1,10 @@
+const NoommanErrors = require('./NoommanErrors');
+
 /*
  * Class Attribute
  * Describes the properties and rules/requirements for a single attribute (non-ObjectId/relationship property) 
  *   of a ClassModel. 
  */
-
 class Attribute {
 
     /* 
@@ -23,7 +24,7 @@ class Attribute {
      * Returns
      * - Attribute - The Attribute created with the given attributeSchema.
      * Throws
-     * - Error - If constructorValidations() throws an Error.
+     * - NoommanContructorError - If constructorValidations() throws an Error.
      */
     constructor(attributeSchema) {
         this.constructorValidations(attributeSchema);
@@ -48,47 +49,47 @@ class Attribute {
      *  requiredGroup: String,
      * }
      * Throws
-     * - Error - If name property is omitted.
-     * - Error - If name property is not a String.
-     * - Error - If type property is omitted.
-     * - Error - If type property is not one of the valid types (String, Boolean, Number, Date).
-     * - Error - If list property is provided and is not a Boolean.
-     * - Error - If required property is provided and is not a Boolean.
-     * - Error - If unique property is provided and is not a Boolean.
-     * - Error - If sensitive property is provided and is not a Boolean.
-     * - Error - If mutex property is provided and is not a String.
-     * - Error - If requiredGroup property is provided and is not a String.
+     * - NoommanConstructorError - If name property is omitted.
+     * - NoommanConstructorError - If name property is not a String.
+     * - NoommanConstructorError - If type property is omitted.
+     * - NoommanConstructorError - If type property is not one of the valid types (String, Boolean, Number, Date).
+     * - NoommanConstructorError - If list property is provided and is not a Boolean.
+     * - NoommanConstructorError - If required property is provided and is not a Boolean.
+     * - NoommanConstructorError - If unique property is provided and is not a Boolean.
+     * - NoommanConstructorError - If sensitive property is provided and is not a Boolean.
+     * - NoommanConstructorError - If mutex property is provided and is not a String.
+     * - NoommanConstructorError - If requiredGroup property is provided and is not a String.
      */
     constructorValidations(attributeSchema) {
         if (!attributeSchema.name) {
-            throw new Error('Attempt to create an attribute without a name.');
+            throw new NoommanErrors.NoommanConstructorError('Attempt to create an attribute without a name.');
         }
         if (typeof(attributeSchema.name) !== 'string') {
-            throw new Error('Attempt to create an attribute with name set to something other than a string.');
+            throw new NoommanErrors.NoommanConstructorError('Attempt to create an attribute with name set to something other than a string.');
         }
         if (!attributeSchema.type) {
-            throw new Error('Attempt to create an attribute without a type.');
+            throw new NoommanErrors.NoommanConstructorError('Attempt to create an attribute without a type.');
         }
         if (!Attribute.validTypes().includes(attributeSchema.type)) {
-            throw new Error('Attempt to create an attribute with an invalid type. Type must be one of the following: ' + Attribute.validTypes().map(type => type.name) + '.');
+            throw new NoommanErrors.NoommanConstructorError('Attempt to create an attribute with an invalid type. Type must be one of the following: ' + Attribute.validTypes().map(type => type.name) + '.');
         }
         if (attributeSchema.list !== undefined && typeof(attributeSchema.list) !== 'boolean') {
-            throw new Error('Attempt to create an attribute with list set to something other than a boolean.');
+            throw new NoommanErrors.NoommanConstructorError('Attempt to create an attribute with list set to something other than a boolean.');
         }
         if (attributeSchema.required !== undefined && typeof(attributeSchema.required) !== 'boolean') {
-            throw new Error('Attempt to create an attribute with required set to something other than a boolean.');
+            throw new NoommanErrors.NoommanConstructorError('Attempt to create an attribute with required set to something other than a boolean.');
         }
         if (attributeSchema.unique !== undefined && typeof(attributeSchema.unique) !== 'boolean') {
-            throw new Error('Attempt to create an attribute with unique set to something other than a boolean.');
+            throw new NoommanErrors.NoommanConstructorError('Attempt to create an attribute with unique set to something other than a boolean.');
         }
         if (attributeSchema.sensitive !== undefined && typeof(attributeSchema.sensitive) !== 'boolean') {
-            throw new Error('Attempt to create an attribute with sensitive set to something other than a boolean.');
+            throw new NoommanErrors.NoommanConstructorError('Attempt to create an attribute with sensitive set to something other than a boolean.');
         }
         if (attributeSchema.mutex !== undefined && typeof(attributeSchema.mutex) !== 'string') {
-            throw new Error('Attempt to create an attribute with mutex set to something other than a string.');
+            throw new NoommanErrors.NoommanConstructorError('Attempt to create an attribute with mutex set to something other than a string.');
         }
         if (attributeSchema.requiredGroup !== undefined && typeof(attributeSchema.requiredGroup) !== 'string') {
-            throw new Error('Attempt to create an attribute with requiredGroup set to something other than a string.');
+            throw new NoommanErrors.NoommanConstructorError('Attempt to create an attribute with requiredGroup set to something other than a string.');
         }
     }
 
@@ -130,7 +131,7 @@ class Attribute {
      * Parameters
      * - value - any type - a value from an Instance of the ClassModel which holds this Attribute.
      * Throws
-     * - Error - If given value is not valid for this Attribute.
+     * - NoommanValidationError - If given value is not valid for this Attribute.
      */
     validate(value) {
         if (value === null)
@@ -138,21 +139,21 @@ class Attribute {
             
         if (this.list) {
             if (!Array.isArray(value)) {
-                throw new Error('Illegal attempt to set a List Attribute to something other than an Array.');
+                throw new NoommanErrors.NoommanValidationError('Illegal attempt to set a List Attribute to something other than an Array.');
             }
             for (const item of value) {
                 if (!this.validType(item)) {
-                    throw new Error('Illegal attempt to set a ' + this.type.name + ' List Attribute to an array containing non-' + this.type.name + ' element(s).');
+                    throw new NoommanErrors.NoommanValidationError('Illegal attempt to set a ' + this.type.name + ' List Attribute to an array containing non-' + this.type.name + ' element(s).');
                 }
             }
             return true;
         }
         else {
             if (Array.isArray(value)) {
-                throw new Error('Illegal attempt to set an Attribute to an Array.');
+                throw new NoommanErrors.NoommanValidationError('Illegal attempt to set an Attribute to an Array.');
             }
             if (!this.validType(value)) {
-                throw new Error('Illegal attempt to set a ' + this.type.name + ' Attribute to something other than a ' + this.type.name + '.');
+                throw new NoommanErrors.NoommanValidationError('Illegal attempt to set a ' + this.type.name + ' Attribute to something other than a ' + this.type.name + '.');
             }
         }
     }

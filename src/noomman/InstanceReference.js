@@ -1,3 +1,5 @@
+const NoommanErrors = require('./NoommanErrors');
+
 /*
  * Class InstanceReference
  * Used by InstanceState to hold the value of a singular relationship. This class helps the processing

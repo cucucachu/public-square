@@ -1,3 +1,5 @@
+const NoommanErrors = require('./NoommanErrors');
+
 /*
  * Class Relationship
  * Defines a relationship and its properties for a ClassModel.

@@ -2,6 +2,7 @@ const db = require('./database');
 
 const Diffable = require('./Diffable');
 const InstanceState = require('./InstanceState');
+const NoommanErrors = require('./NoommanErrors');
 
 const stripped = Symbol('stripped');
 
