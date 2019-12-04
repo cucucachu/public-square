@@ -87,7 +87,7 @@ class InstanceState {
                     }
                 }
                 else {
-                    throw new Error('Attempt to set an invalid property on an InstanceState.');
+                    throw new NoommanErrors.NoommanPropertyError('Attempt to set an invalid property on an InstanceState.');
                 }
                 return true;
             },

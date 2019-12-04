@@ -181,6 +181,25 @@ class NoommanNotImplementedError extends NoommanError {
     }
 }
 
+/*
+ * Class NoommanPropertyError
+ * Extends NoommanError
+ * An Error which is thrown when a property of a noomman class
+ *    is set or deleted improperly.
+ */
+class NoommanPropertyError extends NoommanError {
+
+    /* 
+     * constructor()
+     * Creates an instance of NoommanPropertyError.
+     * Returns
+     * - NoommanPropertyError - The NoommanPropertyError created.
+     */
+    constructor(message) {
+        super(message);
+    }
+}
+
 module.exports = {
     NoommanError,
     NoommanValidationError,
@@ -191,4 +210,5 @@ module.exports = {
     NoommanClassModelError,
     NoommanConstructorError,
     NoommanNotImplementedError,
+    NoommanPropertyError,
 }

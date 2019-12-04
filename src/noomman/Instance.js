@@ -64,10 +64,10 @@ class Instance extends Diffable {
         return new Proxy(this, {
             set(trapTarget, key, value, receiver) {
                 if (trapTarget.deleted()) 
-                    throw new Error('Illegal Attempt to set a property after instance has been deleted.');
+                    throw new NoommanErrors.NoommanPropertyError('Illegal Attempt to set a property after instance has been deleted.');
 
                 if (unSettableInstanceProperties.includes(key))
-                    throw new Error('Illegal attempt to change the ' + key + ' of an Instance.');
+                    throw new NoommanErrors.NoommanPropertyError('Illegal attempt to change the ' + key + ' of an Instance.');
                 
                 if (value === undefined)
                     value = null;
@@ -80,7 +80,7 @@ class Instance extends Diffable {
 
                 if (singularRelationshipNames.includes(key)) {
                     if (!classModel.valueValidForSingularRelationship(value, key)) 
-                        throw new Error('Illegal attempt to set a singular relationship to a value which is not an Instance of the correct ClassModel.');
+                        throw new NoommanErrors.NoommanPropertyError('Illegal attempt to set a singular relationship to a value which is not an Instance of the correct ClassModel.');
                     
                     trapTarget.currentState[key] = value;
                     return true;
@@ -88,7 +88,7 @@ class Instance extends Diffable {
 
                 if (nonSingularRelationshipNames.includes(key)) {
                     if (!classModel.valueValidForNonSingularRelationship(value, key))
-                        throw new Error('Illegal attempt to set a non-singular relationship to a value which is not an InstanceSet of the correct ClassModel.');
+                        throw new NoommanErrors.NoommanPropertyError('Illegal attempt to set a non-singular relationship to a value which is not an InstanceSet of the correct ClassModel.');
                     
                     trapTarget.currentState[key] = value;
                     return true;
@@ -122,7 +122,7 @@ class Instance extends Diffable {
 
             deleteProperty(trapTarget, key) {
                 if (unSettableInstanceProperties.includes(key) || instanceMethods.includes(key) || Object.keys(trapTarget).includes(key)) {
-                    throw new Error('Illegal attempt to delete the ' + key + ' property of an Instance.');
+                    throw new NoommanErrors.NoommanPropertyError('Illegal attempt to delete the ' + key + ' property of an Instance.');
                 }
                 if (documentProperties.includes(key)){
                     return delete trapTarget.currentState[key];
