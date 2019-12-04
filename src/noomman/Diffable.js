@@ -417,11 +417,38 @@ class Diffable {
      * Takes a diff object and applies the changes within to this instance of Diffable.
      * Parameters
      * - changes - Object - A diff object produced by one of the diff methods.
+     * Throws
+     * - Error - If validateChanges() method throws an Error.
+     * - Error - If applySetOperations() method throws an Error.
+     * - Error - If applyUnsetOperations() method throws an Error.
+     * - Error - If applyAddToSetOperations() method throws an Error.
+     * - Error - If applyPullOperations() method throws an Error.
      */
     applyChanges(changes) {
         changes = this.combineSetOperations(changes);
         this.validateChanges(changes);
 
+        try {
+            this.applySetOperations(changes);
+            this.applyUnsetOperations(changes);
+            this.applyAddToSetOperations(changes);
+            this.applyPullOperations(changes);
+        }
+        catch(error) {
+            throw new Error('instance.applyChanges(): ' + error.message);
+        }
+    }
+
+    /*
+     * applySetOperations(changes)
+     * Applies the '$set' operations in the given changes object to this instance of Diffable.
+     * Parameters
+     * - changes - Object - A diff object which follows the mongo update operation conventions.
+     * Throws
+     * - Error - If '$set' operation within changes parameter contains a key which is not an 
+     *    attribute or relationship for the ClassModel related to this instance of Diffable.
+     */
+    applySetOperations(changes) {
         const attributeNames = this.classModel.attributes.map(attribute => attribute.name);
         const relationshipNames = this.classModel.relationships.map(relationship => relationship.name);
 
@@ -440,10 +467,24 @@ class Diffable {
                     }   
                 }
                 else {
-                    throw new Error('instance.applyChanges(): Attempt to set a value which is not an attribute or relationship. ' + key);
+                    throw new Error('Attempt to set a value which is not an attribute or relationship. ' + key);
                 }
             }
         }
+    }
+
+    /*
+     * applyUnsetOperations(changes)
+     * Applies the '$unset' operations in the given changes object to this instance of Diffable.
+     * Parameters
+     * - changes - Object - A diff object which follows the mongo update operation conventions.
+     * Throws
+     * - Error - If '$unset' operation within changes parameter contains a key which is not an 
+     *    attribute or relationship for the ClassModel related to this instance of Diffable.
+     */
+    applyUnsetOperations(changes) {
+        const attributeNames = this.classModel.attributes.map(attribute => attribute.name);
+        const relationshipNames = this.classModel.relationships.map(relationship => relationship.name);
 
         if (changes.$unset) {
             for (const key in changes.$unset) {
@@ -451,10 +492,23 @@ class Diffable {
                     this[key] = null;
                 }
                 else {
-                    throw new Error('instance.applyChanges(): Attempt to unset a value which is not an attribute or relationship.');
+                    throw new Error('Attempt to unset a value which is not an attribute or relationship. ' + key);
                 }
             }
         }
+    }
+
+    /*
+     * applyAddToSetOperations(changes)
+     * Applies the '$addToSet' operations in the given changes object to this instance of Diffable.
+     * Parameters
+     * - changes - Object - A diff object which follows the mongo update operation conventions.
+     * Throws
+     * - Error - If '$addToSet' operation within changes parameter contains a key which is not an 
+     *    attribute or relationship for the ClassModel related to this instance of Diffable.
+     */
+    applyAddToSetOperations(changes) {
+        const relationshipNames = this.classModel.relationships.map(relationship => relationship.name);
 
         if (changes.$addToSet) {
             for (const key in changes.$addToSet) {
@@ -479,14 +533,27 @@ class Diffable {
                         this.currentState.setNonSingularRelationshipToIds(key, [...idsSet]);
                     }
                     else {
-                        throw new Error('instance.applyChanges(): Attempt to use $addToSet on a property which is not non-singular relationship.');
+                        throw new Error('Attempt to use $addToSet on a property which is not non-singular relationship. ' + key);
                     }
                 }
                 else {
-                    throw new Error('instance.applyChanges(): Attempt to use $addToSet on a property which is not non-singular relationship.');
+                    throw new Error('Attempt to use $addToSet on a property which is not non-singular relationship. ' + key);
                 }
             }
         }
+    }
+
+    /*
+     * applyPullOperations(changes)
+     * Applies the '$pull' operations in the given changes object to this instance of Diffable.
+     * Parameters
+     * - changes - Object - A diff object which follows the mongo update operation conventions.
+     * Throws
+     * - Error - If '$pull' operation within changes parameter contains a key which is not an 
+     *    attribute or relationship for the ClassModel related to this instance of Diffable.
+     */
+    applyPullOperations(changes) {
+        const relationshipNames = this.classModel.relationships.map(relationship => relationship.name);
 
         if (changes.$pull) {
             for (const key in changes.$pull) {
@@ -518,11 +585,11 @@ class Diffable {
                         this.currentState.setNonSingularRelationshipToIds(key, [...idsSet]);
                     }
                     else {
-                        throw new Error('instance.applyChanges(): Attempt to use $pull on a property which is not non-singular relationship.');
+                        throw new Error('Attempt to use $pull on a property which is not non-singular relationship. ' + key);
                     }
                 }
                 else {
-                    throw new Error('instance.applyChanges(): Attempt to use $pull on a property which is not non-singular relationship.');
+                    throw new Error('Attempt to use $pull on a property which is not non-singular relationship. ' + key);
                 }
             }
         }
