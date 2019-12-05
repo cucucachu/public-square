@@ -11,8 +11,8 @@ let client = null;
 let db = null;
 
 /*
- * connect(uri)
- * Connects to the mongo database with the given uri.
+ * connect(uri, databaseName)
+ * Connects to the mongo database with the given uri and databaseName.
  * Parameters
  * uri - String - A uri string of the database to connect to.
  * databaseName - String - The name of the database to connect to.

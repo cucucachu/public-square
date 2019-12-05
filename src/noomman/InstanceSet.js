@@ -7,7 +7,7 @@ const NoommanErrors = require('./NoommanErrors');
  * Class InstanceSet 
  * Extends SuperSet
  * Represents a mathematical set of Instances, all of the same ClassModel (including Instances of Sub-ClassModels).
- *    Has methods for bulk crud operations, set math operations, and walking relationships.
+ *    Has methods for bulk CRUD operations, set math operations, and walking relationships.
  */
 class InstanceSet extends SuperSet {
 
@@ -182,18 +182,18 @@ class InstanceSet extends SuperSet {
     }
 
     /*
-     * hasInstance(instanceToCheck)
+     * hasInstance(instance)
      * Determines if this InstanceSet contains the given Instance. This is determined using only
      *    the id of the Instances, so the given Instance does not need to be the exact same object
      *    in memory.
      * Parameters
-     * - instanceToCheck - Instance - An instance to check for.
+     * - instance - Instance - An instance to check for.
      * Returns
      * - Boolean - True if this InstanceSet contains the given Instance, false otherwise.
      */
-    hasInstance(instanceToCheck) {
-        for (const instance of this) {
-            if (instance._id.equals(instanceToCheck._id))
+    hasInstance(instance) {
+        for (const instanceToCheck of this) {
+            if (instanceToCheck._id.equals(instance._id))
                 return true;
         }
         return false;
@@ -336,13 +336,13 @@ class InstanceSet extends SuperSet {
     }
 
     /*
-     * union(instanceSet)
-     * Creates a new InstanceSet which is the mathematical set union of this InstanceSet
+     * intersection(instanceSet)
+     * Creates a new InstanceSet which is the intersection of this InstanceSet
      *    and the given InstanceSet. 
      * Parameters
-     * - instanceSet - InstanceSet - An InstanceSet to union with this InstanceSet.
+     * - instanceSet - InstanceSet - An InstanceSet to intersect with this InstanceSet.
      * Returns
-     * - InstanceSet - The union of this InstanceSet and given InstanceSet.
+     * - InstanceSet - The intersection of this InstanceSet and given InstanceSet.
      * Throws
      * - NoommanArgumentError - If instanceSet parameter is not an instance of InstanceSet.
      */
@@ -397,7 +397,7 @@ class InstanceSet extends SuperSet {
 
     /* 
      * mapToInstanceSet(callback)
-     * Similar to the map() method, except that the result is wrapped into a new InstanceSet.
+     * Similar to the native Array.map() method, except that the result is wrapped into a new InstanceSet.
      * Parameters
      * - callback - Function - A function which will be run for each Instance in the set. Whatever
      *    this function returns for each instance will be compiled into a new InstanceSet. This 
@@ -412,7 +412,7 @@ class InstanceSet extends SuperSet {
 
     /*
      * filterToInstanceSet(callback)
-     * Similar to the filter() method, except that the results are compiled into an
+     * Similar to the Array.filter() method, except that the results are compiled into an
      *    InstanceSet.
      * Parameters
      * - callback - Function - A callback function which will be run on each Instance of 
@@ -605,7 +605,7 @@ class InstanceSet extends SuperSet {
      * Paramters
      * - relationshipName - String - The name of a relationship to walk.
      * Returns
-     * - InstanceSet - an InstanceSet containing all the Instances related to the Instances
+     * - Promise<InstanceSet> - an InstanceSet containing all the Instances related to the Instances
      *    in this InstanceSet through the relationship with the given relationshipName.
      * Throws
      * - NoommanArgumentError - If walkValidations() throws a NoommanArgumentError.

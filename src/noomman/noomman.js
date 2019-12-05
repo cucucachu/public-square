@@ -21,5 +21,4 @@ module.exports = {
     close: database.close,
 	connected: database.connected,
 	ObjectId: database.ObjectId,
-    ObjectIdFromHexString: database.ObjectIdFromHexString,
 }

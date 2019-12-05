@@ -21,8 +21,9 @@ class ClassModel {
 
     /*
      * constructor(schema)
+     * Creates an instance of ClassModel with the given schema.
      * Parameters: 
-     * - schema - Object - A schema describing the properties of this ClassModel
+     * - schema - Object - A schema describing the properties of this ClassModel.
      *    {
      *       className: String (required),
      *       superClasses: [ ClassModel ],
@@ -438,6 +439,24 @@ class ClassModel {
     }
 
     /* 
+     * finalize()
+     * For each defined ClassModel, runs post-constructor validations and applies indices.
+     *    Run only after ALL class models have been created.
+     * Returns
+     * - Promise<undefined> - A Promise which resolves to undefined if successful.
+     * Throws
+     * - NoommanClassModelError - Validations errors thrown by validateRelationships()
+     */
+    static async finalize() {
+        for (const classModel of AllClassModels) { 
+            classModel.validateRelationships();
+        }
+        for (const classModel of AllClassModels) {
+            await classModel.index();
+        }
+    }
+
+    /* 
      * index()
      * Adds any user defined or noomman automatic indices to the collection for this ClassModel.
      *    This method is called automatically as part of the finalize() static method.
@@ -535,24 +554,6 @@ class ClassModel {
             if (!Object.keys(this.nonStaticMethods).includes(nonStaticMethod)) {
                 this.nonStaticMethods[nonStaticMethod] = fromClass.nonStaticMethods[nonStaticMethod];
             }
-        }
-    }
-
-    /* 
-     * finalize()
-     * For each defined ClassModel, runs post-constructor validations and applies indices.
-     *    Run only after ALL class models have been created.
-     * Returns
-     * - Promise<undefined> - A Promise which resolves to undefined if successful.
-     * Throws
-     * - NoommanClassModelError - Validations errors thrown by validateRelationships()
-     */
-    static async finalize() {
-        for (const classModel of AllClassModels) { 
-            classModel.validateRelationships();
-        }
-        for (const classModel of AllClassModels) {
-            await classModel.index();
         }
     }
 
@@ -969,13 +970,13 @@ class ClassModel {
     /* 
      * find(queryFilter, readControlMethodParameters, sensitiveControlMethodParameters)
      * Finds Instances of this ClassModel using the given query filter in the database. 
-     *    If called on a superclass, will recursively check this ClassModel's collection, and then it's sub-ClassModels' collections.
+     *    If called on a super-ClassModel, will recursively check this ClassModel's collection, and then it's sub-ClassModels' collections.
      *    This method respects readControl and sensitiveControl methods. If this ClassModel is read controlled, Instances found
      *    during query will be filtered down to those which pass the readControl method(s) for this ClassModel. If this ClassModel
      *    is sensitive controlled, all Instances which do not pass the sensitiveControl method(s) for this ClassModel will be 
      *    stripped of any sensitive attributes.
      * Parameters
-     * - queryFilter - Object - A mongo query object (required)
+     * - queryFilter - Object - A mongo query object (required).
      * - readControlMethodParameters - Object - An object containing parameters that will be passed to the readControl method(s)
      *    for this ClassModel.
      * - sensitiveControlMethodParameters - Object - An object containing parameters that will be passed to the sensitiveControl
@@ -996,10 +997,10 @@ class ClassModel {
     /* 
      * pureFind(queryFilter)
      * Finds instances of this ClassModel using the given query filter in the database. 
-     *    If called on a superclass, will recursively check this ClassModel's collection, and then it's sub-ClassModels collections.
+     *    If called on a super-ClassModel, will recursively check this ClassModel's collection, and then it's sub-ClassModels collections.
      *    This method DOES NOT do any readControl or sensitiveControl filtering. 
      * Parameters
-     * - queryFilter - Object - A mongo query object (required)
+     * - queryFilter - Object - A mongo query object (required).
      * Returns 
      * - Promise<InstanceSet> - An InstanceSet of this ClassModel containing all instances of this ClassModel or its children
      *    which match the given query.
@@ -1045,13 +1046,13 @@ class ClassModel {
     /* 
      * findOne(queryFilter, readControlMethodParameters, sensitiveControlMethodParameters)
      * Finds a single Instance of this ClassModel using the given query filter in the database. 
-     *    If called on a super ClassModel, will recursively check this ClassModel's collection, and then it's sub-ClassModels collections.
+     *    If called on a super-ClassModel, will recursively check this ClassModel's collection, and then it's sub-ClassModels collections.
      *    This method respects readControl and sensitiveControl methods. If this ClassModel is read controlled, the Instance found
      *    during query will not be returned if it does not pass the readControl method(s) for this ClassModel. If this ClassModel
      *    is sensitive controlled, an Instance which does not pass the sensitiveControl method(s) for this ClassModel will be 
      *    stripped of any sensitive attributes.
      * Parameters
-     * - queryFilter - Object - A mongo query object (required)
+     * - queryFilter - Object - A mongo query object (required).
      * - readControlMethodParameters - Object - An object containing parameters that will be passed to the readControl method(s)
      *    for this ClassModel.
      * - sensitiveControlMethodParameters - Object - An object containing parameters that will be passed to the sensitiveControl
@@ -1086,7 +1087,7 @@ class ClassModel {
      *    If called on a superclass, will recursively check this ClassModel's collection, and then it's sub-ClassModels collections.
      *    This method does not respect readControl and sensitiveControl methods. 
      * Parameters
-     * - queryFilter - Object - A mongo query object (required)
+     * - queryFilter - Object - A mongo query object (required).
      * Returns 
      * - Promise<Instance> - The first Instance of this ClassModel or its children which matches the given query.
      * Throws
