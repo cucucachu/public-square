@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <title>Noomman Documentation</title>
+    <meta name="description" content="Documentation for Noomman">
+    <meta name="author" content="Cody Miro Jones">
+
+    <!-- Mobile Specific Metas
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+    <!-- FONT
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <link href="https://fonts.googleapis.com/css?family=Nanum+Gothic&display=swap" rel="stylesheet">
+  
+    <!-- CSS
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <link rel="stylesheet" href="../static/normalize.css">
+    <link rel="stylesheet" href="../static/skeleton.css">
+    <link rel="stylesheet" href="../static/custom.css">
+</head>
+<body>
+    <div class="container">
+        <section class="header">
+            <h1>Noomman</h1>
+            <p><strong>N</strong>odejs <strong>O</strong>bject-<strong>O</strong>riented <strong>M</strong>ongoDB <strong>Man</strong>ager</p>
+        </section>
+    </div>
+    <div class="navbar">
+        <div class="container">
+            <ul class="navbar-list">
+                <li class="navbar-item">
+                    <a class="navbar-link" href="../index.html">Introduction</a>
+                </li>
+                <li class="navbar-item">
+                    <a class="navbar-link" href="../reference.html">Reference</a>
+                </li>
+                <li class="navbar-item">
+                    <a class="navbar-link" href="../documentation.html">Documentation</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="container">
+        <br>
+        <h3>Class Instance</h3>
+        
+        <h4>Contents</h4>
+        <a href="#methods"><strong>Methods</strong></a>
+        <ul>
+            <li><a href="#constructor">constructor()</a></li>
+            <li><a href="#assign">assign()</a></li>
+            <li><a href="#constructor">delete()</a></li>
+            <li><a href="#deleted">deleted()</a></li>
+            <li><a href="#equals">equals()</a></li>
+            <li><a href="#isInstanceOf">isInstanceOf()</a></li>
+            <li><a href="#propertyIsSet">propertyIsSet()</a></li>
+            <li><a href="#readControlFilter">readControlFilter()</a></li>
+            <li><a href="#save">save()</a></li>
+            <li><a href="#saved">saved()</a></li>
+            <li><a href="#saveWithoutValidation">saveWithoutValidation()</a></li>
+            <li><a href="#stripped">stripped()</a></li>
+            <li><a href="#stripSensitiveAttributes">stripSensitiveAttributes()</a></li>
+            <li><a href="#validate">validate()</a></li>
+            <li><a href="#walk">walk()</a></li>
+        </ul>
+    </div>
+
+    <div class="container" id="methods">
+        <div>
+
+            <h4>Methods</h4>
+            
+            <div class="docs-section" id="constructor">
+                <h5>constructor(classModel, document)</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Creates an instance of Instance for a given ClassModel.
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>classModel</td>
+                                <td>ClassModel</td>
+                                <td>A ClassModel that the created Instance will be an instance of.</td>
+                            </tr>
+                            <tr>
+                                <td>document</td>
+                                <td>Object</td>
+                                <td>
+                                    A mongo document retrieved from a database. This parameter should only be 
+                                    used by internal noomman methods.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <strong>Returns</strong>
+                    <p>
+                        Instance - The Instance created with the given classModel and optional document.
+                    </p>
+                    <strong>Throws</strong>
+                    <table>
+                        <thead>
+                            <th>Error Type</th>
+                            <th>Cause</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>NoommanConstructorError</td>
+                                <td>If no ClassModel is provided.</td>
+                            </tr>
+                            <tr>
+                                <td>NoommanConstructorError</td>
+                                <td>If classModel is not an instance of ClassModel.</td>
+                            </tr>
+                            <tr>
+                                <td>NoommanConstructorError</td>
+                                <td>If classModel is abstract.</td>
+                            </tr>
+                            <tr>
+                                <td>NoommanConstructorError</td>
+                                <td>If given document does not have an _id property.</td>
+                            </tr>
+                            <tr>
+                                <td>NoommanConstructorError</td>
+                                <td>If given document is for an auditable ClassModel but does not have a revision property.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="assign">
+                <h5>assign(object)</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Will assign the values of any properties on the given object which are attributes or relationships defined on the 
+                        ClassModel of this instance to this Instance. Any other properties on the given object are ignored.
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>object</td>
+                                <td>Object</td>
+                                <td>An object containing properties whose values should be assigned to this Instance.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="delete">
+                <h5>delete(deleteControlMethodParameters)</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Deletes this Instance from the database.
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>deleteControlMethodParameters</td>
+                                <td>Object</td>
+                                <td>An object containing any parameters needed by a deleteControl method.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <strong>Returns</strong>
+                    <p>
+                        Promise&lt;Boolean&gt; - True if Instance is deleted properly.
+                    </p>
+                    <strong>Throws</strong>
+                    <table>
+                        <thead>
+                            <th>Error Type</th>
+                            <th>Cause</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>NoommanDeleteError</td>
+                                <td>If this Instance has not yet been saved (i.e. is not in the database).</td>
+                            </tr>
+                            <tr>
+                                <td>NoommanDeleteError</td>
+                                <td>If deleteControl method returns false for this Instance.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="deleted">
+                <h5>deleted()</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Use to determine if this instance has been deleted from the database.
+                    </p>
+                    <strong>Returns</strong>
+                    <p>
+                        Boolean - True if instance has been deleted using a delete method. False otherwise.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="equals">
+                <h5>equals(that)</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Used to compare two instances. Checks that this Instance and the given Instance have
+                        (exactly) the same ClassModel, id, and values for each attribute and relationship.
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>that</td>
+                                <td>Instance</td>
+                                <td>An Instance to compare this Instance to.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <strong>Returns</strong>
+                    <p>
+                        Boolean - True if the ClassModel, id, and all attributes and relationships are the same
+                        for both Instances, false otherwise.
+                    </p>
+                    <strong>Throws</strong>
+                    <table>
+                        <thead>
+                            <th>Error Type</th>
+                            <th>Cause</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>NoommanArgumentError</td>
+                                <td>If 'that' parameter is not an instance of Instance.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="isInstanceOf">
+                <h5>isInstanceOf(classModel)</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Determines if this Instance is an Instance of the given ClassModel, or any of its
+                        sub-ClassModels.
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>classModel</td>
+                                <td>ClassModel</td>
+                                <td>A ClassModel to check if this is an Instance of.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <strong>Returns</strong>
+                    <p>
+                        Boolean - True if this Instance is an instance of the given ClassModel, or any of
+                        its sub-ClassModels.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="propertyIsSet">
+                <h5>propertyIsSet(propertyName)</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Defines what it means for a property to be set. Valid values that count as 'set' are as follows:
+                        boolean: True or False
+                        number: Any value including 0.
+                        string: Any thing of type string.
+                        Array: Any array with a length greater than 0.
+                        Object/Relationship: Any Value
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>propertyName</td>
+                                <td>String</td>
+                                <td>The name of an attribute or relationship to check.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <strong>Returns</strong>
+                    <p>
+                        Boolean - True if the value of the attribute or relationship is considered as set. 
+                    </p>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="readControlFilter">
+                <h5>readControlFilter(readControlMethodParameters)</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Runs applicable readControl methods for this Instance. If each readControl method returns true for
+                        this Instance, then this Instance is returned, otherwise null is returned.
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>readControlMethodParameters</td>
+                                <td>Object</td>
+                                <td>
+                                    An object containing any parameters that the readControl method(s)
+                                    may need.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <strong>Returns</strong>
+                    <p>
+                        Promise&lt;Instance&gt; - This Instance if all readControl methods return true, otherwise null.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="save">
+                <h5>save(createControlMethodParameters, updateControlMethodParameters)</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Saves the current state of this Instance to the database in the proper collection according to its ClassModel.
+                    </p>
+                    <strong>Returns</strong>
+                    <p>
+                        Promise&lt;Instance&gt; - This Instance, if save is successful.
+                    </p>
+                    <strong>Throws</strong>
+                    <table>
+                        <thead>
+                            <th>Error Type</th>
+                            <th>Cause</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>NoommanSaveError</td>
+                                <td>If this Instance has already been deleted.</td>
+                            </tr>
+                            <tr>
+                                <td>NoommanSaveError</td>
+                                <td>If this Instance has been stripped by stripSensitiveAttributes().</td>
+                            </tr>
+                            <tr>
+                                <td>NoommanSaveError</td>
+                                <td>If Instance does not pass createControl or updateControl methods.</td>
+                            </tr>
+                            <tr>
+                                <td>NoommanValidationError</td>
+                                <td>If more than one property in a mutex are set.</td>
+                            </tr>
+                            <tr>
+                                <td>NoommanValidationError</td>
+                                <td>If a required property is not set.</td>
+                            </tr>
+                            <tr>
+                                <td>NoommanValidationError</td>
+                                <td>If none of the properties in a required group are set.</td>
+                            </tr>
+                            <tr>
+                                <td>Error</td>
+                                <td>If a custom validation method from the ClassModel fails.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="saved">
+                <h5>saved()</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Use to determine if this instance currently exists in the database.
+                    </p>
+                    <strong>Returns</strong>
+                    <p>
+                        Boolean - True if instance resulted from a database query or if this instance has had a save method
+                        complete successfully. False otherwise.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="saveWithoutValidation">
+                <h5>saveWithoutValidation()</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Saves the current state of this Instance to the database in the proper collection according to its ClassModel.
+                        Does not do any validation or run crudControl functions, recommended not to be used outside internal 
+                        noomman methods. The purpose is for use in saving multiple instances at once, and any calling method is 
+                        expected to have already run validations and crudControl functions.
+                    </p>
+                    <strong>Returns</strong>
+                    <p>
+                        Promise&lt;Instance&gt; - This Instance, if save is successful.
+                    </p>
+                    <strong>Throws</strong>
+                    <table>
+                        <thead>
+                            <th>Error Type</th>
+                            <th>Cause</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>NoommanSaveError</td>
+                                <td>If this Instance has already been deleted.</td>
+                            </tr>
+                            <tr>
+                                <td>NoommanSaveError</td>
+                                <td>If this Instance has been stripped by stripSensitiveAttributes().</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="stripped">
+                <h5>stripped()</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Used to determine if this instance has been stripped of sensitive attributes.
+                    </p>
+                    <strong>Returns</strong>
+                    <p>
+                        Boolean - True if this instance has been stripped of sensitive attributes by calling
+                        stripSensitiveAttributes().
+                    </p>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="stripSensitiveAttributes">
+                <h5>stripSensitiveAttributes()</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Will remove any attributes with property sensitive equal to true from this Instance.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="validate">
+                <h5>validate()</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Throws an error if this instance is invalid for any reason, including violations of
+                        custom validations, required properties, required groups, or mutexes.
+                    </p>
+                    <strong>Throws</strong>
+                    <table>
+                        <thead>
+                            <th>Error Type</th>
+                            <th>Cause</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>NoommanValidationError</td>
+                                <td>If more than one property in a mutex are set.</td>
+                            </tr>
+                            <tr>
+                                <td>NoommanValidationError</td>
+                                <td>If a required property is not set.</td>
+                            </tr>
+                            <tr>
+                                <td>NoommanValidationError</td>
+                                <td>If none of the properties in a required group are set.</td>
+                            </tr>
+                            <tr>
+                                <td>Error</td>
+                                <td>If a custom validation method from the ClassModel fails.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="walk">
+                <h5>walk(relationshipName, usePreviousState)</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Walks a relationship from this Instance, returning the related Instance or Instances.
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>relationshipName</td>
+                                <td>String</td>
+                                <td>The name of the relationship to walk.</td>
+                            </tr>
+                            <tr>
+                                <td>usePreviousState</td>
+                                <td>Boolean</td>
+                                <td>
+                                    If true, will walk the previous value of the given relationship for this Instance.
+                                    For noomman internal use only.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <strong>Returns</strong>
+                    <p>
+                        Promise&lt;Instance | InstanceSet&gt; - The Instance (if relationship is singular) or InstanceSet (if the relationship 
+                        is non-singular) related to this Instance through the given relationship. If relationship is empty, then null will
+                        be returned for singular relationships or an empty InstanceSet will be returned for non-singular relationships.
+                    </p>
+                    <strong>Throws</strong>
+                    <table>
+                        <thead>
+                            <th>Error Type</th>
+                            <th>Cause</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>NoommanArgumentError</td>
+                                <td>If no relationshipName is given.</td>
+                            </tr>
+                            <tr>
+                                <td>NoommanArgumentError</td>
+                                <td>If relationshipName is not a String.</td>
+                            </tr>
+                            <tr>
+                                <td>NoommanArgumentError</td>
+                                <td>If relationshipName does not match any relationship for the ClassModel of this Instance.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+</body>
+</html>

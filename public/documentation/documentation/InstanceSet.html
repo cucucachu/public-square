@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <title>Noomman Documentation</title>
+    <meta name="description" content="Documentation for Noomman">
+    <meta name="author" content="Cody Miro Jones">
+
+    <!-- Mobile Specific Metas
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+    <!-- FONT
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <link href="https://fonts.googleapis.com/css?family=Nanum+Gothic&display=swap" rel="stylesheet">
+  
+    <!-- CSS
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <link rel="stylesheet" href="../static/normalize.css">
+    <link rel="stylesheet" href="../static/skeleton.css">
+    <link rel="stylesheet" href="../static/custom.css">
+</head>
+<body>
+    <div class="container">
+        <section class="header">
+            <h1>Noomman</h1>
+            <p><strong>N</strong>odejs <strong>O</strong>bject-<strong>O</strong>riented <strong>M</strong>ongoDB <strong>Man</strong>ager</p>
+        </section>
+    </div>
+    <div class="navbar">
+        <div class="container">
+            <ul class="navbar-list">
+                <li class="navbar-item">
+                    <a class="navbar-link" href="../index.html">Introduction</a>
+                </li>
+                <li class="navbar-item">
+                    <a class="navbar-link" href="../reference.html">Reference</a>
+                </li>
+                <li class="navbar-item">
+                    <a class="navbar-link" href="../documentation.html">Documentation</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="container">
+        <br>
+        <h3>Class InstanceSet</h3>
+        
+        <h4>Contents</h4>
+        <a href="#methods"><strong>Methods</strong></a>
+        <ul>
+                <li><a href="#constructor">constructor()</a></li>
+                <li><a href="#add">add()</a></li>
+                <li><a href="#addInstances">addInstances()</a></li>
+                <li><a href="#delete">delete()</a></li>
+                <li><a href="#difference">difference()</a></li>
+                <li><a href="#equals">equals()</a></li>
+                <li><a href="#filterForClassModel">filterForClassModel()</a></li>
+                <li><a href="#filterForInstancesInThisCollection">filterForInstancesInThisCollection()</a></li>
+                <li><a href="#filterToInstanceSet">filterToInstanceSet()</a></li>
+                <li><a href="#getInstanceIds">getInstanceIds()</a></li>
+                <li><a href="#getInstancesWithIds">getInstancesWithIds()</a></li>
+                <li><a href="#getInstanceWithId">getInstanceWithId()</a></li>
+                <li><a href="#hasInstance">hasInstance()</a></li>
+                <li><a href="#hasInstanceWithId">hasInstanceWithId()</a></li>
+                <li><a href="#isInstanceSetOf">isInstanceSetOf()</a></li>
+                <li><a href="#mapToInstanceSet">mapToInstanceSet()</a></li>
+                <li><a href="#readControlFilter">readControlFilter()</a></li>
+                <li><a href="#remove">remove()</a></li>
+                <li><a href="#removeInstances">removeInstances()</a></li>
+                <li><a href="#save">save()</a></li>
+                <li><a href="#stripSensitiveAttributes">stripSensitiveAttributes()</a></li>
+                <li><a href="#symmetricDifference">symmetricDifference()</a></li>
+                <li><a href="#union">union()</a></li>
+                <li><a href="#validate">validate()</a></li>
+                <li><a href="#walk">walk()</a></li>
+        </ul>
+    </div>
+
+    <div class="container" id="methods">
+        <div>
+
+            <h4>Methods</h4>
+            
+            <div class="docs-section" id="constructor">
+                <h5>constructor(classModel, instances)</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Creates an instance of InstanceSet with the given classModel.
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>classModel</td>
+                                <td>ClassModel</td>
+                                <td>
+                                    The classModel for this InstanceSet. All Instances added to this InstanceSet
+                                    must be of this classModel or one of its sub-ClassModels.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <strong>Returns</strong>
+                    <p>
+                        InstanceSet - The InstanceSet created with the given classModel and instances.
+                    </p>
+                    <strong>Throws</strong>
+                    <table>
+                        <thead>
+                            <th>Error Type</th>
+                            <th>Cause</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>NoommanConstructorError</td>
+                                <td>If classModel parameter is missing or not an instance of ClassModel.</td>
+                            </tr>
+                            <tr>
+                                <td>NoommanArgumentError</td>
+                                <td>If instances is given and is not an Iterable.</td>
+                            </tr>
+                            <tr>
+                                <td>NoommanArgumentError</td>
+                                <td>If instances is given and contains anything but Instances.</td>
+                            </tr>
+                            <tr>
+                                <td>NoommanArgumentError</td>
+                                <td>If instances is given and contains any Instance of a different ClassModel.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="add">
+                <h5>add(instance)</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Adds the given Instance to this InstanceSet.
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>instance</td>
+                                <td>Instance</td>
+                                <td>
+                                    An Instance of the ClassModel for this InstanceSet (or a sub-ClassModel)
+                                    to add to this InstanceSet.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <strong>Throws</strong>
+                    <table>
+                        <thead>
+                            <th>Error Type</th>
+                            <th>Cause</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>NoommanArgumentError</td>
+                                <td>If instance is given and is not an Instance</td>
+                            </tr>
+                            <tr>
+                                <td>NoommanArgumentError</td>
+                                <td>If instance is given and is an Instance of a different ClassModel.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="addInstances">
+                <h5>addInstances(instances)</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Adds the given instances to this InstanceSet.
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>instances</td>
+                                <td>Iterable&lt;Instance&gt;</td>
+                                <td>
+                                    An Iterable containing Instances of the ClassModel for this InstanceSet 
+                                    (or a sub-ClassModel) to add to this InstanceSet.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <strong>Throws</strong>
+                    <table>
+                        <thead>
+                            <th>Error Type</th>
+                            <th>Cause</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>NoommanArgumentError</td>
+                                <td>If instances is given and is not an Iterable.</td>
+                            </tr>
+                            <tr>
+                                <td>NoommanArgumentError</td>
+                                <td>If instances is given and contains anything but Instances.</td>
+                            </tr>
+                            <tr>
+                                <td>NoommanArgumentError</td>
+                                <td>If instances is given and contains any Instance of a different ClassModel.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="delete">
+                <h5>delete(deleteControlMethodParameters) </h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Deletes all Instances in this InstanceSet from the database.
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>deleteControlMethodParameters</td>
+                                <td>Object</td>
+                                <td>An object containing any parameters needed by a deleteControl method.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <strong>Returns</strong>
+                    <p>
+                        Promise&lt;Array&lt;Boolean&gt;&gt; - An array containing True for each deleted Instance
+                        if all Instances in this InstanceSet are deleted properly.
+                    </p>
+                    <strong>Throws</strong>
+                    <table>
+                        <thead>
+                            <th>Error Type</th>
+                            <th>Cause</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>NoommanDeleteError</td>
+                                <td>If any Instance has not yet been saved (i.e. is not in the database).</td>
+                            </tr>
+                            <tr>
+                                <td>NoommanDeleteError</td>
+                                <td>If deleteControlCheck() throws a NoommanDeleteError.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="difference">
+                <h5>difference(instanceSet)</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Creates a new InstanceSet which is the mathematical set difference of this InstanceSet
+                        and the given InstanceSet. Difference is this InstanceSet - given InstanceSet.
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>instanceSet</td>
+                                <td>InstanceSet</td>
+                                <td>An InstanceSet to subtract from this InstanceSet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <strong>Returns</strong>
+                    <p>
+                        InstanceSet - The set difference of this InstanceSet and given InstanceSet.
+                    </p>
+                    <strong>Throws</strong>
+                    <table>
+                        <thead>
+                            <th>Error Type</th>
+                            <th>Cause</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>NoommanArgumentError</td>
+                                <td>If instanceSet parameter is not an instance of InstanceSet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="equals">
+                <h5>equals(instanceSet)</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Determines if this InstanceSet is equal to the given InstanceSet. Two InstanceSets are considered
+                        equal if they hold the same Instances (determined by Instance id).
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>instanceSet</td>
+                                <td>InstanceSet</td>
+                                <td>An InstanceSet to compare this InstanceSet against.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <strong>Returns</strong>
+                    <p>
+                        Boolean - True if both InstanceSets hold the same Instances, false otherwise.
+                    </p>
+                    <strong>Throws</strong>
+                    <table>
+                        <thead>
+                            <th>Error Type</th>
+                            <th>Cause</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>NoommanArgumentError</td>
+                                <td>If instanceSet parameter is not an instance of InstanceSet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="filterForClassModel">
+                <h5>filterForClassModel(classModel)</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Creates a new InstanceSet which contains all the Instances from this InstanceSet which are 
+                        of the given ClassModel (or a sub-ClassModel thereof).
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>classModel</td>
+                                <td>ClassModel</td>
+                                <td>A ClassModel to use to filter this InstanceSet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <strong>Returns</strong>
+                    <p>
+                        InstanceSet - An InstanceSet with the same ClassModel as this InstanceSet, which contains
+                        all Instances from the origin InstanceSet which are of the given ClassModel (or a 
+                        ClassModel thereof).
+                    </p>
+                    <strong>Throws</strong>
+                    <table>
+                        <thead>
+                            <th>Error Type</th>
+                            <th>Cause</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>NoommanArgumentError</td>
+                                <td>If the given classModel paramter is omitted or not an instance of ClassModel.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="filterForInstancesInThisCollection">
+                <h5>filterForInstancesInThisCollection()</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Creates a new InstanceSet which is this InstanceSet filtered for those Instances
+                        that are stored in the same collection as the collection for the ClassModel
+                        of this InstanceSet.
+                    </p>
+                    <strong>Returns</strong>
+                    <p>
+                        InstanceSet - A new InstanceSet with the same ClassModel as this InstanceSet,
+                        containing all the Instances from this InstanceSet which share the same collection
+                        as this InstanceSet.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="filterToInstanceSet">
+                <h5>filterToInstanceSet(callback)</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Similar to the Array.filter() method, except that the results are compiled into an
+                        InstanceSet.
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>callback</td>
+                                <td>Function</td>
+                                <td>
+                                    A callback function which will be run on each Instance of
+                                    this InstanceSet. If this function returns true for an Instance, then the Instance
+                                    will be added to the return InstanceSet.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <strong>Returns</strong>
+                    <p>
+                        InstanceSet - A new InstanceSet with the same ClassModel as this InstanceSet, and 
+                        containing all the instances for which the given callback function returns true.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="getInstanceIds">
+                <h5>getInstanceIds()</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Retrieves the id for each Instance in this InstanceSet as a String and returns
+                        them in an array.
+                    </p>
+                    <strong>Returns</strong>
+                    <p>
+                        Array&lt;String&gt; - An array containing string representations of each Instance's id.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="getInstancesWithIds">
+                <h5>getInstancesWithIds(ids)</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Retrieves all Instances from this InstanceSet with any of the given ids.
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>id</td>
+                                <td>Array&lt;mongodb.ObjectId&gt;</td>
+                                <td>An array of ids for the Instances to retrieve.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <strong>Returns</strong>
+                    <p>
+                        InstanceSet - An InstanceSet with the same classModel as this InstanceSet, containing
+                        only those Instances with the given ids.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="getInstanceWithId">
+                <h5>getInstanceWithId(id)</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Retrieves an Instance from this InstanceSet with the given id.
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>id</td>
+                                <td>mongodb.ObjectId | String</td>
+                                <td>An id for the Instance to retrieve.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <strong>Returns</strong>
+                    <p>
+                        Instance - The Instance from this InstanceSet with the given Id. Null if 
+                        no Instance in this InstanceSet has the given id.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="getObjectIds">
+                <h5>getObjectIds()</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Retrieves the id for each Instance in this InstanceSet and returns
+                        them in an Array.
+                    </p>
+                    <strong>Returns</strong>
+                    <p>
+                        Array&lt;ObjectId&gt; - An array containing each Instance's id.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="hasInstance">
+                <h5>hasInstance(instanceToCheck)</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Determines if this InstanceSet contains the given Instance. This is determined using only
+                        the id of the Instances, so the given Instance does not need to be the exact same object
+                        in memory.
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>instance</td>
+                                <td>Instance</td>
+                                <td>An instance to check for.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <strong>Returns</strong>
+                    <p>
+                        Boolean - True if this InstanceSet contains the given Instance, false otherwise.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="hasInstanceWithId">
+                <h5>hasInstanceWithId(id)</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Determines if this InstanceSet contains an Instance with the given id.
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>id</td>
+                                <td>mongodb.ObjectId | String</td>
+                                <td>An id to check for.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <strong>Returns</strong>
+                    <p>
+                        Boolean - True if this InstanceSet contains an Instance with the given id, false otherwise.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="intersection">
+                <h5>intersection(instanceSet)</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Creates a new InstanceSet which is the intersection of this InstanceSet
+                        and the given InstanceSet. 
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>instanceSet</td>
+                                <td>InstanceSet</td>
+                                <td>An InstanceSet to intersect with this InstanceSet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <strong>Returns</strong>
+                    <p>
+                        InstanceSet - The intersection of this InstanceSet and given InstanceSet.
+                    </p>
+                    <strong>Throws</strong>
+                    <table>
+                        <thead>
+                            <th>Error Type</th>
+                            <th>Cause</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>NoommanArgumentError</td>
+                                <td>If instanceSet parameter is not an instance of InstanceSet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="isInstanceSetOf">
+                <h5>isInstanceOf(classModel)</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Determines if this InstanceSet is an InstanceSet of the given classModel
+                        or one of its sub-ClassModels.
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>classModel</td>
+                                <td>ClassModel</td>
+                                <td>A ClassModel to check if this is an InstanceSet of.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <strong>Returns</strong>
+                    <p>
+                        Boolean - True if this InstanceSet is an InstanceSet of the given classModel
+                        or one of its sub-ClassModels. False otherwise.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="mapToInstanceSet">
+                <h5>mapToInstanceSet(callback)</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Similar to the native Array.map() method, except that the result is wrapped into a new InstanceSet.
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>callback</td>
+                                <td>Function</td>
+                                <td>
+                                    A function which will be run for each Instance in the set. Whatever
+                                    this function returns for each instance will be compiled into a new InstanceSet. This 
+                                    function must return an Instance which is of the same ClassModel as this InstanceSet.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <strong>Returns</strong>
+                    <p>
+                        InstanceSet - An InstanceSet with the same ClassModel as this InstanceSet, which contains
+                        each result of each call of the callback function.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="readControlFilter">
+                <h5>readControlFilter(readControlMethodParameters)</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Runs applicable readControl methods for each Instance in this InstanceSet, and filters out any
+                        Instances for which any readControl method returns false. Returns a new InstanceSet, does not
+                        update this InstanceSet.
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>readControlMethodParameters</td>
+                                <td>Object</td>
+                                <td>
+                                    An object containing any parameters that the readControl method(s)
+                                    may need.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <strong>Returns</strong>
+                    <p>
+                        Promise&lt;InstanceSet&gt; - An InstanceSet containing those Instances for which all readControl methods return true.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="remove">
+                <h5>remove(instance)</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Removes the given instance from the set. Any Instance with the same id as the given Instance
+                        will be removed from the InstanceSet, it does not have to be the same in memory object.
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>instance</td>
+                                <td>Instance</td>
+                                <td>An Instance to remove from this InstanceSet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="removeInstances">
+                <h5>removeInstances(instances)</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Removes all the given Instances from this InstanceSet. Any Instance with the same id as any of 
+                        the given Instances will be removed from the InstanceSet. 
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>instances</td>
+                                <td>Iterable&lt;Instance&gt;/td>
+                                <td>
+                                    An Iterable containing Instances of the ClassModel for this InstanceSet 
+                                    (or a sub-ClassModel) to remove from this InstanceSet.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <strong>Throws</strong>
+                    <table>
+                        <thead>
+                            <th>Error Type</th>
+                            <th>Cause</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>NoommanArgumentError</td>
+                                <td>If instances parameter is not an Iterable.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="save">
+                <h5>save(createControlMethodParameters, updateControlMethodParameters)</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Saves the current state of each Instance in this InstanceSet to the database in the proper 
+                        collection according to its ClassModel.
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>createControlMethodParameters</td>
+                                <td>Object</td>
+                                <td>An object containing parameters needed by a createControl method.</td>
+                            </tr>
+                            <tr>
+                                <td>updateControlMethodParameters</td>
+                                <td>Object</td>
+                                <td>An object containing parameters needed by a updateControl method.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <strong>Returns</strong>
+                    <p>
+                        Promise&lt;Array&lt;Instance&gt;&gt; - An Array containing each Instance in this InstanceSet,
+                        if save is successful.
+                    </p>
+                    <strong>Throws</strong>
+                    <table>
+                        <thead>
+                            <th>Error Type</th>
+                            <th>Cause</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>NoommanValidationError</td>
+                                <td>If validate() throws a NoommanValidationError.</td>
+                            </tr>
+                            <tr>
+                                <td>NoommanSaveError</td>
+                                <td>If any unsaved Instance in this InstanceSet fails a createControl method.</td>
+                            </tr>
+                            <tr>
+                                <td>NoommanSaveError</td>
+                                <td>If any previously saved Instance in this InstanceSet fails a updateControl method.</td>
+                            </tr>
+                            <tr>
+                                <td>NoommanSaveError</td>
+                                <td>If any Instance in this InstanceSet has been stripped of sensitive attributes.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="stripSensitiveAttributes">
+                <h5>stripSensitiveAttributes()</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Will remove any attributes with property sensitive equal to true from each Instance 
+                        in this InstanceSet.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="symmetricDifference">
+                <h5>symmetricDifference(instanceSet)</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Creates a new InstanceSet which is the mathematical symmetricDifference of this InstanceSet
+                        and the given InstanceSet. 
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>instanceSet</td>
+                                <td>InstanceSet</td>
+                                <td>An InstanceSet to calculate the symmetric difference of with this InstanceSet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <strong>Returns</strong>
+                    <p>
+                        InstanceSet - The symmetric difference of this InstanceSet and given InstanceSet.
+                    </p>
+                    <strong>Throws</strong>
+                    <table>
+                        <thead>
+                            <th>Error Type</th>
+                            <th>Cause</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>NoommanArgumentError</td>
+                                <td>If instanceSet parameter is not an instance of InstanceSet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="union">
+                <h5>union(instanceSet)</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Creates a new InstanceSet which is the mathematical set union of this InstanceSet
+                        and the given InstanceSet. 
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>instanceSet</td>
+                                <td>InstanceSet</td>
+                                <td>An InstanceSet to union with this InstanceSet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <strong>Returns</strong>
+                    <p>
+                        InstanceSet - The union of this InstanceSet and given InstanceSet.  
+                    </p>
+                    <strong>Throws</strong>
+                    <table>
+                        <thead>
+                            <th>Error Type</th>
+                            <th>Cause</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>NoommanArgumentError</td>
+                                <td>If instanceSet parameter is not an instance of InstanceSet.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="validate">
+                <h5>validate()</h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Throws an error if any Instance in this InstanceSet is invalid for any reason,
+                        including violations of custom validations, required properties, required groups,
+                        or mutexes. 
+                    </p>
+                    <strong>Throws</strong>
+                    <table>
+                        <thead>
+                            <th>Error Type</th>
+                            <th>Cause</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>NoommanValidationError</td>
+                                <td>
+                                    If Instance.validate() throws a NoommanArgumentError for 
+                                    any Instance in this InstanceSet.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="docs-section" id="walk">
+                <h5>walk(relationshipName) </h5>
+                <div>
+                    <strong>Description</strong>
+                    <p>
+                        Walks the relationship with the given relationshipName for every Instance in this
+                        InstanceSet, and returns the result in a single InstanceSet. Will populate the
+                        relationship on each Instance as well.
+                    </p>
+                    <strong>Parameters</strong>
+                    <table>
+                        <thead>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>relationshipName</td>
+                                <td>String</td>
+                                <td>The name of a relationship to walk.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <strong>Returns</strong>
+                    <p>
+                        Promise&lt;InstanceSet&gt; - an InstanceSet containing all the Instances related to the Instances
+                        in this InstanceSet through the relationship with the given relationshipName.
+                    </p>
+                    <strong>Throws</strong>
+                    <table>
+                        <thead>
+                            <th>Error Type</th>
+                            <th>Cause</th>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>NoommanArgumentError</td>
+                                <td>If no relationshipName is given.</td>
+                            </tr>
+                            <tr>
+                                <td>NoommanArgumentError</td>
+                                <td>If relationshipName is not a String.</td>
+                            </tr>
+                            <tr>
+                                <td>NoommanArgumentError</td>
+                                <td>
+                                    If relationshipName does not match a relationship on the ClassModel
+                                    for this InstanceSet.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+</body>
+</html>

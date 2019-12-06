@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <title>Noomman Documentation</title>
+    <meta name="description" content="Documentation for Noomman">
+    <meta name="author" content="Cody Miro Jones">
+
+    <!-- Mobile Specific Metas
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+    <!-- FONT
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <link href="https://fonts.googleapis.com/css?family=Nanum+Gothic&display=swap" rel="stylesheet">
+  
+    <!-- CSS
+    –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+    <link rel="stylesheet" href="./static/normalize.css">
+    <link rel="stylesheet" href="./static/skeleton.css">
+    <link rel="stylesheet" href="./static/custom.css">
+</head>
+<body>
+    <div class="container">
+        <section class="header">
+            <h1>Noomman</h1>
+            <p><strong>N</strong>odejs <strong>O</strong>bject-<strong>O</strong>riented <strong>M</strong>ongoDB <strong>Man</strong>ager</p>
+        </section>
+    </div>
+    <div class="navbar">
+        <div class="container">
+            <ul class="navbar-list">
+                <li class="navbar-item">
+                    <a class="navbar-link" href="./index.html">Introduction</a>
+                </li>
+                <li class="navbar-item">
+                    <a class="navbar-link" href="./reference.html">Reference</a>
+                </li>
+                <li class="navbar-item">
+                    <a class="navbar-link" href="./documentation.html">Documentation</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="docs-section">
+        <div class="container">
+            <h3>Introduction</h3>
+            <p>
+                Noomman provides a comprehensive object management system for application development. Unlike
+                other MongoDB client libraries, Noomman is designed to follow strict object-oriented principals.
+                Noomman allows multiple layers of inheritance, inheritance from multiple parents, and abstract 
+                class models. This inheritance applies to every aspect of the schema.
+                All code for a given class model can be encapsulated in a single .js file, including 
+                the schema, as well as functions for CRUD control and validation. 
+            </p>
+            <p>
+                Developers create class models using a schema object to define valid data structure, inheritance,
+                CRUD controls, and auditablility. Noomman manages a MongoDB database for holding the data, and 
+                abstracts away updating operations, so developers only have to make their desired changes to the data and 
+                then call Noomman to save it. Noomman provides a consistent API for CRUD operations, enforcing 
+                data consistency, validation, and security. Noomman also abstracts away common querying operations so that 
+                developers can traverse and filter the model in an object-oriented manner. 
+            </p>
+            <h5>Database Schema</h5>
+            <p>
+                Developers provide a schema for each class model in in the form of a Javascript object. The schema 
+                describes the attributes and relationships for a class, inheritance properties, CRUD controls, 
+                auditablility and validations. Noomman implements classical inheritance in its object model, 
+                allowing multi-level, and multi-parent inheritance, and providing easy querying with respect 
+                to inheritance. All properties of a schema, including validation and CRUD control functions,
+                are inherited from a super class model to a sub class model. 
+            </p>
+            <h5>Data Consistency</h5>
+            <p>
+                For each relationship on a class, the developer will also describe the cardinality, 
+                directionality, and ownership properties of the relationship in their database schema. 
+                With this information Noomman is able to ensure data consistency. Everytime you update 
+                one side of a two-way relationship on an instance, Noomman will update the relationships on the 
+                instances related through that relationship, ensuring that both directions of the 
+                relationship stay in sync. If you ask Noomman to delete an instance that has an owns 
+                relationship to another instance, Noomman will perform a cascading delete to ensure 
+                there are no orphaned instances.
+            </p>
+            <h5>Create, Read, Update, and Delete Control</h5>
+            <p>
+                Noomman provides a dynamic framework for controlling in what circumstances any object may be
+                created, read, updated, or deleted. A default privilege exists for administrators or developers, which
+                bypasses these controls. Otherwise, CRUD privileges can be programmatically defined by providing an
+                asynchronus function in the class model schema for a class. These functions should throw an error if 
+                the operation is not allowed, and resolve otherwise. Each CRUD operation can have its own function 
+                for determining if a particular operation is allowed, or you can use the same function for multiple 
+                operations.
+            </p>
+            <h5>Update History</h5>
+            <p>
+                A Noomman class model has an option called auditable. With this option enabled, Noomman will 
+                keep a changelog for every update of every instance of the class model. This changelog will be 
+                viewable to the developer or admin account, and will keep track of who made each change and 
+                when each change was made. Objects can be completely reversed to any point in time using this 
+                changelog. If you choose not to delete the change log for an instance when that instance is deleted, 
+                you can completely recover a deleted instance using the change log information.
+            </p>
+            <h5>Implementation</h5>
+            <p>
+                Noomman is a nodejs package. It uses the native MongoDB javascript client to communicate with a mongo 
+                database, or a database that can be used with the native mongo client.
+            </p>
+        </div>
+    </div>
+
+    
+</body>
+
+</html>
