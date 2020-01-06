@@ -1,44 +1,49 @@
 /* 
- Class Model
- Model: Person
+ Class Model: Person
  Description: Describes attributes of a Person such as names, Addresses, etc.
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var Person = new ClassModel({
+const Person = new ClassModel({
 	className: 'Person',
-	accessControlled: false,
-	updateControlled: false,
-	schema: {
-		_id: Schema.Types.ObjectId,
-		firstName: {
+	attributes: [
+		{
+			name: 'firstName',
 			type: String,
-			required: true
+			required: true,
 		},
-		middleName: {
-			type: String
-		},
-		lastName: {
+		{
+			name: 'middleName',
 			type: String,
-			required: true
 		},
-		userAccount: {
-			type: Schema.Types.ObjectId, 
-			ref: 'UserAccount'
+		{
+			name: 'lastName',
+			type: String,
+			required: true,
 		},
-		address: {
-			type: Schema.Types.ObjectId,
-			ref: 'Address',
+	],
+	relationships: [
+		{
+			name: 'userAccount',
+			toClass: 'UserAccount',
+			mirrorRelationship: 'person',
+			singular: true,
 		},
-		personRoles: {
-			type: [Schema.Types.ObjectId],
-			ref: 'PersonRole'
-		}
-	}
+		{
+			name: 'address',
+			toClass: 'Address',
+			mirrorRelationship: 'persons',
+			singular: true,
+		},
+		{
+			name: 'personRoles',
+			toClass: 'PersonRole',
+			singular: false,
+			mirrorRelationship: 'person',
+		},
+	],
 });
 
 module.exports = Person;

@@ -1,47 +1,49 @@
 /* 
- Class Model
- Model: Bill Sponsorship
+ Class Model: Bill Sponsorship
  Description: Connects a Legislator to a Bill that they have sponsored. Bills can have one sponsor, and multiple co-sponsors.
     The main sponsor will have an instance of this class with the 'primary' attribute set to true. All other sponsorships 
     (i.e. for the co-sponsors) will have the 'primary' attribute set to false.
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var BillSponsorship = new ClassModel({
+const BillSponsorship = new ClassModel({
     className: 'BillSponsorship',
-	accessControlled: false,
-	updateControlled: false,
-    schema: {
-        startDate: {
+    attributes: [
+        {
+            name: 'startDate',
             type: Date,
-            required: true
+            required: true,
         },
-        endDate: {
+        {
+            name: 'endDate',
             type: Date,
-            validate: {
-                validator: function(value) {
-                    if (value < this.startDate)
-                        return false;
-                    return true;
-                },
-                message: 'End Date must be greater than or equal to Start Date.'
+        },
+    ],
+    relationships: [
+        {
+            name: 'bill',
+            toClass: 'Bill',
+            mirrorRelationship: 'billSponsorships',
+            singular: true,
+            required: true,
+        },
+        {
+            name: 'legislator',
+            toClass: 'Legislator',
+            mirrorRelationship: 'billSponsorShips',
+            singular: true,
+            required: true,
+        },
+    ],
+    validations: [
+        function() {
+            if (this.endDate < this.startDate) {
+                throw new NoommanValidationError('End Date must be greater than or equal to Start Date.');
             }
         },
-        bill: {
-            type: Schema.Types.ObjectId,
-            ref: 'Bill',
-            required: true
-        },
-        legislator: {
-            type: Schema.Types.ObjectId,
-            ref: 'Legislator',
-            required: true
-        }
-    }
+    ],
 });
 
 module.exports = BillSponsorship;

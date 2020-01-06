@@ -1,28 +1,25 @@
 /* 
- Class Model
- Model: Nominator
+ Class Model: Nominator
  SuperClass: Government Role
  Description: A Government Role allowing an Occupied Position to make an Nomination of a person to a Government Position. 
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var GovernmentRole = require('../GovernmentRole');
+const GovernmentRole = require('../GovernmentRole');
 
-var Nominator = new ClassModel({
+const Nominator = new ClassModel({
 	className: 'Nominator',
-	accessControlled: false,
-	updateControlled: false,
 	superClasses: [GovernmentRole],
-	schema: {
-		nominations: {
-			type: [Schema.Types.ObjectId],
-			ref: 'Nomination'
-		}
-	}
+	relationships: [
+		{
+			name: 'nominations',
+			toClass: 'Nomination',
+			mirrorRelationship: 'nominator',
+			singular: false,
+		},
+	],
 });
 
 module.exports = Nominator;

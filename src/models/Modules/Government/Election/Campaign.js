@@ -1,35 +1,35 @@
 /* 
- Class Model
- Model: Campaign
+ Class Model: Campaign
  Description: Joiner class between Government Position and Election. Relates a Election to a Position Definition for a given date range.
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
 var Campaign = new ClassModel({
 	className: 'Campaign',
-	accessControlled: false,
-	updateControlled: false,
-	schema: {
-		candidate: {
-			type: Schema.Types.ObjectId,
-			ref: 'Candidate',
-			required: true
+	relationships: [
+		{
+			name: 'candidate',
+			toClass: 'Candidate',
+			mirrorRelationship: 'campaigns',
+			singular: true,
+			required: true,
 		},
-		election: {
-			type: Schema.Types.ObjectId,
-			ref: 'Election',
-			required: true
+		{
+			name: 'election',
+			toClass: 'Election',
+			mirrorRelationship: 'campaigns',
+			singular: true,
+			required: true,
 		},
-		electionResults: {
-			type: [Schema.Types.ObjectId],
-			ref: 'ElectionResult'
-		}
-	
-	}
+		{
+			name: 'electionResults',
+			toClass: 'ElectionResult',
+			mirrorRelationship: 'campaign',
+			singular: false,
+		},
+	],
 });
 
 module.exports = Campaign;

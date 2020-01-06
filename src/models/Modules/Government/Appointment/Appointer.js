@@ -1,28 +1,25 @@
 /* 
- Class Model
- Model: Appointer
+ Class Model: Appointer
  SuperClass: Government Role
  Description: A Government Role allowing an Occupied Position to make an Appointment of a person to a Government Position. 
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var GovernmentRole = require('../GovernmentRole');
+const GovernmentRole = require('../GovernmentRole');
 
-var Appointer = new ClassModel({
+const Appointer = new ClassModel({
 	className: 'Appointer',
 	superClasses: [GovernmentRole],
-	accessControlled: false,
-	updateControlled: false,
-	schema: {
-		appointments: {
-			type: [Schema.Types.ObjectId],
-			ref: 'Appointment'
-		}
-	}
+	relationships: [
+		{
+			name: 'appointments',
+			toClass: 'Appointment',
+			mirrorRelationship: 'appointer',
+			singular: false,
+		},
+	],
 });
 
 module.exports = Appointer;

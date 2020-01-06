@@ -1,43 +1,44 @@
 /* 
- Class Model
- Model: Election
+ Class Model: Election
  SuperClass: Position Acquisition Process
  Description: Represents an Election for a particular Government Position. Has relationships to all the campaigns running for that position. 
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
+const NoommanValidationError = noomman.NoommanErrors.NoommanValidationError;
 
 var PositionAcquisitionProcess = require('../PositionAcquisitionProcess');
 
 var Election = new ClassModel({
 	className: 'Election',
 	superClasses: [PositionAcquisitionProcess],
-	accessControlled: false,
-	updateControlled: false,
-	schema: {
-		electionDate: {
-			type: Date
-		},
-		termStartDate: {
+	attributes: [
+		{
+			name: 'electionDate',
 			type: Date,
-			validate: {
-				validator: function(value) {
-					if (value < this.electionDate)
-						return false;
-					return true;
-				},
-				message: 'Term Start Date must be greater than or equal to Election Date.'
+		},
+		{
+			name: 'termStartDate',
+			type: Date,
+		},
+	],
+	relationships: [
+		{
+			name: 'campaigns',
+			toClass: 'Campaign',
+			mirrorRelationship: 'election',
+			singular: false,
+			required: true,
+		},
+	],
+	validations: [
+		function() {
+			if (this.termStartDate < this.electionDate) {
+				throw new NoommanValidationError('Term Start Date must be greater than or equal to Election Date.');
 			}
 		},
-		campaigns: {
-			type: [Schema.Types.ObjectId],
-			ref: 'Campaign',
-			required: true
-		}
-	}
+	],
 });
 
 module.exports = Election;

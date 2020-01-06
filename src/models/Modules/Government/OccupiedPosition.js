@@ -1,46 +1,51 @@
 /* 
- Class Model
- Model: Occupied Position
+ Class Model: Occupied Position
  Super Class(es): Pollable
  Description: Definies who is in a particular Government Position at a particular time. Also relates to different Government Roles, which enable
     different functionallity, depending on the Government Powers defined for the Government Position.
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var Pollable = require('../Poll/Pollable');
+const Pollable = require('../Poll/Pollable');
 
-var OccupiedPosition = new ClassModel({
+const OccupiedPosition = new ClassModel({
 	className: 'OccupiedPosition',
-	accessControlled: false,
-	updateControlled: false,
 	superClasses: [Pollable],
-	schema: {
-		startDate: {
+	attributes: [
+		{
+			name: 'startDate',
 			type: Date,
 			required: true,
 		},
-		endDate: {
-			type: Date
+		{
+			name: 'endDate',
+			type: Date,
 		},
-		governmentPosition: {
-			type: Schema.Types.ObjectId,
-			ref: 'GovernmentPosition',
-			required: true
+	],
+	relationships: [
+		{
+			name: 'governmentPosition',
+			toClass: 'GovernmentPosition',
+			mirrorRelationship: 'occupiedPositions',
+			singular: true,
+			required: true,
 		},
-		governmentOfficial: {
-			type: Schema.Types.ObjectId,
-			ref: 'GovernmentOfficial',
-			required: true
+		{
+			name: 'governmentOfficial',
+			toClass: 'GovernmentOfficial',
+			mirrorRelationship: 'occupiedPositions',
+			singular: true,
+			required: true,
 		},
-		governmentRoles: {
-			type: [Schema.Types.ObjectId],
-			ref: 'GovernmentRole',
+		{
+			name: 'governmentRoles',
+			toClass: 'GovernmentRole',
+			mirrorRelationship: 'occupiedPosition',
+			singular: false,
 		}
-	}
+	],
 });
 
 module.exports = OccupiedPosition;

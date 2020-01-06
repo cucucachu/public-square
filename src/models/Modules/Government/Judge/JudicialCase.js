@@ -1,35 +1,38 @@
 /* 
- Class Model
- Model: Judicial Case
+ Class Model: Judicial Case
  Description: Represents a legal case that a judge might hear. 
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var JudicialCase = new ClassModel({
+const JudicialCase = new ClassModel({
 	className: 'JudicialCase',
-	accessControlled: false,
-	updateControlled: false,
-	schema: {
-		name: {
+	attributes: [
+		{
+			name: 'name',
 			type: String,
-			required: true
+			required: true,
 		},
-		filedDate: {
-			type: Date
+		{
+			name: 'filedDate',
+			type: Date,
 		},
-		judgements: {
-			type: [Schema.Types.ObjectId],
-			ref: 'Judgement'
+	],
+	relationships: [
+		{
+			name: 'judgements',
+			toClass: 'Judgement',
+			mirrorRelationship: 'judicialCase',
+			singular: false,
 		},
-		judicialOpinions: {
-			type: [Schema.Types.ObjectId],
-			ref: 'JudicialOpinion'
-		}
-	}
+		{
+			name: 'judicialOpinions',
+			toClass: 'JudicialOpinion',
+			mirrorRelationship: 'judicialCase',
+			singular: false,
+		},
+	],
 });
 
 module.exports = JudicialCase;

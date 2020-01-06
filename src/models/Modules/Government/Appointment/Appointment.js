@@ -1,48 +1,50 @@
 /* 
- Class Model
- Model: Appointment
+ Class Model: Appointment
  SuperClass: Position Acquisition Process
  Description: Represents an Appointment for a particular Government Position. Has relationships to the Appointer, and the Appointee
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var PositionAcquisitionProcess = require('../PositionAcquisitionProcess');
+const PositionAcquisitionProcess = require('../PositionAcquisitionProcess');
 
-var Appointment = new ClassModel({
+const Appointment = new ClassModel({
     className: 'Appointment',
     superClasses: [PositionAcquisitionProcess],
-	accessControlled: false,
-	updateControlled: false,
-    schema: {
-        appointmentDate: {
-            type: Date
-        },
-        positionStartDate: {
+    attributes: [
+        {
+            name: 'appointmentDate',
             type: Date,
-            validate: {
-                validator: function(value) {
-                    if (value < this.appointmentDate)
-                        return false;
-                    return true;
-                },
-                message: 'Term Start Date must be greater than or equal to Appointment Date.'
+        },
+        {
+            name: 'positionStartDate',
+            type: Date,
+        },
+    ],
+    relationships: [
+        {
+            name: 'appointer',
+            toClass: 'Appointer',
+            mirrorRelationship: 'appointments',
+            singular: true,
+            required: true,
+        },
+        {
+            name: 'appointee',
+            toClass: 'Appointee',
+            mirrorRelationship: 'appointments',
+            singular: true,
+            required: true,
+        },
+    ],
+    validations: [
+        function() {
+            if (this.positionStartDate < this.appointmentDate) {
+                throw new NoommanValidationError('Term Start Date must be greater than or equal to Appointment Date.');
             }
         },
-        appointer: {
-            type: Schema.Types.ObjectId,
-            ref: 'Appointer',
-            required: true
-        },
-        appointee: {
-            type: Schema.Types.ObjectId,
-            ref: 'Appointee',
-            required: true
-        }
-    }
+    ],
 });
 
 module.exports = Appointment;

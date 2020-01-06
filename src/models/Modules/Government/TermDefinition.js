@@ -1,32 +1,33 @@
 /* 
- Class Model
- Model: Term Definition
+ Class Model: Term Definition
  Description: Defines the lenght (in time) and the term limit (max number of terms) for a Position Definition. 
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var TermDefinition = new ClassModel({
+const TermDefinition = new ClassModel({
 	className: 'TermDefinition',
-	accessControlled: false,
-	updateControlled: false,
-	schema: {
-		termLength: {
+	attributes: [
+		{
+			name: 'termLength',
 			type: Number,
-			required: true
+			required: true,
 		},
-		termLimit: {
+		{
+			name: 'termLimit',
 			type: Number,
-			required: true
+			required: true,
 		},
-		positionDefinition: {
-			type: Schema.Types.ObjectId,
-			ref: 'PositionDefinition'
-		}
-	}
+	],
+	relationships: [
+		{
+			name: 'positionDefinition',
+			toClass: 'PositionDefinition',
+			mirrorRelationship: 'termDefinition',
+			singular: true,
+		},
+	],
 });
 
 module.exports = TermDefinition;

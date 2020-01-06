@@ -4,30 +4,33 @@
  Description: Represents a collection of votes that were taken in the same session, for a particular Group Executive Action. 
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var ExecutiveVote = new ClassModel({
+const ExecutiveVote = new ClassModel({
 	className: 'ExecutiveVote',
-	accessControlled: false,
-	updateControlled: false,
-	schema: {
-		date: {
+	attributes: [
+		{
+			name: 'date',
 			type: Date,
-			required: true
+			required: true,
 		},
-		groupExecutiveAction: {
-			type: Schema.Types.ObjectId,
-			ref: 'GroupExecutiveAction',
-			required: true
+	],
+	relationships: [
+		{
+			name: 'groupExecutiveAction',
+			toClass: 'GroupExecutiveAction',
+			mirrorRelationship: 'executiveVotes',
+			singular: true,
+			required: true,
 		},
-		individualExecutiveVotes: {
-			type: [Schema.Types.ObjectId],
-			ref: 'IndividualExecutiveVote'
+		{
+			name: 'individualExecutiveVotes',
+			toClass: 'IndividualExecutiveVote',
+			mirrorRelationship: 'executiveVote',
+			singular: false,
 		}
-	}
+	],
 });
 
 module.exports = ExecutiveVote;

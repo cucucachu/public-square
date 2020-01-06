@@ -1,47 +1,50 @@
 /* 
- Mongoose Schema and Model Functions
- Model: Government
+ Class Model: Government
  Description: Defines a government for a particular geographic area. Examples might be the federal government for the entire United States, or the 
     San Francisco City Government for the geographic area San Francisco (City). Governments can have multiple Government Institutions. For example,
     a city may have a School Board, a Sanitation Department, a Police Department, etc. 
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-let Pollable = require('../Poll/Pollable');
+const Pollable = require('../Poll/Pollable');
 
-let Government = new ClassModel({
+const Government = new ClassModel({
 	className: 'Government',
-	accessControlled: false,
-	updateControlled: false,
 	superClasses: [Pollable],
-	schema: {
-		name: {
+	attributes: [
+		{
+			name: 'name',
 			type: String,
-			required: true
+			required: true,
 		},
-		foundedDate: {
-			type: Date
-		},
-		createdDate: {
+		{
+			name: 'foundedDate',
 			type: Date,
-			requried: true
 		},
-		geographicArea: {
-			type: Schema.Types.ObjectId,
-			ref: 'GeographicArea',
-			required: true
+		{
+			name: 'createdDate',
+			type: Date,
+			required: true,
 		},
-		governmentInstitutions: {
-			type: [Schema.Types.ObjectId],
-			ref: 'GovernmentInstitution'
-		}
-	}
+	],
+	relationships: [
+		{
+			name: 'geographicArea',
+			toClass: 'GeographicArea',
+			mirrorRelationship: 'government',
+			singular: true,
+			required: true,
+		},
+		{
+			name: 'governmentInstitution',
+			toClass: 'GovernmentInstitution',
+			mirrorRelationship: 'government',
+			singular: false,
+		},
+	],
 });
 
-// Exports
 module.exports = Government;
 

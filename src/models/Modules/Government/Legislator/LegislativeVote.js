@@ -1,33 +1,35 @@
 /* 
- Mongoose Schema and Model Functions
- Model: Legislative Vote 
+ Class Model: Legislative Vote 
  Description: Represents a collection of votes that were taken in the same session, for a particular Bill. 
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var LegislativeVote = new ClassModel({
+const LegislativeVote = new ClassModel({
 	className: 'LegislativeVote',
-	accessControlled: false,
-	updateControlled: false,
-	schema: {
-		date: {
+	attributes: [
+		{
+			name: 'date',
 			type: Date,
-			required: true
+			required: true,
 		},
-		billVersion: {
-			type: Schema.Types.ObjectId,
-			ref: 'BillVersion',
-			required: true
+	],
+	relationships: [
+		{
+			name: 'billVersion',
+			toClass: 'BillVersion',
+			mirrorRelationship: 'legislativeVotes',
+			singular: true,
+			required: true,
 		},
-		individualLegislativeVotes: {
-			type: [Schema.Types.ObjectId],
-			ref: 'IndividualLegislativeVote'
+		{
+			name: 'individualLegislativeVotes',
+			toClass: 'IndividualLegislativeVote',
+			mirrorRelationship: 'legislativeVote',
+			singular: false,
 		}
-	}
+	],
 });
 
 module.exports = LegislativeVote;

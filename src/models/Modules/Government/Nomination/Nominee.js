@@ -1,29 +1,27 @@
 /* 
- Class Model
- Model: Nominee
+ Class Model: Nominee
  Discriminated Super Class: Person Role
  Description: A Person Role which connects a Person to Nominations.
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var PersonRole = require('../../User/PersonRole');
+const PersonRole = require('../../User/PersonRole');
 
-var Nominee = new ClassModel({
+const Nominee = new ClassModel({
 	className: 'Nominee',
-	accessControlled: false,
-	updateControlled: false,
-	discriminatorSuperClass: PersonRole,
-	schema: {
-		nominations: {
-			type: [Schema.Types.ObjectId],
-			ref: 'Nomination',
+	superClasses: [PersonRole],
+	useSuperClassCollection: true,
+	relationships: [
+		{
+			name: 'nominations',
+			toClass: 'Nomination',
+			mirrorRelationship: 'nominee',
+			singular: false,
 			required: true
-		}
-	}
+		},
+	],
 });
 
 module.exports = Nominee;

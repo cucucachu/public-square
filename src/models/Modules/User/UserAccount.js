@@ -1,47 +1,55 @@
 /* 
- Class Model
- Model: User Account
+ Class Model: User Account
  Description: Holds the email, hashed password and other information for a user of Public Square.
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
+const NoommanValidationError = noomman.NoommanErrors.NoommanValidationError;
 
-var UserAccount = new ClassModel({
+const UserAccount = new ClassModel({
 	className: 'UserAccount',
-	accessControlled: false,
-	updateControlled: false,
-	schema: {
-		email: {
+	attributes: [
+		{
+			name: 'email',
 			type: String,
-			validate: {
-				validator: function(value) {
-					return /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/.test(value);
-				},
-				message: 'Invalid Email'
-			},
 			required: true,
-	
 		},
-		passwordHash: {
+		{
+			name: 'passwordHash',
 			type: String,
-			required: true
+			required: true,
 		},
-		person: {
-			type: Schema.Types.ObjectId,
-			ref: 'Person',
-			required: true
+		
+	],
+	relationships: [
+		{
+			name: 'person',
+			toClass: 'Person',
+			singular: true,
+			mirrorRelationship: 'userAccount',
+			required: true,
 		},
-		authToken: {
-			type: Schema.Types.ObjectId,
-			ref: 'AuthToken'
+		{
+			name: 'authToken',
+			toClass: 'AuthToken',
+			singular: true,
+            mirrorRelationship: 'userAccount',
 		},
-		userRoles: {
-			type: [Schema.Types.ObjectId],
-			ref: 'UserRole'
-		}
-	}
+		{
+			name: 'userRoles',
+			toClass: 'UserRole',
+			singular: false,
+			mirrorRelationship: 'userAccount',
+		},
+	],
+	validations: [
+		function() {
+			if (/^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/.test(this.email) == false) {
+				throw new NoommanValidationError('Invalid Email');
+			}
+		},
+	],
 });
+
 module.exports = UserAccount;

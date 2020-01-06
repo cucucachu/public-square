@@ -1,38 +1,40 @@
 /* 
- Class model
- Model: Election Result
+ Class Model: Election Result
  Discriminated Sub Classes: Primary Election Result
  Description: Holds the vote counts for an election, for a particular Geographic Area and Campaign. 
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
 var ElectionResult = new ClassModel({
     className: 'ElectionResult',
-    discriminated: true,
-	accessControlled: false,
-	updateControlled: false,
-    schema: {
-        citizenVotes: {
-            type: Number
+    attributes: [
+        {
+            name: 'citizenVotes',
+            type: Number,
         },
-        representativeVotes: {
-            type: Number
+        {
+            name: 'representativeVotes',
+            type: Number,
         },
-        campaign: {
-            type: Schema.Types.ObjectId,
-            ref: 'Campaign',
-            required: true
+    ],
+    relationships: [
+        {
+            name: 'campaign',
+            toClass: 'Campaign',
+            mirrorRelationship: 'electionResults',
+            singular: true,
+            required: true,
         },
-        geographicArea: {
-            type: Schema.Types.ObjectId,
-            ref: 'GeographicArea',
-            required: true
+        {
+            name: 'geographicArea',
+            toClass: 'GeographicArea',
+            mirrorRelationship: 'electionResults',
+            singular: true,
+            required: true,
         }
-    }
+    ],
 })
 
 module.exports = ElectionResult;

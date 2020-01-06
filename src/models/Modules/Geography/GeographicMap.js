@@ -1,39 +1,42 @@
 /* 
- Class Model
- Model: Geographicmap
+ Class Model: Geographicmap
  Description: Divides a geographic area into sub Geographic Areas. Each map has a Map Type, which might be cities, or counties, or national parks.
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
 var GeographicMap = new ClassModel({
 	className: 'GeographicMap',
-	accessControlled: false,
-	updateControlled: false,
-	schema: {
-		name: {
+	attributes: [
+		{
+			name: 'name',
 			type: String,
-			required: true
+			required: true,
 		},
-		ofGeographicArea: {
-			type: Schema.Types.ObjectId,
-			ref: 'GeographicArea',
-			required: true
+	],
+	relationships: [
+		{
+			name: 'OfGeographicArea',
+			toClass: 'GeographicArea',
+			mirrorRelationship: 'geographicMapForArea',
+			singular: true,
+			required: true,
 		},
-		containsGeographicAreas: {
-			type: [Schema.Types.ObjectId],
-			ref: 'GeographicArea',
-			required: true
+		{
+			name: 'containsGeographicAreas',
+			toClass: 'GeographicArea',
+			singular: false,
+			required: true,
 		},
-		mapType: {
-			type: Schema.Types.ObjectId,
-			ref: 'MapType',
-			required: true
+		{
+			name: 'mapType',
+			toClass: 'MapType',
+			mirrorRelationship: 'geographicMaps',
+			singular: true,
+			required: true,
 		}
-	}
+	],
 });
 
 module.exports = GeographicMap;

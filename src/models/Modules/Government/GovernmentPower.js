@@ -1,33 +1,34 @@
 /* 
- Class Model
- Model: Government Power
+ Class Model: Government Power
  Description: Describes different powers available to a Government Position. These will be used to determine what functionalities and data 
     are available to a Position. For instance, an instance of Government Power might be 'Legislative', giving a position access to the
     functionality to draft, sponsor, and vote on bills. 
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var GovernmentPower = new ClassModel({
+const GovernmentPower = new ClassModel({
     className: 'GovernmentPower',
-	accessControlled: false,
-	updateControlled: false,
-    schema: {
-        name: {
+    attributes: [
+        {
+            name: 'name',
             type: String,
-            required: true
+            required: true,
         },
-        description: {
-            type: String
+        {
+            name: 'description',
+            type: String,
         },
-        positionDefinitions: {
-            type: [Schema.Types.ObjectId],
-            ref: 'PositionDefinition'
-        }
-    }
+    ],
+    relationships: [
+        {
+            name: 'positionDefinitions',
+            toClass: 'PositionDefinition',
+            mirrorRelationship: 'governmentPowers',
+            singular: false,
+        },
+    ],
 });
 
 module.exports = GovernmentPower;

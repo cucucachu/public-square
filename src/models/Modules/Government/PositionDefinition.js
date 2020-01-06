@@ -1,6 +1,5 @@
 /* 
- Class model
- Model: Position Definition
+ Class Model: Position Definition
  Description: Defines complex properties for positions. This is separated out into its own class and model so that these definitions can be reused
     for multiple positions accross different governments and at different times. These properties include data about Terms, the Powers available
     to the holder of the position, and how the position is filled (Hiring Process). A definition for the President of the United States position
@@ -8,37 +7,44 @@
 	definition (election through electory college).
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var PositionDefinition = new ClassModel({
+const PositionDefinition = new ClassModel({
 	className: 'PositionDefinition',
-	accessControlled: false,
-	updateControlled: false,
-	schema: {
-		name: {
+	attributes: [
+		{
+			name: 'name',
 			type: String,
-			required: true
+			required: true,
 		},
-		effectivePositionDefinitions: {
-			type: [Schema.Types.ObjectId],
-			ref: 'EffectivePositionDefinition'
+	],
+	relationships: [
+		{
+			name: 'effectivePositionDefinitions',
+			toClass: 'EffectivePositionDefinition',
+			mirrorRelationship: 'positionDefinition',
+			singular: false,
 		},
-		termDefinition: {
-			type: Schema.Types.ObjectId,
-			ref: 'TermDefinition',
+		{
+			name: 'termDefinition',
+			toClass: 'TermDefinition',
+			mirrorRelationship: 'positionDefinition',
+			singular: true,
 		},
-		governmentPowers: {
-			type: [Schema.Types.ObjectId],
-			ref: 'GovernmentPower'
+		{
+			name: 'governmentPowers',
+			toClass: 'GovernmentPower',
+			mirrorRelationship: 'positionDefinitions',
+			singular: false,
 		},
-		acquisitionProcessDefinitions: {
-			type: [Schema.Types.ObjectId],
-			ref: 'AcquisitionProcessDefinition'
-		}
-	}
+		{
+			name: 'acquisitionProcessDefinitions',
+			toClass: 'AcquisitionProcessDefinition',
+			mirrorRelationship: 'positionDefinitions',
+			singular: false,
+		},
+	],
 });
 
 module.exports = PositionDefinition;

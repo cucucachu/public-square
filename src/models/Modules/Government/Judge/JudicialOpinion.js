@@ -1,45 +1,50 @@
 /* 
- Class Model
- Model: Judicial Opinion
+ Class Model: Judicial Opinion
  Super Class(es): Pollable
  Description: Represents an oppinion written by a judge or judges about a particular case. Other judges can also be signers of the opinion.
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var Pollable = require('../../Poll/Pollable');
+const Pollable = require('../../Poll/Pollable');
 
-var JudicialOpinion = new ClassModel({
+const JudicialOpinion = new ClassModel({
 	className: 'JudicialOpinion',
-	accessControlled: false,
-	updateControlled: false,
 	superClasses: [Pollable],
-	schema: {
-		text: {
+	attributes: [
+		{
+			name: 'text',
 			type: String,
-			required: true
+			required: true,
 		},
-		judicialCase: {
-			type: Schema.Types.ObjectId,
-			ref: 'JudicialCase',
-			required: true
+	],
+	relationships: [
+		{
+			name: 'judicialCase',
+			toClass: 'JudicialCase',
+			mirrorRelationship: 'judicialOpinions',
+			singular: true,
 		},
-		writtenByJudges: {
-			type: [Schema.Types.ObjectId],
-			ref: 'Judge'
+		{
+			name: 'writtenByJudges',
+			toClass: 'Judge',
+			mirrorRelationship: 'writesJudicialOpinions',
+			singular: false,
 		},
-		signedByJudges: {
-			type: [Schema.Types.ObjectId],
-			ref: 'Judge'
+		{
+			name: 'signedByJudges',
+			toClass: 'Judge',
+			mirrorRelationship: 'signsJudicialOpinions',
+			singular: false,
 		},
-		laws: {
-			type: [Schema.Types.ObjectId],
-			ref: 'Law'
-		}
-	}
+		{
+			name: 'laws',
+			toClass: 'Law',
+			mirrorRelationship: 'judicialOpinions',
+			singular: false,
+		},
+	],
 });
 
 module.exports = JudicialOpinion;

@@ -1,6 +1,5 @@
 /* 
- Class Model
- Model: Government Institution
+ Class Model: Government Institution
  Super Class(es): Pollable
  Description: Defines individual institutions or departments that make up a Government. For example, a single city government might have Government
     Instituations for the Police Department, the School Board, the City Council, etc. A Government Institution may also have multiple Government
@@ -10,47 +9,55 @@
     the State Assembly and the State Senate.
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var Pollable = require('../Poll/Pollable');
+const Pollable = require('../Poll/Pollable');
 
-var GovernmentInstitution = new ClassModel({
+const GovernmentInstitution = new ClassModel({
     className: 'GovernmentInstitution',
-	accessControlled: false,
-	updateControlled: false,
     superClasses: [Pollable],
-    schema: {
-        name: {
+    attributes: [
+        {
+            name: 'name',
             type: String,
-            required: true
+            required: true,
         },
-        description: {
-            type: String
+        {
+            name: 'description',
+            type: String,
         },
-        government: {
-            type: Schema.Types.ObjectId,
-            ref: 'Government',
+    ],
+    relationships: [
+        {
+            name: 'government',
+            toClass: 'Government',
+            mirrorRelationship: 'governmentInstitution',
+            singular: true,
             requiredGroup: 'a',
-            mutex: 'a'
+            mutex: 'a',
         },
-        governmentPositions: {
-            type: [Schema.Types.ObjectId],
-            ref: 'GovernmentPosition'
+        {
+            name: 'governmentPositions',
+            toClass: 'GovernmentPosition',
+            mirrorRelationship: 'governmentInstitution',
+            singular: false,
         },
-        parentGovernmentInstitution: {
-            type: Schema.Types.ObjectId,
-            ref: 'GovernmentInstitution',
+        {
+            name: 'parentGovernmentInstatution',
+            toClass: 'GovernmentInstitution',
+            mirrorRelationship: 'childGovernmentInstitutions',
+            singular: true,
             requiredGroup: 'a',
-            mutex: 'a'
+            mutex: 'a',
         },
-        childGovernmentInstitutions: {
-            type: [Schema.Types.ObjectID],
-            ref: 'GovernmentInstitution'
+        {
+            name: 'childGovernmentInstitutions',
+            toClass: 'GovernmentInstitution',
+            mirrorRelationship: 'parentGovernmentInstatution',
+            singular: false,
         }
-    }
+    ],
 });
 
 module.exports = GovernmentInstitution;

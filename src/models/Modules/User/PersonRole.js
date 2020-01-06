@@ -1,29 +1,25 @@
 /* 
- Class Model
- Model: Person Role
+ Class Model: Person Role
  Abstract
  Discriminated Sub Classes: Candidate, Government Official, Appointer, Nominee
  Description: A Super class giving access to functionallity tied to a Person.
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
 var PersonRole = new ClassModel({
 	className: 'PersonRole',
-	accessControlled: false,
-	updateControlled: false,
-	discriminated: true,
 	abstract: true,
-	schema: {
-		person: {
-			type: Schema.Types.ObjectId,
-			ref: 'Person',
-			required: true
-		}
-	}
+	relationships: [
+		{
+			name: 'person',
+			toClass: 'Person',
+			singular: true,
+			mirrorRelationship: 'personRoles',
+			required: true,
+		},
+	],
 });
 
 module.exports = PersonRole;

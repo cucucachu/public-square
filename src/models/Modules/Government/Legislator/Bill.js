@@ -1,48 +1,54 @@
 /* 
- Class Model
- Model: Bill 
+ Class Model: Bill 
  Super Class(es): Pollable
  Description: I'm just a bill, yes I'm only a bill, and I'm sitting here on capitol hill.
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var Pollable = require('../../Poll/Pollable');
+const Pollable = require('../../Poll/Pollable');
 
-var Bill = new ClassModel({
+const Bill = new ClassModel({
 	className: 'Bill',
-	accessControlled: false,
-	updateControlled: false,
 	superClasses: [Pollable],
-	schema: {
-		name: {
+	attributes: [
+		{
+			name: 'name',
 			type: String,
-			required: true
+			required: true,
 		},
-		passageDate: {
-			type: Date
+		{
+			name: 'passageDate',
+			type: Date,
 		},
-		signedDate: {
-			type: Date
+		{
+			name: 'signedDate',
+			type: Date,
 		},
-		billVersions: {
-			type: [Schema.Types.ObjectId],
-			ref: 'BillVersion',
-			required: true
+	],
+	relationships: [
+		{
+			name: 'billVersions',
+			toClass: 'BillVersion',
+			mirrorRelationship: 'bill',
+			singular: false,
+			required: true,
 		},
-		billSponsorships: {
-			type: [Schema.Types.ObjectId],
-			ref: 'BillSponsorship',
-			required: true
+		{
+			name: 'billSponsorships',
+			toClass: 'BillSponsorship',
+			mirrorRelationship: 'bill',
+			singular: false,
+			required: true,
 		},
-		laws: {
-			type: [Schema.Types.ObjectId],
-			ref: 'Law',
-		}
-	}
+		{
+			name: 'laws',
+			toClass: 'Law',
+			mirrorRelationship: 'bills',
+			singular: false,
+		},
+	],
 });
 
 module.exports = Bill;

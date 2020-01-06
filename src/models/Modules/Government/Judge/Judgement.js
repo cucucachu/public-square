@@ -1,36 +1,38 @@
 /* 
- Class Model
- Model: Judgement 
+ Class Model: Judgement 
  Description: Represents a collection of votes that were taken in the same session, for a particular JudicialCase. 
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var Pollable = require('../../Poll/Pollable');
+const Pollable = require('../../Poll/Pollable');
 
-var Judgement = new ClassModel({
+const Judgement = new ClassModel({
 	className: 'Judgement',
-	accessControlled: false,
-	updateControlled: false,
 	superClasses: [Pollable],
-	schema: {
-		date: {
+	attributes: [
+		{
+			name: 'date',
 			type: Date,
-			required: true
+			required: true,
 		},
-		judicialCase: {
-			type: Schema.Types.ObjectId,
-			ref: 'JudicialCase',
-			required: true
+	],
+	relationships: [
+		{
+			name: 'judicialCase',
+			toClass: 'JudicialCase',
+			mirrorRelationship: 'judgements',
+			singular: true,
+			required: true,
 		},
-		individualJudgements: {
-			type: [Schema.Types.ObjectId],
-			ref: 'IndividualJudgement'
-		}
-	}
+		{
+			name: 'individualJudgements',
+			toClass: 'IndividualJudgement',
+			mirrorRelationship: 'judgement',
+			singular: false,
+		},
+	],
 });
 
 module.exports = Judgement;

@@ -1,37 +1,38 @@
 /* 
- ClassModel 
- Model: Judge
+ Class Model: Judge
  Super Class: Government Role
  Description: A subclass of Government Role which enables judge functionallity. This ties an Occupied Position to voting on Judicial Cases, and
     writing Judicial Oppinions.
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var GovernmentRole = require('../GovernmentRole');
+const GovernmentRole = require('../GovernmentRole');
 
-var Judge = new ClassModel({
+const Judge = new ClassModel({
 	className: 'Judge',
-	accessControlled: false,
-	updateControlled: false,
 	superClasses: [GovernmentRole],
-	schema: {
-		individualJudgements: {
-			type: [Schema.Types.ObjectId],
-			ref: 'IndividualJudgement'
+	relationships: [
+		{
+			name: 'individualJudgements',
+			toClass: 'IndividualJudgement',
+			mirrorRelationship: 'judge',
+			singular: false,		
 		},
-		writesJudicialOpinions: {
-			type: [Schema.Types.ObjectId],
-			ref: 'JudicialOpinion'
+		{
+			name: 'writesJudicialOpinions',
+			toClass: 'JudicialOpinion',
+			mirrorRelationship: 'writtenByJudges',
+			singular: false,
 		},
-		signsJudicialOpinions: {
-			type: [Schema.Types.ObjectId],
-			ref: 'JudicialOpinion'
-		}
-	}
+		{
+			name: 'signsJudicialOpinions',
+			toClass: 'JudicialOpinion',
+			mirrorRelationship: 'signedByJudges',
+			singular: false,
+		},
+	],
 });
 
 module.exports = Judge;

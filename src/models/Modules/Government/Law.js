@@ -1,43 +1,46 @@
 /* 
- Class Model
- Model: Law
+ Class Model: Law
  Description: Represents a bill that has been passed into Law. 
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
+const NoommanValidationError = noomman.NoommanErrors.NoommanValidationError;
 
-var Law = new ClassModel({
+const Law = new ClassModel({
 	className: 'Law',
-	accessControlled: false,
-	updateControlled: false,
-	schema: {
-		startDate: {
+	attributes: [
+		{
+			name: 'startDate',
 			type: Date,
-			required: true
+			required: true,
 		},
-		expireDate: {
+		{
+			name: 'expireDate',
 			type: Date,
-			validate: {
-				validator: function(value) {
-					if (value < this.startDate)
-						return false;
-					return true;
-				},
-				message: 'Expire Date must be greater than or equal to Start Date.'
-			}
 		},
-		bills: {
-			type: [Schema.Types.ObjectId],
-			ref: 'Bill',
+	],
+	relationships: [
+		{
+			name: 'bills',
+			toClass: 'Bill',
+			mirrorRelationship: 'laws',
+			singular: false,
 		},
-		judicialOpinions: {
-			type: [Schema.Types.ObjectId],
-			ref: 'JudicialOpinion'
+		{
+			name: 'judicialOpinions',
+			toClass: 'JudicialOpinion',
+			mirrorRelationship: 'laws',
+			singular: false,
 		}
-	}
+	],
+	validations: [
+		function() {
+			if (this.expireDate < this.startDate) {
+				throw new NoommanValidationError('Expire Date must be greater than or equal to Start Date.');
+			}
+		}
+	],
 })
 
 module.exports = Law;

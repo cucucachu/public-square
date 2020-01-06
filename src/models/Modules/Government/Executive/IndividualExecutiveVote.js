@@ -1,36 +1,36 @@
 /* 
- Mongoose Schema and Model Functions
- Model: Individual Executive Vote
+ Class Model: Individual Executive Vote
  Description: Represents a Executive's vote on a particular Executive Actiong. Has a relationship to the Executive who made the decision, the 
     Executive Vote (group) and the Executive Vote Option chosen. 
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var IndividualExecutiveVote = new ClassModel({
+const IndividualExecutiveVote = new ClassModel({
     className: 'IndividualExecutiveVote',
-	accessControlled: false,
-	updateControlled: false,
-    schema: {
-        executive: {
-            type: Schema.Types.ObjectId,
-            ref: 'Executive',
-            required: true
+    relationships: [
+        {
+            name: 'executive',
+            toClass: 'Executive',
+            mirrorRelationship: 'individualExecutiveVotes',
+            singular: true,
+            required: true,
         },
-        executiveVote: {
-            type: Schema.Types.ObjectId,
-            ref: 'ExecutiveVote',
-            required: true
+        {
+            name: 'executiveVote',
+            toClass: 'ExecutiveVote',
+            mirrorRelationship: 'individualExecutiveVotes',
+            singular: true,
+            required: true,
         },
-        executiveVoteOption: {
-            type: Schema.Types.ObjectId,
-            ref: 'ExecutiveVoteOption',
-            required: true
-        }
-    }
+        {
+            name: 'executiveVoteOption',
+            toClass: 'ExecutiveVoteOption',
+            singular: true,
+            required: true,
+        },
+    ],
 });
 
 module.exports = IndividualExecutiveVote;

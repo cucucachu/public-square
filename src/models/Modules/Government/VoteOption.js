@@ -1,36 +1,34 @@
 /* 
- Class Model
- Model: Vote Option
+ Class Model: Vote Option
  Description: Represents a possible vote. Because voting can be more than a simple 'Yay' or 'Nay', this class captures all the posible properties 
     of a vote, such as, does the vote count as positive or negative, does it count toward the total number of votes cast, etc.
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose')
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var VoteOption = new ClassModel({
+const VoteOption = new ClassModel({
     className: 'VoteOption',
-	accessControlled: false,
-	updateControlled: false,
     abstract: true,
-    discriminated: true,
-    schema: {
-        name: {
+    attributes: [
+        {
+            name: 'name',
             type: String,
-            required: true
+            required: true,
         },
-        positive: {
-            type: Boolean
+        {
+            name: 'positive',
+            type: Boolean,
         },
-        negative: {
-            type: Boolean
+        {
+            name: 'negative',
+            type: Boolean,
         },
-        countsTowardsTotal: {
-            type: Boolean
-        }
-    }
+        {
+            name: 'countsTowardsTotal',
+            type: Boolean,
+        },
+    ],
 });
 
 module.exports = VoteOption;

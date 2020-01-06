@@ -1,32 +1,31 @@
 /* 
- Class Model
- Model: Executive
+ Class Model: Executive
  Super Class: Government Role
  Description: A subclass of Government Role which enables executive functionallity. This ties an Occupied Position to voting executive actions.
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var GovernmentRole = require('../GovernmentRole');
+const GovernmentRole = require('../GovernmentRole');
 
-var Executive = new ClassModel({
+const Executive = new ClassModel({
 	className: 'Executive',
-	accessControlled: false,
-	updateControlled: false,
 	superClasses: [GovernmentRole],
-	schema: {
-		individualExecutiveVotes: {
-			type: [Schema.Types.ObjectId],
-			ref: 'IndividualExecutiveVote'
+	relationships: [
+		{
+			name: 'individualExecutiveVotes',
+			toClass: 'IndividualExecutiveVote',
+			mirrorRelationship: 'executive',
+			singular: false,
 		},
-		executiveActions: {
-			type: [Schema.Types.ObjectId],
-			ref: 'ExecutiveAction'
-		}
-	}
+		{
+			name: 'executiveActions',
+			toClass: 'ExecutiveAction',
+			mirrorRelationship: 'executives',
+			singular: false,
+		},
+	],
 });
 
 module.exports = Executive;

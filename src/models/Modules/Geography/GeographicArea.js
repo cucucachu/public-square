@@ -1,42 +1,42 @@
 /* 
- Class Model
- Model: Geographic Area
+ Class Model: Geographic Area
  Description: Represents an area on a map. Could be a street, a city, a state, a national park, etc. The type of area is determened by what
     map it is a part of, and the associated map type.
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
 var GeographicArea = new ClassModel({
 	className: 'GeographicArea',
-	accessControlled: false,
-	updateControlled: false,
-	schema: {
-		name: {
+	attributes: [
+		{
+			name: 'name',
 			type: String,
-			required: true
+			required: true,
 		},
-		geographicMap: {
-			type: Schema.Types.ObjectId,
-			ref: 'GeographicMap',
-			required: true
+	],
+	relationships: [
+		{
+			name: 'geographicMapForArea',
+			toClass: 'GeographicMap',
+			mirrorRelationship: 'ofGeographicArea',
+			singular: true,
+			required: true,
 		},
-		addresses: {
-			type: [Schema.Types.ObjectId],
-			ref: 'Location'
+		{
+			name: 'government',
+			toClass: 'Government',
+			mirrorRelationship: 'geographicArea',
+			singular: true,
 		},
-		government: {
-			type: Schema.Types.ObjectId,
-			ref: 'Government'
+		{
+			name: 'electionResults',
+			toClass: 'ElectionResult',
+			mirrorRelationship: 'geographicArea',
+			singular: false,
 		},
-		electionResults: {
-			type: [Schema.Types.ObjectId],
-			ref: 'ElectionResult'
-		}
-	}
+	],
 });
 
 module.exports = GeographicArea;

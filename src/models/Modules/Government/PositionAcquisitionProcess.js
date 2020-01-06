@@ -1,27 +1,24 @@
 /* 
- Class Model
- Model: Position Acquisition Process
+ Class Model: Position Acquisition Process
  Description: An abstract superclass which describes how an offical attempts to get a Government Position. Two examples of the subclasses are
     Election and Appointment. 
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var PositionAcquisitionProcess = new ClassModel({
+const PositionAcquisitionProcess = new ClassModel({
 	className: 'PositionAcquisitionProcess',
-	accessControlled: false,
-	updateControlled: false,
 	abstract: true,
-	schema: {
-		governmentPosition: {
-			type: Schema.Types.ObjectId,
-			ref: 'GovernmentPosition',
-			required: true
-		}
-	}
+	relationships: [
+		{
+			name: 'governmentPosition',
+			toClass: 'GovernmentPosition',
+			mirrorRelationship: 'positionAcquisitionProcesses',
+			singular: true,
+			required: true,
+		},
+	],
 });
 
 module.exports = PositionAcquisitionProcess;

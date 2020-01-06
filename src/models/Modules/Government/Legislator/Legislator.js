@@ -1,37 +1,38 @@
 /* 
- Class Model
- Model: Legislator
+ Class Model: Legislator
  Super Class: Government Role
  Description: A subclass of Government Role which enables legislator functionallity. This ties an Occupied Position to allow proposing,
     sponsoring, and voting on Bills. 
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var GovernmentRole = require('../GovernmentRole');
+const GovernmentRole = require('../GovernmentRole');
 
-var Legislator = new ClassModel({
+const Legislator = new ClassModel({
 	className: 'Legislator',
-	accessControlled: false,
-	updateControlled: false,
 	superClasses: [GovernmentRole],
-	schema: {
-		individualLegislativeVotes: {
-			type: [Schema.Types.ObjectId],
-			ref: 'IndividualLegislativeVote'
+	relationships: [
+		{
+			name: 'individualLegislativeVotes',
+			toClass: 'IndividualLegislativeVote',
+			mirrorRelationship: 'legislator',
+			singular: false,
 		},
-		billSponsorships: {
-			type: [Schema.Types.ObjectId],
-			ref: 'BillSponsorship'
+		{
+			name: 'billSponsorShips',
+			toClass: 'BillSponsorship',
+			mirrorRelationship: 'legislator',
+			singular: false,
 		},
-		billVersions: {
-			type: [Schema.Types.ObjectId],
-			ref: 'BillVersion'
-		}
-	}
+		{
+			name: 'billVersions',
+			toClass: 'BillVersion',
+			mirrorRelationship: 'legislators',
+			singular: false,
+		},
+	],
 });
 
 module.exports = Legislator;

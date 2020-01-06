@@ -1,29 +1,27 @@
 /* 
- Class Model
- Model: Appointee
+ Class Model: Appointee
  Super Class: Person Role
  Description: A Person Role which connects a Person to Appointments.
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var PersonRole = require('../../User/PersonRole');
+const PersonRole = require('../../User/PersonRole');
 
-var Appointee = new ClassModel({
+const Appointee = new ClassModel({
 	className: 'Appointee',
-	discriminatorSuperClass: PersonRole,
-	accessControlled: false,
-	updateControlled: false,
-	schema: {
-		appointments: {
-			type: [Schema.Types.ObjectId],
-			ref: 'Appointment',
-			required: true
-		}
-	}
+	superClasses: [PersonRole],
+	useSuperClassCollection: true,
+	relationships: [
+		{
+			name: 'appointments',
+			toClass: 'Appointment',
+			mirrorRelationship: 'appointee',
+			singular: false,
+			required: true,
+		},
+	],
 });
 
 module.exports = Appointee;

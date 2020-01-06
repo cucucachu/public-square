@@ -1,33 +1,33 @@
 /* 
- Class Model
- Model: AuthToken
+ ClassModel: AuthToken
  Description: An authorization token that gets created when a user logs in. Has an expiredAt field so that tokens are not valid forever.
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var AuthToken = new ClassModel({
-	className: 'AuthToken',
-	accessControlled: false,
-	updateControlled: false,
-	schema: {
-        createdAt: {
+const AuthToken = new ClassModel({
+    className: 'AuthToken',
+    attributes: [
+        {
+            name: 'createdAt',
             type: Date,
-            required: true
+            required: true,
         },
-        expiresAt: {
+        {
+            name: 'expiresAt',
             type: Date,
-            required: true
+            required: true,
         },
-        userAccount: {
-            type: Schema.Types.ObjectId,
-            ref: 'UserAccount',
-            required: true
-        }
-	}
+    ],
+    relationships: [
+        {
+            name: 'userAccount',
+            toClass: 'UserAccount',
+            required: true,
+            mirrorRelationship: 'authToken',
+        },
+    ],
 });
 
 module.exports = AuthToken;

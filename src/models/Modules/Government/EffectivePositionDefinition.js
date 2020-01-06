@@ -1,37 +1,40 @@
 /* 
- Class Model
- Model: Effective Position Definition
+ Class Model: Effective Position Definition
  Description: Joiner class between Government Position and Position Definition. Relates a Government Position to a Position Definition for a given date range.
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var EffectivePositionDefinition = new ClassModel({
+const EffectivePositionDefinition = new ClassModel({
     className: 'EffectivePositionDefinition',
-	accessControlled: false,
-	updateControlled: false,
-    schema: {
-        startDate: {
+    attributes: [
+        {
+            name: 'startDate',
             type: Date,
             required: true,
         },
-        endDate: {
-            type: Date
+        {
+            name: 'endDate',
+            type: Date,
         },
-        governmentPosition: {
-            type: Schema.Types.ObjectId,
-            ref: 'GovernmentPosition',
-            required: true
+    ],
+    relationships: [
+        {
+            name: 'governmentPosition',
+            toClass: 'GovernmentPosition',
+            mirrorRelationship: 'effectivePositionDefinitions',
+            singular: true,
+            required: true,
         },
-        positionDefinition: {
-            type: Schema.Types.ObjectId,
-            ref: 'PositionDefinition',
-            required: true
-        }
-    }
+        {
+            name: 'positionDefinition',
+            toClass: 'PositionDefinition',
+            mirrorRelationship: 'effectivePositionDefinitions',
+            singular: true,
+            required: true,
+        },
+    ],
 });
 
 module.exports = EffectivePositionDefinition;

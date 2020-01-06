@@ -5,24 +5,23 @@
  Description: An official action taken by a Government Official with executive powers which requires a group vote.
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var ExecutiveAction = require('./ExecutiveAction');
+const ExecutiveAction = require('./ExecutiveAction');
 
-var GroupExecutiveAction = new ClassModel({
+const GroupExecutiveAction = new ClassModel({
 	className: 'GroupExecutiveAction',
-	accessControlled: false,
-	updateControlled: false,
-	discriminatorSuperClass: ExecutiveAction,
-	schema: {
-		executiveVotes: {
-			type: [Schema.Types.ObjectId],
-			ref: 'ExecutiveVote'
-		}
-	}
+	superClasses: [ExecutiveAction],
+	useSuperClassCollection: true,
+	relationships: [
+		{
+			name: 'executiveVotes',
+			toClass: 'ExecutiveVote',
+			mirrorRelationship: 'groupExecutiveAction',
+			singular: false,
+		},
+	],
 });
 
 module.exports = GroupExecutiveAction;

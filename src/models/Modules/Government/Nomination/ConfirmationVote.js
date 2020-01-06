@@ -1,33 +1,35 @@
 /* 
- Class Model
- Model: Confirmation Vote 
+ Class Model: Confirmation Vote 
  Description: Represents a collection of votes that were taken in the same session, for a particular Nomination. 
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var ConfirmationVote = new ClassModel({
+const ConfirmationVote = new ClassModel({
 	className: 'ConfirmationVote',
-	accessControlled: false,
-	updateControlled: false,
-	schema: {
-		date: {
+	attributes: [
+		{
+			name: 'date',
 			type: Date,
-			required: true
+			required: true,
 		},
-		nomination: {
-			type: Schema.Types.ObjectId,
-			ref: 'Nomination',
-			required: true
+	],
+	relationships: [
+		{
+			name: 'nomination',
+			toClass: 'Nomination',
+			mirrorRelationship: 'confirmationVotes',
+			singular: true,
+			required: true,
 		},
-		individualConfirmationVotes: {
-			type: [Schema.Types.ObjectId],
-			ref: 'IndividualConfirmationVote'
-		}
-	}
+		{
+			name: 'individualConfirmationVotes',
+			toClass: 'IndividualConfirmationVote',
+			mirrorRelationship: 'confirmationVote',
+			singular: false,
+		},
+	],
 });
 
 module.exports = ConfirmationVote;
