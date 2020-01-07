@@ -1,30 +1,34 @@
 /* 
- Mongoose Schema and Model Functions
- Model: Poll Option
+ Class Model: Poll Option
  Description: Represents a possible poll option to choose from. A Poll Option could be 'Agree', 'Disagree', 'Strongly Agree', etc.
+
+ 1 way Relationships targeting this class: PollResponse, Poll,
 */
 
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var PollOption = new ClassModel({
+const PollOption = new ClassModel({
     className: 'PollOption',
-	accessControlled: false,
-	updateControlled: false,
-    schema: {
-        name: {
+    attributes: [
+        {
+            name: 'name',
             type: String,
-            required: true
+            required: true,
         },
-        positive: {
-            type: Boolean
+        {
+            name: 'positive',
+            type: Boolean,
         },
-        negative: {
-            type: Boolean
+        {
+            name: 'negative',
+            type: Boolean,
         },
-        weight: {
-            type: Number
-        }
-    }
+        {
+            name: 'weight',
+            type: Number,
+        },
+    ],
 }); 
 
 module.exports = PollOption;

@@ -1,31 +1,29 @@
 /* 
- Class Model
- Model: Poster
+ Class Model: Poster
  Discriminated Super Class: User Role
  Description: Links a User to a Post they have made.
  Super Class: User Role
 */
 
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var UserRole = require('../User/UserRole');
+const UserRole = require('../User/UserRole');
 
-var Poster = new ClassModel({
+const Poster = new ClassModel({
 	className: 'Poster',
-	accessControlled: false,
-	updateControlled: false,
-	discriminatorSuperClass: UserRole,
-	schema: {
-		userPosts: 
+	superClasses: [UserRole],
+	useSuperClassCollection: true,
+	relationships: [
 		{
-			type: [Schema.Types.ObjectId],
-			ref: 'UserPost',
+			name: 'userPosts',
+			toClass: 'UserPost',
+			mirrorRelationship: 'poster',
+			singular: false,
 			required: true,
-			owns: true
-		}
-	}
+			owns: true,
+		},
+	],
 });
 
 module.exports = Poster;

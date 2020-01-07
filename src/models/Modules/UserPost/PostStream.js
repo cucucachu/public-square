@@ -1,30 +1,29 @@
 /* 
- Class Model
- Model: Post Stream
+ Class Model: Post Stream
  Description: A collection of User Posts for a particular Postable instance.
 */
 
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var PostStream = new ClassModel({
+const PostStream = new ClassModel({
 	className: 'PostStream',
-	accessControlled: false,
-	updateControlled: false,
-	schema: {
-		_id: Schema.Types.ObjectId,
-		userGroup: {
-			type: Schema.Types.ObjectId,
-			ref: 'UserGroup',
-			required: true
+	relationships: [
+		{
+			name: 'userGroup',
+			toClass: 'UserGroup',
+			mirrorRelationship: 'postStream',
+			singular: true,
+			required: true,
 		},
-		userPosts: {
-			type: [Schema.Types.ObjectId],
-			ref: 'UserPost',
-			required: true
-		}
-	}
+		{
+			name: 'userPosts',
+			toClass: 'UserPost',
+			mirrorRelationship: 'postStream',
+			singular: false,
+			required: true,
+		},
+	],
 });
 
 module.exports = PostStream;

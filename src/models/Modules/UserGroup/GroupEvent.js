@@ -1,36 +1,37 @@
 /* 
- Class Model
- Model: Group Event
+ Class Model: Group Event
  Super Class(es): UserGroup
- Description: A subclass of a UserGroup with a address, start date, and end date.  
+ Description: A subclass of a UserGroup with a address, start time, and end time.  
 */
 
-var ClassModel = require('../../ClassModel');
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var UserGroup = require('./UserGroup');
+const UserGroup = require('./UserGroup');
 
-var GroupEvent = new ClassModel({
+const GroupEvent = new ClassModel({
     className: 'GroupEvent',
-	accessControlled: false,
-	updateControlled: false,
     superClasses: [UserGroup],
-    schema: {
-        startTime : {
-            type : Date,
-            required : true
-        },
-        endTime : {
-            type : Date,
-            required : true
-        },
-        addresses: {
-            type: [Schema.Types.ObjectId],
-            ref: 'Address',
-            requried: true
-        }
-    }
+	attributes: [
+		{
+			name: 'startTime',
+			type: Date,
+			required: true,
+		},
+		{
+			name: 'endTime',
+            type: Date,
+            required: true,
+		},
+	],
+	relationships: [
+		{
+			name: 'addresses',
+			toClass: 'Address',
+			singular: false,
+			required: true,
+		},
+	],
 })
 
 module.exports = GroupEvent;

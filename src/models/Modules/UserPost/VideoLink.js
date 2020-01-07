@@ -1,22 +1,18 @@
 /* 
- Class Model
+ Class Model: Video Link
  Discriminated Super Class: External Link
- Model: Video Link
  Description: A link to an external image.
 */
 
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var ExternalLink = require('./ExternalLink');
+const ExternalLink = require('./ExternalLink');
 
-var VideoLink = new ClassModel({
+const VideoLink = new ClassModel({
 	className: 'VideoLink',
-	accessControlled: false,
-	updateControlled: false,
-	discriminatorSuperClass: ExternalLink,
-	schema: {}
+	superClasses: [ExternalLink],
+	useSuperClassCollection: true,
 });
 
 module.exports = VideoLink;

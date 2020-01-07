@@ -1,42 +1,46 @@
 /* 
- Mongoose Schema and Model Functions
- Model: Stamp
+ Class Model: Stamp
  Description: A stamp represents a user marking a User Post as either good or bad.
 */
 
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var Stamp = new ClassModel({
+const Stamp = new ClassModel({
 	className: 'Stamp',
-	accessControlled: false,
-	updateControlled: false,
-	schema: {
-		_id: Schema.Types.ObjectId,
-		comment: {
-			type: String
+	attributes: [
+		{
+			name: 'comment',
+			type: String,
 		},
-		stampDate: {
+		{
+			name: 'stampDate',
 			type: Date,
-			required: true
+			required: true,
 		},
-		stamper: {
-			type: Schema.Types.ObjectId,
-			ref: 'Poster',
-			required: true
+	],
+	relationships: [
+		{
+			name: 'stamper',
+			toClass: 'Stamper',
+			mirrorRelationship: 'stamps',
+			singular: true,
+			required: true,
 		},
-		userPost: {
-			type: Schema.Types.ObjectId,
-			ref: 'UserPost',
-			required: true
+		{
+			name: 'userPost',
+			toClass: 'UserPost',
+			mirrorRelationship: 'stamps',
+			singular: true,
+			required: true,
 		},
-		stampType: {
-			type: Schema.Types.ObjectId,
-			ref: 'StampType',
-			required: true
-		}
-	}
+		{
+			name: 'stampType',
+			toClass: 'StampType',
+			singular: true,
+			required: true,
+		},
+	],
 });
 
 module.exports = Stamp;

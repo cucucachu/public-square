@@ -1,54 +1,65 @@
 /* 
- Class Model
- Model: User Post
+ Class Model: User Post
  Description: A submission of text and external links that a User wishes to Post to a particular Post Stream.
 */
 
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var UserPost = new ClassModel({
+const UserPost = new ClassModel({
 	className: 'UserPost',
-	accessControlled: false,
-	updateControlled: false,
-	schema: {
-		_id: Schema.Types.ObjectId,
-		textContent: {
+	attributes: [
+		{
+			name: 'textContent',
 			type: String,
-			required: true
+			required: true,
 		},
-		postDate: {
+		{
+			name: 'postDate',
 			type: Date,
-			required: true
+			required: true,
 		},
-		poster: {
-			type: Schema.Types.ObjectId,
-			ref: 'Poster',
-			required: true
+	],
+	relationships: [
+		{
+			name: 'poster',
+			toClass: 'Poster',
+			mirrorRelationship: 'userPosts',
+			singular: true,
+			required: true,
 		},
-		postStream: {
-			type: Schema.Types.ObjectId,
-			ref: 'PostStream',
-			required: true
+		{
+			name: 'postStream',
+			toClass: 'PostStream',
+			mirrorRelationship: 'userPosts',
+			singular: true,
+			required: true,
 		},
-		parentUserPost: {
-			type: Schema.Types.ObjectId,
-			ref: 'UserPost'
+		{
+			name: 'parentUserPost',
+			toClass: 'UserPost',
+			mirrorRelationship: 'childUserPosts',
+			singular: true,
 		},
-		childUserPosts: {
-			type: [Schema.Types.ObjectId],
-			ref: 'UserPost'
+		{
+			name: 'childUserPosts',
+			toClass: 'UserPost',
+			mirrorRelationship: 'parentUserPost',
+			singular: false,
 		},
-		stamps: {
-			type: [Schema.Types.ObjectId],
-			ref: 'Stamp'
+		{
+			name: 'stamps',
+			toClass: 'Stamp',
+			mirrorRelationship: 'userPost',
+			singular: false,
 		},
-		externalLinks: {
-			type: [Schema.Types.ObjectId],
-			ref: 'ExternalLink'
-		}
-	}
+		{
+			name: 'externalLinks',
+			toClass: 'ExternalLink',
+			mirrorRelationship: 'userPosts',
+			singular: false,
+		},
+	],
 });
 
 module.exports = UserPost;

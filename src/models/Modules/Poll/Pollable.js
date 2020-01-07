@@ -1,28 +1,24 @@
 /* 
- Class Model
- Model: Pollable
+ Class Model: Pollable
  Description: An abstract super class which with a relationship to a Poll. 
  Sub Classes: 
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var ClassModel = require('../../ClassModel');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var Pollable = new ClassModel({
+const Pollable = new ClassModel({
     className: 'Pollable',
-	accessControlled: false,
-	updateControlled: false,
     abstract: true,
-    schema: {
-        poll: {
-            type: Schema.Types.ObjectId,
-            ref: 'Poll',
-            required: true
+    relationships: [
+        {
+            name: 'poll',
+            toClass: 'Poll',
+            mirrorRelationship: 'pollable',
+            singular: true,
+            required: true,
         }
-    }
+    ],
 });
 
 module.exports = Pollable;

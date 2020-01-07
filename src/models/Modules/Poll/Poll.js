@@ -1,35 +1,34 @@
 /* 
- Mongoose Schema and Model Functions
- Model: Poll
+ Class Model: Poll
  Description: A joiner class between a pollable object and polling data. Has a relationship to individual Poll Responses and available Polling
     Options.
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var ClassModel = require('../../ClassModel');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var Poll = new ClassModel({
+const Poll = new ClassModel({
     className: 'Poll',
-	accessControlled: false,
-	updateControlled: false,
-    schema: {
-        pollable: {
-            type: Schema.Types.ObjectId,
-            ref: 'Pollable',
-            required: true
+    relationships: [
+        {
+            name: 'pollable',
+            toClass: 'Pollable',
+            mirrorRelationship: 'poll',
+            singular: true,
+            required: true,
         },
-        pollResponses: {
-            type: [Schema.Types.ObjectId],
-            ref: 'PollResponse',
+        {
+            name: 'pollResponses',
+            toClass: 'PollResponse',
+            mirrorRelationship: 'poll',
+            singular: false,
         },
-        pollOptions: {
-            type: [Schema.Types.ObjectId],
-            ref: 'PollOption',
-        }
-    }
+        {
+            name: 'pollOptions',
+            toClass: 'PollOption',
+            singular: false,
+        },
+    ],
 });
 
 module.exports = Poll;

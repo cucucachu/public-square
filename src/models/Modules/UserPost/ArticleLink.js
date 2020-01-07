@@ -1,22 +1,18 @@
 /* 
- Class Model
+ Class Model: Article Link
  Discriminated Super Class: External Link
- Model: Article Link
  Description: A link to an external news article.
 */
 
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var ExternalLink = require('./ExternalLink');
+const ExternalLink = require('./ExternalLink');
 
-var ArticleLink = new ClassModel({
+const ArticleLink = new ClassModel({
 	className: 'ArticleLink',
-	accessControlled: false,
-	updateControlled: false,
-	discriminatorSuperClass: ExternalLink,
-	schema: {}
+	superClasses: [ExternalLink],
+	useSuperClassCollection: true,
 });
 
 module.exports = ArticleLink;

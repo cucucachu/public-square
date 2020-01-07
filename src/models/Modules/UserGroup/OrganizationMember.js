@@ -1,36 +1,39 @@
 /* 
- Mongoose Schema and Model Functions
- Model: Organization Member
+ Class Model: Organization Member
  Discriminated Super Class: User Role
  Description: An official member of an Organization. Organization Members have to be added by the Group Manager of an Organization, where as a 
     group member can voluntarilly join an Organization without any approval.
 */
 
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var UserRole = require('../User/UserRole');
+const UserRole = require('../User/UserRole');
 
-var OrganizationMember = new ClassModel({
+const OrganizationMember = new ClassModel({
     className: 'OrganizationMember',
-    accessControlled: false,
-	updateControlled: false,
-    discriminatorSuperClass: UserRole,
-    schema: {
-		startDate: {
+    superClasses: [UserRole],
+    useSuperClassCollection: true,
+	attributes: [
+		{
+			name: 'startDate',
 			type: Date,
-			required: true
+			required: true,
 		},
-		endDate: {
-			type: Date
+		{
+			name: 'endDate',
+			type: Date,
 		},
-        organization: {
-            type: Schema.Types.ObjectId,
-            ref: 'Organization',
-            required: true
-        }
-    }
+	],
+	relationships: [
+		{
+			name: 'organization',
+			toClass: 'Organization',
+			mirrorRelationship: 'organizationMembers',
+			singular: true,
+			required: true,
+		},
+	],
 });
 
 module.exports = OrganizationMember;

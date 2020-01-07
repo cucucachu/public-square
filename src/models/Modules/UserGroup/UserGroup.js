@@ -1,48 +1,64 @@
 /* 
- Mongoose Schema and Model Functions
- Model: User Group
+ Class Model: User Group
  Sub Classes: Group Event, Organization
  Description: Definies a group of users, which has members and managers, and which has an associated Post Stream.  
 */
 
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-
-var UserGroup = new ClassModel({
+const UserGroup = new ClassModel({
 	className: 'UserGroup',
-	accessControlled: false,
-	updateControlled: false,
-	schema: {
-		_id: Schema.Types.ObjectId,
-		name: {
+	attributes: [
+		{
+			name: 'name',
 			type: String,
-			required: true
+			required: true,
+			unique: true,
 		},
-        createdAt : {
-            type : Date, 
-            required : true
-        },
-		endDate: Date,
-		parentGroup: {
-			type: Schema.Types.ObjectId,
-			ref: 'UserGroup'
+		{
+			name: 'createdAt',
+			type: Date,
+			required: true,
 		},
-		childGroups: {
-			type: [Schema.Types.ObjectId],
-			ref: 'UserGroup'
+		{
+			name: 'endDate',
+			type: Date,
 		},
-		groupManagers: {
-			type: [Schema.Types.ObjectId],
-			ref: 'GroupManager',
-			required: true
+	],
+	relationships: [
+		{
+			name: 'parentGroup',
+			toClass: 'UserGroup',
+			mirrorRelationship: 'childGroups',
+			singular: true,
 		},
-		groupMembers: {
-			type: [Schema.Types.ObjectId],
-			ref: 'GroupMember'
-		}
-	}
+		{
+			name: 'childGroups',
+			toClass: 'UserGroup',
+			mirrorRelationship: 'parentGroup',
+			singular: false,
+		},
+		{
+			name: 'groupManagers',
+			toClass: 'GroupManager',
+			mirrorRelationship: 'userGroup',
+			singular: false,
+			required: true,
+		},
+		{
+			name: 'groupMembers',
+			toClass: 'GroupMember',
+			mirrorRelationship: 'userGroup',
+			singular: false,
+		},
+		{
+			name: 'postStream',
+			toClass: 'PostStream',
+			mirrorRelationship: 'userGroup',
+			singular: true,
+		},
+	],
 });
 
 module.exports = UserGroup;

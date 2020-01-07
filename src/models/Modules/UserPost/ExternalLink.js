@@ -1,38 +1,39 @@
 /* 
- Class Model
+ Class Model: External Link
  Discriminated Sub Classes: ArticleLink, ImageLink, VideoLink
- Model: External Link
  Description: A link to an external web page.
 */
 
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var ExternalLink = new ClassModel({
+const ExternalLink = new ClassModel({
 	className: 'ExternalLink',
-	accessControlled: false,
-	updateControlled: false,
-	discriminated: true,
-	schema: {
-		_id: Schema.Types.ObjectId,
-		createdAt: {
+	attributes: [
+		{
+			name: 'createdAt',
 			type: Date,
-			required: true
+			required: true,
 		},
-		url: {
+		{
+			name: 'url',
 			type: String,
-			required: true
+			required: true,
 		},
-		text: {
+		{
+			name: 'text',
 			type: String,
-			required: true
+			required: true,
 		},
-		userPosts: {
-			type: [Schema.Types.ObjectId],
-			ref: 'UserPost',
+	],
+	relationships: [
+		{
+			name: 'userPosts',
+			toClass: 'UserPost',
+			mirrorRelationship: 'externalLinks',
+			singular: false,
 		}
-	}
+	],
 });
 
 module.exports = ExternalLink;

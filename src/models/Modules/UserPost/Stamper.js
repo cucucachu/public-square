@@ -1,30 +1,27 @@
 /* 
- Class model
- Model: Stamper
+ Class Model: Stamper
  Discriminated Super Class: User Role
  Description: Relates a User to a UserPost that they have stamp they have assigned to a User Post.
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var UserRole = require('../User/UserRole');
+const UserRole = require('../User/UserRole');
 
-var Stamper = new ClassModel({
+const Stamper = new ClassModel({
 	className: 'Stamper',
-	accessControlled: false,
-	updateControlled: false,
-	discriminatorSuperClass: UserRole,
-	schema: {
-		stamps: 
+	superClasses: [UserRole],
+	useSuperClassCollection: true,
+	relationships: [
 		{
-			type: [Schema.Types.ObjectId],
-			ref: 'Stamp',
-			required: true
-		}
-	}
+			name: 'stamps',
+			toClass: 'Stamp',
+			mirrorRelationship: 'stamper',
+			singular: false,
+			requried: true,
+		},
+	],
 });
 
 module.exports = Stamper;

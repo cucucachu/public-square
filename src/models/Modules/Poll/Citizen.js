@@ -1,30 +1,27 @@
 /* 
- Class Model
- Model: Citizen
+ Class Model: Citizen
  Super Class: User Role
  Description: A User Role which connects a Person to Poll Responses. Citizen role should only be available to Users who have been verified as
     citizens or voters of the United States.
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var database = require('../../database');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var UserRole = require('../User/UserRole');
+const UserRole = require('../User/UserRole');
 
-var Citizen = new ClassModel({
+const Citizen = new ClassModel({
 	className: 'Citizen',
-	accessControlled: false,
-	updateControlled: false,
-	discriminatorSuperClass: UserRole,
-	schema: {
-		pollResponses: {
-			type: [Schema.Types.ObjectId],
-			ref: 'PollResponse'
-		}
-	}
+	superClasses: [UserRole],
+	useSuperClassCollection: true,
+	relationships: [
+		{
+			name: 'pollResponses',
+			toClass: 'PollResponse',
+			mirrorRelationship: 'citizen',
+			singular: false,
+		},
+	],
 });
 
 module.exports = Citizen;

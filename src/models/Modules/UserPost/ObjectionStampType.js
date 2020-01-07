@@ -1,22 +1,18 @@
 /* 
- Class Model
+ Class Model: Objection Stamp Type
  Discriminated Super Class: Stamp Type
- Model: Objection Stamp Type
  Description: A subclass of Stamp Type which is positive.
 */
 
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var StampType = require('./StampType');
+const StampType = require('./StampType');
 
-var ObjectionStampType = new ClassModel({
+const ObjectionStampType = new ClassModel({
 	className: 'ObjectionStampType',
-	accessControlled: false,
-	updateControlled: false,
-	discriminatorSuperClass: StampType,
-	schema: {}
+	superClasses: [StampType],
+	useSuperClassCollection: true,
 })
 
 module.exports = ObjectionStampType;

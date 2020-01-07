@@ -1,35 +1,38 @@
 /* 
- Class Model
- Model: Group Manager
+ Class Model: Group Manager
  Discriminated Super Class: UserRole
  Description: A user Role which grants management priviliges to a User for a particular User Group.  
 */
 
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var UserRole = require('../User/UserRole');
+const UserRole = require('../User/UserRole');
 
-var GroupManager = new ClassModel({
+const GroupManager = new ClassModel({
 	className: 'GroupManager',
-	accessControlled: false,
-	updateControlled: false,
-	discriminatorSuperClass: UserRole,
-	schema: {
-		startDate: {
+	superClasses: [UserRole],
+	useSuperClassCollection: true,
+	attributes: [
+		{
+			name: 'startDate',
 			type: Date,
-			required: true
+			required: true,
 		},
-		endDate: {
-			type: Date
+		{
+			name: 'endDate',
+			type: Date,
 		},
-		userGroup: {
-			type: Schema.Types.ObjectId,
-			ref: 'UserGoup',
-			required: true
-		}
-	}
-})
+	],
+	relationships: [
+		{
+			name: 'userGroup',
+			toClass: 'UserGroup',
+			mirrorRelationship: 'groupManagers',
+			singular: true,
+			required: true,
+		},
+	],
+});
 
 module.exports = GroupManager;

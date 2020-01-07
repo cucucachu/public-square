@@ -1,36 +1,33 @@
 /* 
- Class Model
- Model: Stamp Type
+ Class Model: Stamp Type
  Abstract
  Discriminator Sub Classes: Approval Stampt Type, Objection Stamp Type
  Description: A particular stamp a User wishes to assign to a User Post.
 */
 
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var StampType = new ClassModel({
+const StampType = new ClassModel({
 	className: 'StampType',
-	accessControlled: false,
-	updateControlled: false,
-	discriminated: true,
 	abstract: true,
-	schema: {
-		_id: Schema.Types.ObjectId,
-		name: {
+	attributes: [
+		{
+			name: 'name',
 			type: String,
-			required: true
+			required: true,
 		},
-		description: {
+		{
+			name: 'description',
 			type: String,
-			required: true
+			required: true,
 		},
-		weight: {
+		{
+			name: 'weight',
 			type: Number,
-			required: true
-		}
-	}
+			required: true,
+		},
+	],
 });
 
 module.exports = StampType;

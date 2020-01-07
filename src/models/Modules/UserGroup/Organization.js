@@ -1,31 +1,30 @@
 /* 
- Mongoose Schema and Model Functions
- Model: Organization
+ Class Model: Organization
  Super Class(es): User Group
  Description: A User Group which represents a real-world political organization that exists separate from public square. 
 */
 
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var UserGroup = require('./UserGroup');
+const UserGroup = require('./UserGroup');
 
-var Organization = new ClassModel({
+const Organization = new ClassModel({
     className: 'Organization',
-	accessControlled: false,
-	updateControlled: false,
     superClasses: [UserGroup],
-    schema: {
-        organizationMembers: {
-            type: [Schema.Types.ObjectId],
-            ref: 'OrganizationMember'
+    relationships: [
+        {
+            name: 'organizationMembers',
+            toClass: 'OrganizationMember',
+            mirrorRelationship: 'organization',
+            singular: false,
         },
-        addresses: {
-            type: [Schema.Types.ObjectId],
-            ref: 'Address'
-        }
-    }
+        {
+            name: 'addresses',
+            toClass: 'Address',
+            singular: false,
+        },
+    ],
 });
 
 module.exports = Organization;

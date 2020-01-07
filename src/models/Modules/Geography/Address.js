@@ -7,7 +7,7 @@
 const noomman = require('noomman');
 const ClassModel = noomman.ClassModel;
 
-var Address = new ClassModel({
+const Address = new ClassModel({
 	className: 'Address',
 	attributes: [
 		{
@@ -49,36 +49,6 @@ var Address = new ClassModel({
 			required: true,
 		},
 	],
-	schema: {
-		streetNumber: {
-			type: String
-		},
-		unit: {
-			type: String
-		},
-		persons: {
-			type: [Schema.Types.ObjectId],
-			ref: 'Person'
-		},
-		street: {
-			type: Schema.Types.ObjectId,
-			ref: 'GeographicArea'
-		},
-		city: {
-			type: Schema.Types.ObjectId,
-			ref: 'GeographicArea',
-			required: true
-		},
-		county: {
-			type: Schema.Types.ObjectId,
-			ref: 'GeographicArea'
-		},
-		state: {
-			type: Schema.Types.ObjectId,
-			ref: 'GeographicArea',
-			required: true
-		}
-	}
 });
 
 module.exports = Address;

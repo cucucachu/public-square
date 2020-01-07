@@ -1,50 +1,57 @@
 /* 
- Class Model
- Model: Poll Resonse  
+ Class Model: Poll Resonse  
  Description: Represents a users response to a Poll. User picks a Poll Option. The relationship to Civilian will always be set, but the relationship
     to citizen will only be set for verified citizens/voters.
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var PollResponse = new ClassModel({
+const PollResponse = new ClassModel({
     className: 'PollResponse',
-	accessControlled: false,
-	updateControlled: false,
-    schema: {
-        comment: {
-            type: String
+    attributes: [
+        {
+            name: 'comment',
+            type: String,
         },
-        latest: {
-            type: Boolean
-        },
-        date: {
+        {
+            name: 'latest',
+            type: Boolean,
+        }, 
+        {
+            name: 'date',
             type: Date,
-            required: true
+            required: true,
         },
-        civilian: {
-            type: Schema.Types.ObjectId,
-            ref: 'Civilian',
-            required: true
+    ],
+    relationships: [
+        {
+            name: 'civilian',
+            toClass: 'Civilian',
+            mirrorRelationship: 'pollResponses',
+            singular: true,
+            required: true,
         },
-        citizen: {
-            type: Schema.Types.ObjectId,
-            ref: 'Citizen'
+        {
+            name: 'citizen',
+            toClass: 'Citizen',
+            mirrorRelationship: 'pollResponses',
+            singular: true,
         },
-        poll: {
-            type: Schema.Types.ObjectId,
-            ref: 'Poll',
-            required: true
+        {
+            name: 'poll',
+            toClass: 'Poll',
+            mirrorRelationship: 'pollResponses',
+            singular: true,
+            required: true,
         },
-        pollOption: {
-            type: Schema.Types.ObjectId,
-            ref: 'PollOption',
-            required: true
-        }
-    }
+        {
+            name: 'pollOption',
+            toClass: 'PollOption',
+            singular: true,
+            required: true,
+        },
+    ],
 });
 
 module.exports = PollResponse;

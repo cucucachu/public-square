@@ -1,29 +1,26 @@
 /* 
- Mongoose Schema and Model Functions
- Model: Civilian
+ Class Model: Civilian
  Super Class: User Role
  Description: A User Role which connects a Person to Poll Responses.
 */
 
-// MongoDB and Mongoose Setup
-var mongoose = require('mongoose');
-var database = require('../../database');
-var Schema = mongoose.Schema;
-var ClassModel = require('../../ClassModel');
+const noomman = require('noomman');
+const ClassModel = noomman.ClassModel;
 
-var UserRole = require('../User/UserRole');
+const UserRole = require('../User/UserRole');
 
-var Civilian = new ClassModel({
+const Civilian = new ClassModel({
 	className: 'Civilian',
-	accessControlled: false,
-	updateControlled: false,
-	discriminatorSuperClass: UserRole,
-	schema: {
-		pollResponses: {
-			type: [Schema.Types.ObjectId],
-			ref: 'PollResponse'
-		}
-	}
+	superClasses: [UserRole],
+	useSuperClassCollection: true,
+	relationships: [
+		{
+			name: 'pollResponses',
+			toClass: 'PollResponse',
+			mirrorRelationship: 'civilian',
+			singular: false,
+		},
+	],
 });
 
 module.exports = Civilian;
