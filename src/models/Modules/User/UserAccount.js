@@ -14,6 +14,7 @@ const UserAccount = new ClassModel({
 			name: 'email',
 			type: String,
 			required: true,
+			unique: true,
 		},
 		{
 			name: 'passwordHash',

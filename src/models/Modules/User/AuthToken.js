@@ -24,6 +24,7 @@ const AuthToken = new ClassModel({
         {
             name: 'userAccount',
             toClass: 'UserAccount',
+            singular: true,
             required: true,
             mirrorRelationship: 'authToken',
         },
