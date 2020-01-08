@@ -1,0 +1,12 @@
+require('./ApprovalStampType');
+require('./ArticleLink');
+require('./ExternalLink');
+require('./ImageLink');
+require('./ObjectionStampType');
+require('./PostStream');
+require('./Poster');
+require('./Stamp');
+require('./StampType');
+require('./Stamper');
+require('./UserPost');
+require('./VideoLink');
