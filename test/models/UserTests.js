@@ -5,13 +5,13 @@
 
 const noomman = require('noomman');
 const Instance = noomman.Instance;
-const InstanceSet = noomman.Instance;
+const InstanceSet = noomman.InstanceSet;
 const database = require('../helpers/database');
 const testingFunctions = require('../helpers/TestingFunctions');
 const testForErrorAsync = testingFunctions.testForErrorAsync;
 const testForError = testingFunctions.testForError;
 
-
+require('../../src/models/Modules/User/UserModule')
 const UserRole = require('../../src/models/Modules/User/UserRole');
 const PersonRole = require('../../src/models/Modules/User/PersonRole');
 const Person = require('../../src/models/Modules/User/Person');

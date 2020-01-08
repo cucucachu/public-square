@@ -7,6 +7,7 @@
 
 const noomman = require('noomman');
 const ClassModel = noomman.ClassModel;
+const NoommanValidationError = noomman.NoommanErrors.NoommanValidationError;
 
 const BillSponsorship = new ClassModel({
     className: 'BillSponsorship',
@@ -39,7 +40,7 @@ const BillSponsorship = new ClassModel({
     ],
     validations: [
         function() {
-            if (this.endDate < this.startDate) {
+            if (this.endDate && (this.endDate < this.startDate)) {
                 throw new NoommanValidationError('End Date must be greater than or equal to Start Date.');
             }
         },

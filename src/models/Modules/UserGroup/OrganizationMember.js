@@ -7,6 +7,7 @@
 
 const noomman = require('noomman');
 const ClassModel = noomman.ClassModel;
+const NoommanValidationError = noomman.NoommanErrors.NoommanValidationError;
 
 const UserRole = require('../User/UserRole');
 
@@ -33,6 +34,13 @@ const OrganizationMember = new ClassModel({
 			singular: true,
 			required: true,
 		},
+	],
+	validations: [
+		function() {
+			if (this.endDate && (this.endDate < this.startDate)) {
+				throw new NoommanValidationError('End Date must be greater than or equal to Start Date.');
+			}
+		}
 	],
 });
 

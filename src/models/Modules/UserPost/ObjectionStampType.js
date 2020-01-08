@@ -13,6 +13,6 @@ const ObjectionStampType = new ClassModel({
 	className: 'ObjectionStampType',
 	superClasses: [StampType],
 	useSuperClassCollection: true,
-})
+});
 
 module.exports = ObjectionStampType;

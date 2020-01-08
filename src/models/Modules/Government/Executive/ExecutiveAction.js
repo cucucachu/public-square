@@ -9,6 +9,7 @@
 
 const noomman = require('noomman');
 const ClassModel = noomman.ClassModel;
+const NoommanValidationError = noomman.NoommanErrors.NoommanValidationError;
 
 const Pollable = require('../../Poll/Pollable');
 
@@ -46,8 +47,10 @@ const ExecutiveAction = new ClassModel({
     ],
     validations: [
         function() {
-            if (this.effectiveDate < this.passedDate) {
-                throw new NoommanValidationError('Effective Date must be greater than or equal to Passed Date.');
+            if (this.effectiveDate && this.passedDate) {
+                if (this.effectiveDate < this.passedDate) {
+                    throw new NoommanValidationError('Effective Date must be greater than or equal to Passed Date.');
+                }
             }
         }
     ],

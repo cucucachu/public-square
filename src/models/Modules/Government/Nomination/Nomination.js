@@ -7,6 +7,7 @@
 
 const noomman = require('noomman');
 const ClassModel = noomman.ClassModel;
+NoommanValidationError = noomman.NoommanErrors.NoommanValidationError;
 
 const PositionAcquisitionProcess = require('../PositionAcquisitionProcess');
 
@@ -47,8 +48,11 @@ const Nomination = new ClassModel({
     ],
     validations: [
         function() {
-            if (this.positionStartDate < this.nominationDate)
-                throw new NoommanValidationError('Position Start Date must be greater than or equal to Nomination Date.');
+            if (this.positionStartDate && this.nominationDate) {
+                if (this.positionStartDate < this.nominationDate) {
+                    throw new NoommanValidationError('Position Start Date must be greater than or equal to Nomination Date.');
+                }
+            }
         },
     ],
 });

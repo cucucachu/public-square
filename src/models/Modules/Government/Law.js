@@ -36,7 +36,7 @@ const Law = new ClassModel({
 	],
 	validations: [
 		function() {
-			if (this.expireDate < this.startDate) {
+			if (this.expireDate && (this.expireDate < this.startDate)) {
 				throw new NoommanValidationError('Expire Date must be greater than or equal to Start Date.');
 			}
 		}

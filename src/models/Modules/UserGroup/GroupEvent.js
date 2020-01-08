@@ -6,6 +6,7 @@
 
 const noomman = require('noomman');
 const ClassModel = noomman.ClassModel;
+const NoommanValidationError = noomman.NoommanErrors.NoommanValidationError;
 
 const UserGroup = require('./UserGroup');
 
@@ -31,6 +32,13 @@ const GroupEvent = new ClassModel({
 			singular: false,
 			required: true,
 		},
+	],
+	validations: [
+		function() {
+			if (this.endTime < this.startTime) {
+				throw new NoommanValidationError('End Time must be greater than or equal to Start Time.');
+			}
+		}
 	],
 })
 

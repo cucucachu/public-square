@@ -7,6 +7,7 @@
 
 const noomman = require('noomman');
 const ClassModel = noomman.ClassModel;
+const NoommanValidationError = noomman.NoommanErrors.NoommanValidationError;
 
 const Pollable = require('../Poll/Pollable');
 
@@ -44,6 +45,13 @@ const OccupiedPosition = new ClassModel({
 			toClass: 'GovernmentRole',
 			mirrorRelationship: 'occupiedPosition',
 			singular: false,
+		}
+	],
+	validations: [
+		function() {
+			if (this.endDate && (this.endDate < this.startDate)) {
+				throw new NoommanValidationError('End Date must be greater than or equal to Start Date.');
+			}
 		}
 	],
 });

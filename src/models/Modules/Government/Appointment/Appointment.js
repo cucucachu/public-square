@@ -6,6 +6,7 @@
 
 const noomman = require('noomman');
 const ClassModel = noomman.ClassModel;
+const NoommanValidationError = noomman.NoommanErrors.NoommanValidationError;
 
 const PositionAcquisitionProcess = require('../PositionAcquisitionProcess');
 
