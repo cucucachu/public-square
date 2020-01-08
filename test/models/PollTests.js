@@ -11,13 +11,13 @@ const testingFunctions = require('../helpers/TestingFunctions');
 const testForErrorAsync = testingFunctions.testForErrorAsync;
 const testForError = testingFunctions.testForError;
 
-require('../../src/models/Modules/Poll/PollModule');
-const Poll = require('../../src/models/Modules/Poll/Poll');
-const PollResponse = require('../../src/models/Modules/Poll/PollResponse');
-const PollOption = require('../../src/models/Modules/Poll/PollOption');
-const Pollable = require('../../src/models/Modules/Poll/Pollable');
-const Citizen = require('../../src/models/Modules/Poll/Citizen');
-const Civilian = require('../../src/models/Modules/Poll/Civilian');
+require('../../src/models/Poll/PollModule');
+const Poll = require('../../src/models/Poll/Poll');
+const PollResponse = require('../../src/models/Poll/PollResponse');
+const PollOption = require('../../src/models/Poll/PollOption');
+const Pollable = require('../../src/models/Poll/Pollable');
+const Citizen = require('../../src/models/Poll/Citizen');
+const Civilian = require('../../src/models/Poll/Civilian');
 
 describe('Poll Module Tests', function() {
 	

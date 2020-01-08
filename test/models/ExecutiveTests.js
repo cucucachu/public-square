@@ -11,16 +11,15 @@ const testingFunctions = require('../helpers/TestingFunctions');
 const testForErrorAsync = testingFunctions.testForErrorAsync;
 const testForError = testingFunctions.testForError;
 
-require('../../src/models/Modules/Government/Executive/ExecutiveModule');
-
-const ExecutiveAction = require('../../src/models/Modules/Government/Executive/ExecutiveAction');
-const Executive = require('../../src/models/Modules/Government/Executive/Executive');
-const IndividualExecutiveAction = require('../../src/models/Modules/Government/Executive/IndividualExecutiveAction');
-const GroupExecutiveAction = require('../../src/models/Modules/Government/Executive/GroupExecutiveAction');
-const IndividualExecutiveVote = require('../../src/models/Modules/Government/Executive/IndividualExecutiveVote');
-const ExecutiveVoteOption = require('../../src/models/Modules/Government/Executive/ExecutiveVoteOption');
-const ExecutiveVote = require('../../src/models/Modules/Government/Executive/ExecutiveVote');
-const Poll = require('../../src/models/Modules/Poll/Poll');
+require('../../src/models/Government/Executive/ExecutiveModule');
+const ExecutiveAction = require('../../src/models/Government/Executive/ExecutiveAction');
+const Executive = require('../../src/models/Government/Executive/Executive');
+const IndividualExecutiveAction = require('../../src/models/Government/Executive/IndividualExecutiveAction');
+const GroupExecutiveAction = require('../../src/models/Government/Executive/GroupExecutiveAction');
+const IndividualExecutiveVote = require('../../src/models/Government/Executive/IndividualExecutiveVote');
+const ExecutiveVoteOption = require('../../src/models/Government/Executive/ExecutiveVoteOption');
+const ExecutiveVote = require('../../src/models/Government/Executive/ExecutiveVote');
+const Poll = require('../../src/models/Poll/Poll');
 
 describe('Executive Module Tests', function() {
 	

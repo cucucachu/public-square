@@ -11,12 +11,12 @@ const testingFunctions = require('../helpers/TestingFunctions');
 const testForErrorAsync = testingFunctions.testForErrorAsync;
 const testForError = testingFunctions.testForError;
 
-require('../../src/models/Modules/User/UserModule')
-const UserRole = require('../../src/models/Modules/User/UserRole');
-const PersonRole = require('../../src/models/Modules/User/PersonRole');
-const Person = require('../../src/models/Modules/User/Person');
-const UserAccount = require('../../src/models/Modules/User/UserAccount');
-const AuthToken = require('../../src/models/Modules/User/AuthToken');
+require('../../src/models/User/UserModule')
+const UserRole = require('../../src/models/User/UserRole');
+const PersonRole = require('../../src/models/User/PersonRole');
+const Person = require('../../src/models/User/Person');
+const UserAccount = require('../../src/models/User/UserAccount');
+const AuthToken = require('../../src/models/User/AuthToken');
 
 describe('User Module Tests', function() {
 	

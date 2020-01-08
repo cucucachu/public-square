@@ -10,15 +10,15 @@ const testingFunctions = require('../helpers/TestingFunctions');
 const testForErrorAsync = testingFunctions.testForErrorAsync;
 const testForError = testingFunctions.testForError;
 
-require('../../src/models/Modules/UserGroup/UserGroupModule');
-const UserGroup = require('../../src/models/Modules/UserGroup/UserGroup');
-const GroupManager = require('../../src/models/Modules/UserGroup/GroupManager');
-const GroupMember = require('../../src/models/Modules/UserGroup/GroupMember');
-const GroupEvent = require('../../src/models/Modules/UserGroup/GroupEvent');
-const Organization = require('../../src/models/Modules/UserGroup/Organization');
-const OrganizationMember = require('../../src/models/Modules/UserGroup/OrganizationMember');
-const UserAccount = require('../../src/models/Modules/User/UserAccount');
-const Address = require('../../src/models/Modules/Geography/Address');
+require('../../src/models/UserGroup/UserGroupModule');
+const UserGroup = require('../../src/models/UserGroup/UserGroup');
+const GroupManager = require('../../src/models/UserGroup/GroupManager');
+const GroupMember = require('../../src/models/UserGroup/GroupMember');
+const GroupEvent = require('../../src/models/UserGroup/GroupEvent');
+const Organization = require('../../src/models/UserGroup/Organization');
+const OrganizationMember = require('../../src/models/UserGroup/OrganizationMember');
+const UserAccount = require('../../src/models/User/UserAccount');
+const Address = require('../../src/models/Geography/Address');
 
 describe('UserGroup Module Tests', function() {
 	

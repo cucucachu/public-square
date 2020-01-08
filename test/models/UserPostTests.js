@@ -11,19 +11,19 @@ const testingFunctions = require('../helpers/TestingFunctions');
 const testForErrorAsync = testingFunctions.testForErrorAsync;
 const testForError = testingFunctions.testForError;
 
-require('../../src/models/Modules/UserPost/UserPostModule');
-const StampType = require('../../src/models/Modules/UserPost/StampType');
-const ExternalLink = require('../../src/models/Modules/UserPost/ExternalLink');
-const PostStream = require('../../src/models/Modules/UserPost/PostStream');
-const UserPost = require('../../src/models/Modules/UserPost/UserPost');
-const Poster = require('../../src/models/Modules/UserPost/Poster');
-const Stamp = require('../../src/models/Modules/UserPost/Stamp');
-const Stamper = require('../../src/models/Modules/UserPost/Stamper');
-const ObjectionStampType = require('../../src/models/Modules/UserPost/ObjectionStampType');
-const ApprovalStampType = require('../../src/models/Modules/UserPost/ApprovalStampType');
-const ArticleLink = require('../../src/models/Modules/UserPost/ArticleLink');
-const ImageLink = require('../../src/models/Modules/UserPost/ImageLink');
-const VideoLink = require('../../src/models/Modules/UserPost/VideoLink');
+require('../../src/models/UserPost/UserPostModule');
+const StampType = require('../../src/models/UserPost/StampType');
+const ExternalLink = require('../../src/models/UserPost/ExternalLink');
+const PostStream = require('../../src/models/UserPost/PostStream');
+const UserPost = require('../../src/models/UserPost/UserPost');
+const Poster = require('../../src/models/UserPost/Poster');
+const Stamp = require('../../src/models/UserPost/Stamp');
+const Stamper = require('../../src/models/UserPost/Stamper');
+const ObjectionStampType = require('../../src/models/UserPost/ObjectionStampType');
+const ApprovalStampType = require('../../src/models/UserPost/ApprovalStampType');
+const ArticleLink = require('../../src/models/UserPost/ArticleLink');
+const ImageLink = require('../../src/models/UserPost/ImageLink');
+const VideoLink = require('../../src/models/UserPost/VideoLink');
 
 describe('UserPost Module Tests', function() {
 	

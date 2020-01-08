@@ -11,13 +11,13 @@ const testingFunctions = require('../helpers/TestingFunctions');
 const testForErrorAsync = testingFunctions.testForErrorAsync;
 const testForError = testingFunctions.testForError;
 
-require('../../src/models/Modules/Government/Judge/JudgeModule');
-const Judge = require('../../src/models/Modules/Government/Judge/Judge');
-const IndividualJudgement = require('../../src/models/Modules/Government/Judge/IndividualJudgement');
-const JudgementOption = require('../../src/models/Modules/Government/Judge/JudgementOption');
-const Judgement = require('../../src/models/Modules/Government/Judge/Judgement');
-const JudicialCase = require('../../src/models/Modules/Government/Judge/JudicialCase');
-const JudicialOpinion = require('../../src/models/Modules/Government/Judge/JudicialOpinion');
+require('../../src/models/Government/Judge/JudgeModule');
+const Judge = require('../../src/models/Government/Judge/Judge');
+const IndividualJudgement = require('../../src/models/Government/Judge/IndividualJudgement');
+const JudgementOption = require('../../src/models/Government/Judge/JudgementOption');
+const Judgement = require('../../src/models/Government/Judge/Judgement');
+const JudicialCase = require('../../src/models/Government/Judge/JudicialCase');
+const JudicialOpinion = require('../../src/models/Government/Judge/JudicialOpinion');
 
 describe('Judge Module Tests', function() {
 	

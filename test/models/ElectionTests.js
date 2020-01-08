@@ -11,13 +11,13 @@ const testingFunctions = require('../helpers/TestingFunctions');
 const testForErrorAsync = testingFunctions.testForErrorAsync;
 const testForError = testingFunctions.testForError;
 
-require('../../src/models/Modules/Government/Election/ElectionModule');
-const Election = require('../../src/models/Modules/Government/Election/Election');
-const ElectionResult = require('../../src/models/Modules/Government/Election/ElectionResult');
-const PrimaryElectionResult = require('../../src/models/Modules/Government/Election/PrimaryElectionResult');
-const Campaign = require('../../src/models/Modules/Government/Election/Campaign');
-const Candidate = require('../../src/models/Modules/Government/Election/Candidate');
-const GovernmentPosition = require('../../src/models/Modules/Government/GovernmentPosition');
+require('../../src/models/Government/Election/ElectionModule');
+const Election = require('../../src/models/Government/Election/Election');
+const ElectionResult = require('../../src/models/Government/Election/ElectionResult');
+const PrimaryElectionResult = require('../../src/models/Government/Election/PrimaryElectionResult');
+const Campaign = require('../../src/models/Government/Election/Campaign');
+const Candidate = require('../../src/models/Government/Election/Candidate');
+const GovernmentPosition = require('../../src/models/Government/GovernmentPosition');
 
 describe('Election Module Tests', function() {
 	

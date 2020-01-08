@@ -11,15 +11,15 @@ const testingFunctions = require('../helpers/TestingFunctions');
 const testForErrorAsync = testingFunctions.testForErrorAsync;
 const testForError = testingFunctions.testForError;
 
-require('../../src/models/Modules/Government/Nomination/NominationModule');
-const Nomination = require('../../src/models/Modules/Government/Nomination/Nomination');
-const Nominator = require('../../src/models/Modules/Government/Nomination/Nominator');
-const Nominee = require('../../src/models/Modules/Government/Nomination/Nominee');
-const ConfirmationVote = require('../../src/models/Modules/Government/Nomination/ConfirmationVote');
-const ConfirmationVoteOption = require('../../src/models/Modules/Government/Nomination/ConfirmationVoteOption');
-const IndividualConfirmationVote = require('../../src/models/Modules/Government/Nomination/IndividualConfirmationVote');
-const Confirmer = require('../../src/models/Modules/Government/Nomination/Confirmer');
-const GovernmentPosition = require('../../src/models/Modules/Government/GovernmentPosition');
+require('../../src/models/Government/Nomination/NominationModule');
+const Nomination = require('../../src/models/Government/Nomination/Nomination');
+const Nominator = require('../../src/models/Government/Nomination/Nominator');
+const Nominee = require('../../src/models/Government/Nomination/Nominee');
+const ConfirmationVote = require('../../src/models/Government/Nomination/ConfirmationVote');
+const ConfirmationVoteOption = require('../../src/models/Government/Nomination/ConfirmationVoteOption');
+const IndividualConfirmationVote = require('../../src/models/Government/Nomination/IndividualConfirmationVote');
+const Confirmer = require('../../src/models/Government/Nomination/Confirmer');
+const GovernmentPosition = require('../../src/models/Government/GovernmentPosition');
 
 
 describe('Nomination Module Tests', function() {

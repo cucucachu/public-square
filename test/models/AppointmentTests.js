@@ -11,11 +11,11 @@ const testingFunctions = require('../helpers/TestingFunctions');
 const testForErrorAsync = testingFunctions.testForErrorAsync;
 const testForError = testingFunctions.testForError;
 
-require('../../src/models/Modules/Government/Appointment/AppointmentModule');
-const Appointment = require('../../src/models/Modules/Government/Appointment/Appointment');
-const Appointer = require('../../src/models/Modules/Government/Appointment/Appointer');
-const Appointee = require('../../src/models/Modules/Government/Appointment/Appointee');
-const GovernmentPosition = require('../../src/models/Modules/Government/GovernmentPosition');
+require('../../src/models/Government/Appointment/AppointmentModule');
+const Appointment = require('../../src/models/Government/Appointment/Appointment');
+const Appointer = require('../../src/models/Government/Appointment/Appointer');
+const Appointee = require('../../src/models/Government/Appointment/Appointee');
+const GovernmentPosition = require('../../src/models/Government/GovernmentPosition');
 
 describe('Appointment Module Tests', function() {
 	

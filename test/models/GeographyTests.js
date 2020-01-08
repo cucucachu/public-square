@@ -11,11 +11,11 @@ const testingFunctions = require('../helpers/TestingFunctions');
 const testForErrorAsync = testingFunctions.testForErrorAsync;
 const testForError = testingFunctions.testForError;
 
-require('../../src/models/Modules/Geography/GeographyModule');
-const Address = require('../../src/models/Modules/Geography/Address');
-const GeographicArea = require('../../src/models/Modules/Geography/GeographicArea');
-const GeographicMap = require('../../src/models/Modules/Geography/GeographicMap');
-const MapType = require('../../src/models/Modules/Geography/MapType');
+require('../../src/models/Geography/GeographyModule');
+const Address = require('../../src/models/Geography/Address');
+const GeographicArea = require('../../src/models/Geography/GeographicArea');
+const GeographicMap = require('../../src/models/Geography/GeographicMap');
+const MapType = require('../../src/models/Geography/MapType');
 
 describe('Geography Module Tests', function() {
 	

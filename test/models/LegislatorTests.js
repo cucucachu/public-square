@@ -11,14 +11,14 @@ const testingFunctions = require('../helpers/TestingFunctions');
 const testForErrorAsync = testingFunctions.testForErrorAsync;
 const testForError = testingFunctions.testForError;
 
-require('../../src/models/Modules/Government/Legislator/LegislatorModule');
-const Legislator = require('../../src/models/Modules/Government/Legislator/Legislator');
-const IndividualLegislativeVote = require('../../src/models/Modules/Government/Legislator/IndividualLegislativeVote');
-const LegislativeVoteOption = require('../../src/models/Modules/Government/Legislator/LegislativeVoteOption');
-const LegislativeVote = require('../../src/models/Modules/Government/Legislator/LegislativeVote');
-const Bill = require('../../src/models/Modules/Government/Legislator/Bill');
-const BillVersion = require('../../src/models/Modules/Government/Legislator/BillVersion');
-const BillSponsorship = require('../../src/models/Modules/Government/Legislator/BillSponsorship');
+require('../../src/models/Government/Legislator/LegislatorModule');
+const Legislator = require('../../src/models/Government/Legislator/Legislator');
+const IndividualLegislativeVote = require('../../src/models/Government/Legislator/IndividualLegislativeVote');
+const LegislativeVoteOption = require('../../src/models/Government/Legislator/LegislativeVoteOption');
+const LegislativeVote = require('../../src/models/Government/Legislator/LegislativeVote');
+const Bill = require('../../src/models/Government/Legislator/Bill');
+const BillVersion = require('../../src/models/Government/Legislator/BillVersion');
+const BillSponsorship = require('../../src/models/Government/Legislator/BillSponsorship');
 
 describe('Legislator Module Tests', function() {
 	
