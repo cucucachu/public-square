@@ -1,25 +1,29 @@
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
+const express = require('express');
+const path = require('path');
+const favicon = require('serve-favicon');
+const logger = require('morgan');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
 
 require('./models/index');
-var noomman = require('noomman');
+const noomman = require('noomman');
 
-noomman.ClassModel.finalize().catch(error => {
-   throw error;
-});
-
+const uri = 'mongodb+srv://cody_jones:cody_jones@publicsquaredev-d3ue6.gcp.mongodb.net/test?retryWrites=true';
+const databaseName = 'public-square-test';
+noomman.connect(uri, databaseName)
+.then(() => {
+    noomman.ClassModel.finalize()
+}).catch(error => {
+    throw error;
+});;
 
 require('./passport');
-var passport = require('passport');
-var login = require('./routes/login');
-var api = require('./routes/api');
-var mira = require('./routes/mira');
+const passport = require('passport');
+const login = require('./routes/login');
+const api = require('./routes/api');
+const mira = require('./routes/mira');
 
-var app = express();
+const app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

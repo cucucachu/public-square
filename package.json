@@ -3,10 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node src/bin/www.js",
+    "start": "node src/bin/www",
     "test": "mocha",
     "build": "babel src --out-dir dist",
-    "serve": "node dist/bin/www"
+    "serve": "node src/bin/www"
   },
   "dependencies": {
     "body-parser": "^1.18.3",
