@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "babel src --out-dir dist && rm -rf dist/views && cp -r src/views dist/views && node dist/bin/www",
+    "start": "node src/bin/www.js",
     "test": "mocha",
     "build": "babel src --out-dir dist",
     "serve": "node dist/bin/www"

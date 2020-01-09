@@ -3,7 +3,7 @@ const LocalStrategy = require('passport-local').Strategy;
 const passportJWT = require('passport-jwt');
 const JWTStrategy   = passportJWT.Strategy;
 const ExtractJWT = passportJWT.ExtractJwt;
-const UserAccount = require('./models/Modules/User/UserAccount');
+const UserAccount = require('./models/User/UserAccount');
 const LoginController = require('./controllers/LoginController');
 const hasher = require('password-hash');
 

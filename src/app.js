@@ -5,6 +5,14 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
+require('./models/index');
+var noomman = require('noomman');
+
+noomman.ClassModel.finalize().catch(error => {
+   throw error;
+});
+
+
 require('./passport');
 var passport = require('passport');
 var login = require('./routes/login');
@@ -47,5 +55,7 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+
 
 module.exports = app;

@@ -1,6 +1,6 @@
-const UserAccount = require('../models/Modules/User/UserAccount');
-const Person = require('../models/Modules/User/Person');
-const AuthToken = require('../models/Modules/User/AuthToken');
+const UserAccount = require('../models/User/UserAccount');
+const Person = require('../models/User/Person');
+const AuthToken = require('../models/User/AuthToken');
 const hasher = require('password-hash');
 
 const createUserAccount = async function(parameters) {
