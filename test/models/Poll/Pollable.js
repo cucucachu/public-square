@@ -10,7 +10,7 @@ const testingFunctions = require('../../helpers/TestingFunctions');
 const testForErrorAsync = testingFunctions.testForErrorAsync;
 const testForError = testingFunctions.testForError;
 
-require('../../../src/models/Poll/PollModule');
+require('../../../src/models/Poll/index');
 const Poll = require('../../../src/models/Poll/Poll');
 const PollResponse = require('../../../src/models/Poll/PollResponse');
 const PollOption = require('../../../src/models/Poll/PollOption');

@@ -11,7 +11,7 @@ const testingFunctions = require('../../../helpers/TestingFunctions');
 const testForErrorAsync = testingFunctions.testForErrorAsync;
 const testForError = testingFunctions.testForError;
 
-require('../../../../src/models/Government/Appointment/AppointmentModule');
+require('../../../../src/models/Government/Appointment/index');
 const Appointment = require('../../../../src/models/Government/Appointment/Appointment');
 const Appointer = require('../../../../src/models/Government/Appointment/Appointer');
 const Appointee = require('../../../../src/models/Government/Appointment/Appointee');

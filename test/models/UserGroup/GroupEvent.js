@@ -10,7 +10,7 @@ const testingFunctions = require('../../helpers/TestingFunctions');
 const testForErrorAsync = testingFunctions.testForErrorAsync;
 const testForError = testingFunctions.testForError;
 
-require('../../../src/models/UserGroup/UserGroupModule');
+require('../../../src/models/UserGroup/index');
 const UserGroup = require('../../../src/models/UserGroup/UserGroup');
 const GroupManager = require('../../../src/models/UserGroup/GroupManager');
 const GroupMember = require('../../../src/models/UserGroup/GroupMember');

@@ -10,7 +10,7 @@ const testingFunctions = require('../../helpers/TestingFunctions');
 const testForErrorAsync = testingFunctions.testForErrorAsync;
 const testForError = testingFunctions.testForError;
 
-require('../../../src/models/User/UserModule')
+require('../../../src/models/User/index')
 const UserRole = require('../../../src/models/User/UserRole');
 const PersonRole = require('../../../src/models/User/PersonRole');
 const Person = require('../../../src/models/User/Person');

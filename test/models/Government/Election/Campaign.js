@@ -11,7 +11,7 @@ const testingFunctions = require('../../../helpers/TestingFunctions');
 const testForErrorAsync = testingFunctions.testForErrorAsync;
 const testForError = testingFunctions.testForError;
 
-require('../../../../src/models/Government/Election/ElectionModule');
+require('../../../../src/models/Government/Election/index');
 const Election = require('../../../../src/models/Government/Election/Election');
 const ElectionResult = require('../../../../src/models/Government/Election/ElectionResult');
 const PrimaryElectionResult = require('../../../../src/models/Government/Election/PrimaryElectionResult');

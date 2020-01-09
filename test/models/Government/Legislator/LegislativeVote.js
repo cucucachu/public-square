@@ -10,7 +10,7 @@ const testingFunctions = require('../../../helpers/TestingFunctions');
 const testForErrorAsync = testingFunctions.testForErrorAsync;
 const testForError = testingFunctions.testForError;
 
-require('../../../../src/models/Government/Legislator/LegislatorModule');
+require('../../../../src/models/Government/Legislator/index');
 const Legislator = require('../../../../src/models/Government/Legislator/Legislator');
 const IndividualLegislativeVote = require('../../../../src/models/Government/Legislator/IndividualLegislativeVote');
 const LegislativeVoteOption = require('../../../../src/models/Government/Legislator/LegislativeVoteOption');

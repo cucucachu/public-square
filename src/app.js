@@ -9,6 +9,7 @@ require('./passport');
 var passport = require('passport');
 var login = require('./routes/login');
 var api = require('./routes/api');
+var mira = require('./routes/mira');
 
 var app = express();
 
@@ -27,6 +28,7 @@ app.use(passport.initialize());
 
 app.use('/login', login);
 app.use('/api', passport.authenticate('jwt', {session: false}), api);
+app.use('/mira', mira);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -10,7 +10,7 @@ const testingFunctions = require('../../helpers/TestingFunctions');
 const testForErrorAsync = testingFunctions.testForErrorAsync;
 const testForError = testingFunctions.testForError;
 
-require('../../../src/models/UserPost/UserPostModule');
+require('../../../src/models/UserPost/index');
 const StampType = require('../../../src/models/UserPost/StampType');
 const ExternalLink = require('../../../src/models/UserPost/ExternalLink');
 const PostStream = require('../../../src/models/UserPost/PostStream');

@@ -11,7 +11,7 @@ const testingFunctions = require('../../helpers/TestingFunctions');
 const testForErrorAsync = testingFunctions.testForErrorAsync;
 const testForError = testingFunctions.testForError;
 
-require('../../../src/models/Geography/GeographyModule');
+require('../../../src/models/Geography/index');
 const GeographicMap = require('../../../src/models/Geography/GeographicMap');
 
 describe('ClassModel - GeographicMap', () => {

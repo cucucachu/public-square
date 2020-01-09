@@ -11,7 +11,7 @@ const testingFunctions = require('../../../helpers/TestingFunctions');
 const testForErrorAsync = testingFunctions.testForErrorAsync;
 const testForError = testingFunctions.testForError;
 
-require('../../../../src/models/Government/Executive/ExecutiveModule');
+require('../../../../src/models/Government/Executive/index');
 const ExecutiveAction = require('../../../../src/models/Government/Executive/ExecutiveAction');
 const Executive = require('../../../../src/models/Government/Executive/Executive');
 const IndividualExecutiveAction = require('../../../../src/models/Government/Executive/IndividualExecutiveAction');

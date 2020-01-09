@@ -11,7 +11,7 @@ const testingFunctions = require('../../../helpers/TestingFunctions');
 const testForErrorAsync = testingFunctions.testForErrorAsync;
 const testForError = testingFunctions.testForError;
 
-require('../../../../src/models/Government/Judge/JudgeModule');
+require('../../../../src/models/Government/Judge/index');
 const Judge = require('../../../../src/models/Government/Judge/Judge');
 const IndividualJudgement = require('../../../../src/models/Government/Judge/IndividualJudgement');
 const JudgementOption = require('../../../../src/models/Government/Judge/JudgementOption');

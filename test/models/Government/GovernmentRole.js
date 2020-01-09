@@ -10,7 +10,7 @@ const testingFunctions = require('../../helpers/TestingFunctions');
 const testForErrorAsync = testingFunctions.testForErrorAsync;
 const testForError = testingFunctions.testForError;
 
-require('../../../src/models/Government/GovernmentModule');
+require('../../../src/models/Government/index');
 const VoteOption = require('../../../src/models/Government/VoteOption');
 const GovernmentRole = require('../../../src/models/Government/GovernmentRole');
 const PositionAcquisitionProcess = require('../../../src/models/Government/PositionAcquisitionProcess');

@@ -22,9 +22,9 @@ require('./PositionDefinition');
 require('./TermDefinition');
 
 // Sub Modules
-require('./Appointment/AppointmentModule');
-require('./Election/ElectionModule');
-require('./Executive/ExecutiveModule');
-require('./Judge/JudgeModule');
-require('./Legislator/LegislatorModule');
-require('./Nomination/NominationModule');
+require('./Appointment/index');
+require('./Election/index');
+require('./Executive/index');
+require('./Judge/index');
+require('./Legislator/index');
+require('./Nomination/index');

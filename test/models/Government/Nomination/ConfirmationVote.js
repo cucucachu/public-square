@@ -10,7 +10,7 @@ const testingFunctions = require('../../../helpers/TestingFunctions');
 const testForErrorAsync = testingFunctions.testForErrorAsync;
 const testForError = testingFunctions.testForError;
 
-require('../../../../src/models/Government/Nomination/NominationModule');
+require('../../../../src/models/Government/Nomination/index');
 const Nomination = require('../../../../src/models/Government/Nomination/Nomination');
 const Nominator = require('../../../../src/models/Government/Nomination/Nominator');
 const Nominee = require('../../../../src/models/Government/Nomination/Nominee');
