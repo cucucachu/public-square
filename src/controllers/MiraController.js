@@ -31,8 +31,9 @@ async function put(data) {
     const classModel = ClassModel.getClassModel(data.className);
 
     let instance;
+
     if (data.id) {
-        instance = await classModel.findById(data.id);
+        instance = await classModel.findById(noomman.ObjectId(data.id));
         if (instance === null) {
             throw new Error('Could not find instance of ' + data.className + ' with id ' + data.id);
         }
@@ -46,10 +47,14 @@ async function put(data) {
     for (const relationship of classModel.relationships) {
         if (data[relationship.name]) {
             const toClass = ClassModel.getClassModel(relationship.toClass);
+            
             if (relationship.singular) {
                 if (typeof(data[relationship.name]) === 'string') {
                     const id = new noomman.ObjectId(data[relationship.name]);
                     const relatedInstance = await toClass.findById(id);
+                    if (relatedInstance === null) {
+                        throw new Error('Invalid id "' + id + '" supplied for relationship "' + relationship.name + '".');
+                    }
                     data[relationship.name] = relatedInstance;
                 }
                 else {
@@ -63,6 +68,9 @@ async function put(data) {
                     if (typeof(idOrInstance) === 'string') {
                         const id = new noomman.ObjectId(idOrInstance);
                         const relatedInstance = await toClass.findById(id);
+                        if (relatedInstance === null) {
+                            throw new Error('Invalid id "' + id + '" supplied for relationship "' + relationship.name + '".');
+                        }
                         relatedInstanceSet.add(relatedInstance);
                     }
                     else {

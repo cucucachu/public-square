@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node src/bin/www",
-    "test": "mocha",
+    "test": "mocha --timeout 3000",
     "build": "babel src --out-dir dist",
     "serve": "node src/bin/www"
   },
@@ -16,7 +16,7 @@
     "jsonwebtoken": "^8.4.0",
     "moment": "^2.24.0",
     "morgan": "^1.9.1",
-    "noomman": "^0.5.1",
+    "noomman": "^0.5.4",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
@@ -26,6 +26,6 @@
   },
   "devDependencies": {
     "mocha": "^5.2.0",
-    "nodemon": "^1.18.9"
+    "nodemon": "^1.19.4"
   }
 }
