@@ -216,8 +216,118 @@ function putValidations(data) {
     }
 }
 
-function get(query) {
+/* 
+ * get(data) 
+ * Parameters:
+ * - request - Object - An Object which defines the Instance to get. Object must have properties 'className' and 'id', indicating
+ *    the Instance to get. Can have addition properties matching relationship names. If supplied the instances in those relationships
+ *    will be returned with their attributes and relationships populated as well. Can nest the relationship properties to recursively
+ *    get the instances through many relationships.
+ * Returns: 
+ *  - Object - An object with 'className', 'id', and attributes and relationships for the requested Instance. Instances in relationships
+ *    may also have their attributes and relationships if requested.
+ * Throws: 
+ * - Error - If getValidations() throws an Error due to the given request being invalid. 
+ */
+async function get(request) {
+    getValidations(request);
+    const classModel = ClassModel.getClassModel(request.className);
+    const _id = noomman.ObjectId(request.id);
 
+    const instance = await classModel.findById(_id);
+
+    if (instance === null) {
+        throw new Error('Cannot find instance of "' + request.className + '" with id "' + request.id + '".');
+    }
+
+    const strippedRequest = {};
+    Object.assign(strippedRequest, request);
+
+    delete strippedRequest.className;
+    delete strippedRequest.id;
+
+    return formatInstanceForGetRequest(instance, strippedRequest);
+}
+
+async function formatInstanceForGetRequest(instance, request) {
+    const response = {};
+
+    response.className = instance.classModel.className;
+    response.id = instance.id;
+    response.displayAs = instance.displayAs !== undefined ? instance.displayAs() : instance.classModel.className + ': ' + instance.id;
+
+    for (const attribute of instance.classModel.attributes) {
+        response[attribute.name] = instance[attribute.name];
+    }
+
+    for (const relationship of instance.classModel.relationships) {
+        const recursive = typeof(request) === 'object' && Object.keys(request).includes(relationship.name);
+        if (relationship.singular) {
+            const relatedInstance = await instance[relationship.name];
+            if (relatedInstance === null) {
+                response[relationship.name] = null;
+            }
+            else {
+                if (recursive) { 
+                    response[relationship.name] = await formatInstanceForGetRequest(relatedInstance, request[relationship.name]);
+                }
+                else {
+                    response[relationship.name] = {
+                        className: relatedInstance.classModel.className,
+                        id: relatedInstance.id,
+                        displayAs: relatedInstance.displayAs !== undefined ? 
+                            relatedInstance.displayAs() : 
+                            relatedInstance.classModel.className + ': ' + relatedInstance.id,
+                    }
+                }
+            }
+        }
+        else {
+            const relatedInstances = await instance[relationship.name];
+            response[relationship.name] = [];
+            for (const relatedInstance of relatedInstances) {
+                if (recursive) { 
+                    response[relationship.name].push(await formatInstanceForGetRequest(relatedInstance, request[relationship.name]));
+                }
+                else {
+                    response[relationship.name].push({
+                        className: relatedInstance.classModel.className,
+                        id: relatedInstance.id,
+                        displayAs: relatedInstance.displayAs !== undefined ? 
+                            relatedInstance.displayAs() : 
+                            relatedInstance.classModel.className + ': ' + relatedInstance.id,
+                    });
+                }
+            }
+        }
+    }
+
+    return response;
+}
+
+function getValidations(request) {
+    if (!request) {
+        throw new Error('No request given.');
+    }
+
+    if (!request.className) {
+        throw new Error('Given request has no className property.');
+    }
+
+    if (!request.id) {
+        throw new Error('Given request has no id property.');
+    }
+
+    if (ClassModel.getClassModel(request.className) == undefined) {
+        throw new Error('No ClassModel found with name ' + request.className + '.');
+    }    
+
+    try {
+        noomman.ObjectId(request.id);
+    }
+    catch (error) {
+        throw new Error('Given request contains invalid id: "' + request.id + '".');
+    }
 }
 
 module.exports = {

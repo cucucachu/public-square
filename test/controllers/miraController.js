@@ -11,6 +11,7 @@ const InstanceSet = noomman.InstanceSet;
 const TestingFunctions = require('../helpers/TestingFunctions');
 const testForError = TestingFunctions.testForError;
 const testForErrorAsync = TestingFunctions.testForErrorAsync;
+const arraysEqual = TestingFunctions.arraysEqual;
 const MiraClassModels = require('../helpers/MiraClassModels');
 const AllAttributesClass = MiraClassModels.AllAttributesClass;
 const TreeClass = MiraClassModels.TreeClass;
@@ -1418,6 +1419,357 @@ describe('Controller - miraController', () => {
                     }
                 });
 
+            });
+
+        });
+
+    });
+
+    describe('miraController.get()', () => {
+
+        before(async () => {
+            await TreeClass.clear();
+            await AllAttributesClass.clear();
+        });
+
+        describe('Validations', () => {
+
+            it('Error thrown if no request given.', async () => {
+                const expectedErrorMessage = 'No request given.';
+                await testForErrorAsync('miraController.get()', expectedErrorMessage, async () => {
+                    return miraController.get();
+                });
+            });
+
+            it('Error thrown if request does not have a className.', async () => {
+                const expectedErrorMessage = 'Given request has no className property.';
+                await testForErrorAsync('miraController.get()', expectedErrorMessage, async () => {
+                    return miraController.get({
+                        id: noomman.ObjectId().toHexString(),
+                    });
+                });
+            });
+
+            it('Error thrown if request has invalid className.', async () => {
+                const expectedErrorMessage = 'No ClassModel found with name ThisIsNotARealClassModel.';
+                await testForErrorAsync('miraController.get()', expectedErrorMessage, async () => {
+                    return miraController.get({
+                        className: 'ThisIsNotARealClassModel',
+                        id: noomman.ObjectId().toHexString(),
+                    });
+                });
+            });
+
+            it('Error thrown if request has no id.', async () => {
+                const expectedErrorMessage = 'Given request has no id property.';
+                await testForErrorAsync('miraController.get()', expectedErrorMessage, async () => {
+                    return miraController.get({
+                        className: 'ThisIsNotARealClassModel',
+                    });
+                });
+            });
+
+            it('Error thrown if request has no id.', async () => {
+                const expectedErrorMessage = 'Given request contains invalid id: "notARealId".';
+                await testForErrorAsync('miraController.get()', expectedErrorMessage, async () => {
+                    return miraController.get({
+                        className: 'TreeClass',
+                        id: 'notARealId',
+                    });
+                });
+            });
+
+        });
+
+        describe('Getting a Single Instance', () => {
+
+            it('Get an instance with only attributes.', async () => {
+                const instance = new Instance(AllAttributesClass);
+                const data = {
+                    string: 'string',
+                    boolean: true,
+                    number: 1,
+                    date: new Date('2000-01-01'),
+                    strings: ['string1', 'string2'],
+                    booleans: [true, false],
+                    numbers: [0, 1, 2],
+                    dates: [
+                        new Date('2000-01-01'),
+                        new Date('2000-01-02'),
+                        new Date('2000-01-03'),
+                    ],
+                };
+
+                instance.assign(data);
+
+                await instance.save();
+
+                const request = {
+                    className: 'AllAttributesClass',
+                    id: instance.id,
+                };
+
+                const response = await miraController.get(request);
+
+                console.log(response.displayAs);
+
+                if (response.className !== request.className || response.id !== request.id ||
+                    response.displayAs !== instance.displayAs()
+                ) {
+                    throw new Error('ClassName, id, or displayAs is incorrect.');
+                }
+
+                if (response.string !== data.string || response.boolean !== data.boolean ||
+                    response.number !== data.number || 
+                    !moment(response.date).isSame(data.date)
+                ) {
+                    throw new Error('Singular attribute incorrect.');
+                }
+
+                if (!arraysEqual(response.numbers, data.numbers) ||
+                    !arraysEqual(response.strings, data.strings) ||
+                    !arraysEqual(response.dates, data.dates) ||
+                    !arraysEqual(response.booleans, data.booleans)
+                ) {
+                    throw new Error('List attribute incorrect.');
+                }
+            });
+
+            it('Get an instance with a singular relationship.', async () => {
+                const child = new Instance(TreeClass);
+                const parent = new Instance(TreeClass);
+                child.name = 'Child';
+                parent.name = 'Parent';
+
+                child.parent = parent;
+
+                await child.save();
+
+                const request = {
+                    className: 'TreeClass',
+                    id: child.id,
+                }
+
+                const response = await miraController.get(request);
+
+                if (response.className !== child.classModel.className ||
+                    response.id !== child.id ||
+                    response.displayAs !== child.classModel.className + ': ' + child.id
+                ) {
+                    throw new Error('Basic root info incorrect.');
+                }
+
+                if (!response.parent ||
+                    response.parent.className !== parent.classModel.className ||
+                    response.parent.id !== parent.id ||
+                    response.parent.displayAs !== parent.classModel.className + ': ' + parent.id
+                ) {
+                    throw new Error('Parent info incorrect.');
+                }
+            });
+
+            it('Get an instance with a non-singular relationship.', async () => {
+                const parent = new Instance(TreeClass);
+                const child1 = new Instance(TreeClass);
+                const child2 = new Instance(TreeClass);
+
+                parent.name = 'Parent';
+                child1.name = 'Child1';
+                child2.name = 'Child2';
+
+                parent.children = new InstanceSet(TreeClass, [child1, child2]);
+
+                await parent.save();
+
+                const request = {
+                    className: 'TreeClass',
+                    id: parent.id,
+                }
+
+                const response = await miraController.get(request);
+
+                if (response.className !== parent.classModel.className ||
+                    response.id !== parent.id ||
+                    response.displayAs !== parent.classModel.className + ': ' + parent.id
+                ) {
+                    throw new Error('Basic root info incorrect.');
+                }
+
+                const responseChild1 = response.children[0];
+                const responseChild2 = response.children[1];
+
+                if (!responseChild1 ||
+                    responseChild1.className !== child1.classModel.className ||
+                    responseChild1.id !== child1.id ||
+                    responseChild1.displayAs !== child1.classModel.className + ': ' + child1.id
+                ) {
+                    throw new Error('Children info incorrect.');
+                }
+
+                if (!responseChild2 ||
+                    responseChild2.className !== child2.classModel.className ||
+                    responseChild2.id !== child2.id ||
+                    responseChild2.displayAs !== child2.classModel.className + ': ' + child2.id
+                ) {
+                    throw new Error('Children info incorrect.');
+                }
+            });
+
+        });
+
+        describe('Getting Multiple Layers of Instances', () => {
+
+            it('Get 2 layers of instances with all attributes and relationships (Singular Relationship).', async () => {
+                const child = new Instance(TreeClass);
+                const parent = new Instance(TreeClass);
+                child.name = 'Child';
+                parent.name = 'Parent';
+
+                child.parent = parent;
+
+                await child.save();
+
+                const request = {
+                    className: 'TreeClass',
+                    id: child.id,
+                    parent: true,
+                };
+
+                const response = await miraController.get(request);
+
+                if (!response.parent ||
+                    response.parent.name !== parent.name ||
+                    !response.parent.children ||
+                    response.parent.children.length !== 1 ||
+                    response.parent.children[0].id !== child.id
+                ) {
+                    throw new Error('Response does not have all expected data.');
+                }
+            });
+
+            it('Get 2 layers of instances with all attributes and relationships (Non-Singular Relationship).', async () => {
+                const parent = new Instance(TreeClass);
+                const child1 = new Instance(TreeClass);
+                const child2 = new Instance(TreeClass);
+
+                parent.name = 'Parent';
+                child1.name = 'Child1';
+                child2.name = 'Child2';
+
+                parent.children = new InstanceSet(TreeClass, [child1, child2]);
+
+                await parent.save();
+
+                const request = {
+                    className: 'TreeClass',
+                    id: parent.id,
+                    children: true,
+                };
+
+                const response = await miraController.get(request);
+
+                const responseChild1 = response.children[0];
+                const responseChild2 = response.children[1];
+
+                if (!responseChild1 ||
+                    responseChild1.name !== child1.name ||
+                    responseChild1.parent.id !== parent.id
+                ) {
+                    throw new Error('Response is missing data for child1.');
+                }
+
+                if (!responseChild2 ||
+                    responseChild2.name !== child2.name ||
+                    responseChild2.parent.id !== parent.id
+                ) {
+                    throw new Error('Response is missing data for child2.');
+                }
+            });
+
+            it('Get 3 layers of instances with all attributes and relationships (Singular Relationship).', async () => {
+                const parent = new Instance(TreeClass);
+                const child = new Instance(TreeClass);
+                const grandChild = new Instance(TreeClass);
+
+                parent.assign({
+                    name: 'Parent',
+                    children: new InstanceSet(TreeClass, [child]),
+                });
+                child.assign({
+                    name: 'Child',
+                    parent: parent,
+                    children: new InstanceSet(TreeClass, [grandChild]),
+                });
+                grandChild.assign({
+                    name: 'GrandChild',
+                    parent: child,
+                });
+
+                await parent.save();
+                await child.save();
+                await grandChild.save();
+
+                const request = {
+                    className: 'TreeClass',
+                    id: grandChild.id,
+                    parent: {
+                        parent: true,
+                    },
+                };
+
+                const response = await miraController.get(request);
+
+                if (!response.parent ||
+                    !response.parent.parent ||
+                    response.parent.parent.id !== parent.id ||
+                    response.parent.parent.name !== parent.name ||
+                    response.parent.parent.children[0].id !== child.id
+                ) {
+                    throw new Error('Response does not all have data for third layer.');
+                }
+            });
+
+            it('Get 3 layers of instances with all attributes and relationships (Non-Singular Relationship).', async () => {
+                const parent = new Instance(TreeClass);
+                const child = new Instance(TreeClass);
+                const grandChild = new Instance(TreeClass);
+
+                parent.assign({
+                    name: 'Parent',
+                    children: new InstanceSet(TreeClass, [child]),
+                });
+                child.assign({
+                    name: 'Child',
+                    parent: parent,
+                    children: new InstanceSet(TreeClass, [grandChild]),
+                });
+                grandChild.assign({
+                    name: 'GrandChild',
+                    parent: child,
+                });
+
+                await parent.save();
+                await child.save();
+                await grandChild.save();
+
+                const request = {
+                    className: 'TreeClass',
+                    id: parent.id,
+                    children: {
+                        children: true,
+                    },
+                }
+
+                const response = await miraController.get(request);
+
+                if (!response.children ||
+                    !response.children[0].children ||
+                    response.children[0].children[0].id !== grandChild.id ||
+                    response.children[0].children[0].name !== grandChild.name ||
+                    response.children[0].children[0].parent.id !== child.id
+                ) {
+                    throw new Error('Response third layer does not have all data.');
+                }
             });
 
         });
