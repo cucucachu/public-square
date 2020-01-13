@@ -158,7 +158,7 @@ describe('Controller - miraController', () => {
             TreeClass.clear();
         });
 
-        describe('validations', () => {
+        describe('Validations', () => {
 
             it('No data given.', async () => {
                 const expectedErrorMessage = 'No data given.';
@@ -334,7 +334,45 @@ describe('Controller - miraController', () => {
                         throw new Error('String attribute not set properly.');
                     }
                     if (!moment(instance.date).isSame(new Date('2000-01-02'))) {
-                        throw new Error('String attribute not set properly.');
+                        throw new Error('Date attribute not set properly.');
+                    }
+                });
+                
+                it('Deleting attributes.', async () => {
+                    let instance = new Instance(AllAttributesClass);
+                    instance.assign({
+                        string: 'string',
+                        boolean: false,
+                        number: 1,
+                        date : new Date('2000-01-01'),
+                    });
+    
+                    await instance.save();
+    
+                    data = {
+                        className: 'AllAttributesClass',
+                        id: instance.id,
+                        string: 'MiraDelete',
+                        boolean: 'MiraDelete',
+                        number: 'MiraDelete',
+                        date : 'MiraDelete',
+                    }
+    
+                    await miraController.put(data);
+    
+                    instance = await AllAttributesClass.findById(instance._id);
+    
+                    if (instance.string !== null) {
+                        throw new Error('String attribute not deleted properly.');
+                    }
+                    if (instance.boolean !== null) {
+                        throw new Error('Boolean attribute not deleted properly.');
+                    }
+                    if (instance.number !== null) {
+                        throw new Error('String attribute not deleted properly.');
+                    }
+                    if (instance.date !== null) {
+                        throw new Error('Date attribute not deleted properly.');
                     }
                 });
     
@@ -774,7 +812,7 @@ describe('Controller - miraController', () => {
 
             describe('Adding New Related Instances to Existing Instances', () => {
 
-                it('Creating new related instances for existing instance.', async () => {
+                it('Creating new related instances for existing instance (Top Down).', async () => {
                     let parent = new Instance(TreeClass);
                     parent.name = 'Creating Children for Existing Parent: Parent';
 
@@ -819,6 +857,564 @@ describe('Controller - miraController', () => {
 
                     if (!childIds.includes(putResult[1].id) || ! childIds.includes(putResult[2].id)) {
                         throw new Error('Put Results contains incorrect child Ids.');
+                    }
+                });
+
+                it('Creating new related instances for existing instance (Bottom Up).', async () => {
+                    let child = new Instance(TreeClass);
+                    child.name = 'Creating Parent for Existing Child: Child';
+
+                    await child.save();
+
+                    data = {
+                        className: 'TreeClass',
+                        id: child.id,
+                        parent: {
+                            className: 'TreeClass',
+                            name: 'Creating Parent for Existing Child: Parent',
+                        },
+                    };
+
+                    const putResult = await miraController.put(data);
+
+                    if (putResult[0].id !== child.id) {
+                        throw new Error('Put Result contains incorrect id.');
+                    }
+
+                    if (putResult[0].created !== false || putResult[1].created !== true) {
+                        throw new Error('Put Result contains incorrect value for "created"');
+                    }
+
+                    child = await TreeClass.findById(child._id);
+                    const parent = await child.parent;
+
+                    if (parent === null || !(await parent.children).hasInstance(child)) {
+                        throw new Error('Parent instance not created correctly.');
+                    }
+                });
+
+                it('Creating new children and grandchildren for existing parent (Top Down).', async () => {
+                    let parent = new Instance(TreeClass);
+                    parent.name = 'New Children and Grandchildren for Existing Parent (Top Down): Parent';
+
+                    await parent.save();
+
+                    const data = {
+                        className: 'TreeClass',
+                        id: parent.id,
+                        children: [
+                            {
+                                className: 'TreeClass',
+                                name: 'New Children and Grandchildren for Existing Parent (Top Down): Child1',
+                                children: [
+                                    {
+                                        className: 'TreeClass',
+                                        name: 'New Children and Grandchildren for Existing Parent (Top Down): GrandChild1'
+                                    },
+                                    {
+                                        className: 'TreeClass',
+                                        name: 'New Children and Grandchildren for Existing Parent (Top Down): GrandChild2'
+                                    },
+                                ],
+                            },
+                            {
+                                className: 'TreeClass',
+                                name: 'New Children and Grandchildren for Existing Parent (Top Down): Child2',
+                                children: [
+                                    {
+                                        className: 'TreeClass',
+                                        name: 'New Children and Grandchildren for Existing Parent (Top Down): GrandChild3'
+                                    },
+                                    {
+                                        className: 'TreeClass',
+                                        name: 'New Children and Grandchildren for Existing Parent (Top Down): GrandChild4'
+                                    },
+                                ],
+                            },
+                        ],
+                    };
+
+                    const putResult = await miraController.put(data);
+
+                    parent = await TreeClass.findById(parent._id);
+
+                    const children = await parent.children;
+                    const child1 = [...children][0];
+                    const child2 = [...children][1];
+
+                    if (child1 === null || child2 === null) {
+                        throw new Error('Children not created.');
+                    }
+
+                    if (!(await child1.parent).equals(parent) || !(await child2.parent).equals(parent)) {
+                        throw new Error('Children\'s parent relationship not set correctly.');
+                    }
+
+                    const grandChildren1 = await child1.children;
+                    const grandChildren2 = await child2.children;
+                    const grandChild1 = [...grandChildren1][0];
+                    const grandChild2 = [...grandChildren1][1];
+                    const grandChild3 = [...grandChildren2][0];
+                    const grandChild4 = [...grandChildren2][1];
+
+                    if (grandChild1 === null || grandChild2 === null || grandChild3 === null || grandChild4 === null) {
+                        throw new Error('Grandchildren not created.');
+                    }
+
+                    if (!(await grandChild1.parent).equals(child1) || !(await grandChild2.parent).equals(child1) ||
+                        !(await grandChild3.parent).equals(child2) || !(await grandChild4.parent).equals(child2)) {
+                            throw new Error('Grandchildren\'s parent relationship not set correctly.');
+                    }
+
+
+
+                });
+
+                it('Creating new parent and grandchildren for existing child (Middle Up and Down).', async () => {
+                    let child = new Instance(TreeClass);
+                    child.name = 'New Parent and Grandchildren for Existing Child (Middle Up and Down): Child';
+
+                    await child.save();
+
+                    const data = {
+                        className: 'TreeClass',
+                        id: child.id,
+                        parent: {
+                            className: 'TreeClass',
+                            name: 'New Parent and Grandchildren for Existing Child (Middle Up and Down): Parent'
+                        },
+                        children: [
+                            {
+                                className: 'TreeClass',
+                                name: 'New Parent and Grandchildren for Existing Child (Middle Up and Down): GrandChild1'
+                            },
+                            {
+                                className: 'TreeClass',
+                                name: 'New Parent and Grandchildren for Existing Child (Middle Up and Down): GrandChild2'
+                            },
+                        ],
+                    }
+
+                    await miraController.put(data);
+
+                    child = await TreeClass.findById(child._id);
+                    const parent = await child.parent;
+                    const grandChildren = await child.children;
+                    const grandChild1 = [...grandChildren][0];
+                    const grandChild2 = [...grandChildren][1];
+
+                    if (parent === null || !(await parent.children).hasInstance(child)) {
+                        throw new Error('Parent not created correctly.');
+                    }
+
+                    if (grandChild1 === null || grandChild2 === null || 
+                        !(await grandChild1.parent).equals(child) || !(await grandChild2.parent).equals(child)
+                        ) {
+                            throw new Error('Grandchildren not created correctly.');
+                    }
+
+
+                });
+
+                it('Creating new parent and grandparent for existing grandchild (Bottom Up).', async () => {
+                    let grandChild = new Instance(TreeClass);
+                    grandChild.name = 'New Parent and GrandParent for GrandChild (BottomUp): GrandChild';
+
+                    await grandChild.save();
+
+                    const data = {
+                        className: 'TreeClass',
+                        id: grandChild.id,
+                        parent: {
+                            className: 'TreeClass',
+                            name: 'New Parent and GrandParent for GrandChild (BottomUp): Child',
+                            parent: {
+                                className: 'TreeClass',
+                                name: 'New Parent and GrandParent for GrandChild (BottomUp): Parent',
+                            }
+                        }
+                    }
+
+                    const putResult = await miraController.put(data);
+
+                    grandChild = await TreeClass.findById(grandChild._id);
+                    const child = await grandChild.parent;
+
+                    if (child === null || !(await child.children).hasInstance(grandChild)) {
+                        throw new Error('Child not set up correctly.');
+                    }
+
+                    const parent = await child.parent;
+
+                    if (parent === null || !(await parent.children).hasInstance(child)) {
+                        throw new Error('Parent not set up correctly.');
+                    }
+                });
+
+            });
+
+            describe('Editing Already Set Relationships Combining Edit and Create', () => {
+
+                it('Adding new children and grandchildren to parent with existing children and grandchildren (Top Down).', async () => {
+                    let parent = new Instance(TreeClass);
+                    let originalChild = new Instance(TreeClass);
+                    let originalGrandChild = new Instance(TreeClass);
+
+                    parent.assign({
+                        name: 'Adding Children and Grandchildren: Parent',
+                        children: new InstanceSet(TreeClass, [originalChild]),
+                    });
+                    originalChild.assign({
+                        name: 'Adding Children and Grandchildren: Original Child',
+                        parent: parent,
+                        children: new InstanceSet(TreeClass, [originalGrandChild]),
+                    });
+                    originalGrandChild.assign({
+                        name: 'Adding Children and Grandchildren: Original GrandChild',
+                        parent: originalChild,
+                    });
+
+                    await parent.save();
+                    await originalChild.save();
+                    await originalGrandChild.save();
+
+                    const data = {
+                        className: 'TreeClass',
+                        id: parent.id,
+                        children: [
+                            {
+                                className: 'TreeClass',
+                                id: originalChild.id,
+                                children: [
+                                    {
+                                        className: 'TreeClass',
+                                        id: originalGrandChild.id,
+                                    },
+                                    {
+                                        className: 'TreeClass',
+                                        name: 'Adding Children and Grandchildren: New GrandChild 1',
+                                    },
+                                ],
+                            },
+                            {
+                                className: 'TreeClass',
+                                name: 'Adding Children and Grandchildren: New Child',
+                                children: [
+                                    {
+                                        className: 'TreeClass',
+                                        name: 'Adding Children and Grandchildren: New GrandChild 2',
+                                    },
+                                    {
+                                        className: 'TreeClass',
+                                        name: 'Adding Children and Grandchildren: New GrandChild 3',
+                                    },
+                                ],
+                            },
+                        ],
+                    };
+
+                    const putResult = await miraController.put(data);
+
+                    parent = await TreeClass.findById(parent._id);
+                    const children = await parent.children;
+
+                    if (children.size !== 2) {
+                        throw new Error('Number of children should be 2.');
+                    }
+
+                    originalChild = children.getInstanceWithId(originalChild._id);
+                    const newChild = [...children][1];
+
+                    if (originalChild.equals(newChild)) {
+                        throw new Error('Parent children in wrong order.');
+                    }
+
+                    if (!(await originalChild.parent).equals(parent) || !(await newChild.parent).equals(parent)) {
+                        throw new Error('Children not updated correctly.');
+                    }
+
+                    const grandChildren1 = await originalChild.children;
+                    const grandChildren2 = await newChild.children;
+
+                    if (grandChildren1.size !== 2 || grandChildren2.size !== 2) {
+                        throw new Error('Missing grandchild.');
+                    }
+
+                    if (!(grandChildren1.hasInstanceWithId(originalGrandChild._id))) {
+                        throw new Error('Original GrandChild missing.');
+                    }
+
+                    const grandChild1 = [...grandChildren1][0];
+                    const grandChild2 = [...grandChildren1][1];
+                    const grandChild3 = [...grandChildren2][0];
+                    const grandChild4 = [...grandChildren2][1];
+
+                    if (!(await grandChild1.parent).equals(originalChild) || !(await grandChild2.parent).equals(originalChild) ||
+                        !(await grandChild3.parent).equals(newChild) || !(await grandChild4.parent).equals(newChild)) {
+                            throw new Error('GrandChildren not updated correctly.');
+                    }
+
+                });
+
+                it('Replacing children and grandchildren for parent with new children and grandchildren (Top Down).', async () => {
+                    let parent = new Instance(TreeClass);
+                    let originalChild = new Instance(TreeClass);
+                    let originalGrandChild = new Instance(TreeClass);
+
+                    parent.assign({
+                        name: 'Replacing Children and Grandchildren (Top Down): Parent',
+                        children: new InstanceSet(TreeClass, [originalChild]),
+                    });
+                    originalChild.assign({
+                        name: 'Replacing Children and Grandchildren (Top Down): Original Child',
+                        parent: parent,
+                        children: new InstanceSet(TreeClass, [originalGrandChild]),
+                    });
+                    originalGrandChild.assign({
+                        name: 'Replacing Children and Grandchildren (Top Down): Original GrandChild',
+                        parent: originalChild,
+                    });
+
+                    await parent.save();
+                    await originalChild.save();
+                    await originalGrandChild.save();
+
+                    const data = {
+                        className: 'TreeClass',
+                        id: parent.id,
+                        children: [
+                            {
+                                className: 'TreeClass',
+                                name: 'Replacing Children and Grandchildren (Top Down): New Child',
+                                children: [
+                                    {
+                                        className: 'TreeClass',
+                                        name: 'Replacing Children and Grandchildren (Top Down): New GrandChild',
+                                    },
+                                ],
+                            },
+                        ],
+                    }
+
+                    const putResult = await miraController.put(data);
+
+                    parent = await TreeClass.findById(parent._id);
+                    originalChild = await TreeClass.findById(originalChild._id);
+                    originalGrandChild = await TreeClass.findById(originalGrandChild._id);
+                    const children = await parent.children;
+
+                    if (children.hasInstance(originalChild) || children.size !== 1) {
+                        throw new Instance('Children not updated correctly.');
+                    }
+
+                    if ((await originalChild.parent) !== null) {
+                        throw new Instance('Original Child not disconnected from parent.');
+                    }
+
+                    if (!(await originalChild.children).hasInstance(originalGrandChild) || !(await originalGrandChild.parent).equals(originalChild)) {
+                        throw new Error('Original Child and Original GrandChild disconnected.');
+                    }
+
+                    const newChild = [...children][0];
+                    const newGrandChildren = await newChild.children;
+                    const newGrandChild = [...newGrandChildren][0];
+
+                    if (!(await newChild.parent).equals(parent) || !(await newGrandChild.parent).equals(newChild)) {
+                        throw new Error('New Child and Grandchild not created correctly.');
+                    }
+                });
+
+                it('Replacing parent and adding grandchildren to child with existing parent and children (Middle Up and Down).', async () => {
+                    let originalParent = new Instance(TreeClass);
+                    let child = new Instance(TreeClass);
+                    let originalGrandChild = new Instance(TreeClass);
+
+
+                    originalParent.assign({
+                        name: 'Replacing Parent and Adding Children: Original Parent',
+                        children: new InstanceSet(TreeClass, [child]),
+                    });
+                    child.assign({
+                        name: 'Replacing Parent and Adding Children: Child',
+                        parent: originalParent,
+                        children: new InstanceSet(TreeClass, [originalGrandChild]),
+                    });
+                    originalGrandChild.assign({
+                        name: 'Replacing Parent and Adding Children: Original GrandChild',
+                        parent: child,
+                    });
+
+                    await originalParent.save();
+                    await child.save();
+                    await originalGrandChild.save();
+
+                    const data = {
+                        className: 'TreeClass',
+                        id: child.id,
+                        parent: {
+                            className: 'TreeClass',
+                            name: 'Replacing Parent and Adding Children: New Parent'
+                        },
+                        children: [
+                            {
+                                className: 'TreeClass',
+                                id: originalGrandChild.id,
+                            },
+                            {
+                                className: 'TreeClass',
+                                name: 'Replacing Parent and Adding Children: New GrandChild',
+                            },
+                        ],
+                    };
+
+                    const putResult = await miraController.put(data);
+
+                    originalParent = await TreeClass.findById(originalParent._id);
+                    child = await TreeClass.findById(child._id);
+                    originalGrandChild = await TreeClass.findById(originalGrandChild._id);
+                    const newParent = await child.parent;
+
+                    if (!(await originalParent.children).isEmpty() || newParent.equals(originalParent)) {
+                        throw new Error('Original Parent not disconnected from child.');
+                    }
+
+                    if (!(await originalGrandChild.parent).equals(child)) {
+                        throw new Error('Original grand child disconnected from child.');
+                    }
+
+                    if (!(await newParent.children).hasInstance(child)) {
+                        throw new Error('New parent not created correctly.');
+                    }
+
+                    const grandChildren = await child.children;
+                    const newGrandChild = await TreeClass.findById(noomman.ObjectId(putResult[3].id));
+
+                    if (newGrandChild.equals(originalGrandChild)) {
+                        throw new Error('Test grabbed wrong new grandchild.');
+                    }
+
+                    if (!grandChildren.hasInstance(newGrandChild) || !grandChildren.hasInstance(originalGrandChild) ||
+                        !(await newGrandChild.parent).equals(child)
+                    ) {
+                        throw new Error('Grandchildren not created/updated correctly.')
+                    }
+                });
+
+                it('Replacing parent and grandparent for grandchild with existing parent (Bottom Up).', async () => {
+                    let originalParent = new Instance(TreeClass);
+                    let originalChild = new Instance(TreeClass);
+                    let grandChild = new Instance(TreeClass);
+
+                    originalParent.assign({
+                        name: 'Replacing Parent and GrandParent: Original Parent',
+                        children: new InstanceSet(TreeClass, [originalChild]),
+                    });
+                    originalChild.assign({
+                        name: 'Replacing Parent and GrandParent: Original Child',
+                        parent: originalParent,
+                        children: new InstanceSet(TreeClass, [grandChild]),
+                    });
+                    grandChild.assign({
+                        name: 'Replacing Parent and GrandParent: Grand Child',
+                        parent: originalChild,
+                    });
+
+                    await originalParent.save();
+                    await originalChild.save();
+                    await grandChild.save();
+
+                    const data = {
+                        className: 'TreeClass',
+                        id: grandChild.id,
+                        parent: {
+                            className: 'TreeClass',
+                            name: 'Replacing Parent and GrandParent: New Child',
+                            parent: {
+                                className: 'TreeClass',
+                                name: 'Replacing Parent and GrandParent: New Parent',
+                            },
+                        },
+                    };
+
+                    const putResult = await miraController.put(data);
+
+                    originalParent = await TreeClass.findById(originalParent._id);
+                    originalChild = await TreeClass.findById(originalChild._id);
+                    grandChild = await TreeClass.findById(grandChild._id);
+                    const newChild = await grandChild.parent;
+
+                    if (!(await originalParent.children).hasInstance(originalChild) || !(await originalChild.parent).equals(originalParent)) {
+                        throw new Error('Original Parent child relationship removed.');
+                    }
+
+                    if (newChild === null || newChild.equals(originalChild) || !(await newChild.children).hasInstance(grandChild)) {
+                        throw new Error('New grandChild to child relationship not set correctly.');
+                    }
+
+                    const newParent = await newChild.parent;
+
+                    if (newParent.equals(originalParent) || !(await newParent.children).hasInstance(newChild)) {
+                        throw new Error('New parent child relationship not set correctly.')
+                    }
+                });
+
+                it('Replacing parent and setting grandparent to same grandparent for grandchild with existing parent (Bottom Up).', async () => {
+                    let originalParent = new Instance(TreeClass);
+                    let originalChild = new Instance(TreeClass);
+                    let grandChild = new Instance(TreeClass);
+
+                    originalParent.assign({
+                        name: 'Replacing Parent: Original Parent',
+                        children: new InstanceSet(TreeClass, [originalChild]),
+                    });
+                    originalChild.assign({
+                        name: 'Replacing Parent: Original Child',
+                        parent: originalParent,
+                        children: new InstanceSet(TreeClass, [grandChild]),
+                    });
+                    grandChild.assign({
+                        name: 'Replacing Parent: Grand Child',
+                        parent: originalChild,
+                    });
+
+                    await originalParent.save();
+                    await originalChild.save();
+                    await grandChild.save();
+
+                    const data = {
+                        className: 'TreeClass',
+                        id: grandChild.id,
+                        parent: {
+                            className: 'TreeClass',
+                            name: 'Replacing Parent: New Child',
+                            parent: {
+                                className: 'TreeClass',
+                                id: originalParent.id,
+                            }
+                        }
+                    };
+                    
+                    const putResult = await miraController.put(data);
+
+                    originalParent = await TreeClass.findById(originalParent._id);
+                    originalChild = await TreeClass.findById(originalChild._id);
+                    grandChild = await TreeClass.findById(grandChild._id);
+
+                    const newChild = await grandChild.parent;
+                    const children = await originalParent.children;
+
+                    if (!(await originalChild.children).isEmpty() || newChild === null || newChild.equals(originalChild)) {
+                        throw new Error('Original grandChild to child relationship not unset.');
+                    }
+
+                    if (!(await newChild.children).hasInstance(grandChild)) {
+                        throw new Error('New grandChild to child relationship not set correctly.');
+                    }
+
+                    if (!(await newChild.parent).equals(originalParent) || !children.hasInstance(newChild) || 
+                        !(await originalChild.parent).equals(originalParent) || !children.hasInstance(originalChild)
+                    ) {
+                        throw new Error('Parent to children relationship not set correctly.');
                     }
                 });
 
