@@ -9,7 +9,7 @@ const MiraController = require('../controllers/MiraController');
  * Response:
  *  JSON - An Array containing the names of all the ClassModels.
  */
-router.get('/schema', (request, response) => {
+router.get('/', (request, response) => {
     try {
         response.json(MiraController.getClassModels());
     }
@@ -26,7 +26,7 @@ router.get('/schema', (request, response) => {
  *    array of nested objects containing the details of each attribute and relationship for the
  *    requested ClassModel.
  */
-router.get('/schema/:className', (request, response) => {
+router.get('/:className', (request, response) => {
     let schema;
     try {
            schema = MiraController.schemaForClassModel(request.params.className);
