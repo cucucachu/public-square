@@ -217,7 +217,10 @@ function putValidations(data) {
 }
 
 /* 
- * get(data) 
+ * get(request) 
+ * Retrieves instance with the id given in the request. Formats the instance into an object with 'className', 'id', and 'displayAs'
+ *    properties, as well as attributes and relationship values. If request has properties with the same names as relationships for 
+ *    the instance, than the related instances are also returned with all their attributes and relationships.
  * Parameters:
  * - request - Object - An Object which defines the Instance to get. Object must have properties 'className' and 'id', indicating
  *    the Instance to get. Can have addition properties matching relationship names. If supplied the instances in those relationships
@@ -249,6 +252,24 @@ async function get(request) {
     return formatInstanceForGetRequest(instance, strippedRequest);
 }
 
+
+
+/* 
+ * formatInstanceForGetRequest(instance, request) 
+ * Formats the given instance into an object with 'className', 'id', and 'displayAs' properties, as well as attributes 
+ *    and relationship values. If request has properties with the same names as relationships for 
+ *    the instance, than the related instances are also returned with all their attributes and relationships. The behavior of
+ *    getting related instances is recursive.
+ * Parameters:
+ * - instance - Instance - The instance to format.
+ * - request - Object - An object which indicates what relationships should be populated in the returned response.
+ *    If request has a property matching a relationship name for the instances, the related instances in those relationships
+ *    will be returned with their attributes and relationships populated as well. Can nest the relationship properties to recursively
+ *    get the instances through many relationships.
+ * Returns: 
+ *  - Object - An object with 'className', 'id', and attributes and relationships for the requested Instance. Instances in relationships
+ *    may also have their attributes and relationships if requested.
+ */
 async function formatInstanceForGetRequest(instance, request) {
     const response = {};
 
@@ -305,6 +326,18 @@ async function formatInstanceForGetRequest(instance, request) {
     return response;
 }
 
+/* 
+ * getValidations(request)
+ * Validates the given request object has valid data to be used in the get() method.
+ * Parameters
+ * - request - Object - See parameter of same name for get() method.
+ * Throws
+ * - Error - If request is null or undefined.
+ * - Error - If request has no className property.
+ * - Error - If request has has className property that is not the name of a defined noomman ClassModel.
+ * - Error - If request has no id property.
+ * - Error - If request has id property which is not a valid hex string representation of an ObjectId.
+ */
 function getValidations(request) {
     if (!request) {
         throw new Error('No request given.');
@@ -330,6 +363,18 @@ function getValidations(request) {
     }
 }
 
+/* 
+ * getInstances(className, filter, page, pageSize, orderBy)
+ * Retrieves and formats a page of instances of the ClassModel with given 'className', matching the given
+ *    'filter', and ordered according to the 'orderBy' parameter. User can request a specific page of specific
+ *    pageSize using the 'page' and 'pageSize' parameters.
+ * Parameters
+ * - className - String - The className of a noomman ClassModel.
+ * - filter - Object - A mongodb compliant filter object.
+ * - page - Number - The number of the page requested. Page 0 is the first page.
+ * - pageSize - Number - The number of instances returned per page.
+ * - orderBy - String|Object|Array - Indicates how the instances should be ordered. Default ordering is by id.
+ */
 async function getInstances(className, filter={}, page=0, pageSize=20, orderBy={_id: 1}) {
     getInstancesValidations(className);
 
@@ -351,6 +396,16 @@ async function getInstances(className, filter={}, page=0, pageSize=20, orderBy={
         totalNumberOfInstances: result.totalNumberOfInstances,
     }
 }
+
+/* 
+ * getInstancesValidations(className)
+ * Validates the given request object has valid data to be used in the getInstances() method.
+ * Parameters
+ * - className - String - The className requested in a call to getInstances() method.
+ * Throws
+ * - Error - If className is null or undefined.
+ * - Error - If className property that is not the name of a defined noomman ClassModel.
+ */
 
 function getInstancesValidations(className) {
     if (className === undefined) {
