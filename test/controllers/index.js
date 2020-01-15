@@ -1,1 +1,1 @@
-require('./miraController');
+require('./MiraController');

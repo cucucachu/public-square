@@ -1,5 +1,5 @@
 /*
-    Unit tests for the controller functions in miraController.
+    Unit tests for the controller functions in MiraController.
  */ 
 const moment = require('moment');
 
@@ -17,10 +17,10 @@ const AllAttributesClass = MiraClassModels.AllAttributesClass;
 const TreeClass = MiraClassModels.TreeClass;
 const UniqueNumberClass = MiraClassModels.UniqueNumberClass;
 
-const miraController = require('../../src/controllers/miraController');
+const MiraController = require('../../src/controllers/MiraController');
 require('../../src/models/index');
 
-describe('Controller - miraController', () => {
+describe('Controller - MiraController', () => {
 
     before(async () => {
         await database.connect();
@@ -32,13 +32,13 @@ describe('Controller - miraController', () => {
         await database.close();
     });
 
-    describe('miraController.getClassModels()', () => {
+    describe('MiraController.getClassModels()', () => {
 
         it ('Class model names returned', () => {
             new ClassModel({className: 'hello'});
             new ClassModel({className: 'world'});
     
-            const classNames = miraController.getClassModels();
+            const classNames = MiraController.getClassModels();
     
             if (classNames.length == 0) {
                 throw new Error('No Class Models returned.');
@@ -51,7 +51,7 @@ describe('Controller - miraController', () => {
         });
     });
 
-    describe('miraController.schemaForClassModel()', () => {
+    describe('MiraController.schemaForClassModel()', () => {
 
         const MiraTestClassModel = new ClassModel({
             className: 'MiraTestClassModel',
@@ -103,13 +103,13 @@ describe('Controller - miraController', () => {
 
         it('Error thrown if className does not match a Class Model', () => {
             const expectedErrorMessage = 'No ClassModel found with name "notAClassModel".';
-            testForError('miraController.schemaForClassModel()', expectedErrorMessage, () => {
-                miraController.schemaForClassModel('notAClassModel');
+            testForError('MiraController.schemaForClassModel()', expectedErrorMessage, () => {
+                MiraController.schemaForClassModel('notAClassModel');
             });
         });
 
         it('Attributes returned correctly.', () => {
-            const attributes = miraController.schemaForClassModel('MiraTestClassModel').attributes;
+            const attributes = MiraController.schemaForClassModel('MiraTestClassModel').attributes;
 
             if (attributes.length !== 4) {
                 throw new Error('Incorrect number of attributes returned.');
@@ -133,7 +133,7 @@ describe('Controller - miraController', () => {
         });
 
         it('Relationships returned correctly.', () => {
-            const relationships = miraController.schemaForClassModel('MiraTestClassModel').relationships;
+            const relationships = MiraController.schemaForClassModel('MiraTestClassModel').relationships;
 
             if (relationships.length !== 4) {
                 throw new Error('Incorrect number of relationships returned.');
@@ -153,7 +153,7 @@ describe('Controller - miraController', () => {
 
     });
 
-    describe('miraController.put()', () => {
+    describe('MiraController.put()', () => {
 
         before(async () => {
             AllAttributesClass.clear();
@@ -165,16 +165,16 @@ describe('Controller - miraController', () => {
             it('No data given.', async () => {
                 const expectedErrorMessage = 'No data given.';
 
-                await testForErrorAsync('miraController.put()', expectedErrorMessage, async () => {
-                    return miraController.put();
+                await testForErrorAsync('MiraController.put()', expectedErrorMessage, async () => {
+                    return MiraController.put();
                 });
             });
 
             it('No className given.', async () => {
                 const expectedErrorMessage = 'Given data has no className property.';
 
-                await testForErrorAsync('miraController.put()', expectedErrorMessage, async () => {
-                    return miraController.put({});
+                await testForErrorAsync('MiraController.put()', expectedErrorMessage, async () => {
+                    return MiraController.put({});
                 });
 
             });
@@ -182,8 +182,8 @@ describe('Controller - miraController', () => {
             it('Invalid className given', async () => {
                 const expectedErrorMessage = 'No ClassModel found with name NotARealClass.';
 
-                await testForErrorAsync('miraController.put()', expectedErrorMessage, async () => {
-                    return miraController.put({
+                await testForErrorAsync('MiraController.put()', expectedErrorMessage, async () => {
+                    return MiraController.put({
                         className: 'NotARealClass',
                     });
                 });
@@ -205,7 +205,7 @@ describe('Controller - miraController', () => {
                         date: new Date('2000-01-01'),
                     };
     
-                    await miraController.put(data);
+                    await MiraController.put(data);
     
                     const instance = await AllAttributesClass.findOne({
                         number: 0,
@@ -240,7 +240,7 @@ describe('Controller - miraController', () => {
                         parent: parent.id,
                     }
     
-                    const putResult = await miraController.put(data);
+                    const putResult = await MiraController.put(data);
     
                     const child = await TreeClass.findById(noomman.ObjectId(putResult[0].id));
     
@@ -277,7 +277,7 @@ describe('Controller - miraController', () => {
                         children: children.getInstanceIds(),
                     }
     
-                    const putResult = await miraController.put(data);
+                    const putResult = await MiraController.put(data);
     
                     const parent = await TreeClass.findById(noomman.ObjectId(putResult[0].id));
     
@@ -322,7 +322,7 @@ describe('Controller - miraController', () => {
                         date : new Date('2000-01-02'),
                     }
     
-                    await miraController.put(data);
+                    await MiraController.put(data);
     
                     instance = await AllAttributesClass.findById(instance._id);
     
@@ -360,7 +360,7 @@ describe('Controller - miraController', () => {
                         date : 'MiraDelete',
                     }
     
-                    await miraController.put(data);
+                    await MiraController.put(data);
     
                     instance = await AllAttributesClass.findById(instance._id);
     
@@ -397,7 +397,7 @@ describe('Controller - miraController', () => {
                         parent: parent2.id,
                     }
     
-                    await miraController.put(data);
+                    await MiraController.put(data);
                     
                     child = await TreeClass.findById(child._id);
                     parent1 = await TreeClass.findById(parent1._id);
@@ -438,7 +438,7 @@ describe('Controller - miraController', () => {
                         children: [child1.id, child2.id],
                     }
     
-                    await miraController.put(data);
+                    await MiraController.put(data);
                     
                     parent = await TreeClass.findById(parent._id);
                     child1 = await TreeClass.findById(child1._id);
@@ -478,7 +478,7 @@ describe('Controller - miraController', () => {
                         children: [child1.id, child2.id, child3.id],
                     }
     
-                    await miraController.put(data);
+                    await MiraController.put(data);
                     
                     parent = await TreeClass.findById(parent._id);
                     child1 = await TreeClass.findById(child1._id);
@@ -523,7 +523,7 @@ describe('Controller - miraController', () => {
                         children: [child1.id, child2.id],
                     }
     
-                    await miraController.put(data);
+                    await MiraController.put(data);
                     
                     parent = await TreeClass.findById(parent._id);
                     child1 = await TreeClass.findById(child1._id);
@@ -565,7 +565,7 @@ describe('Controller - miraController', () => {
                         children: [],
                     }
     
-                    await miraController.put(data);
+                    await MiraController.put(data);
                     
                     parent = await TreeClass.findById(parent._id);
                     child1 = await TreeClass.findById(child1._id);
@@ -608,7 +608,7 @@ describe('Controller - miraController', () => {
                         ],
                     }
 
-                    const putResult = await miraController.put(data);
+                    const putResult = await MiraController.put(data);
 
                     const parent = await TreeClass.findById(noomman.ObjectId(putResult[0].id));
 
@@ -665,7 +665,7 @@ describe('Controller - miraController', () => {
                         ],
                     }
 
-                    const putResult = await miraController.put(data);
+                    const putResult = await MiraController.put(data);
 
                     const parent = await TreeClass.findById(noomman.ObjectId(putResult[0].id));
 
@@ -720,7 +720,7 @@ describe('Controller - miraController', () => {
                         },
                     };
 
-                    const putResult = await miraController.put(data);
+                    const putResult = await MiraController.put(data);
 
                     const child = await TreeClass.findById(noomman.ObjectId(putResult[0].id));
                     const parent = await child.parent;
@@ -754,7 +754,7 @@ describe('Controller - miraController', () => {
                         ],
                     }
 
-                    const putResult = await miraController.put(data);
+                    const putResult = await MiraController.put(data);
 
                     const child = await TreeClass.findById(noomman.ObjectId(putResult[0].id));
                     const parent = await child.parent;
@@ -789,7 +789,7 @@ describe('Controller - miraController', () => {
                         },
                     };
 
-                    const putResult = await miraController.put(data);
+                    const putResult = await MiraController.put(data);
 
                     const grandChild = await TreeClass.findById(noomman.ObjectId(putResult[0].id));
 
@@ -835,7 +835,7 @@ describe('Controller - miraController', () => {
                         ],
                     };
 
-                    const putResult = await miraController.put(data);
+                    const putResult = await MiraController.put(data);
 
                     if (putResult[0].id !== parent.id) {
                         throw new Error('Put Result contains incorrect id.');
@@ -877,7 +877,7 @@ describe('Controller - miraController', () => {
                         },
                     };
 
-                    const putResult = await miraController.put(data);
+                    const putResult = await MiraController.put(data);
 
                     if (putResult[0].id !== child.id) {
                         throw new Error('Put Result contains incorrect id.');
@@ -936,7 +936,7 @@ describe('Controller - miraController', () => {
                         ],
                     };
 
-                    const putResult = await miraController.put(data);
+                    const putResult = await MiraController.put(data);
 
                     parent = await TreeClass.findById(parent._id);
 
@@ -997,7 +997,7 @@ describe('Controller - miraController', () => {
                         ],
                     }
 
-                    await miraController.put(data);
+                    await MiraController.put(data);
 
                     child = await TreeClass.findById(child._id);
                     const parent = await child.parent;
@@ -1037,7 +1037,7 @@ describe('Controller - miraController', () => {
                         }
                     }
 
-                    const putResult = await miraController.put(data);
+                    const putResult = await MiraController.put(data);
 
                     grandChild = await TreeClass.findById(grandChild._id);
                     const child = await grandChild.parent;
@@ -1115,7 +1115,7 @@ describe('Controller - miraController', () => {
                         ],
                     };
 
-                    const putResult = await miraController.put(data);
+                    const putResult = await MiraController.put(data);
 
                     parent = await TreeClass.findById(parent._id);
                     const children = await parent.children;
@@ -1198,7 +1198,7 @@ describe('Controller - miraController', () => {
                         ],
                     }
 
-                    const putResult = await miraController.put(data);
+                    const putResult = await MiraController.put(data);
 
                     parent = await TreeClass.findById(parent._id);
                     originalChild = await TreeClass.findById(originalChild._id);
@@ -1269,7 +1269,7 @@ describe('Controller - miraController', () => {
                         ],
                     };
 
-                    const putResult = await miraController.put(data);
+                    const putResult = await MiraController.put(data);
 
                     originalParent = await TreeClass.findById(originalParent._id);
                     child = await TreeClass.findById(child._id);
@@ -1338,7 +1338,7 @@ describe('Controller - miraController', () => {
                         },
                     };
 
-                    const putResult = await miraController.put(data);
+                    const putResult = await MiraController.put(data);
 
                     originalParent = await TreeClass.findById(originalParent._id);
                     originalChild = await TreeClass.findById(originalChild._id);
@@ -1396,7 +1396,7 @@ describe('Controller - miraController', () => {
                         }
                     };
                     
-                    const putResult = await miraController.put(data);
+                    const putResult = await MiraController.put(data);
 
                     originalParent = await TreeClass.findById(originalParent._id);
                     originalChild = await TreeClass.findById(originalChild._id);
@@ -1426,7 +1426,7 @@ describe('Controller - miraController', () => {
 
     });
 
-    describe('miraController.get()', () => {
+    describe('MiraController.get()', () => {
 
         before(async () => {
             await TreeClass.clear();
@@ -1437,15 +1437,15 @@ describe('Controller - miraController', () => {
 
             it('Error thrown if no request given.', async () => {
                 const expectedErrorMessage = 'No request given.';
-                await testForErrorAsync('miraController.get()', expectedErrorMessage, async () => {
-                    return miraController.get();
+                await testForErrorAsync('MiraController.get()', expectedErrorMessage, async () => {
+                    return MiraController.get();
                 });
             });
 
             it('Error thrown if request does not have a className.', async () => {
                 const expectedErrorMessage = 'Given request has no className property.';
-                await testForErrorAsync('miraController.get()', expectedErrorMessage, async () => {
-                    return miraController.get({
+                await testForErrorAsync('MiraController.get()', expectedErrorMessage, async () => {
+                    return MiraController.get({
                         id: noomman.ObjectId().toHexString(),
                     });
                 });
@@ -1453,8 +1453,8 @@ describe('Controller - miraController', () => {
 
             it('Error thrown if request has invalid className.', async () => {
                 const expectedErrorMessage = 'No ClassModel found with name ThisIsNotARealClassModel.';
-                await testForErrorAsync('miraController.get()', expectedErrorMessage, async () => {
-                    return miraController.get({
+                await testForErrorAsync('MiraController.get()', expectedErrorMessage, async () => {
+                    return MiraController.get({
                         className: 'ThisIsNotARealClassModel',
                         id: noomman.ObjectId().toHexString(),
                     });
@@ -1463,8 +1463,8 @@ describe('Controller - miraController', () => {
 
             it('Error thrown if request has no id.', async () => {
                 const expectedErrorMessage = 'Given request has no id property.';
-                await testForErrorAsync('miraController.get()', expectedErrorMessage, async () => {
-                    return miraController.get({
+                await testForErrorAsync('MiraController.get()', expectedErrorMessage, async () => {
+                    return MiraController.get({
                         className: 'ThisIsNotARealClassModel',
                     });
                 });
@@ -1472,8 +1472,8 @@ describe('Controller - miraController', () => {
 
             it('Error thrown if request has no id.', async () => {
                 const expectedErrorMessage = 'Given request contains invalid id: "notARealId".';
-                await testForErrorAsync('miraController.get()', expectedErrorMessage, async () => {
-                    return miraController.get({
+                await testForErrorAsync('MiraController.get()', expectedErrorMessage, async () => {
+                    return MiraController.get({
                         className: 'TreeClass',
                         id: 'notARealId',
                     });
@@ -1510,7 +1510,7 @@ describe('Controller - miraController', () => {
                     id: instance.id,
                 };
 
-                const response = await miraController.get(request);
+                const response = await MiraController.get(request);
 
                 if (response.className !== request.className || response.id !== request.id ||
                     response.displayAs !== instance.displayAs()
@@ -1549,7 +1549,7 @@ describe('Controller - miraController', () => {
                     id: child.id,
                 }
 
-                const response = await miraController.get(request);
+                const response = await MiraController.get(request);
 
                 if (response.className !== child.classModel.className ||
                     response.id !== child.id ||
@@ -1585,7 +1585,7 @@ describe('Controller - miraController', () => {
                     id: parent.id,
                 }
 
-                const response = await miraController.get(request);
+                const response = await MiraController.get(request);
 
                 if (response.className !== parent.classModel.className ||
                     response.id !== parent.id ||
@@ -1634,7 +1634,7 @@ describe('Controller - miraController', () => {
                     parent: true,
                 };
 
-                const response = await miraController.get(request);
+                const response = await MiraController.get(request);
 
                 if (!response.parent ||
                     response.parent.name !== parent.name ||
@@ -1665,7 +1665,7 @@ describe('Controller - miraController', () => {
                     children: true,
                 };
 
-                const response = await miraController.get(request);
+                const response = await MiraController.get(request);
 
                 const responseChild1 = response.children[0];
                 const responseChild2 = response.children[1];
@@ -1716,7 +1716,7 @@ describe('Controller - miraController', () => {
                     },
                 };
 
-                const response = await miraController.get(request);
+                const response = await MiraController.get(request);
 
                 if (!response.parent ||
                     !response.parent.parent ||
@@ -1759,7 +1759,7 @@ describe('Controller - miraController', () => {
                     },
                 }
 
-                const response = await miraController.get(request);
+                const response = await MiraController.get(request);
 
                 if (!response.children ||
                     !response.children[0].children ||
@@ -1775,7 +1775,7 @@ describe('Controller - miraController', () => {
 
     });
 
-    describe('miraController.getInstances()', () => {
+    describe('MiraController.getInstances()', () => {
 
         before(async () => {
             if ((await UniqueNumberClass.find({})).size !== 100) {
@@ -1794,16 +1794,16 @@ describe('Controller - miraController', () => {
             it('Error thrown if no className given.', async () => {
                 const expectedErrorMessage = 'getInstanceValidations() called with no "className" argument.';
 
-                await testForErrorAsync('miraController.getInstances()', expectedErrorMessage, async () => {
-                    return miraController.getInstances();
+                await testForErrorAsync('MiraController.getInstances()', expectedErrorMessage, async () => {
+                    return MiraController.getInstances();
                 });
             });
 
             it('Error thrown if className is not a noomman ClassModel className.', async () => {
                 const expectedErrorMessage = 'getInstanceValidations() called with invalid "className" argument.';
 
-                await testForErrorAsync('miraController.getInstances()', expectedErrorMessage, async () => {
-                    return miraController.getInstances('NotANoommanClassModel');
+                await testForErrorAsync('MiraController.getInstances()', expectedErrorMessage, async () => {
+                    return MiraController.getInstances('NotANoommanClassModel');
                 });
             });
 
@@ -1816,7 +1816,7 @@ describe('Controller - miraController', () => {
             const orderBy = {number: 1};
             const className = 'UniqueNumberClass';
 
-            const result = await miraController.getInstances(className, filter, page, pageSize, orderBy);
+            const result = await MiraController.getInstances(className, filter, page, pageSize, orderBy);
 
             if (
                 result.page !== page ||
@@ -1844,7 +1844,7 @@ describe('Controller - miraController', () => {
             const orderBy = {number: 1};
             const className = 'UniqueNumberClass';
 
-            const result = await miraController.getInstances(className, filter, page, pageSize, orderBy);
+            const result = await MiraController.getInstances(className, filter, page, pageSize, orderBy);
 
             if (
                 result.page !== page ||
@@ -1872,7 +1872,7 @@ describe('Controller - miraController', () => {
             const orderBy = {number: 1};
             const className = 'UniqueNumberClass';
 
-            const result = await miraController.getInstances(className, filter, page, pageSize, orderBy);
+            const result = await MiraController.getInstances(className, filter, page, pageSize, orderBy);
 
             if (
                 result.page !== page ||
@@ -1900,7 +1900,7 @@ describe('Controller - miraController', () => {
             const orderBy = {number: 1};
             const className = 'UniqueNumberClass';
 
-            const result = await miraController.getInstances(className, filter, page, pageSize, orderBy);
+            const result = await MiraController.getInstances(className, filter, page, pageSize, orderBy);
 
             if (
                 result.page !== page ||
@@ -1928,7 +1928,7 @@ describe('Controller - miraController', () => {
             const orderBy = {number: 1};
             const className = 'UniqueNumberClass';
 
-            const result = await miraController.getInstances(className, filter, page, pageSize, orderBy);
+            const result = await MiraController.getInstances(className, filter, page, pageSize, orderBy);
 
             if (
                 result.page !== page ||
@@ -1956,7 +1956,7 @@ describe('Controller - miraController', () => {
             const orderBy = {number: 1};
             const className = 'UniqueNumberClass';
 
-            const result = await miraController.getInstances(className, filter, page, pageSize, orderBy);
+            const result = await MiraController.getInstances(className, filter, page, pageSize, orderBy);
 
             if (
                 result.page !== page ||
