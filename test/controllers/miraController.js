@@ -24,8 +24,8 @@ describe('Controller - MiraController', () => {
 
     before(async () => {
         await database.connect();
-        AllAttributesClass.clear();
-        TreeClass.clear();
+        await AllAttributesClass.clear();
+        await TreeClass.clear();
     });
 
     after(async () => {
@@ -1470,7 +1470,7 @@ describe('Controller - MiraController', () => {
                 });
             });
 
-            it('Error thrown if request has no id.', async () => {
+            it('Error thrown if request has invalid id.', async () => {
                 const expectedErrorMessage = 'Given request contains invalid id: "notARealId".';
                 await testForErrorAsync('MiraController.get()', expectedErrorMessage, async () => {
                     return MiraController.get({
@@ -1779,13 +1779,17 @@ describe('Controller - MiraController', () => {
 
         before(async () => {
             if ((await UniqueNumberClass.find({})).size !== 100) {
+                const uniqueNumbers = new InstanceSet(UniqueNumberClass);
+
                 await UniqueNumberClass.clear();
     
                 for (let index = 0; index < 100; index++) {
                     const instance = new Instance(UniqueNumberClass);
                     instance.number = index;
-                    await instance.save();
+                    uniqueNumbers.add(instance);
                 }
+
+                await uniqueNumbers.save();
             }
         });
 
@@ -1974,6 +1978,151 @@ describe('Controller - MiraController', () => {
                     throw new Error('Instances are out of order.');
                 }
                 i++
+            }
+        });
+
+    });
+
+    describe('MiraController.delete()', () => {
+
+        before(async () => {
+            await UniqueNumberClass.clear();
+            await TreeClass.clear();
+        });
+
+        describe('Validations', () => {
+
+            it('Error thrown if no request given.', async () => {
+                const expectedErrorMessage = 'No request given.';
+                await testForErrorAsync('MiraController.deleteInstance()', expectedErrorMessage, async () => {
+                    return MiraController.deleteInstance();
+                });
+            });
+
+            it('Error thrown if request does not have a className.', async () => {
+                const expectedErrorMessage = 'Given request has no className property.';
+                await testForErrorAsync('MiraController.deleteInstance()', expectedErrorMessage, async () => {
+                    return MiraController.deleteInstance({
+                        id: noomman.ObjectId().toHexString(),
+                    });
+                });
+            });
+
+            it('Error thrown if request has invalid className.', async () => {
+                const expectedErrorMessage = 'No ClassModel found with name ThisIsNotARealClassModel.';
+                await testForErrorAsync('MiraController.deleteInstance()', expectedErrorMessage, async () => {
+                    return MiraController.deleteInstance({
+                        className: 'ThisIsNotARealClassModel',
+                        id: noomman.ObjectId().toHexString(),
+                    });
+                });
+            });
+
+            it('Error thrown if request has no id.', async () => {
+                const expectedErrorMessage = 'Given request has no id property.';
+                await testForErrorAsync('MiraController.deleteInstance()', expectedErrorMessage, async () => {
+                    return MiraController.deleteInstance({
+                        className: 'ThisIsNotARealClassModel',
+                    });
+                });
+            });
+
+            it('Error thrown if request has invalid id.', async () => {
+                const expectedErrorMessage = 'Given request contains invalid id: "notARealId".';
+                await testForErrorAsync('MiraController.deleteInstance()', expectedErrorMessage, async () => {
+                    return MiraController.deleteInstance({
+                        className: 'TreeClass',
+                        id: 'notARealId',
+                    });
+                });
+            });
+
+        });
+
+        it('Can delete an instance.', async () => {
+            const instance = new Instance(UniqueNumberClass);
+            instance.number = 0;
+            await instance.save();
+
+            const result = await MiraController.deleteInstance({
+                className: 'UniqueNumberClass',
+                id: instance.id,
+            });
+
+            if (result !== true) {
+                throw new Error('MiraController.deleteInstance() did not return true.');
+            }
+
+            const instanceAfterDelete = await UniqueNumberClass.findById(instance._id);
+
+            if (instanceAfterDelete !== null) {
+                throw new Error('Instance was not deleted.');
+            }
+        });
+
+        it('Deleting an instance with a one to many two-way relationship unsets the other side of the relationship.', async () => {
+            const instanceToDelete = new Instance(TreeClass);
+            let relatedInstance = new Instance(TreeClass);
+
+            instanceToDelete.assign({
+                name: 'instanceToDelete',
+                children: new InstanceSet(TreeClass, [relatedInstance]),
+            });
+            relatedInstance.name = 'relatedInstance';
+
+            await instanceToDelete.save();
+
+            const result = await MiraController.deleteInstance({
+                className: 'TreeClass',
+                id: instanceToDelete.id,
+            });
+
+            if (result !== true) {
+                throw new Error('MiraController.deleteInstance() did not return true.');
+            }
+
+            const instanceAfterDelete = await TreeClass.findById(instanceToDelete._id);
+            relatedInstance = await TreeClass.findById(relatedInstance._id); 
+
+            if (instanceAfterDelete !== null) {
+                throw new Error('Instance was not deleted.');
+            }
+
+            if ((await relatedInstance.parent) !== null) {
+                throw new Error('Reverse relationship not unset.');
+            }
+        });
+
+        it('Deleting an instance with a many to one two-way relationship unsets the other side of the relationship.', async () => {
+            const instanceToDelete = new Instance(TreeClass);
+            let relatedInstance = new Instance(TreeClass);
+
+            instanceToDelete.assign({
+                name: 'instanceToDelete',
+                parent: relatedInstance,
+            });
+            relatedInstance.name = 'relatedInstance';
+
+            await instanceToDelete.save();
+
+            const result = await MiraController.deleteInstance({
+                className: 'TreeClass',
+                id: instanceToDelete.id,
+            });
+
+            if (result !== true) {
+                throw new Error('MiraController.deleteInstance() did not return true.');
+            }
+
+            const instanceAfterDelete = await TreeClass.findById(instanceToDelete._id);
+            relatedInstance = await TreeClass.findById(relatedInstance._id); 
+
+            if (instanceAfterDelete !== null) {
+                throw new Error('Instance was not deleted.');
+            }
+
+            if (!(await relatedInstance.children).isEmpty()) {
+                throw new Error('Reverse relationship not unset.');
             }
         });
 
