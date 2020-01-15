@@ -75,7 +75,26 @@ const TreeClass = new ClassModel({
     ],
 })
 
+const UniqueNumberClass = new ClassModel({
+    className: 'UniqueNumberClass',
+    superClasses: [MiraClassModel],
+    attributes: [
+        {
+            name: 'number',
+            type: Number,
+            unique: true,
+            required: true,
+        },
+    ],
+    nonStaticMethods: {
+        displayAs: function() {
+            return String(this.number);
+        },
+    },
+});
+
 module.exports = {
     AllAttributesClass,
     TreeClass,
+    UniqueNumberClass,
 }

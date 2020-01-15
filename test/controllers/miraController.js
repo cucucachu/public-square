@@ -15,6 +15,7 @@ const arraysEqual = TestingFunctions.arraysEqual;
 const MiraClassModels = require('../helpers/MiraClassModels');
 const AllAttributesClass = MiraClassModels.AllAttributesClass;
 const TreeClass = MiraClassModels.TreeClass;
+const UniqueNumberClass = MiraClassModels.UniqueNumberClass;
 
 const miraController = require('../../src/controllers/miraController');
 require('../../src/models/index');
@@ -1511,8 +1512,6 @@ describe('Controller - miraController', () => {
 
                 const response = await miraController.get(request);
 
-                console.log(response.displayAs);
-
                 if (response.className !== request.className || response.id !== request.id ||
                     response.displayAs !== instance.displayAs()
                 ) {
@@ -1772,6 +1771,210 @@ describe('Controller - miraController', () => {
                 }
             });
 
+        });
+
+    });
+
+    describe('miraController.getInstances()', () => {
+
+        before(async () => {
+            if ((await UniqueNumberClass.find({})).size !== 100) {
+                await UniqueNumberClass.clear();
+    
+                for (let index = 0; index < 100; index++) {
+                    const instance = new Instance(UniqueNumberClass);
+                    instance.number = index;
+                    await instance.save();
+                }
+            }
+        });
+
+        describe('Validations', () => {
+
+            it('Error thrown if no className given.', async () => {
+                const expectedErrorMessage = 'getInstanceValidations() called with no "className" argument.';
+
+                await testForErrorAsync('miraController.getInstances()', expectedErrorMessage, async () => {
+                    return miraController.getInstances();
+                });
+            });
+
+            it('Error thrown if className is not a noomman ClassModel className.', async () => {
+                const expectedErrorMessage = 'getInstanceValidations() called with invalid "className" argument.';
+
+                await testForErrorAsync('miraController.getInstances()', expectedErrorMessage, async () => {
+                    return miraController.getInstances('NotANoommanClassModel');
+                });
+            });
+
+        });
+
+        it('Can get all instances with pageSize equal to total number of instances.', async () => {
+            const filter = {};
+            const page = 0;
+            const pageSize = 100;
+            const orderBy = {number: 1};
+            const className = 'UniqueNumberClass';
+
+            const result = await miraController.getInstances(className, filter, page, pageSize, orderBy);
+
+            if (
+                result.page !== page ||
+                result.pageSize !== pageSize ||
+                result.hiddenInstances !== 0 || 
+                result.totalNumberOfInstances !== 100 ||
+                result.instances.length !== 100
+            ) {
+                throw new Error('Result data is incorrect.');
+            }
+
+            let i = page * pageSize;
+            for (const instance of result.instances) {
+                if (instance.number !== i || instance.displayAs !== String(i)) {
+                    throw new Error('Instances are out of order.');
+                }
+                i++
+            }
+        });
+
+        it('Can get all instances with pageSize greater than total number of instances.', async () => {
+            const filter = {};
+            const page = 0;
+            const pageSize = 200;
+            const orderBy = {number: 1};
+            const className = 'UniqueNumberClass';
+
+            const result = await miraController.getInstances(className, filter, page, pageSize, orderBy);
+
+            if (
+                result.page !== page ||
+                result.pageSize !== pageSize ||
+                result.hiddenInstances !== 0 || 
+                result.totalNumberOfInstances !== 100 ||
+                result.instances.length !== 100
+            ) {
+                throw new Error('Result data is incorrect.');
+            }
+
+            let i = page * pageSize;
+            for (const instance of result.instances) {
+                if (instance.number !== i || instance.displayAs !== String(i)) {
+                    throw new Error('Instances are out of order.');
+                }
+                i++
+            }
+        });
+
+        it('Can get first page of instances.', async () => {
+            const filter = {};
+            const page = 0;
+            const pageSize = 20;
+            const orderBy = {number: 1};
+            const className = 'UniqueNumberClass';
+
+            const result = await miraController.getInstances(className, filter, page, pageSize, orderBy);
+
+            if (
+                result.page !== page ||
+                result.pageSize !== pageSize ||
+                result.hiddenInstances !== 0 || 
+                result.totalNumberOfInstances !== 100 ||
+                result.instances.length !== 20
+            ) {
+                throw new Error('Result data is incorrect.');
+            }
+
+            let i = page * pageSize;
+            for (const instance of result.instances) {
+                if (instance.number !== i || instance.displayAs !== String(i)) {
+                    throw new Error('Instances are out of order.');
+                }
+                i++
+            }
+        });
+
+        it('Can get first middle page of instances.', async () => {
+            const filter = {};
+            const page = 1;
+            const pageSize = 20;
+            const orderBy = {number: 1};
+            const className = 'UniqueNumberClass';
+
+            const result = await miraController.getInstances(className, filter, page, pageSize, orderBy);
+
+            if (
+                result.page !== page ||
+                result.pageSize !== pageSize ||
+                result.hiddenInstances !== 0 || 
+                result.totalNumberOfInstances !== 100 ||
+                result.instances.length !== 20
+            ) {
+                throw new Error('Result data is incorrect.');
+            }
+
+            let i = page * pageSize;
+            for (const instance of result.instances) {
+                if (instance.number !== i || instance.displayAs !== String(i)) {
+                    throw new Error('Instances are out of order.');
+                }
+                i++
+            }
+        });
+
+        it('Can get first last page of instances ending exactly with last instance.', async () => {
+            const filter = {};
+            const page = 4;
+            const pageSize = 20;
+            const orderBy = {number: 1};
+            const className = 'UniqueNumberClass';
+
+            const result = await miraController.getInstances(className, filter, page, pageSize, orderBy);
+
+            if (
+                result.page !== page ||
+                result.pageSize !== pageSize ||
+                result.hiddenInstances !== 0 || 
+                result.totalNumberOfInstances !== 100 ||
+                result.instances.length !== 20
+            ) {
+                throw new Error('Result data is incorrect.');
+            }
+
+            let i = page * pageSize;
+            for (const instance of result.instances) {
+                if (instance.number !== i || instance.displayAs !== String(i)) {
+                    throw new Error('Instances are out of order.');
+                }
+                i++
+            }
+        });
+
+        it('Can get first last page of instances stretching past end of instances.', async () => {
+            const filter = {};
+            const page = 3;
+            const pageSize = 30;
+            const orderBy = {number: 1};
+            const className = 'UniqueNumberClass';
+
+            const result = await miraController.getInstances(className, filter, page, pageSize, orderBy);
+
+            if (
+                result.page !== page ||
+                result.pageSize !== pageSize ||
+                result.hiddenInstances !== 0 || 
+                result.totalNumberOfInstances !== 100 ||
+                result.instances.length !== 10
+            ) {
+                throw new Error('Result data is incorrect.');
+            }
+
+            let i = page * pageSize;
+            for (const instance of result.instances) {
+                if (instance.number !== i || instance.displayAs !== String(i)) {
+                    throw new Error('Instances are out of order.');
+                }
+                i++
+            }
         });
 
     });

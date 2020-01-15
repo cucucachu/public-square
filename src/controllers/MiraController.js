@@ -330,9 +330,41 @@ function getValidations(request) {
     }
 }
 
+async function getInstances(className, filter={}, page=0, pageSize=20, orderBy={_id: 1}) {
+    getInstancesValidations(className);
+
+    const classModel = ClassModel.getClassModel(className);
+
+    const result = await classModel.findPage(filter, page, pageSize, orderBy);
+
+    const instances = [];
+
+    for (const instance of result.instances) {
+        instances.push(await formatInstanceForGetRequest(instance))
+    }
+
+    return {
+        instances,
+        page: result.page,
+        pageSize: result.pageSize,
+        hiddenInstances: result.hiddenInstances, 
+        totalNumberOfInstances: result.totalNumberOfInstances,
+    }
+}
+
+function getInstancesValidations(className) {
+    if (className === undefined) {
+        throw new Error('getInstanceValidations() called with no "className" argument.');
+    }
+    if (ClassModel.getClassModel(className) === undefined) {
+        throw new Error('getInstanceValidations() called with invalid "className" argument.');
+    }
+}
+
 module.exports = {
     getClassModels,
     schemaForClassModel,
     put,
     get,
+    getInstances,
 }
