@@ -4,7 +4,7 @@ const router = express.Router();
 const MiraController = require('../controllers/MiraController');
 
 /* 
- * /schema
+ * /
  * Returns the names of all ClassModels.
  * Response:
  *  JSON - An Array containing the names of all the ClassModels.
@@ -19,7 +19,7 @@ router.get('/', (request, response) => {
 });
 
 /* 
- * /schema/:className
+ * /:className
  * Returns the attributes and relationships for the ClassModel with the given className.
  * Response: 
  * - JSON - An object with properties 'attributes' and 'relationships'. Each property is an
