@@ -4,6 +4,7 @@ const favicon = require('serve-favicon');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 
 require('./models/index');
 const noomman = require('noomman');
@@ -24,7 +25,7 @@ const api = require('./routes/api');
 const mira = require('./routes/mira');
 
 const app = express();
-
+app.use(cors());
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
