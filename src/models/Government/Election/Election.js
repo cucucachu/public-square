@@ -34,8 +34,10 @@ var Election = new ClassModel({
 	],
 	validations: [
 		function() {
-			if (this.termStartDate < this.electionDate) {
-				throw new NoommanValidationError('Term Start Date must be greater than or equal to Election Date.');
+			if (this.termStartDate && this.electionDate) {
+				if (this.termStartDate < this.electionDate) {
+					throw new NoommanValidationError('Term Start Date must be greater than or equal to Election Date.');
+				}
 			}
 		},
 	],

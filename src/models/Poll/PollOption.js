@@ -7,6 +7,7 @@
 
 const noomman = require('noomman');
 const ClassModel = noomman.ClassModel;
+const NoommanValidationError = noomman.NoommanErrors.NoommanValidationError;
 
 const PollOption = new ClassModel({
     className: 'PollOption',
@@ -27,8 +28,21 @@ const PollOption = new ClassModel({
         {
             name: 'weight',
             type: Number,
+            required: true,
         },
     ],
+    validations: [
+        function() {
+            if (this.positive && this.negative) {
+                throw new NoommanValidationError('Poll option cannot be positive and negative.', ['positive', 'negative']);
+            }
+        },
+        function() {
+            if (!this.positive && !this.negative) {
+                throw new NoommanValidationError('Poll option must be either positive or negative.', ['positive', 'negative']);
+            }
+        },
+    ]
 }); 
 
 module.exports = PollOption;

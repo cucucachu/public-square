@@ -13,6 +13,7 @@ const Address = new ClassModel({
 		{
 			name: 'streetNumber',
 			type: String,
+			required: true,
 		},
 		{
 			name: 'unit',

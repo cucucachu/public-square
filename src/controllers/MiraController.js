@@ -29,12 +29,21 @@ function schemaForClassModel(className) {
         throw new Error('No ClassModel found with name "' + className + '".');
     }
 
+    const attributes = [];
     for (const attribute of classModel.attributes) {
-        attribute.type = attribute.type.name;
+        const transformedAttribute = {};
+        Object.assign(transformedAttribute, attribute);
+        transformedAttribute.type = transformedAttribute.type.name;
+        attributes.push(transformedAttribute);
     }
 
     return {
-        attributes: classModel.attributes,
+        abstract: classModel.abstract,
+        superClasses: classModel.allSuperClasses()
+            .filter(c => c.className !== 'NoommanClassModel' || c.className !== 'MiraClassModel')
+            .map(c => c.className),
+        subClasses: classModel.allSubClasses().map(c => c.className),
+        attributes,
         relationships: classModel.relationships,
     };
 }
@@ -300,14 +309,16 @@ async function parseDataToInstance(data) {
                         instancesPut = instancesPut.concat(recursiveInstances);
                         relatedInstance = recursiveInstances[0];
                     }
-                        
-                    if (cardinality.from === '1') {
-                        relatedInstance[relationship.mirrorRelationship] = instance;
-                    }
-                    else {
-                        const reverseRelationship = (await relatedInstance[relationship.mirrorRelationship]);
-                        reverseRelationship.add(instance);
-                        relatedInstance[relationship.mirrorRelationship] = reverseRelationship;
+                    
+                    if (relationship.mirrorRelationship != undefined) {
+                        if (cardinality.from === '1') {
+                            relatedInstance[relationship.mirrorRelationship] = instance;
+                        }
+                        else {
+                            const reverseRelationship = (await relatedInstance[relationship.mirrorRelationship]);
+                            reverseRelationship.add(instance);
+                            relatedInstance[relationship.mirrorRelationship] = reverseRelationship;
+                        }
                     }
     
                     data[relationship.name] = relatedInstance;
@@ -326,6 +337,7 @@ async function parseDataToInstance(data) {
                         }
                         else if (typeof(idOrInstance) === 'object') {
                             const recursiveInstances = await parseDataToInstance(idOrInstance);
+                            
                             instancesPut = instancesPut.concat(recursiveInstances);
                             relatedInstance = recursiveInstances[0];
                         }
@@ -336,7 +348,6 @@ async function parseDataToInstance(data) {
                         else {
                             (await relatedInstance[relationship.mirrorRelationship]).add(instance);
                         }
-    
                         relatedInstanceSet.add(relatedInstance);
                     }
                     data[relationship.name] = relatedInstanceSet;
@@ -345,17 +356,32 @@ async function parseDataToInstance(data) {
         }
     }
     
-    // Delete any attributes marked 'MiraDelete'
     for (const property of Object.keys(data)) {
         if (classModel.attributes.map(a => a.name).includes(property)) {
+            const attribute = classModel.attributes.filter(a => a.name === property)[0];
+
+
+            // Delete any attributes marked 'MiraDelete'
             if (data[property] === 'MiraDelete') {
                 delete instance[property];
                 delete data[property];
-            } 
+            }
+            // Convert number strings to Number
+            else if (attribute.type === Number && data[property] !== null) {
+                data[property] = Number(data[property]);
+            }
+
+            // Convert date strings to Dates
+            else if (attribute.type === Date && data[property] !== null) {
+                data[property] = new Date(data[property]);
+            }
         }
     }
 
     instance.assign(data);
+
+    console.log(instance.negative);
+    console.log(instance.positive);
 
     return instancesPut;
 }

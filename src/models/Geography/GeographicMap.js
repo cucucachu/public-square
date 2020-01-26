@@ -17,7 +17,7 @@ var GeographicMap = new ClassModel({
 	],
 	relationships: [
 		{
-			name: 'OfGeographicArea',
+			name: 'ofGeographicArea',
 			toClass: 'GeographicArea',
 			mirrorRelationship: 'geographicMapForArea',
 			singular: true,
@@ -26,13 +26,12 @@ var GeographicMap = new ClassModel({
 		{
 			name: 'containsGeographicAreas',
 			toClass: 'GeographicArea',
+			mirrorRelationship: 'partOfGeographicMap',
 			singular: false,
-			required: true,
 		},
 		{
 			name: 'mapType',
 			toClass: 'MapType',
-			mirrorRelationship: 'geographicMaps',
 			singular: true,
 			required: true,
 		}

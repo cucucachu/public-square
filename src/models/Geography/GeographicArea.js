@@ -22,7 +22,12 @@ var GeographicArea = new ClassModel({
 			toClass: 'GeographicMap',
 			mirrorRelationship: 'ofGeographicArea',
 			singular: true,
-			required: true,
+		},
+		{
+			name: 'partOfGeographicMap',
+			toClass: 'GeographicMap',
+			mirrorRelationship: 'containsGeographicAreas',
+			singular: false,
 		},
 		{
 			name: 'government',
@@ -37,6 +42,11 @@ var GeographicArea = new ClassModel({
 			singular: false,
 		},
 	],
+	nonStaticMethods: {
+		displayAs: function() {
+			return this.name;
+		}
+	}
 });
 
 module.exports = GeographicArea;

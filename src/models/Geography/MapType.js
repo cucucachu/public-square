@@ -19,9 +19,7 @@ var MapType = new ClassModel({
 		{
 			name: 'geographicMaps',
 			toClass: 'GeographicMap',
-			mirrorRelationship: 'mapType',
 			singular: false,
-			required: true,
 		},
 	],
 });

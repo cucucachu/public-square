@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const noomman = require('noomman');
+const NoommanValidationError = noomman.NoommanErrors.NoommanValidationError;
 
 const MiraController = require('../controllers/MiraController');
 
@@ -33,6 +35,8 @@ router.get('/:className', (request, response) => {
            response.json(schema);
     }
     catch (error) {
+        console.log('schema error: ' + error.message);
+        console.log(error);
         response.status(500).json({ error: error.message });
     }
 });
@@ -83,6 +87,7 @@ router.post('/get', async (request, response) => {
 router.post('/getInstances', async (request, response) => {
     try {
         const data = request.body;
+
         const instances = await MiraController.getInstances(
             data.className, data.filter, data.page, data.pageSize, data.orderBy
         );
@@ -118,9 +123,22 @@ router.post('/put', async (request, response) => {
             status: 'successful',
             result,
         });
+        
+        console.log('here1');
     }
     catch (error) {
-        response.status(500).json({ error: error.message });
+        console.log(error);
+        if (error instanceof NoommanValidationError) {
+            console.log('here2');
+            response.status(500).json({
+                error: error.message,
+                invalidProperties: error.properties,
+            });
+        }
+        else {
+            console.log('here3');
+            response.status(500).json({ error: error.message });
+        }
     }
 });
 

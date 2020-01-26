@@ -4,7 +4,14 @@
 */
 
 // Classes
-require('./Address');
-require('./GeographicArea');
-require('./GeographicMap');
-require('./MapType');
+const Address = require('./Address');
+const GeographicArea = require('./GeographicArea');
+const GeographicMap = require('./GeographicMap');
+const MapType = require('./MapType');
+
+module.exports = {
+    Address,
+    GeographicMap,
+    GeographicArea,
+    MapType,
+}
